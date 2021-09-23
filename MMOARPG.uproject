@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{2A1D876E-4D56-0166-3477-79A6411F475F}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MMOARPG",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
