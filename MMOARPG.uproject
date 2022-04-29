@@ -29,6 +29,10 @@
 			"Name": "SimpleHTTP",
 			"Enabled": true,
 			"MarketplaceURL": "https://www.aboutcg.org/courseDetails/764/introduce"
+		},
+		{
+			"Name": "MMOARPGCommon",
+			"Enabled": true
 		}
 	]
 }

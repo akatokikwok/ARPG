@@ -13,6 +13,7 @@ public class MMOARPG : ModuleRules
 			"SimpleNetChannel",
 			"SimpleHTTP",
 			"SimpleThread",
+			"MMOARPGCommon",
 		});
 	}
 }
