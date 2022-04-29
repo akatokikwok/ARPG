@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,19 +21,19 @@ public:
 	virtual void Init();
 	// override from FTickableGameObject.
 	virtual void Tick(float DeltaTime);
-	// ÖØÔØ »ñÈ¡×´Ì¬ID.
+	// é‡è½½ è·å–çŠ¶æ€ID.
 	virtual TStatId GetStatId() const;
-	// Override from GameInstance. Ïú»Ù¿Í»§¶Ë.
+	// Override from GameInstance. é”€æ¯å®¢æˆ·ç«¯.
 	virtual void Shutdown();
 
 public:
-	// ´´½¨¿Í»§¶Ë.
+	// åˆ›å»ºå®¢æˆ·ç«¯.
 	void CreateClient();
-	// Á´½Ó·şÎñÆ÷.
+	// é“¾æ¥è‡³æœåŠ¡å™¨.
 	void LinkServer();
 	//
 
-	// API.
+	// API. æ‹¿å–å®¢æˆ·ç«¯äº¦æˆ–æ˜¯æœåŠ¡å™¨.
 	FSimpleNetManage* GetClient();
 
 private:
