@@ -33,8 +33,8 @@ protected:
 	 */
 	void BindClientRcv();
 
-	/**  账户登录的真正入口逻辑.*/
-	void SignIn(const FString& InAccount, const FString& InPassword);
+	/**  账户登录的真正入口逻辑. 为了正确解析,入参不推荐加const修饰.*/
+	void SignIn(/*const*/ FString& InAccount, /*const*/ FString& InPassword);
 	
 	/**  注册账户的真正入口逻辑.*/
 	void Register();
