@@ -6,10 +6,15 @@
 #include "SimpleNetManage.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
+#include "Components/TextBlock.h"
+#include "../Core/UI_Base.h"
+#include "UI_Login.h"
 
 void UUI_LoginMain::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	UI_Login->SetParents(this);
 
 	/** 1.创建客户端 */
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -77,10 +82,29 @@ void UUI_LoginMain::BindClientRcv()
 	}
 }
 
+void UUI_LoginMain::SignIn(const FString& InAccount, const FString& InPassword)
+{
+
+}
+
+void UUI_LoginMain::Register()
+{
+
+}
+
 void UUI_LoginMain::Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, const FString& InMsg)
 {
 	// 握手成功.
 	if (InErrorType == ESimpleNetErrorType::HAND_SHAKE_SUCCESS) {
 		UI_LinkWidget->SetVisibility(ESlateVisibility::Collapsed);// 隐藏此Widget.
 	}
+}
+
+void UUI_LoginMain::PrintLog(const FString& InMsg)
+{
+	// 播放动画.
+
+
+	// 设置文字并打印消息.
+	MsgLog->SetText(FText::FromString(InMsg));
 }
