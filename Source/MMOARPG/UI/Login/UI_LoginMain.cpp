@@ -2,13 +2,15 @@
 
 
 #include "UI_LoginMain.h"
-#include "../../MMOARPGGameInstance.h"
 #include "SimpleNetManage.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
 #include "Components/TextBlock.h"
 #include "../Core/UI_Base.h"
 #include "UI_Login.h"
+#include "Protocol/LoginProtocol.h"
+#include "SimpleProtocolsDefinition.h"
+#include "../../MMOAPRGMacroType.h"
 
 void UUI_LoginMain::NativeConstruct()
 {
@@ -44,7 +46,15 @@ void UUI_LoginMain::NativeDestruct()
 
 void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
-
+	switch (ProtocolNumber) {
+		case SP_LoginRequests : // 是登录请求.
+		{
+			
+			break;
+		}
+		
+		
+	}
 }
 
 void UUI_LoginMain::BindClientRcv()
@@ -82,9 +92,11 @@ void UUI_LoginMain::BindClientRcv()
 	}
 }
 
-void UUI_LoginMain::SignIn(const FString& InAccount, const FString& InPassword)
+void UUI_LoginMain::SignIn(FString& InAccount, FString& InPassword)
 {
-
+	/** 使用在专用头文件里封装好的宏,这个宏负责发送协议,到Login服务器. */
+	SEND_DATA(SP_LoginRequests, InAccount, InPassword);
+	
 }
 
 void UUI_LoginMain::Register()
