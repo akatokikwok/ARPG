@@ -11,6 +11,7 @@
 #include "Protocol/LoginProtocol.h"
 #include "SimpleProtocolsDefinition.h"
 #include "../../MMOAPRGMacroType.h"
+#include "MMOARPGType.h"
 
 void UUI_LoginMain::NativeConstruct()
 {
@@ -47,8 +48,28 @@ void UUI_LoginMain::NativeDestruct()
 void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
 	switch (ProtocolNumber) {
-		case SP_LoginRequests : // 是登录请求.
+		case SP_LoginRequests : // 发一个请求给LoginServer.
 		{
+			FString StringTmp;
+			ELoginType Type = ELoginType::LOGIN_DB_SERVER_ERROR;
+			// 
+			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, StringTmp);
+
+			//
+			switch (Type) {
+				case LOGIN_DB_SERVER_ERROR:
+					PrintLog(TEXT("服务器错误."));
+					break;
+				case LOGIN_SUCCESS:
+					/*PrintLog(TEXT(""));*/
+					break;
+				case LOGIN_ACCOUNT_WRONG:
+					PrintLog(TEXT("账户不存在."));
+					break;
+				case LOGIN_PASSWORD_WRONG:
+					PrintLog(TEXT("密码验证失败."));
+					break;
+			}
 			
 			break;
 		}
