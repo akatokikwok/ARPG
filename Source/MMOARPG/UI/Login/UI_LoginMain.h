@@ -6,6 +6,7 @@
 #include "../Core/UI_Base.h"
 #include "Channel/SimpleChannel.h"
 #include "UI_Login.h"
+#include "MMOARPGType.h"
 #include "UI_LoginMain.generated.h"
 
 class UTextBlock;
@@ -48,7 +49,9 @@ protected:
 
 private:
 	FDelegateHandle mRecvDelegate;
-	
+	// 网关状态; 本地存一份,方便做播放动画功能.
+	FMMOARPGGateStatus GateStatus;
+
 	// 监测是否链接上服务器的控件(会显示转圈圈动画).
 	UPROPERTY(meta = (BindWidget))
 	UUserWidget* UI_LinkWidget;

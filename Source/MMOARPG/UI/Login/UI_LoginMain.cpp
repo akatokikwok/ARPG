@@ -50,19 +50,28 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 	switch (ProtocolNumber) {
 		case SP_LoginResponses : 
 		{
-			FString StringTmp;
+			FString StringTmp;// 接受协议后有值的Json String.
 			ELoginType Type = ELoginType::LOGIN_DB_SERVER_ERROR;
-			// 
-			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, StringTmp);
+			// 接收响应协议里的数据.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, StringTmp, GateStatus);
 
-			//
+			// 依据不通的登录状态分类.
 			switch (Type) {
 				case LOGIN_DB_SERVER_ERROR:
 					PrintLog(TEXT("服务器错误."));
 					break;
-				case LOGIN_SUCCESS:
+				case LOGIN_SUCCESS:// 当且仅当登录成功.
+				{
+					// 把有值的JSON数据解析成 用户数据.
+					if (UMMOARPGGameInstance* InGINS = GetGameInstance<UMMOARPGGameInstance>()) {
+						if (StringTmp != TEXT("[]")) {
+							NetDataAnalysis::StringToUserData(StringTmp, InGINS->GetUserData());
+						}
+					}
 					PrintLog(TEXT("登录成功."));
 					break;
+				}
+					
 				case LOGIN_ACCOUNT_WRONG:
 					PrintLog(TEXT("账户不存在."));
 					break;
@@ -71,6 +80,9 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					break;
 			}
 			
+			
+			
+
 			break;
 		}
 		
