@@ -62,3 +62,8 @@ FSimpleNetManage* UMMOARPGGameInstance::GetClient()
 {
 	return Client;
 }
+
+FMMOARPGUserData& UMMOARPGGameInstance::GetUserData()
+{
+	return UserData;
+}
