@@ -48,7 +48,7 @@ void UUI_LoginMain::NativeDestruct()
 void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
 	switch (ProtocolNumber) {
-		case SP_LoginRequests : // 发一个请求给LoginServer.
+		case SP_LoginResponses : 
 		{
 			FString StringTmp;
 			ELoginType Type = ELoginType::LOGIN_DB_SERVER_ERROR;
@@ -61,7 +61,7 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					PrintLog(TEXT("服务器错误."));
 					break;
 				case LOGIN_SUCCESS:
-					/*PrintLog(TEXT(""));*/
+					PrintLog(TEXT("登录成功."));
 					break;
 				case LOGIN_ACCOUNT_WRONG:
 					PrintLog(TEXT("账户不存在."));
