@@ -27,6 +27,11 @@ public:
 	UFUNCTION()
 	void Register();
 
+	/** 加密账户密码到本地.*/
+	bool EncryptionToLocal(const FString& InPaths);
+	/** 从本地解密密码. */
+	bool DecryptionFromLocal(const FString& InPaths);
+
 private:
 	// Account账户输入框; BindWidget意为把蓝图内容暴露至C++.
 	UPROPERTY(meta = (BindWidget))

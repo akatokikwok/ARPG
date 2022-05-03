@@ -16,7 +16,9 @@
 void UUI_LoginMain::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
+	// 播淡入淡出动画.
+	UUI_Base::PlayWidgetAnim(TEXT("LoginIn"));// 名为LoginIn的动画在蓝图里指定.
+	// 为登录界面设置持有者.
 	UI_Login->SetParents(this);
 
 	/** 1.创建客户端 */
@@ -31,6 +33,11 @@ void UUI_LoginMain::NativeConstruct()
 			BindClientRcv();// 在构造的时候 就循环创建与绑定.
 		}
 	}
+	// 先解密一次; 读取账号密码; 
+	if (!UI_Login->DecryptionFromLocal(FPaths::ProjectDir() / TEXT("User"))) {
+		PrintLog(TEXT("No Account Detected."));
+	}
+	
 }
 
 void UUI_LoginMain::NativeDestruct()
@@ -68,7 +75,16 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 							NetDataAnalysis::StringToUserData(StringTmp, InGINS->GetUserData());
 						}
 					}
-					PrintLog(TEXT("登录成功."));
+					// 加密密码至本地.
+					if (!UI_Login->EncryptionToLocal(FPaths::ProjectDir() / TEXT("User"))) {
+						PrintLog(TEXT("Password storage failed, 密码储存失败."));
+					}
+					else {
+						PrintLog(TEXT("Login Success, 密码储存成功."));
+					}
+					// 登陆成功播一次淡出动画.
+					UUI_Base::PlayWidgetAnim(TEXT("LoginOut"));// 名为LoginOut的动画在蓝图里指定.
+
 					break;
 				}
 					
@@ -79,14 +95,9 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					PrintLog(TEXT("密码验证失败."));
 					break;
 			}
-			
-			
-			
 
 			break;
 		}
-		
-		
 	}
 }
 
@@ -147,9 +158,15 @@ void UUI_LoginMain::Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, con
 
 void UUI_LoginMain::PrintLog(const FString& InMsg)
 {
-	// 播放动画.
+	// 调用重载PrintLog.
+	PrintLog(FText::FromString(InMsg));	
+}
 
+void UUI_LoginMain::PrintLog(const FText& InMsg)
+{
+	// 播放打印用的字体 动画.
+	UI_Print->PlayTextAnim();
 
 	// 设置文字并打印消息.
-	MsgLog->SetText(FText::FromString(InMsg));
+	UI_Print->SetText(InMsg);
 }

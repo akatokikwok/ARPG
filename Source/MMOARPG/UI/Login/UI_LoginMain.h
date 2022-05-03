@@ -7,6 +7,7 @@
 #include "Channel/SimpleChannel.h"
 #include "UI_Login.h"
 #include "MMOARPGType.h"
+#include "../Common/UI_Print.h"
 #include "UI_LoginMain.generated.h"
 
 class UTextBlock;
@@ -46,7 +47,7 @@ protected:
 	void Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, const FString& InMsg);
 
 	void PrintLog(const FString& InMsg);
-
+	void PrintLog(const FText& InMsg);
 private:
 	FDelegateHandle mRecvDelegate;
 	// 网关状态; 本地存一份,方便做播放动画功能.
@@ -58,7 +59,8 @@ private:
 	// 深蓝色登录界面面板.
 	UPROPERTY(meta = (BindWidget))
 	UUI_Login* UI_Login;
+	
 	// 屏幕最下面打印日志.
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MsgLog;
+	UUI_Print* UI_Print;
 };
