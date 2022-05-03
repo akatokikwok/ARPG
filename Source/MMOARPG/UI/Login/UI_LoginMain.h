@@ -46,7 +46,7 @@ protected:
 	void Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, const FString& InMsg);
 
 	void PrintLog(const FString& InMsg);
-
+	void PrintLog(const FText& InMsg);
 private:
 	FDelegateHandle mRecvDelegate;
 	// 网关状态; 本地存一份,方便做播放动画功能.
