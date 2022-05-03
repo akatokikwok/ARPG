@@ -31,6 +31,11 @@ void UUI_LoginMain::NativeConstruct()
 			BindClientRcv();// 在构造的时候 就循环创建与绑定.
 		}
 	}
+	// 先解密一次; 读取账号密码; 
+	if (!UI_Login->DecryptionFromLocal(FPaths::ProjectDir() / TEXT("User"))) {
+		PrintLog(TEXT("No Account Detected."));
+	}
+	
 }
 
 void UUI_LoginMain::NativeDestruct()
@@ -68,6 +73,14 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 							NetDataAnalysis::StringToUserData(StringTmp, InGINS->GetUserData());
 						}
 					}
+					// 加密密码至本地.
+					if (!UI_Login->EncryptionToLocal(FPaths::ProjectDir() / TEXT("User"))) {
+						PrintLog(TEXT("密码储存失败."));
+					}
+					else {
+						PrintLog(TEXT("密码储存成功."));
+					}
+
 					PrintLog(TEXT("登录成功."));
 					break;
 				}
@@ -147,9 +160,16 @@ void UUI_LoginMain::Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, con
 
 void UUI_LoginMain::PrintLog(const FString& InMsg)
 {
-	// 播放动画.
 
 
 	// 设置文字并打印消息.
 	MsgLog->SetText(FText::FromString(InMsg));
+}
+
+void UUI_LoginMain::PrintLog(const FText& InMsg)
+{
+	// 播放动画.
+	
+	// 设置文字并打印消息.
+	MsgLog->SetText(InMsg);
 }
