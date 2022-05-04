@@ -52,8 +52,14 @@ protected:
 	void SetParents(UWidget* InWidget) { ParentWidget = InWidget; }
 
 protected:
-	// 服务器向 UI发送数据后,会激活此函数.
+	/** 服务器向 UI发送数据后,会激活此函数. */
 	virtual void RecvProtocol(uint32 ProtocolNumber/*协议号*/, FSimpleChannel* Channel/*通道*/) {}
+
+	/** 接口: 查找并拿取控件的指定动画,可能返空. */
+	UWidgetAnimation* GetNameWidgetAnimation(const FString& InWidgetAnimName);
+
+	/** 接口: 执行播放控件动画, 需指定UMG动画具体名称. */
+	void PlayWidgetAnim(const FString& InWidgetName);
 
 protected:
 	//

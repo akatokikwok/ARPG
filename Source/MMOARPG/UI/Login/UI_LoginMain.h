@@ -7,6 +7,7 @@
 #include "Channel/SimpleChannel.h"
 #include "UI_Login.h"
 #include "MMOARPGType.h"
+#include "../Common/UI_Print.h"
 #include "UI_LoginMain.generated.h"
 
 class UTextBlock;
@@ -58,7 +59,8 @@ private:
 	// 深蓝色登录界面面板.
 	UPROPERTY(meta = (BindWidget))
 	UUI_Login* UI_Login;
+	
 	// 屏幕最下面打印日志.
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MsgLog;
+	UUI_Print* UI_Print;
 };
