@@ -12,6 +12,7 @@
 #include "SimpleProtocolsDefinition.h"
 #include "../../MMOAPRGMacroType.h"
 #include "MMOARPGType.h"
+#include "Kismet/GameplayStatics.h"
 
 void UUI_LoginMain::NativeConstruct()
 {
@@ -37,7 +38,7 @@ void UUI_LoginMain::NativeConstruct()
 	if (!UI_Login->DecryptionFromLocal(FPaths::ProjectDir() / TEXT("User"))) {
 		PrintLog(TEXT("No Account Detected."));
 	}
-	
+
 }
 
 void UUI_LoginMain::NativeDestruct()
@@ -55,10 +56,12 @@ void UUI_LoginMain::NativeDestruct()
 void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
 	switch (ProtocolNumber) {
-		case SP_LoginResponses : 
+		case SP_LoginResponses:
 		{
 			FString StringTmp;// 接受协议后有值的Json String.
 			ELoginType Type = ELoginType::LOGIN_DB_SERVER_ERROR;
+			FMMOARPGGateStatus GateStatus;// 协议数据里的网关状态.
+
 			// 接收响应协议里的数据.
 			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginResponses, Type, StringTmp, GateStatus);
 
@@ -74,20 +77,39 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 						if (StringTmp != TEXT("[]")) {
 							NetDataAnalysis::StringToUserData(StringTmp, InGINS->GetUserData());
 						}
-					}
-					// 加密密码至本地.
-					if (!UI_Login->EncryptionToLocal(FPaths::ProjectDir() / TEXT("User"))) {
-						PrintLog(TEXT("Password storage failed, 密码储存失败."));
-					}
-					else {
-						PrintLog(TEXT("Login Success, 密码储存成功."));
-					}
-					// 登陆成功播一次淡出动画.
-					UUI_Base::PlayWidgetAnim(TEXT("LoginOut"));// 名为LoginOut的动画在蓝图里指定.
+						/* 网关连接数为 - 1, 即爆满的情况. */
+						if (GateStatus.GateConnectionNum == INDEX_NONE) {
+							// 等待提示.
+							PrintLog(TEXT("At Present,the number of Gate Connections is full, and we try to reconnect again."));
+						}
+						/* 网关连接数为合理情况, 即未爆满的情况. */
+						else {
+							InGINS->GetGateStatus() = GateStatus;// 刷新一次GINS里的网关.
 
+							// 加密密码至本地.
+							if (!UI_Login->EncryptionToLocal(FPaths::ProjectDir() / TEXT("User"))) {
+								PrintLog(TEXT("Password storage failed, 密码储存失败."));
+							}
+							else {
+								PrintLog(TEXT("Login Success, 密码储存成功."));
+							}
+							// 登陆成功播一次淡出动画.
+							UUI_Base::PlayWidgetAnim(TEXT("LoginOut"));// 名为LoginOut的动画在蓝图里指定.
+							// 播完动画后就关闭Login服务器, 接入下一个服务器:角色创建大厅.
+							if (InGINS->GetClient() && InGINS->GetClient()->GetChannel()) {
+								InGINS->GetClient()->GetChannel()->DestroySelf();// 关闭客户端即不再给登录服务器发消息.
+							}
+							//协程, 延迟1.75s 打开另一张地图.
+							GThread::Get()->GetCoroutines().BindLambda(1.75f, 
+								[&]() ->void {
+									UGameplayStatics::OpenLevel(GetWorld(), TEXT("HallMap"));
+								}
+							);
+						}
+					}
 					break;
 				}
-					
+
 				case LOGIN_ACCOUNT_WRONG:
 					PrintLog(TEXT("账户不存在."));
 					break;
@@ -140,7 +162,7 @@ void UUI_LoginMain::SignIn(FString& InAccount, FString& InPassword)
 {
 	/** 使用在专用头文件里封装好的宏,这个宏负责发送协议,到Login服务器. */
 	SEND_DATA(SP_LoginRequests, InAccount, InPassword);
-	
+
 }
 
 void UUI_LoginMain::Register()
@@ -159,7 +181,7 @@ void UUI_LoginMain::Callback_LinkServerInfo(ESimpleNetErrorType InErrorType, con
 void UUI_LoginMain::PrintLog(const FString& InMsg)
 {
 	// 调用重载PrintLog.
-	PrintLog(FText::FromString(InMsg));	
+	PrintLog(FText::FromString(InMsg));
 }
 
 void UUI_LoginMain::PrintLog(const FText& InMsg)
