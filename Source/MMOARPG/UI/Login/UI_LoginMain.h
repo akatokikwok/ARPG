@@ -49,17 +49,14 @@ protected:
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
 private:
+	//
 	FDelegateHandle mRecvDelegate;
-	// 网关状态; 本地存一份,方便做播放动画功能.
-	FMMOARPGGateStatus GateStatus;
-
 	// 监测是否链接上服务器的控件(会显示转圈圈动画).
 	UPROPERTY(meta = (BindWidget))
 	UUserWidget* UI_LinkWidget;
 	// 深蓝色登录界面面板.
 	UPROPERTY(meta = (BindWidget))
 	UUI_Login* UI_Login;
-	
 	// 屏幕最下面打印日志.
 	UPROPERTY(meta = (BindWidget))
 	UUI_Print* UI_Print;

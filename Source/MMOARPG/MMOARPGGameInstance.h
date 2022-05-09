@@ -36,11 +36,16 @@ public:
 
 	// API. 拿取客户端亦或是服务器.
 	FSimpleNetManage* GetClient();
-
-	// 拿取用户数据结构体.
+	// API. 拿取用户数据结构体.
 	FMMOARPGUserData& GetUserData();
+	// API. 拿取网关状态.
+	FMMOARPGGateStatus GetGateStatus();
 
 private:
+	// 客户端或者服务器实例.
 	FSimpleNetManage* Client;
-	FMMOARPGUserData UserData;// 每个gameinstance都有一份用户数据.
+	// 每个gameinstance都有一份用户数据.
+	FMMOARPGUserData UserData;
+	// 网关状态; 本地存一份,方便做播放动画功能.
+	FMMOARPGGateStatus GateStatus;
 };
