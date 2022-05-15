@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Core/UI_Base.h"
 #include "../Common/UI_Print.h"
+#include "Element/UI_CharacterCreatePanel.h"
 #include "UI_HallMain.generated.h"
 
 /**
@@ -33,5 +34,8 @@ private:
 	FDelegateHandle mRecvDelegate;
 	// 打印控件.
 	UPROPERTY(meta = (BindWidget))
-	UUI_Print* UI_Print;
+		UUI_Print* UI_Print;
+	// 负责创建角色的面板.
+	UPROPERTY(meta = (BindWidget))
+		UUI_CharacterCreatePanel* UI_CharacterCreatePanel;
 };
