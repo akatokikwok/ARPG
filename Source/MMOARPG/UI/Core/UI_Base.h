@@ -41,6 +41,7 @@ protected:
 		return GetWorld() != nullptr ? GetWorld()->GetGameInstance<T>() : nullptr;
 	};
 
+public:
 	// 设定并拿取某一个类型的面板为 当前面板的持有者面板.
 	template<class T>
 	T* GetParents()
