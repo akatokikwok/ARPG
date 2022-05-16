@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI_CharacterButton.h"
+#include "../../../Core/Hall/HallPawn.h"
 
 void UUI_CharacterButton::NativeConstruct()
 {
@@ -21,8 +22,18 @@ void UUI_CharacterButton::NativeDestruct()
 void UUI_CharacterButton::Callback_ClickedCharacter()
 {
 	if (CharacterStageClass != nullptr) {
-		if (ACharacterStage* InCharStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator)) {
+		if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+			if (InPawn->CharacterStage != nullptr) {
+				InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
+			}
+			// 生成1个舞台人物.
+			InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);
 			
+			if (InPawn->CharacterStage != nullptr) {
+
+			}
 		}
+
+		
 	}
 }
