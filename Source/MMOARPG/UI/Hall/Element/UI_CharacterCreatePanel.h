@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ScrollBox.h"
 #include "UI_CharacterButton.h"
+#include "UI_KneadFace.h"
 #include "UI_CharacterCreatePanel.generated.h"
 
 /**
@@ -20,7 +21,13 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	// 负责 当点击加号后创建 捏脸信息的逻辑.
+	void CreateKneadFace();
+	// 创建 加号UI.
+	void CreateCharacterButtons();
+
 protected:
+	// 初始化指定数量的 加号UI 在滑动框里.
 	void InitCharacterButton(const int32 InNumber);
 
 private:
@@ -34,4 +41,9 @@ private:
 	// 被动态添加进滑动列表的 按钮; 借助EditDefaultsOnly元元素说明符来将其反射至蓝图.
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		TSubclassOf<UUI_CharacterButton> UI_CharacterButtonClass;
+
+	// 捏脸的UI 控件.
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<UUI_KneadFace> UI_KneadFaceClass;
+
 };

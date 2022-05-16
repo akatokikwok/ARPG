@@ -2,6 +2,8 @@
 
 #include "UI_CharacterButton.h"
 #include "../../../Core/Hall/HallPawn.h"
+#include "UI_CharacterCreatePanel.h"
+#include "../UI_HallMain.h"
 
 void UUI_CharacterButton::NativeConstruct()
 {
@@ -21,19 +23,31 @@ void UUI_CharacterButton::NativeDestruct()
 
 void UUI_CharacterButton::Callback_ClickedCharacter()
 {
-	if (CharacterStageClass != nullptr) {
-		if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
-			if (InPawn->CharacterStage != nullptr) {
-				InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
-			}
-			// 生成1个舞台人物.
-			InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);
-			
-			if (InPawn->CharacterStage != nullptr) {
+	if (1) {
+		// 生成1个舞台人物.
+		if (CharacterStageClass != nullptr) {
+			if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+				if (InPawn->CharacterStage != nullptr) {
+					InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
+				}
+				InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);
 
+				if (InPawn->CharacterStage != nullptr) {
+
+				}
 			}
 		}
 
-		
+		// 先拿到持有者层级的CreatePanel.即右侧边栏.
+		if (UUI_CharacterCreatePanel* InUI_CharCreatePanel = GetParents<UUI_CharacterCreatePanel>()) {
+			// 当点击加号后创建 捏脸信息.
+			InUI_CharCreatePanel->CreateKneadFace();
+			// 借助更上一层使用播UI动画的方法.
+			if (UUI_HallMain* InMainPanel = InUI_CharCreatePanel->GetParents<UUI_HallMain>()) {
+				InMainPanel->PlayRenameIn();// 播放Rename 面板的动画.
+			}
+			
+		}
+
 	}
 }

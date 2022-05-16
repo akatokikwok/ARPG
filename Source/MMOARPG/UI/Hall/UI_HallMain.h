@@ -6,6 +6,7 @@
 #include "../Core/UI_Base.h"
 #include "../Common/UI_Print.h"
 #include "Element/UI_CharacterCreatePanel.h"
+#include "Element/UI_RenameCreate.h"
 #include "UI_HallMain.generated.h"
 
 /**
@@ -23,6 +24,13 @@ public:
 	void PrintLog(const FString& InMsg);
 	void PrintLog(const FText& InMsg);
 
+	// 播放Rename控件的淡入淡出动画.
+	void PlayRenameIn();
+	void PlayRenameOut();
+
+	// 负责还原 Create面板.
+	void ResetCharacterCreatePanel();
+
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */
 	void BindClientRcv();
@@ -38,4 +46,7 @@ private:
 	// 负责创建角色的面板.
 	UPROPERTY(meta = (BindWidget))
 		UUI_CharacterCreatePanel* UI_CharacterCreatePanel;
+	// 负责详细创建舞台人物信息的控件.
+	UPROPERTY(meta = (BindWidget))
+		UUI_RenameCreate* UI_RenameCreate;
 };

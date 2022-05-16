@@ -9,6 +9,11 @@
 void UUI_HallMain::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	// 将主面板设置为各子层级UI的持有者.
+	UI_RenameCreate->SetParents(this);
+	UI_CharacterCreatePanel->SetParents(this);
+
 	/** 1.创建客户端 */
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
 		if (InGameIns->GetClient() != nullptr) {
@@ -46,6 +51,22 @@ void UUI_HallMain::PrintLog(const FText& InMsg)
 
 	// 设置文字并打印消息.
 	UI_Print->SetText(InMsg);
+}
+
+void UUI_HallMain::PlayRenameIn()
+{
+	UI_RenameCreate->PlayWidgetAnim(TEXT("RenameIn"));
+}
+
+void UUI_HallMain::PlayRenameOut()
+{
+	UI_RenameCreate->PlayWidgetAnim(TEXT("RenameOut"));
+}
+
+/** 负责还原 Create面板. */
+void UUI_HallMain::ResetCharacterCreatePanel()
+{
+	UI_CharacterCreatePanel->CreateCharacterButtons();// 把create面板的4个加号再补回来.
 }
 
 void UUI_HallMain::BindClientRcv()

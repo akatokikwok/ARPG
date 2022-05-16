@@ -59,6 +59,7 @@ protected:
 	/** 接口: 查找并拿取控件的指定动画,可能返空. */
 	UWidgetAnimation* GetNameWidgetAnimation(const FString& InWidgetAnimName);
 
+public:
 	/** 接口: 执行播放控件动画, 需指定UMG动画具体名称. */
 	void PlayWidgetAnim(const FString& InWidgetName);
 
