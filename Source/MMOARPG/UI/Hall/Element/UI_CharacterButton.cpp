@@ -20,5 +20,9 @@ void UUI_CharacterButton::NativeDestruct()
 
 void UUI_CharacterButton::Callback_ClickedCharacter()
 {
-
+	if (CharacterStageClass != nullptr) {
+		if (ACharacterStage* InCharStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator)) {
+			
+		}
+	}
 }
