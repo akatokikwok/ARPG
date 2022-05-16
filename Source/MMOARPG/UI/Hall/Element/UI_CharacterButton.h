@@ -8,6 +8,7 @@
 #include "Components/Button.h"
 #include "Components/VerticalBox.h"
 #include "Components/Image.h"
+#include "../../../Core/Hall/Character/CharacterStage.h"
 #include "UI_CharacterButton.generated.h"
 
 /**
@@ -40,5 +41,12 @@ private:
 		UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* Date;
+
+	// 待创建人物.
+	UPROPERTY( EditDefaultsOnly, Category = "UI")
+		TSubclassOf<ACharacterStage> CharacterStageClass;
+	// 待创建人物的生成位置.
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		FVector SpawnPoint;
 
 };

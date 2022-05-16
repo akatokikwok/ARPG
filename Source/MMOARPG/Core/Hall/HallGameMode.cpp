@@ -5,10 +5,12 @@
 #include "HallHUD.h"
 #include "HallPawn.h"
 #include "HallPlayerController.h"
+#include "HallPlayerState.h"
 
 AHallGameMode::AHallGameMode()
 {
 	HUDClass = AHallHUD::StaticClass();
 	DefaultPawnClass = AHallPawn::StaticClass();
 	PlayerControllerClass = AHallPlayerController::StaticClass();
+	PlayerStateClass = AHallPlayerState::StaticClass();// 设置成专属的HallPlayerState.
 }
