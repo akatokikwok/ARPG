@@ -36,10 +36,10 @@ public:
 
 	// API. 拿取客户端亦或是服务器.
 	FSimpleNetManage* GetClient();
-	// API. 拿取用户数据结构体.
+	// API. 拿取用户数据结构体.须取引用.
 	FMMOARPGUserData& GetUserData();
-	// API. 拿取网关状态.
-	FMMOARPGGateStatus GetGateStatus();
+	// API. 拿取网关状态.须取引用.
+	FMMOARPGGateStatus& GetGateStatus();
 
 private:
 	// 客户端或者服务器实例.

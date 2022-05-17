@@ -68,7 +68,7 @@ FMMOARPGUserData& UMMOARPGGameInstance::GetUserData()
 	return UserData;
 }
 
-FMMOARPGGateStatus UMMOARPGGameInstance::GetGateStatus()
+FMMOARPGGateStatus& UMMOARPGGameInstance::GetGateStatus()
 {
 	return GateStatus;
 }
