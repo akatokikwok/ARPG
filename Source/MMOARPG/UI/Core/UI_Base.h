@@ -41,6 +41,15 @@ protected:
 		return GetWorld() != nullptr ? GetWorld()->GetGameInstance<T>() : nullptr;
 	};
 
+	// API, 拿取PlayerState.
+	template<class T>
+	T* GetPlayerState()
+	{
+		return GetWorld() != nullptr ?
+			(GetWorld()->GetFirstPlayerController() != nullptr ? GetWorld()->GetFirstPlayerController()->GetPlayerState<T>() : nullptr) 
+				: nullptr;
+	}
+
 public:
 	// 设定并拿取某一个类型的面板为 当前面板的持有者面板.
 	template<class T>
