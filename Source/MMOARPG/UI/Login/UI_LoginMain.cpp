@@ -99,8 +99,8 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 							if (InGINS->GetClient() && InGINS->GetClient()->GetChannel()) {
 								InGINS->GetClient()->GetChannel()->DestroySelf();// 关闭客户端即不再给登录服务器发消息.
 							}
-							//协程, 延迟1.75s 打开另一张地图.
-							GThread::Get()->GetCoroutines().BindLambda(1.75f, 
+							//协程, 延迟2.0s 打开另一张地图.
+							GThread::Get()->GetCoroutines().BindLambda(2.0f, 
 								[&]() ->void {
 									UGameplayStatics::OpenLevel(GetWorld(), TEXT("HallMap"));
 								}

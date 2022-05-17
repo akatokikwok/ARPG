@@ -5,6 +5,9 @@
 #include "../../MMOARPGGameInstance.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
+#include "Protocol/HallProtocol.h"
+#include "../../MMOAPRGMacroType.h"
+#include "../../Core/Hall/HallPlayerState.h"
 
 void UUI_HallMain::NativeConstruct()
 {
@@ -17,13 +20,14 @@ void UUI_HallMain::NativeConstruct()
 	/** 1.创建客户端 */
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
 		if (InGameIns->GetClient() != nullptr) {
+			// CharacterRequests是从这里借助这个代理发送出去的; 为网络消息协议绑定回调.
+			InGameIns->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_HallMain::Callback_LinkServerInfo);
 			// 利用客户端直接实行初始化.
 			InGameIns->GetClient()->Init(InGameIns->GetGateStatus().GateServerAddrInfo.Addr);
 			// 在构造的时候 就循环创建与绑定.
 			BindClientRcv();
 		}
 	}
-
 }
 
 void UUI_HallMain::NativeDestruct()
@@ -105,5 +109,30 @@ void UUI_HallMain::BindClientRcv()
 
 void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
+	switch (ProtocolNumber) {
+		case SP_CharacterAppearanceResponses :// 客户端收到角色形象 Response协议.
+		{
+			FString CharacterJson;// 玩家形象Json形式的数据源.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);// 得到客户端发送到服务器的账号(以json数据形式返回).
 
+			if (!CharacterJson.IsEmpty()) {// json数据源判空.
+				if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
+					/* 解析带有值的Json数据源并赋值到playerstate里的玩家形象里去*/
+					NetDataAnalysis::StringToCharacterAppearances(CharacterJson, InState->GetCharacterAppearance());
+				}
+			}
+			break;
+		}
+	}
+}
+
+/** 发送Request协议: 玩家形象. */
+void UUI_HallMain::Callback_LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg)
+{
+	if (InType == ESimpleNetErrorType::HAND_SHAKE_SUCCESS) {
+		// 握手成功就向服务器发送角色形象Requests; 发送角色形象请求协议(4号协议.)
+		if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+			SEND_DATA(SP_CharacterAppearanceRequests, InGameInstance->GetUserData().ID);// 发出去这个请求协议, 让网关去接收.
+		}
+	}
 }

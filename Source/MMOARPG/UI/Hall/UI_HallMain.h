@@ -7,6 +7,7 @@
 #include "../Common/UI_Print.h"
 #include "Element/UI_CharacterCreatePanel.h"
 #include "Element/UI_RenameCreate.h"
+#include "SimpleNetChannelType.h"
 #include "UI_HallMain.generated.h"
 
 /**
@@ -36,6 +37,10 @@ protected:
 	void BindClientRcv();
 	/** 重载UI_Base重要方法: RecvProtocol */
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
+
+	/** 网络消息协议绑定的回调. */
+	UFUNCTION()
+	void Callback_LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
 private:
 	// 接收代理.
