@@ -15,9 +15,15 @@ class MMOARPG_API AHallPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 public:
+	// 拿取一堆角色形象.
 	FCharacterAppearances& GetCharacterAppearance();
+	// 拿取单个角色形象指针.
 	FMMOARPGCharacterAppearance* GetRecentCharacter();
-	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacter() { return &CurrentTmpCreateCharacter; }
+	//
+	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacter() 
+	{ 
+		return &CurrentTmpCreateCharacter; 
+	}
 
 private:
 	FCharacterAppearances CharacterAppearances;// 一堆角色形象.

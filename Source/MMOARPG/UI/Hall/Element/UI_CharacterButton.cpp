@@ -10,7 +10,8 @@ void UUI_CharacterButton::NativeConstruct()
 	Super::NativeConstruct();
 
 	CharacterButton->OnReleased.AddDynamic(this, &UUI_CharacterButton::Callback_ClickedCharacter);
-
+	
+	SlotPosition = INDEX_NONE;// 初始化槽位.
 	CreateShowIcon->SetVisibility(ESlateVisibility::Visible);// 让加号可见.
 	CharacterInfo->SetVisibility(ESlateVisibility::Collapsed);// 让用户信息背景槽坍缩.
 }
@@ -21,6 +22,13 @@ void UUI_CharacterButton::NativeDestruct()
 
 }
 
+/** 初始化按钮槽号 */
+void UUI_CharacterButton::SetSlotPosition(const int32 InNewPos)
+{
+	SlotPosition = InNewPos;
+}
+
+/** 用于点击加号槽位被绑定的方法. */
 void UUI_CharacterButton::Callback_ClickedCharacter()
 {
 	if (1) {
@@ -46,8 +54,17 @@ void UUI_CharacterButton::Callback_ClickedCharacter()
 			if (UUI_HallMain* InMainPanel = InUI_CharCreatePanel->GetParents<UUI_HallMain>()) {
 				InMainPanel->PlayRenameIn();// 播放Rename 面板的动画.
 			}
-			
 		}
+	}
+}
 
+/** 设置指定数据包的+号按钮外观. */
+void UUI_CharacterButton::InitCharacterButton(const FMMOARPGCharacterAppearance& InCA)
+{
+	if (InCA.SlotPosition != INDEX_NONE) {
+		CreateShowIcon->SetVisibility(ESlateVisibility::Collapsed);
+		CharacterInfo->SetVisibility(ESlateVisibility::Visible);
+		CharacterName->SetText(FText::FromString(InCA.Name));
+ 		Date->SetText(FText::FromString(InCA.Date));
 	}
 }
