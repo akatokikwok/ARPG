@@ -9,6 +9,7 @@
 #include "UI_CharacterButton.h"
 #include "UI_KneadFace.h"
 #include "MMOARPGType.h"
+#include "../../../Core/Hall/Character/CharacterStage.h"
 #include "UI_CharacterCreatePanel.generated.h"
 
 /**
@@ -30,6 +31,15 @@ public:
 public:
 	/** 初始化所有加号.(默认设定是4个) */
 	void InitCharacterButtons(const FCharacterAppearances& InCAs);
+	/** 仅负责生成玩家人物. */
+	void SpawnCharacter();
+	/** 生成指定槽号的玩家形象 */
+	void SpawnCharacter(const int32 InSlotIndex);
+	/** 生成 特定CA存档数据下的 玩家形人物 */
+	void SpawnCharacter(const FMMOARPGCharacterAppearance* InACData);
+
+	/** 覆写当前槽号(记录或保留当前槽号) */
+	void SetCurrentSlotPosition(const int32 InNewPos);
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.
@@ -47,4 +57,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		TSubclassOf<UUI_KneadFace> UI_KneadFaceClass;
 
+	// 待创建人物.
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<ACharacterStage> CharacterStageClass;
+	// 待创建人物的生成位置.
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		FVector SpawnPoint;
+
+protected:
+	int32 SlotPosition;// 保存当前被选中的人物槽号序数.
 };

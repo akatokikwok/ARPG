@@ -4,12 +4,13 @@
 #include "Components/ScrollBoxSlot.h"
 #include "../../../Core/Hall/HallPlayerState.h"
 #include "UI_CharacterButton.h"
+#include "../../../Core/Hall/HallPawn.h"
 
 void UUI_CharacterCreatePanel::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-// 	SlotPosition = 0;
+	SlotPosition = 0;// 设定当前选中的玩家人物槽号为0号;
 }
 
 void UUI_CharacterCreatePanel::NativeDestruct()
@@ -49,24 +50,74 @@ void UUI_CharacterCreatePanel::InitCharacterButtons(const FCharacterAppearances&
 	if (UI_CharacterButtonClass != nullptr) {
 		for (int32 i = 0; i < 4.0f; ++i) {// 默认设定为4个加号按钮.
 			if (UUI_CharacterButton* InCharButton = CreateWidget<UUI_CharacterButton>(GetWorld(), UI_CharacterButtonClass)) {
-				/* 初始化槽号*/
-				InCharButton->SetSlotPosition(i);
-				
 				/** 滑动框里添加并注册+号按钮实体. */
-				InCharButton->SetParents(this);
 				if (UScrollBoxSlot* InScrollSlot = Cast<UScrollBoxSlot>(List->AddChild(InCharButton))) {// 往滑动框里添加元素.
 					InScrollSlot->SetPadding(10.0f);// 设置被添加进的元素的间距为10.0f;
 				}
 
+				/* 给创建出的button设定槽号*/
+				InCharButton->SetSlotPosition(i);
+				InCharButton->SetParents(this);
+
 				/** 初始化各个数据包关联的+号按钮外观. */
-				if (const FMMOARPGCharacterAppearance* InCharacterAppearance = 
-						InCAs.FindByPredicate([&](const FMMOARPGCharacterAppearance& InCharacterAppearance) ->bool {
-							return InCharacterAppearance.SlotPosition == i;
-					}))
-				{
+				if (const FMMOARPGCharacterAppearance* InCharacterAppearance =
+					InCAs.FindByPredicate([&](const FMMOARPGCharacterAppearance& InCharacterAppearance) ->bool {
+						return InCharacterAppearance.SlotPosition == i;
+					})) {
 					InCharButton->InitCharacterButton(*InCharacterAppearance);// 设置指定数据包 的+号按钮外观.
 				}
 			}
 		}
 	}
+}
+/** 生成指定槽号的玩家形象 */
+void UUI_CharacterCreatePanel::SpawnCharacter(const int32 InSlotIndex)
+{
+	if (AHallPlayerState* InPS = GetPlayerState<AHallPlayerState>()) {
+		SpawnCharacter(
+			// 满足 在PS里查找到 指定槽号的数据包.
+			InPS->GetCharacterAppearance().FindByPredicate([&](const FMMOARPGCharacterAppearance& InCA) ->bool {
+				return InCA.SlotPosition == InSlotIndex;
+			})
+		);
+	}
+
+// 		if (FMMOARPGCharacterAppearance* InCAData = InPS->GetCharacterAppearance().FindByPredicate([&](const FMMOARPGCharacterAppearance& InCA) ->bool {
+// 				return InCA.SlotPosition == InSlotIndex;
+// 			}))
+// 		{
+// 			SpawnCharacter(InCAData);
+// 		}
+}
+
+/** 仅负责生成玩家人物. */
+void UUI_CharacterCreatePanel::SpawnCharacter()
+{
+	SpawnCharacter(SlotPosition);
+}
+
+/** 生成关联特定CA的玩家形象 */
+void UUI_CharacterCreatePanel::SpawnCharacter(const FMMOARPGCharacterAppearance* InACData)
+{
+	if (InACData != nullptr) {
+		// 生成1个舞台人物.
+		if (CharacterStageClass != nullptr) {
+			if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+				if (InPawn->CharacterStage != nullptr) {
+					InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
+				}
+				InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);// 生成1个新的人物.
+
+				if (InPawn->CharacterStage != nullptr) {
+
+				}
+			}
+		}
+	}
+}
+
+/**  */
+void UUI_CharacterCreatePanel::SetCurrentSlotPosition(const int32 InNewPos)
+{
+	SlotPosition = InNewPos;
 }

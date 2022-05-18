@@ -31,6 +31,8 @@ public:
 
 	// 负责还原 Create面板.
 	void ResetCharacterCreatePanel();
+	/** 生成1个最新游玩过的角色/存档. */
+	void SpawnRecentCharacter();
 
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */

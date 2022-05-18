@@ -73,6 +73,15 @@ void UUI_HallMain::ResetCharacterCreatePanel()
 	UI_CharacterCreatePanel->CreateCharacterButtons();// 把create面板的4个加号再补回来.
 }
 
+void UUI_HallMain::SpawnRecentCharacter()
+{
+	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
+		if (FMMOARPGCharacterAppearance* InRecentCAData = InState->GetRecentCharacter()) {// 先拿取PS里最近的人物存档.
+			UI_CharacterCreatePanel->SpawnCharacter(InRecentCAData);
+		}
+	}
+}
+
 void UUI_HallMain::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -115,13 +124,17 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 			FString CharacterJson;// 玩家形象Json形式的数据源.
 			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);// 得到客户端发送到服务器的账号(以json数据形式返回).
 
-			/** 组织玩家形象角色并以此投射到所有按钮外观上 */
+			/** 投射存档数据到UI, 投射存档人物至场景. */
 			if (!CharacterJson.IsEmpty()) {// json数据源判空.
 				if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
-					// 解析Json数据源到PS里
+					// 解析Json数据源到PS里.
 					NetDataAnalysis::StringToCharacterAppearances(CharacterJson, InState->GetCharacterAppearance());
 					// 初始化所有关联数据包的 加号外观.(默认设定是4个).
 					UI_CharacterCreatePanel->InitCharacterButtons(InState->GetCharacterAppearance());
+					// 附带生成1个最新玩耍过的存档人物.
+					SpawnRecentCharacter();
+					// 高亮UI.
+
 				}
 			}
 			break;
