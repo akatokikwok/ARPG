@@ -8,6 +8,7 @@
 #include "Components/ScrollBox.h"
 #include "UI_CharacterButton.h"
 #include "UI_KneadFace.h"
+#include "MMOARPGType.h"
 #include "UI_CharacterCreatePanel.generated.h"
 
 /**
@@ -23,12 +24,12 @@ public:
 
 	// 负责 当点击加号后创建 捏脸信息的逻辑.
 	void CreateKneadFace();
-	// 创建 加号UI.
+	/** 创建所有加号.(角色数据来源是PS) */
 	void CreateCharacterButtons();
 
-protected:
-	// 初始化指定数量的 加号UI 在滑动框里.
-	void InitCharacterButton(const int32 InNumber);
+public:
+	/** 初始化所有加号.(默认设定是4个) */
+	void InitCharacterButtons(const FCharacterAppearances& InCAs);
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.

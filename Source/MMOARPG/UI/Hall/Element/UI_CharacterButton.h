@@ -9,6 +9,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/Image.h"
 #include "../../../Core/Hall/Character/CharacterStage.h"
+#include "MMOARPGType.h"
 #include "UI_CharacterButton.generated.h"
 
 /**
@@ -22,10 +23,20 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	// 读写槽位.
+	FORCEINLINE int32 GetSlotPosition() { return SlotPosition; }
+	// 读写槽位.
+	void SetSlotPosition(const int32 InNewPos);
+	/** 设置指定数据包的+号按钮外观. */
+	void InitCharacterButton(const FMMOARPGCharacterAppearance& InCA);
+
 protected:
 	// 用于点击CharacterButton被绑定的方法.
 	UFUNCTION()
-	void Callback_ClickedCharacter();
+		void Callback_ClickedCharacter();
+
+protected:
+	int32 SlotPosition;// 槽序数.
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.
@@ -43,7 +54,7 @@ private:
 		UTextBlock* Date;
 
 	// 待创建人物.
-	UPROPERTY( EditDefaultsOnly, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		TSubclassOf<ACharacterStage> CharacterStageClass;
 	// 待创建人物的生成位置.
 	UPROPERTY(EditDefaultsOnly, Category = "UI")

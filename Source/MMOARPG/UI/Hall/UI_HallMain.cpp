@@ -115,10 +115,13 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 			FString CharacterJson;// 玩家形象Json形式的数据源.
 			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterAppearanceResponses, CharacterJson);// 得到客户端发送到服务器的账号(以json数据形式返回).
 
+			/** 组织玩家形象角色并以此投射到所有按钮外观上 */
 			if (!CharacterJson.IsEmpty()) {// json数据源判空.
 				if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
-					/* 解析带有值的Json数据源并赋值到playerstate里的玩家形象里去*/
+					// 解析Json数据源到PS里
 					NetDataAnalysis::StringToCharacterAppearances(CharacterJson, InState->GetCharacterAppearance());
+					// 初始化所有关联数据包的 加号外观.(默认设定是4个).
+					UI_CharacterCreatePanel->InitCharacterButtons(InState->GetCharacterAppearance());
 				}
 			}
 			break;
