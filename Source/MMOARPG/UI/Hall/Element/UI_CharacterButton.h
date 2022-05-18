@@ -36,7 +36,7 @@ protected:
 		void Callback_ClickedCharacter();
 
 protected:
-	int32 SlotPosition;// 槽序数.
+	int32 SlotPosition;// 槽序数.在父级面板初始化按钮的时候将此槽序初始化.
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.
@@ -52,12 +52,5 @@ private:
 		UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* Date;
-
-	// 待创建人物.
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-		TSubclassOf<ACharacterStage> CharacterStageClass;
-	// 待创建人物的生成位置.
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-		FVector SpawnPoint;
 
 };
