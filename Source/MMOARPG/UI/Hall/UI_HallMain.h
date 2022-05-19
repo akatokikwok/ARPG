@@ -31,8 +31,10 @@ public:
 
 	// 负责还原 Create面板.
 	void ResetCharacterCreatePanel();
-	/** 生成1个最新游玩过的角色/存档. */
+	/** 生成最近CA存档关联的舞台人物. */
 	void SpawnRecentCharacter();
+	/** 使最近存档关联的槽位按钮高亮. */
+	void HighlightDefaultSelection();
 
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */

@@ -100,24 +100,51 @@ void UUI_CharacterCreatePanel::SpawnCharacter()
 void UUI_CharacterCreatePanel::SpawnCharacter(const FMMOARPGCharacterAppearance* InACData)
 {
 	if (InACData != nullptr) {
-		// 生成1个舞台人物.
-		if (CharacterStageClass != nullptr) {
-			if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
-				if (InPawn->CharacterStage != nullptr) {
-					InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
-				}
-				InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);// 生成1个新的人物.
-
-				if (InPawn->CharacterStage != nullptr) {
-
-				}
-			}
+		if (ACharacterStage* InStageChar = CreateCharacter()) {
+			
 		}
 	}
 }
 
-/**  */
+/** 仅生成人物,可能会返回空.*/
+ACharacterStage* UUI_CharacterCreatePanel::CreateCharacter()
+{
+	if (CharacterStageClass != nullptr) {
+		if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+			if (InPawn->CharacterStage != nullptr) {
+				InPawn->CharacterStage->Destroy();// 若已有一个角色就删掉.
+			}
+			InPawn->CharacterStage = GetWorld()->SpawnActor<ACharacterStage>(CharacterStageClass, SpawnPoint, FRotator::ZeroRotator);// 生成1个新的人物.
+			return InPawn->CharacterStage;
+		}
+	}
+	return nullptr;
+}
+
+/** 对指定槽号做出一些设定. */
 void UUI_CharacterCreatePanel::SetCurrentSlotPosition(const int32 InNewPos)
 {
 	SlotPosition = InNewPos;
+
+// 	HighlightSelection(SlotPosition);
+}
+
+/** 高亮指定槽号的UI. */
+void UUI_CharacterCreatePanel::HighlightSelection(int32 InNewIndex)
+{
+	FindByPredicateInList<UUI_CharacterButton>(
+		// 传入一根bool<UUI_CharacterButton*>的函数指针,此函数指针仅负责条件查找.
+		// 让指定槽号的button高亮.
+		[InNewIndex](UUI_CharacterButton* InButton) ->bool {
+			if (InNewIndex == InButton->GetSlotPosition()) {
+				InButton->SetHighlight(true);
+// 				return true;// 此时终止查找.
+			}
+			else {
+				InButton->SetHighlight(false);// 不符合条件的button都禁用高亮.
+			}
+			return false;
+		}
+	);
+
 }

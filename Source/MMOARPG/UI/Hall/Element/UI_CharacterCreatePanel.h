@@ -33,6 +33,8 @@ public:
 	void InitCharacterButtons(const FCharacterAppearances& InCAs);
 	/** 仅负责生成玩家人物. */
 	void SpawnCharacter();
+	/** 仅生成人物,可能会返回空.*/
+	ACharacterStage* CreateCharacter();
 	/** 生成指定槽号的玩家形象 */
 	void SpawnCharacter(const int32 InSlotIndex);
 	/** 生成 特定CA存档数据下的 玩家形人物 */
@@ -40,6 +42,26 @@ public:
 
 	/** 覆写当前槽号(记录或保留当前槽号) */
 	void SetCurrentSlotPosition(const int32 InNewPos);
+	/** 高亮指定槽号的UI. */
+	void HighlightSelection(int32 InNewIndex);
+
+	/** 泛化功能性方法.
+	 * 以特定逻辑 对滑动框各子元素进行操作并检查.
+	 * 需要一根函数指针,它只负责条件核验是否允许循环.
+	 */
+	template<class T>
+	void FindByPredicateInList(TFunction<bool(T*)> Func)//bool 代表着 是否继续循环
+	{
+		if (List->GetAllChildren().Num() > 0u) {
+			for (auto& Tmp : List->GetAllChildren()) {
+				if (T* InButton = Cast<T>(Tmp)) {
+					if (Func(InButton) == true) {
+						break;
+					}
+				}
+			}
+		}
+	}
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.

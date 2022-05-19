@@ -40,12 +40,12 @@ void UUI_RenameCreate::Callback_ClickedCancel()
 		InHall->PlayRenameOut();// 先把Rename面板淡出.
 		InHall->ResetCharacterCreatePanel();// 还原Create面板.
 
-		// 点取消按钮的时候也要把舞台人物从场景里移除掉.
-		if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
-			if (InPawn->CharacterStage != nullptr) {
-				InPawn->CharacterStage->Destroy();
-			}
-		}
+// 		// 点取消按钮的时候也要把舞台人物从场景里移除掉.
+// 		if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+// 			if (InPawn->CharacterStage != nullptr) {
+// 				InPawn->CharacterStage->Destroy();
+// 			}
+// 		}
 	}
 }
 
