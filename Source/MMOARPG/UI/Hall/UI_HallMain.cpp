@@ -70,14 +70,32 @@ void UUI_HallMain::PlayRenameOut()
 /** 负责还原 Create面板. */
 void UUI_HallMain::ResetCharacterCreatePanel()
 {
-	UI_CharacterCreatePanel->CreateCharacterButtons();// 把create面板的4个加号再补回来.
+	// 把create面板的4个加号再补回来.
+	UI_CharacterCreatePanel->CreateCharacterButtons();
+
+	// 除去UI,还需要恢复生成最近的舞台人物.
+	SpawnRecentCharacter();
+
+	// 使最近存档关联的槽位按钮高亮.
+	HighlightDefaultSelection();
 }
 
+/** 生成最近CA存档关联的舞台人物. */
 void UUI_HallMain::SpawnRecentCharacter()
 {
 	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
 		if (FMMOARPGCharacterAppearance* InRecentCAData = InState->GetRecentCharacter()) {// 先拿取PS里最近的人物存档.
-			UI_CharacterCreatePanel->SpawnCharacter(InRecentCAData);
+			UI_CharacterCreatePanel->SpawnCharacter(InRecentCAData);// 生成最近CA存档关联的舞台人物.
+		}
+	}
+}
+
+/** 使最近存档关联的槽位按钮高亮. */
+void UUI_HallMain::HighlightDefaultSelection()
+{
+	if (AHallPlayerState* PS = GetPlayerState<AHallPlayerState>()) {
+		if (FMMOARPGCharacterAppearance* InRecentCAData = PS->GetRecentCharacter()) {// 先拿取PS里最近的人物存档.
+			UI_CharacterCreatePanel->HighlightSelection(InRecentCAData->SlotPosition);// 使最近存档关联的槽位按钮高亮.
 		}
 	}
 }
@@ -133,8 +151,8 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					UI_CharacterCreatePanel->InitCharacterButtons(InState->GetCharacterAppearance());
 					// 附带生成1个最新玩耍过的存档人物.
 					SpawnRecentCharacter();
-					// 高亮UI.
-
+					// 使高亮 最近CA存档的 UI button.
+					HighlightDefaultSelection();
 				}
 			}
 			break;

@@ -23,12 +23,15 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	// 读写槽位.
-	FORCEINLINE int32 GetSlotPosition() { return SlotPosition; }
-	// 读写槽位.
-	void SetSlotPosition(const int32 InNewPos);
 	/** 设置指定数据包的+号按钮外观. */
 	void InitCharacterButton(const FMMOARPGCharacterAppearance& InCA);
+	/** 使高亮 CharacterButton. */
+	void SetHighlight(bool bHighlight);
+
+	// 覆写槽序数.
+	void SetSlotPosition(const int32 InNewPos);
+	/** 拿本类的槽序数. */
+	FORCEINLINE int32 GetSlotPosition() { return SlotPosition; }
 
 protected:
 	// 用于点击CharacterButton被绑定的方法.
@@ -37,6 +40,7 @@ protected:
 
 protected:
 	int32 SlotPosition;// 槽序数.在父级面板初始化按钮的时候将此槽序初始化.
+	FLinearColor DefaultColor;// CharacterButton 非高亮情况下的默认颜色.
 
 private:
 	// 暴露来自蓝图的控件子项至Cpp.
@@ -52,5 +56,9 @@ private:
 		UTextBlock* CharacterName;
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* Date;
+
+	// CharacterButton的高亮颜色,由编辑器设定.
+	UPROPERTY(EditDefaultsOnly, Category = UI, meta = (ToolTip = "CharacterButton的高亮颜色,由编辑器设定."))
+		FLinearColor HighlightColor;
 
 };
