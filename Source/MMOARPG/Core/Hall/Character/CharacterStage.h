@@ -31,6 +31,6 @@ public:
 
 	//
 	UFUNCTION()
-		void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
+		void OnClicked_callback(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 
 };
