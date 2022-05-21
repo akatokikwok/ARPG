@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterStage.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ACharacterStage::ACharacterStage()
@@ -14,7 +15,10 @@ ACharacterStage::ACharacterStage()
 void ACharacterStage::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (GetCapsuleComponent() != nullptr) {
+		GetCapsuleComponent()->OnClicked.AddDynamic(this, &ACharacterStage::OnClicked);
+	}
+
 }
 
 // Called every frame
@@ -28,6 +32,11 @@ void ACharacterStage::Tick(float DeltaTime)
 void ACharacterStage::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void ACharacterStage::OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
+{
 
 }
 
