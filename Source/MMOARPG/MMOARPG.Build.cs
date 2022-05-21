@@ -15,7 +15,8 @@ public class MMOARPG : ModuleRules
 			"SimpleThread",
 			"MMOARPGCommon",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"SimpleActorBrowsing"
 		});
 	}
 }
