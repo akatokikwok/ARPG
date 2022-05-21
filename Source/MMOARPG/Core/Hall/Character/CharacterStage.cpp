@@ -2,6 +2,7 @@
 
 #include "CharacterStage.h"
 #include "Components/CapsuleComponent.h"
+#include "../HallPlayerController.h"
 
 // Sets default values
 ACharacterStage::ACharacterStage()
@@ -16,7 +17,7 @@ void ACharacterStage::BeginPlay()
 {
 	Super::BeginPlay();
 	if (GetCapsuleComponent() != nullptr) {
-		GetCapsuleComponent()->OnClicked.AddDynamic(this, &ACharacterStage::OnClicked);
+		GetCapsuleComponent()->OnClicked.AddDynamic(this, &ACharacterStage::OnClicked_callback);
 	}
 
 }
@@ -35,8 +36,12 @@ void ACharacterStage::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ACharacterStage::OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
+/** 点击3D舞台人物胶囊体后执行的逻辑. */
+void ACharacterStage::OnClicked_callback(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
 {
-
+	if (AHallPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AHallPlayerController>()) {
+		InPlayerController->ResetTarget(this);// 先重设目标.
+		InPlayerController->ExecutionRotateCharacter();// 启用旋转.
+	}
 }
 
