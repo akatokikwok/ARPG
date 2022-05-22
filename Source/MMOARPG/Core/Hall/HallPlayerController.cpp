@@ -15,6 +15,7 @@ void AHallPlayerController::BeginPlay()
 	Super::BeginPlay();
 	SimpleBrowse.Register(this, nullptr);// 为浏览器注册controller和目标.
 	SimpleZoom.Register(GetPawn(), 400.f);
+	SimplePanelMove.Register(this, GetPawn(), 100.0f);
 
 }
 
@@ -29,11 +30,12 @@ void AHallPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	
 	// 松开左键->停止浏览.
-	InputComponent->BindAction("MouseClick", IE_Released, this, &AHallPlayerController::StopRotateCharacter);
+	InputComponent->BindAction("MouseClick", IE_Released, this, &AHallPlayerController::StopRotateCharacter_callback);
 	
+	InputComponent->BindAxis("Zoom", this, &AHallPlayerController::Zoom_callback);
+
 	InputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AHallPlayerController::BeginMove_callback);
 	InputComponent->BindAction("MouseRightClick", IE_Released, this, &AHallPlayerController::EndMove_callback);
-	InputComponent->BindAxis("Zoom", this, &AHallPlayerController::Zoom);
 }
 
 void AHallPlayerController::ExecutionRotateCharacter()
@@ -41,7 +43,7 @@ void AHallPlayerController::ExecutionRotateCharacter()
 	SimpleBrowse.OpenBrowsing();
 }
 
-void AHallPlayerController::StopRotateCharacter()
+void AHallPlayerController::StopRotateCharacter_callback()
 {
 	SimpleBrowse.EndBrowsing();
 }
@@ -51,7 +53,7 @@ void AHallPlayerController::ResetTarget(AActor* InTarget)
 	SimpleBrowse.ResetTarget(InTarget);
 }
 
-void AHallPlayerController::Zoom(float InDeltaTime)
+void AHallPlayerController::Zoom_callback(float InDeltaTime)
 {
 	if (InDeltaTime > 0) {
 		SimpleZoom.ZoomPositive(InDeltaTime * 10.f);
@@ -63,10 +65,10 @@ void AHallPlayerController::Zoom(float InDeltaTime)
 
 void AHallPlayerController::BeginMove_callback()
 {
-
+	SimplePanelMove.BeginMove();
 }
 
 void AHallPlayerController::EndMove_callback()
 {
-
+	SimplePanelMove.EndMove();
 }

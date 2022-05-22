@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Core/SimpleBrowse.h"
 #include "Core/SimpleZoom.h"
+#include "Core/SimplePanelMove.h"
 #include "HallPlayerController.generated.h"
 
 /**
@@ -29,18 +30,19 @@ public:
 	/** 启用浏览3D Actor. */
 	void ExecutionRotateCharacter();
 	/** 关闭浏览3D Actor. */
-	void StopRotateCharacter();
+	void StopRotateCharacter_callback();
 	/** 重设定目标人物. */
 	void ResetTarget(AActor* InTarget);
-	/**  */
-	void Zoom(float InDeltaTime);
+	/** 执行缩放. */
+	void Zoom_callback(float InDeltaTime);
 
-	//
+	// 启用 垂直方向上移动视口
 	void BeginMove_callback();
-	// 
+	// 关闭 垂直方向上移动视口
 	void EndMove_callback();
 
 private:
 	SimpleActorAction::FSimpleBrowse SimpleBrowse;// 3D物体浏览器.
 	SimpleActorAction::FSimpleZoom SimpleZoom;// 3D物体缩放器.
+	SimpleActorAction::FSimplePanelMove SimplePanelMove;// 3D物体垂直观察器.
 };
