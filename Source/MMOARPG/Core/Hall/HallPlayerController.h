@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Core/SimpleBrowse.h"
+#include "Core/SimpleZoom.h"
 #include "HallPlayerController.generated.h"
 
 /**
@@ -41,5 +42,5 @@ public:
 
 private:
 	SimpleActorAction::FSimpleBrowse SimpleBrowse;// 3D物体浏览器.
-	
+	SimpleActorAction::FSimpleZoom SimpleZoom;// 3D物体缩放器.
 };
