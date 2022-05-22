@@ -10,6 +10,7 @@ AHallPawn::AHallPawn()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	CharacterStage = nullptr;// 待创建的舞台角色设为空.
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));// 这一步为了让舞台人物的位置可操控.
 }
 
 // Called when the game starts or when spawned
