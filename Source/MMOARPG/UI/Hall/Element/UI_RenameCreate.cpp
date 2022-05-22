@@ -11,8 +11,8 @@ void UUI_RenameCreate::NativeConstruct()
 
 	SlotPosition = INDEX_NONE;
 	FindNameButton->OnReleased.AddDynamic(this, &UUI_RenameCreate::Callback_ClickedFindName);
-	CreateButton->OnReleased.AddDynamic(this, &UUI_RenameCreate::Callback_ClickedCreate);
-	CancelButton->OnReleased.AddDynamic(this, &UUI_RenameCreate::Callback_ClickedCancel);
+	CreateButton->OnReleased.AddDynamic(this, &UUI_RenameCreate::ClickedCreate_callback);
+	CancelButton->OnReleased.AddDynamic(this, &UUI_RenameCreate::ClickedCancel_callback);
 }
 
 void UUI_RenameCreate::NativeDestruct()
@@ -25,16 +25,21 @@ void UUI_RenameCreate::SetSlotPosition(const int32 InSlotPosition)
 
 }
 
-void UUI_RenameCreate::Callback_ClickedCreate()
+void UUI_RenameCreate::ClickedCreate_callback()
 {
 	// 播Rename控件的淡出动画.
 	if (UUI_HallMain* InMainPanel = GetParents<UUI_HallMain>()) {
 		InMainPanel->PlayRenameOut();
-		InMainPanel->ResetCharacterCreatePanel();// 还原Create面板.
+
+		InMainPanel->CreateCharacter();// 向服务端发送创建角色请求.
+
+// 		InMainPanel->ResetCharacterCreatePanel();// 还原Create面板.
+	
+		
 	}
 }
 
-void UUI_RenameCreate::Callback_ClickedCancel()
+void UUI_RenameCreate::ClickedCancel_callback()
 {
 	if (UUI_HallMain* InHall = GetParents<UUI_HallMain>()) {
 		InHall->PlayRenameOut();// 先把Rename面板淡出.
@@ -49,7 +54,11 @@ void UUI_RenameCreate::Callback_ClickedCancel()
 	}
 }
 
+/** 向服务端核验我们输入的名字. */
 void UUI_RenameCreate::Callback_ClickedFindName()
 {
-
+	if (UUI_HallMain* InHall = GetParents<UUI_HallMain>()) {
+		FString CharName = EditableName->GetText().ToString();
+		InHall->CheckRename(CharName);// 向服务端核验 输入的名字;
+	}
 }

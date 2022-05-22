@@ -100,6 +100,27 @@ void UUI_HallMain::HighlightDefaultSelection()
 	}
 }
 
+/** 核验角色命名 */
+void UUI_HallMain::CheckRename(FString& InCharacterName)
+{
+	// 向服务端发送核验名称的请求
+	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+		SEND_DATA(SP_CheckCharacterNameRequests, InGameInstance->GetUserData().ID, InCharacterName);
+	}
+}
+
+/** 向服务端发送创建角色的请求. */
+void UUI_HallMain::CreateCharacter(/*const FMMOARPGCharacterAppearance& InCA*/)
+{
+	// 向服务端发送创建角色的请求.
+	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+// 		FString CAJson;
+// 		NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
+
+		SEND_DATA(SP_CreateCharacterRequests, InGameInstance->GetUserData().ID);
+	}
+}
+
 void UUI_HallMain::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -137,6 +158,8 @@ void UUI_HallMain::BindClientRcv()
 void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
 	switch (ProtocolNumber) {
+		
+		/** 收到来自db的 玩家造型的回复协议. */
 		case SP_CharacterAppearanceResponses :// 客户端收到角色形象 Response协议.
 		{
 			FString CharacterJson;// 玩家形象Json形式的数据源.
@@ -155,6 +178,20 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					HighlightDefaultSelection();
 				}
 			}
+			break;
+		}
+
+		/** 收到来自db的 核验输入名称 的回复协议. */
+		case SP_CheckCharacterNameResponses :
+		{
+			
+			break;
+		}
+
+		/** 收到来自db的 创建舞台人物 的回复协议. */
+		case SP_CreateCharacterResponses:
+		{
+
 			break;
 		}
 	}
