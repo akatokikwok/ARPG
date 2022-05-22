@@ -35,6 +35,11 @@ public:
 	void SpawnRecentCharacter();
 	/** 使最近存档关联的槽位按钮高亮. */
 	void HighlightDefaultSelection();
+	
+	/** 向服务端核验角色命名 */
+	void CheckRename(FString& InCharacterName);
+	/** 向服务端发送创建角色的请求. */
+	void CreateCharacter(/*const FMMOARPGCharacterAppearance& InCA*/);
 
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */

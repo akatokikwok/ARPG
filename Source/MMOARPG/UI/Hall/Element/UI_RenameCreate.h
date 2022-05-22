@@ -22,9 +22,9 @@ public:
 
 protected:
 	UFUNCTION()
-		void Callback_ClickedCreate();
+		void ClickedCreate_callback();
 	UFUNCTION()
-		void Callback_ClickedCancel();
+		void ClickedCancel_callback();
 	UFUNCTION()
 		void Callback_ClickedFindName();
 
