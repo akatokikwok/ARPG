@@ -36,7 +36,7 @@ public:
 protected:
 	// 用于点击CharacterButton被绑定的方法.
 	UFUNCTION()
-		void Callback_ClickedCharacter();
+		void ClickedCharacter_callback();
 
 protected:
 	int32 SlotPosition;// 槽序数.在父级面板初始化按钮的时候将此槽序初始化.

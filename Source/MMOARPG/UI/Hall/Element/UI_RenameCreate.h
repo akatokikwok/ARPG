@@ -18,7 +18,8 @@ class MMOARPG_API UUI_RenameCreate : public UUI_Base
 public:
 	virtual void NativeConstruct();
 	virtual void NativeDestruct();
-	void SetSlotPosition(const int32 InSlotPosition);
+	// 设置Rename控件的关联槽号.
+	void SetSlotPosition(const int32 InSlotIndex);
 
 protected:
 	UFUNCTION()
@@ -29,7 +30,7 @@ protected:
 		void Callback_ClickedFindName();
 
 protected:
-	int32 SlotPosition;
+	int32 SlotPosition;// 关联的槽号.
 
 private:
 	UPROPERTY(meta = (BindWidget))

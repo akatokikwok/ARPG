@@ -21,6 +21,11 @@ public:
 	bool IsCharacterExistInSlot(const int32 InPos);
 	// 获取最近游玩过的存档角色的数据.
 	FMMOARPGCharacterAppearance* GetRecentCharacter();
+	// 拿取指定槽号的CA存档.
+	FMMOARPGCharacterAppearance* GetCharacterCA(const int32 InPosIndex);
+	// 添加指定槽号的CA(若已有则拿取已有的.)
+	FMMOARPGCharacterAppearance* AddCharacterCA(const int32 InPosIndex);
+
 	//
 	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacter() 
 	{ 

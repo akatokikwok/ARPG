@@ -39,7 +39,10 @@ public:
 	/** 向服务端核验角色命名 */
 	void CheckRename(FString& InCharacterName);
 	/** 向服务端发送创建角色的请求. */
-	void CreateCharacter(/*const FMMOARPGCharacterAppearance& InCA*/);
+	void CreateCharacter(const FMMOARPGCharacterAppearance& InCA);
+
+	// 刷新Rename控件的关联槽位.
+	void SetSlotPosition(const int32 InSlotIndex);
 
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */
