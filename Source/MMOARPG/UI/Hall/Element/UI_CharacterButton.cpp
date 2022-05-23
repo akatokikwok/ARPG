@@ -11,7 +11,7 @@ void UUI_CharacterButton::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	CharacterButton->OnReleased.AddDynamic(this, &UUI_CharacterButton::Callback_ClickedCharacter);
+	CharacterButton->OnReleased.AddDynamic(this, &UUI_CharacterButton::ClickedCharacter_callback);
 
 	SlotPosition = INDEX_NONE;// 初始化槽位.
 	CreateShowIcon->SetVisibility(ESlateVisibility::Visible);// 让加号可见.
@@ -32,7 +32,7 @@ void UUI_CharacterButton::SetSlotPosition(const int32 InNewPos)
 }
 
 /** 用于点击加号槽位被绑定的方法. */
-void UUI_CharacterButton::Callback_ClickedCharacter()
+void UUI_CharacterButton::ClickedCharacter_callback()
 {
 	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
 		if (UUI_CharacterCreatePanel* UI_CharacterCreatePanel = GetParents<UUI_CharacterCreatePanel>()) {// 拿取父级Create面板.
@@ -45,6 +45,7 @@ void UUI_CharacterButton::Callback_ClickedCharacter()
 				// 借助更上一级父级HallMain来播动画, 播Renmae面板的动画,同时产生Rename面板.
 				if (UUI_HallMain* InMainPanel = UI_CharacterCreatePanel->GetParents<UUI_HallMain>()) {
 					InMainPanel->PlayRenameIn();// 播放Rename 面板的动画.
+					InMainPanel->SetSlotPosition(SlotPosition);// 设置Renmae 控件的关联槽号.
 				}
 			}
 			else if (InState->IsCharacterExistInSlot(SlotPosition) == true) {// PS里找到了对应槽号数据就跳转关卡.

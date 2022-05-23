@@ -113,15 +113,20 @@ void UUI_HallMain::CheckRename(FString& InCharacterName)
 }
 
 /** 向服务端发送创建角色的请求. */
-void UUI_HallMain::CreateCharacter(/*const FMMOARPGCharacterAppearance& InCA*/)
+void UUI_HallMain::CreateCharacter(const FMMOARPGCharacterAppearance& InCA)
 {
 	// 向服务端发送创建角色的请求.
 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
-// 		FString CAJson;
-// 		NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
+		FString CAJson;
+		NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
 
-		SEND_DATA(SP_CreateCharacterRequests, InGameInstance->GetUserData().ID);
+		SEND_DATA(SP_CreateCharacterRequests, InGameInstance->GetUserData().ID, CAJson);
 	}
+}
+
+void UUI_HallMain::SetSlotPosition(const int32 InSlotIndex)
+{
+	UI_RenameCreate->SetSlotPosition(InSlotIndex);
 }
 
 void UUI_HallMain::BindClientRcv()

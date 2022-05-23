@@ -41,3 +41,28 @@ FMMOARPGCharacterAppearance* AHallPlayerState::GetRecentCharacter()
  
  	return &CharacterAppearances[Index];// 仅拿取最大情况(即溢出情况)的那个序数.
 }
+
+FMMOARPGCharacterAppearance* AHallPlayerState::GetCharacterCA(const int32 InPosIndex)
+{
+	return CharacterAppearances.FindByPredicate([InPosIndex](const FMMOARPGCharacterAppearance& InCA) {
+        return InPosIndex == InCA.SlotPosition; 
+    });
+}
+
+FMMOARPGCharacterAppearance* AHallPlayerState::AddCharacterCA(const int32 InPosIndex)
+{
+	FMMOARPGCharacterAppearance* CA_final = nullptr;// 最终拿取到的CA存档.
+
+	if (FMMOARPGCharacterAppearance* InCA = GetCharacterCA(InPosIndex)) {/* 存在指定槽号的CA*/
+		CA_final = InCA;
+	}
+	else {/* 不存在指定槽号的CA, 创一个CA并把其槽号注册为指定的槽号*/
+		CharacterAppearances.Add(FMMOARPGCharacterAppearance());
+		FMMOARPGCharacterAppearance& InCARef = CharacterAppearances.Last();
+		InCARef.SlotPosition = InPosIndex;
+
+		CA_final = &InCARef;
+	}
+
+	return CA_final;
+}
