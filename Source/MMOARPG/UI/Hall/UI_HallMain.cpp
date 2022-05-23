@@ -8,6 +8,9 @@
 #include "Protocol/HallProtocol.h"
 #include "../../MMOAPRGMacroType.h"
 #include "../../Core/Hall/HallPlayerState.h"
+#include "MMOARPGType.h"
+
+#define LOCTEXT_NAMESPACE "UUI_HallMain"// 用于本地化.
 
 void UUI_HallMain::NativeConstruct()
 {
@@ -184,7 +187,32 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 		/** 收到来自db的 核验输入名称 的回复协议. */
 		case SP_CheckCharacterNameResponses :
 		{
-			
+			ECheckNameType CheckNameType = ECheckNameType::UNKNOWN_ERROR;// 核验类型.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CheckCharacterNameResponses, CheckNameType);// 拿取到服务器返回的舞台人物名字核验类型.
+
+			switch (CheckNameType) {
+				case UNKNOWN_ERROR:
+				{
+					PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "The server encountered an unknown error."));
+					break;
+				}
+				case NAME_NOT_EXIST:
+				{
+					PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "The name is InValid."));
+					break;
+				}
+				case SERVER_NOT_EXIST:
+				{
+					PrintLog(LOCTEXT("CHECK_NAME_SERVER_NOT_EXIST", "Server error."));
+					break;
+				}
+				case NAME_EXIST:
+				{
+					PrintLog(LOCTEXT("CHECK_NAME_NAME_EXIST", "The name has been registered."));
+					break;
+				}
+			}
+
 			break;
 		}
 
@@ -207,3 +235,5 @@ void UUI_HallMain::Callback_LinkServerInfo(ESimpleNetErrorType InType, const FSt
 		}
 	}
 }
+
+#undef LOCTEXT_NAMESPACE// 用于本地化.
