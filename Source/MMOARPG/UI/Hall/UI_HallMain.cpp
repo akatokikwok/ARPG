@@ -115,8 +115,8 @@ void UUI_HallMain::CheckRename(FString& InCharacterName)
 /** 向服务端发送创建角色的请求. */
 void UUI_HallMain::CreateCharacter(const FMMOARPGCharacterAppearance& InCA)
 {
-	// 向服务端发送创建角色的请求.
 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+		// 指定CA压缩成Json.
 		FString CAJson;
 		NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
 
