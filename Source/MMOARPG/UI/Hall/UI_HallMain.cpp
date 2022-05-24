@@ -195,36 +195,26 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 			ECheckNameType CheckNameType = ECheckNameType::UNKNOWN_ERROR;// 核验类型.
 			SIMPLE_PROTOCOLS_RECEIVE(SP_CheckCharacterNameResponses, CheckNameType);// 拿取到服务器返回的舞台人物名字核验类型.
 
-			switch (CheckNameType) {
-				case UNKNOWN_ERROR:
-				{
-					PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "The server encountered an unknown error."));
-					break;
-				}
-				case NAME_NOT_EXIST:
-				{
-					PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "The name is InValid."));
-					break;
-				}
-				case SERVER_NOT_EXIST:
-				{
-					PrintLog(LOCTEXT("CHECK_NAME_SERVER_NOT_EXIST", "Server error."));
-					break;
-				}
-				case NAME_EXIST:
-				{
-					PrintLog(LOCTEXT("CHECK_NAME_NAME_EXIST", "The name has been registered."));
-					break;
-				}
-			}
-
+			PrintLogByCheckName(CheckNameType);// 根据核验结果分别打印提示.
 			break;
 		}
 
 		/** 收到来自db的 创建舞台人物 的回复协议. */
 		case SP_CreateCharacterResponses:
 		{
+			ECheckNameType CheckNameType = ECheckNameType::UNKNOWN_ERROR;// 核验结果
+			bool bCreateCharacter = false;// 创建信号.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CreateCharacterResponses, CheckNameType, bCreateCharacter);// 收取服务端回复的2个属性数据.
 
+			if (bCreateCharacter == true) {
+				PrintLog(LOCTEXT("CREATECHARACTERRESPONSES_SUCCESSFULLY", "created successfully."));
+
+			}
+			else {
+				PrintLog(LOCTEXT("CREATECHARACTERRESPONSES_FAIL", "created fail."));
+				// 延迟1.5秒打印核验结果.
+				GThread::Get()->GetCoroutines().BindLambda(1.5f, [=]() { PrintLogByCheckName(CheckNameType); });
+			}
 			break;
 		}
 	}
@@ -238,6 +228,25 @@ void UUI_HallMain::Callback_LinkServerInfo(ESimpleNetErrorType InType, const FSt
 		if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
 			SEND_DATA(SP_CharacterAppearanceRequests, InGameInstance->GetUserData().ID);// 发出去这个请求协议, 让网关去接收.
 		}
+	}
+}
+
+/** 根据核验结果分别打印提示. */
+void UUI_HallMain::PrintLogByCheckName(ECheckNameType InCheckNameType)
+{
+	switch (InCheckNameType) {
+		case UNKNOWN_ERROR:
+			PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "The server encountered an unknown error."));
+			break;
+		case NAME_NOT_EXIST:
+			PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "The name is Invalid"));
+			break;
+		case SERVER_NOT_EXIST:
+			PrintLog(LOCTEXT("CHECK_NAME_SERVER_NOT_EXIST", "Server error."));
+			break;
+		case NAME_EXIST:
+			PrintLog(LOCTEXT("CHECK_NAME_NAME_EXIST", "The name has been registered."));
+			break;
 	}
 }
 

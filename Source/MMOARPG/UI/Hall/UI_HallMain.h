@@ -54,6 +54,9 @@ protected:
 	UFUNCTION()
 	void Callback_LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
+	/** 根据核验结果分别打印提示. */
+	void PrintLogByCheckName(ECheckNameType InCheckNameType);
+
 private:
 	// 接收代理.
 	FDelegateHandle mRecvDelegate;
