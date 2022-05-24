@@ -71,13 +71,15 @@ void UUI_HallMain::PlayRenameOut()
 }
 
 /** 负责还原 Create面板. */
-void UUI_HallMain::ResetCharacterCreatePanel()
+void UUI_HallMain::ResetCharacterCreatePanel(bool bSpawnNewCharacter)
 {
 	// 把create面板的4个加号再补回来.
 	UI_CharacterCreatePanel->CreateCharacterButtons();
 
-	// 除去UI,还需要恢复生成最近的舞台人物.
-	SpawnRecentCharacter();
+	if (bSpawnNewCharacter == true) {
+		// 除去UI,还需要恢复生成最近的舞台人物.
+		SpawnRecentCharacter();
+	}
 
 	// 使最近存档关联的槽位按钮高亮.
 	HighlightDefaultSelection();
@@ -202,15 +204,29 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 		/** 收到来自db的 创建舞台人物 的回复协议. */
 		case SP_CreateCharacterResponses:
 		{
+			GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, TEXT("客户端收到了协议SP_CreateCharacterResponses"));
+
 			ECheckNameType CheckNameType = ECheckNameType::UNKNOWN_ERROR;// 核验结果
 			bool bCreateCharacter = false;// 创建信号.
-			SIMPLE_PROTOCOLS_RECEIVE(SP_CreateCharacterResponses, CheckNameType, bCreateCharacter);// 收取服务端回复的2个属性数据.
+			FString JsonString_CA;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CreateCharacterResponses, CheckNameType, bCreateCharacter, JsonString_CA);// 收取服务端回复的3个属性数据.
 
 			if (bCreateCharacter == true) {
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("bCreateCharacter == true"));
 				PrintLog(LOCTEXT("CREATECHARACTERRESPONSES_SUCCESSFULLY", "created successfully."));
-
+				// 从JSON数据源中解析出CA存档.
+				FMMOARPGCharacterAppearance InCA;
+				NetDataAnalysis::StringToCharacterAppearances(JsonString_CA, InCA);
+				// 
+				if (AHallPlayerState* InPS = GetPlayerState<AHallPlayerState>()) {
+					InPS->AddCharacterCA(InCA);
+					
+					PlayRenameOut();// 播放Rename控件的淡出动画.
+					ResetCharacterCreatePanel(false);// 还原Create控件(这里设置为暂不生成人物).
+				}
 			}
 			else {
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("bCreateCharacter == false"));
 				PrintLog(LOCTEXT("CREATECHARACTERRESPONSES_FAIL", "created fail."));
 				// 延迟1.5秒打印核验结果.
 				GThread::Get()->GetCoroutines().BindLambda(1.5f, [=]() { PrintLogByCheckName(CheckNameType); });
@@ -239,7 +255,7 @@ void UUI_HallMain::PrintLogByCheckName(ECheckNameType InCheckNameType)
 			PrintLog(LOCTEXT("CHECK_NAME_UNKNOWN_ERROR", "The server encountered an unknown error."));
 			break;
 		case NAME_NOT_EXIST:
-			PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "The name is Invalid"));
+			PrintLog(LOCTEXT("CHECK_NAME_NAME_NOT_EXIST", "The name is Valid."));
 			break;
 		case SERVER_NOT_EXIST:
 			PrintLog(LOCTEXT("CHECK_NAME_SERVER_NOT_EXIST", "Server error."));

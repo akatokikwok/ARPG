@@ -25,7 +25,9 @@ public:
 	FMMOARPGCharacterAppearance* GetCharacterCA(const int32 InPosIndex);
 	// 添加指定槽号的CA(若已有则拿取已有的.)
 	FMMOARPGCharacterAppearance* AddCharacterCA(const int32 InPosIndex);
-
+	//
+	int32 AddCharacterCA(const FMMOARPGCharacterAppearance& InCA);
+	
 	//
 	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacter() 
 	{ 

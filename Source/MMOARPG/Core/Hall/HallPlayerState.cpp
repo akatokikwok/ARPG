@@ -66,3 +66,8 @@ FMMOARPGCharacterAppearance* AHallPlayerState::AddCharacterCA(const int32 InPosI
 
 	return CA_final;
 }
+
+int32 AHallPlayerState::AddCharacterCA(const FMMOARPGCharacterAppearance& InCA)
+{
+    return CharacterAppearances.Add(InCA);
+}

@@ -30,7 +30,7 @@ public:
 	void PlayRenameOut();
 
 	// 负责还原 Create面板.
-	void ResetCharacterCreatePanel();
+	void ResetCharacterCreatePanel(bool bSpawnNewCharacter = true);
 	/** 生成最近CA存档关联的舞台人物. */
 	void SpawnRecentCharacter();
 	/** 使最近存档关联的槽位按钮高亮. */
