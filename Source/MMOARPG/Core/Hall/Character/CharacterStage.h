@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../../Common/Interface/KneadingInterface.h"
 #include "CharacterStage.generated.h"
 
 /**
  * 点击加号时候被生成的人物.
  */
 UCLASS()
-class MMOARPG_API ACharacterStage : public ACharacter
+class MMOARPG_API ACharacterStage : public ACharacter, public IKneadingInterface
 {
 	GENERATED_BODY()
 
