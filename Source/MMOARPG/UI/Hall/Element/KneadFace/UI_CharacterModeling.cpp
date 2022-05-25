@@ -26,19 +26,42 @@ void UUI_CharacterModeling::NativeTick(const FGeometry& MyGeometry, float InDelt
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void UUI_CharacterModeling::LegValueChanged(float InDeltaTime)
+/** 刷新舞台人物身材长相. */
+void UUI_CharacterModeling::UpdatePawn()
 {
-
+	if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+		if (InPawn->CharacterStage != nullptr) {
+			InPawn->CharacterStage->UpdateKneadingBoby();
+		}
+	}
 }
 
-void UUI_CharacterModeling::WaistValueChanged(float InDeltaTime)
+/** 设定滑块条右侧的数字文字. */
+void UUI_CharacterModeling::UpdateText(UTextBlock* InValueText, float InValue)
 {
-
+	if (InValueText) {
+		// 以此种算法设计出诸如00 01 02 03 04的数字.
+		int32 IntValue = InValue * 10;
+		InValueText->SetText(FText::FromString(FString::Printf(TEXT("%02d"), IntValue)));
+	}
 }
 
-void UUI_CharacterModeling::ArmValueChanged(float InDeltaTime)
+void UUI_CharacterModeling::LegValueChanged(float InVal)
 {
+	UpdateText(LegValueText, InVal);// 设定滑块条右侧的数字文字.
+	UpdatePawn();// 更新舞台人物外观.
+}
 
+void UUI_CharacterModeling::WaistValueChanged(float InVal)
+{
+	UpdateText(WaistValueText, InVal);
+	UpdatePawn();
+}
+
+void UUI_CharacterModeling::ArmValueChanged(float InVal)
+{
+	UpdateText(ArmValueText, InVal);
+	UpdatePawn();
 }
 
 void UUI_CharacterModeling::SelectModelingType(FString SelectedItem, ESelectInfo::Type SelectionType)

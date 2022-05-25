@@ -19,6 +19,11 @@ public:
 	// Sets default values for this character's properties
 	ACharacterStage();
 
+	// 使用CA存档数据更新外观.
+	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA) override;
+	// 更新外观.
+	virtual	void UpdateKneadingBoby() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,4 +39,11 @@ public:
 	UFUNCTION()
 		void OnClicked_callback(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 
+	// 把槽号注册进舞台人物.
+	void SetSlotID(int32 InID);
+	// 拿取舞台人物的槽号.
+	int32 GetSlotID() { return SlotID; }
+
+private:
+	int32 SlotID;// 槽号.
 };

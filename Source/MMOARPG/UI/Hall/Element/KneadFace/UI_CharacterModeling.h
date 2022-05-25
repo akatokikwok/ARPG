@@ -18,15 +18,21 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	/** 通用接口:刷新舞台人物身材长相. */
+	void UpdatePawn();
+	/** 通用接口: 设定滑块条右侧的数字文字 */
+	void UpdateText(UTextBlock* InValueText, float InValue);
+
+private:
 	//
 	UFUNCTION()
-		void LegValueChanged(float InDeltaTime);
+		void LegValueChanged(float InVal);
 	//
 	UFUNCTION()
-		void WaistValueChanged(float InDeltaTime);
+		void WaistValueChanged(float InVal);
 	//
 	UFUNCTION()
-		void ArmValueChanged(float InDeltaTime);
+		void ArmValueChanged(float InVal);
 	//
 	UFUNCTION()
 		void SelectModelingType(FString SelectedItem, ESelectInfo::Type SelectionType);

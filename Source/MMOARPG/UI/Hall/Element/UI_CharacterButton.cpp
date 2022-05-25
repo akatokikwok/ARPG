@@ -37,10 +37,14 @@ void UUI_CharacterButton::ClickedCharacter_callback()
 	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
 		if (UUI_CharacterCreatePanel* UI_CharacterCreatePanel = GetParents<UUI_CharacterCreatePanel>()) {// 拿取父级Create面板.
 			if (InState->IsCharacterExistInSlot(SlotPosition) == false) {// 查到PS里没有数据源
+				
+				// 每次生成舞台人物,注册一次槽号, 刷新一次身材外观.
+				if (ACharacterStage* InStageChar = UI_CharacterCreatePanel->CreateCharacter()) {
+					InStageChar->SetSlotID(SlotPosition);
+					InStageChar->UpdateKneadingBoby();
+				}
 
-				// 显式指定槽号, 生成对应槽号的玩家人物.
-				UI_CharacterCreatePanel->CreateCharacter();
-				// 当点击加号后创建 捏脸信息.
+				// 当点击加号后创建 捏脸信息与控件的外观.
 				UI_CharacterCreatePanel->CreateKneadFace();
 				// 借助更上一级父级HallMain来播动画, 播Renmae面板的动画,同时产生Rename面板.
 				if (UUI_HallMain* InMainPanel = UI_CharacterCreatePanel->GetParents<UUI_HallMain>()) {

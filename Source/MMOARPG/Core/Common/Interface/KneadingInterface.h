@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "MMOARPGType.h"
 #include "KneadingInterface.generated.h"
 
 // 使用元元素说明符 Blueprintable, BlueprintType, meta = (CannotImplementInterfaceInBlueprint)
@@ -24,6 +25,10 @@ class MMOARPG_API IKneadingInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	IKneadingInterface();
+
+	virtual	void UpdateKneadingBoby() = 0;
+	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA) = 0;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
 		virtual	void SetLegSize(float InLegSize);

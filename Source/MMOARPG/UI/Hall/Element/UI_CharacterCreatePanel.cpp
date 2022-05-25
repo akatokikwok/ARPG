@@ -96,12 +96,13 @@ void UUI_CharacterCreatePanel::SpawnCharacter()
 	SpawnCharacter(SlotPosition);
 }
 
-/** 生成关联特定CA的玩家形象 */
+/** 生成指定CA存档的玩家身材外观. */
 void UUI_CharacterCreatePanel::SpawnCharacter(const FMMOARPGCharacterAppearance* InACData)
 {
 	if (InACData != nullptr) {
 		if (ACharacterStage* InStageChar = CreateCharacter()) {
-			
+			InStageChar->SetSlotID(InACData->SlotPosition);// 手动设定一下stagecharacter的槽号.
+			InStageChar->UpdateKneadingBoby(*InACData);// 使用CA存档更新身材外观.
 		}
 	}
 }
