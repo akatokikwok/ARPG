@@ -15,17 +15,31 @@ UCLASS()
 class MMOARPG_API UUI_KneadFace : public UUI_Base
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 private:
-// 	UPROPERTY(meta = (BindWidget))
-// 		UCheckBox* Body;
-// 
-// 	UPROPERTY(meta = (BindWidget))
-// 		UCheckBox* Appearance;
-// 
-// 	UPROPERTY(meta = (BindWidget))
-// 		UCheckBox* Talent;
-// 
-// 	UPROPERTY(meta = (BindWidget))
-// 		UWidgetSwitcher* FacePanel;
+	// UCheckBox-Body被敲击了之后
+	UFUNCTION()
+		void OnClickedBody(bool bClicked);
+	// UCheckBox-Appearance被敲击了之后
+	UFUNCTION()
+		void OnClickedAppearance(bool bClicked);
+	// UCheckBox-Talenty被敲击了之后
+	UFUNCTION()
+		void OnClickedTalent(bool bClicked);
+
+private:
+ 	UPROPERTY(meta = (BindWidget))
+ 		UCheckBox* Body;
+ 
+ 	UPROPERTY(meta = (BindWidget))
+ 		UCheckBox* Appearance;
+ 
+ 	UPROPERTY(meta = (BindWidget))
+ 		UCheckBox* Talent;
+ 
+ 	UPROPERTY(meta = (BindWidget))
+ 		UWidgetSwitcher* FacePanel;
 };
