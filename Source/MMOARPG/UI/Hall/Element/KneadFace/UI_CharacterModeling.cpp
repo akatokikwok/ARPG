@@ -30,8 +30,31 @@ void UUI_CharacterModeling::NativeTick(const FGeometry& MyGeometry, float InDelt
 void UUI_CharacterModeling::UpdatePawn()
 {
 	if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
-		if (InPawn->CharacterStage != nullptr) {
-			InPawn->CharacterStage->UpdateKneadingBoby();
+		if (AHallPlayerState* InPS = GetWorld()->GetFirstPlayerController()->GetPlayerState<AHallPlayerState>())
+		{
+			if (InPawn->CharacterStage != nullptr) {
+				int32 SlotID_Stagechar = InPawn->CharacterStage->GetSlotID();// 1.拿取舞台人物槽号.
+				FMMOARPGCharacterAppearance* InCA_Stage = InPS->GetCharacterCA(SlotID_Stagechar);// 2.在PS里找对应槽号的CA存档.
+				
+				// 比对临时的CA 匹配 舞台人物槽号, 查无此CA则暗示这是新建的舞台人物.
+				if (!InCA_Stage) {
+					if (auto* CA_CurrentTmpCreateCharacter = InPS->GetCurrentTmpCreateCharacterCA()) {
+						if (CA_CurrentTmpCreateCharacter->SlotPosition == SlotID_Stagechar) {
+							InCA_Stage = CA_CurrentTmpCreateCharacter;
+						}
+					}
+				}
+
+				// 刷新CA存档数据为滑条对应传出的值.
+				if (InCA_Stage) {
+					InCA_Stage->LegSize = LegSlider->GetValue() * 10.f;
+					InCA_Stage->WaistSize = WaistSlider->GetValue() * 10.f;
+					InCA_Stage->ArmSize = ArmSlider->GetValue() * 10.f;
+				}
+
+				// 更新外观
+				InPawn->CharacterStage->UpdateKneadingBoby();
+			}
 		}
 	}
 }

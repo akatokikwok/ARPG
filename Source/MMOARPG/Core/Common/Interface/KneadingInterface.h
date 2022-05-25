@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
 		virtual void SetMeshPostion(USceneComponent* InMesh);
 
+	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
+	void InitKneadingLocation(const FVector& InLocation);
+
 protected:
 	float LegSize;
 	float WaistSize;

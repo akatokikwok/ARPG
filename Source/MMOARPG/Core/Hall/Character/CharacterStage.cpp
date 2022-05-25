@@ -28,9 +28,18 @@ void ACharacterStage::UpdateKneadingBoby()
 {
 	if (SlotID != INDEX_NONE) {// 异常保护.
 
-		if (AHallPlayerState* InState = GetWorld()->GetFirstPlayerController()->GetPlayerState<AHallPlayerState>()) {
-			if (FMMOARPGCharacterAppearance* InCA = InState->GetCharacterCA(SlotID)) {// 槽号的设定在 UUI_CharacterCreatePanel::SpawnCharacter里完成.
-				UpdateKneadingBoby(*InCA);// 生成指定CA存档的人物身材.
+		if (AHallPlayerState* InPS = GetWorld()->GetFirstPlayerController()->GetPlayerState<AHallPlayerState>()) {
+			
+			/**
+			 * 先查PS里是否已有存档,没存档就启用临时存档,用临时存档来更新女人物身材样式.
+			 */
+			if (FMMOARPGCharacterAppearance* InCA_exist = InPS->GetCharacterCA(SlotID)) {
+				UpdateKneadingBoby(*InCA_exist);// 生成指定CA存档的人物身材.
+			}
+			else if (InPS->GetCurrentTmpCreateCharacterCA() && InPS->GetCurrentTmpCreateCharacterCA()->SlotPosition == SlotID) {// 槽号的设定在 UUI_CharacterCreatePanel::SpawnCharacter里完成.
+				FMMOARPGCharacterAppearance* CA_Temp = InPS->GetCurrentTmpCreateCharacterCA();
+				UpdateKneadingBoby(*CA_Temp);
+// 				UpdateKneadingBoby(*InPS->GetCurrentTmpCreateCharacterCA());
 			}
 		}
 	}
@@ -44,6 +53,8 @@ void ACharacterStage::BeginPlay()
 		GetCapsuleComponent()->OnClicked.AddDynamic(this, &ACharacterStage::OnClicked_callback);
 	}
 
+	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
+	InitKneadingLocation(GetMesh()->GetComponentLocation());
 }
 
 // Called every frame

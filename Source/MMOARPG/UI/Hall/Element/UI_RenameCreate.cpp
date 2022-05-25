@@ -31,17 +31,25 @@ void UUI_RenameCreate::ClickedCreate_callback()
 	// 播Rename控件的淡出动画.
 	if (UUI_HallMain* InHall = GetParents<UUI_HallMain>()) {
 		if (AHallPlayerState* InPS = GetPlayerState<AHallPlayerState>()) {
-			FMMOARPGCharacterAppearance InCA;
-			InCA.Name = EditableName->GetText().ToString();// 设置新存档的名字.
-			InCA.Date = FDateTime::Now().ToString();// 设置新存档的日期.
-			InCA.Lv = 1;// 新存档刚建立的时候设置为1.
-			InCA.SlotPosition = SlotPosition;
+// 			FMMOARPGCharacterAppearance InCA;
+// 			InCA.Name = EditableName->GetText().ToString();// 设置新存档的名字.
+// 			InCA.Date = FDateTime::Now().ToString();// 设置新存档的日期.
+// 			InCA.Lv = 1;// 新存档刚建立的时候设置为1.
+// 			InCA.SlotPosition = SlotPosition;
 
-			if (InCA.Name.IsEmpty() == true) {/* 玩家并没有键入名字*/
-				InHall->PrintLog(TEXT("Name that Player Typed cannot be Empty!"));
-			}
-			else {/* 玩家键入了名字*/
-				InHall->CreateCharacter(InCA);// 向服务端发送创建角色请求.
+			if (auto* CurrentTmpCreateCharacter_CA = InPS->GetCurrentTmpCreateCharacterCA())
+			{
+				CurrentTmpCreateCharacter_CA->Name = EditableName->GetText().ToString();
+				CurrentTmpCreateCharacter_CA->Date = FDateTime::Now().ToString();
+
+				if (CurrentTmpCreateCharacter_CA->Name.IsEmpty() == true) {/* 玩家并没有键入名字*/
+					InHall->PrintLog(TEXT("Name that Player Typed cannot be Empty!"));
+				}
+				else {/* 玩家键入了名字*/
+
+					/// 向服务端发送创建角色请求.(这里传出去的由玩家填充的CA存档是临时编辑生成的CA存档.)
+					InHall->CreateCharacter(*CurrentTmpCreateCharacter_CA);
+				}
 			}
 		}
 	}
