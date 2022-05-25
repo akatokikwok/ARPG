@@ -6,6 +6,7 @@
 #include "../UI_HallMain.h"
 #include "../../../Core/Hall/HallPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "MMOARPGType.h"
 
 void UUI_CharacterButton::NativeConstruct()
 {
@@ -37,10 +38,22 @@ void UUI_CharacterButton::ClickedCharacter_callback()
 	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
 		if (UUI_CharacterCreatePanel* UI_CharacterCreatePanel = GetParents<UUI_CharacterCreatePanel>()) {// 拿取父级Create面板.
 			if (InState->IsCharacterExistInSlot(SlotPosition) == false) {// 查到PS里没有数据源
+				
+				// 每次生成舞台人物, 检查临时存档 并注册一次槽号, 刷新一次身材外观.
+				if (ACharacterStage* InStageChar = UI_CharacterCreatePanel->CreateCharacter()) {
 
-				// 显式指定槽号, 生成对应槽号的玩家人物.
-				UI_CharacterCreatePanel->CreateCharacter();
-				// 当点击加号后创建 捏脸信息.
+					// 若查明存在临时CA存档, 就格式化并手动设定槽号.
+					if (InState->GetCurrentTmpCreateCharacterCA() != nullptr) {
+						InState->GetCurrentTmpCreateCharacterCA()->Reset();// 先格式化临时CA.
+						InState->GetCurrentTmpCreateCharacterCA()->SlotPosition = SlotPosition;// 手动设定临时CA为最新槽号, 并主观认为临时CA存档被本槽号占用了.
+					}
+
+					// 注册一次槽号, 刷新一次身材外观.
+					InStageChar->SetSlotID(SlotPosition);
+					InStageChar->UpdateKneadingBoby();
+				}
+
+				// 当点击加号后创建 捏脸信息与控件的外观.
 				UI_CharacterCreatePanel->CreateKneadFace();
 				// 借助更上一级父级HallMain来播动画, 播Renmae面板的动画,同时产生Rename面板.
 				if (UUI_HallMain* InMainPanel = UI_CharacterCreatePanel->GetParents<UUI_HallMain>()) {

@@ -28,13 +28,15 @@ public:
 	//
 	int32 AddCharacterCA(const FMMOARPGCharacterAppearance& InCA);
 	
-	//
-	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacter() 
+	// 拿取临时生成的CA存档.
+	FMMOARPGCharacterAppearance* GetCurrentTmpCreateCharacterCA() 
 	{ 
-		return &CurrentTmpCreateCharacter; 
+		return &CurrentTmpCreateCharacter_CA; 
 	}
 
 private:
-	FCharacterAppearances CharacterAppearances;// 一堆角色形象.
-	FMMOARPGCharacterAppearance CurrentTmpCreateCharacter;// 单个玩家形象.
+	FCharacterAppearances CharacterAppearances;// 一堆角色形象(和服务端交互).
+
+	// 临时生成的单个人物数据(例如在UI里拖拉滑条的时候临时生成).
+	FMMOARPGCharacterAppearance CurrentTmpCreateCharacter_CA;
 };

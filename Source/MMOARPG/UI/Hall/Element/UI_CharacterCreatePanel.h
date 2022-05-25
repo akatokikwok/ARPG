@@ -37,7 +37,7 @@ public:
 	ACharacterStage* CreateCharacter();
 	/** 生成指定槽号的玩家形象 */
 	void SpawnCharacter(const int32 InSlotIndex);
-	/** 生成 特定CA存档数据下的 玩家形人物 */
+	/** 生成指定CA存档的玩家身材外观. */
 	void SpawnCharacter(const FMMOARPGCharacterAppearance* InACData);
 
 	/** 覆写当前槽号(记录或保留当前槽号) */

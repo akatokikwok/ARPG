@@ -44,8 +44,13 @@ void IKneadingInterface::SetMeshPostion(USceneComponent* InMesh)
 {
 	if (InMesh) {
 		FVector ComponentLocation = Location;
-		ComponentLocation.Z += LegSize;
+		ComponentLocation.Z += LegSize;// 拿到人物的位置垂直方向上 增长, 就是拉腿.
 
-		InMesh->SetWorldLocation(ComponentLocation);
+		InMesh->SetWorldLocation(ComponentLocation);// 重设舞台人物的 玩家高度.
 	}
+}
+
+void IKneadingInterface::InitKneadingLocation(const FVector& InLocation)
+{
+	Location = InLocation;
 }
