@@ -19,6 +19,10 @@ public:
 	FCharacterAppearances& GetCharacterAppearance();
 	/** 检查所有舞台角色是否存在符合指定槽位的数据包 */
 	bool IsCharacterExistInSlot(const int32 InPos);
+
+	// 移除指定槽号的CA存档.
+	void RemoveCharacterAppearanceBySlot(int32 InSlot);
+
 	// 获取最近游玩过的存档角色的数据.
 	FMMOARPGCharacterAppearance* GetRecentCharacter();
 	// 拿取指定槽号的CA存档.

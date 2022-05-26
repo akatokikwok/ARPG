@@ -44,6 +44,9 @@ public:
 	// 刷新Rename控件的关联槽位.
 	void SetSlotPosition(const int32 InSlotIndex);
 
+	// 删除角色入口.
+	void DeleteCharacter(int32 InSlot);
+
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */
 	void BindClientRcv();
