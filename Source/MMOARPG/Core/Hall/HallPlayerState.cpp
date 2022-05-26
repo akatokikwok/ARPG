@@ -16,6 +16,16 @@ bool AHallPlayerState::IsCharacterExistInSlot(const int32 InPos)
 		}) != nullptr;
 }
 
+void AHallPlayerState::RemoveCharacterAppearanceBySlot(int32 InSlot)
+{
+//   	FMMOARPGCharacterAppearance CA;
+//   	CA.SlotPosition = InSlot;
+//      const FMMOARPGCharacterAppearance& CA_Ref = CA;
+//      if (CharacterAppearances.Num() > 0 && &CA_Ref != nullptr) {
+//          CharacterAppearances.Remove(CA);
+//      }
+}
+
 FMMOARPGCharacterAppearance* AHallPlayerState::GetRecentCharacter()
 {
  	FDateTime MaxDateTime;

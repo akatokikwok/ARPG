@@ -131,6 +131,16 @@ void UUI_HallMain::SetSlotPosition(const int32 InSlotIndex)
 	UI_RenameCreate->SetSlotPosition(InSlotIndex);
 }
 
+void UUI_HallMain::DeleteCharacter(int32 InSlot)
+{
+	if (InSlot >= 0 && InSlot < 4) {
+		if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+			// 发送删除指定槽号的CA 请求.
+			SEND_DATA(SP_DeleteCharacterRequests, InGameInstance->GetUserData().ID, InSlot);
+		}
+	}
+}
+
 void UUI_HallMain::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -232,6 +242,28 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 				GThread::Get()->GetCoroutines().BindLambda(1.5f, [=]() { PrintLogByCheckName(CheckNameType); });
 			}
 			break;
+		}
+
+		/** 删除角色. */
+		case SP_DeleteCharacterResponses:
+		{
+			int32 UserID = INDEX_NONE;// 用户ID
+			FSimpleAddrInfo AddrInfo;
+			int32 SlotID = INDEX_NONE;// 要删除的槽号.
+			int32 SuccessDeleteCount = 0;// 删除成功的计数.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_DeleteCharacterResponses, UserID, SlotID, SuccessDeleteCount);
+
+			if (SuccessDeleteCount > 2) {/* 满足删除技术成功次数大于2,才满足完整地删除流程. */
+				if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
+
+					InState->RemoveCharacterAppearanceBySlot(SlotID);// 先删除PS里的存档数据.
+					ResetCharacterCreatePanel(true);// 再还原Create面板外观.
+				}
+				PrintLog(LOCTEXT("DELETE_CHARACTER_SUCCESS", "The role deletion is successful, and the change operation is irreversible."));
+			}
+			else {
+				PrintLog(LOCTEXT("DELETE_CHARACTER_ERROR", "Failed to delete the role. Please check if the role exists."));
+			}
 		}
 	}
 }
