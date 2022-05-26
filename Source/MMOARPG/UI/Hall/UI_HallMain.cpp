@@ -9,6 +9,7 @@
 #include "../../MMOAPRGMacroType.h"
 #include "../../Core/Hall/HallPlayerState.h"
 #include "MMOARPGType.h"
+#include "../../Core/Hall/HallPawn.h"
 
 #define LOCTEXT_NAMESPACE "UUI_HallMain"// 用于本地化.
 
@@ -19,6 +20,7 @@ void UUI_HallMain::NativeConstruct()
 	// 将主面板设置为各子层级UI的持有者.
 	UI_RenameCreate->SetParents(this);
 	UI_CharacterCreatePanel->SetParents(this);
+	UI_EditorCharacter->SetParents(this);
 
 	/** 1.创建客户端 */
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -91,6 +93,12 @@ void UUI_HallMain::SpawnRecentCharacter()
 	if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
 		if (FMMOARPGCharacterAppearance* InRecentCAData = InState->GetRecentCharacter()) {// 先拿取PS里最近的人物存档.
 			UI_CharacterCreatePanel->SpawnCharacter(InRecentCAData);// 生成最近CA存档关联的舞台人物.
+
+			SetEditCharacter(InRecentCAData);
+		}
+		else {
+			SetEditCharacter(nullptr);
+			DestroyCharacter();
 		}
 	}
 }
@@ -137,6 +145,29 @@ void UUI_HallMain::DeleteCharacter(int32 InSlot)
 		if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
 			// 发送删除指定槽号的CA 请求.
 			SEND_DATA(SP_DeleteCharacterRequests, InGameInstance->GetUserData().ID, InSlot);
+		}
+	}
+}
+
+void UUI_HallMain::SetEditCharacter(const FMMOARPGCharacterAppearance* InCA)
+{
+	if (InCA) {
+		UI_EditorCharacter->SetCharacterName(FText::FromString(InCA->Name));
+		UI_EditorCharacter->SetSlotID(InCA->SlotPosition);
+	}
+	else {
+		UI_EditorCharacter->SetCharacterName(FText::FromString(""));
+		UI_EditorCharacter->SetSlotID(INDEX_NONE);
+	}
+}
+
+void UUI_HallMain::DestroyCharacter()
+{
+	//删除刚刚角色
+	if (AHallPawn* InPawn = GetPawn<AHallPawn>()) {
+		if (InPawn->CharacterStage) {
+			InPawn->CharacterStage->Destroy();
+			InPawn->CharacterStage = nullptr;
 		}
 	}
 }
@@ -233,6 +264,8 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 					
 					PlayRenameOut();// 播放Rename控件的淡出动画.
 					ResetCharacterCreatePanel(false);// 还原Create控件(这里设置为暂不生成人物).
+
+					SetEditCharacter(&InCA);// 设定正在编辑的槽孔.
 				}
 			}
 			else {
