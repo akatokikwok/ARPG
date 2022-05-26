@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HallPlayerState.h"
+#include "MMOARPGType.h"
 
 FCharacterAppearances& AHallPlayerState::GetCharacterAppearance()
 {
@@ -18,12 +19,13 @@ bool AHallPlayerState::IsCharacterExistInSlot(const int32 InPos)
 
 void AHallPlayerState::RemoveCharacterAppearanceBySlot(int32 InSlot)
 {
-//   	FMMOARPGCharacterAppearance CA;
-//   	CA.SlotPosition = InSlot;
-//      const FMMOARPGCharacterAppearance& CA_Ref = CA;
-//      if (CharacterAppearances.Num() > 0 && &CA_Ref != nullptr) {
-//          CharacterAppearances.Remove(CA);
-//      }
+	FMMOARPGCharacterAppearance CA;
+	CA.SlotPosition = InSlot;
+	
+    if (this->CharacterAppearances.Num() > 0) {
+    	CharacterAppearances.Remove(CA);
+    }
+	
 }
 
 FMMOARPGCharacterAppearance* AHallPlayerState::GetRecentCharacter()

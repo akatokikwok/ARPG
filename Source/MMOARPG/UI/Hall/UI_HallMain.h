@@ -8,6 +8,7 @@
 #include "Element/UI_CharacterCreatePanel.h"
 #include "Element/UI_RenameCreate.h"
 #include "SimpleNetChannelType.h"
+#include "Element/KneadFace/UI_EditorCharacter.h"
 #include "UI_HallMain.generated.h"
 
 /**
@@ -47,6 +48,12 @@ public:
 	// 删除角色入口.
 	void DeleteCharacter(int32 InSlot);
 
+	// 设定正在编辑的槽孔.
+	void SetEditCharacter(const FMMOARPGCharacterAppearance* InCA);
+
+	//
+	void DestroyCharacter();
+
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */
 	void BindClientRcv();
@@ -72,4 +79,7 @@ private:
 	// 负责详细创建舞台人物信息的控件.
 	UPROPERTY(meta = (BindWidget))
 		UUI_RenameCreate* UI_RenameCreate;
+	// 负责删除与编辑的控件.
+	UPROPERTY(meta = (BindWidget))
+		UUI_EditorCharacter* UI_EditorCharacter;
 };
