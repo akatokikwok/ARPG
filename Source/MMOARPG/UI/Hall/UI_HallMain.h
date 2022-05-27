@@ -54,6 +54,9 @@ public:
 	//
 	void DestroyCharacter();
 
+	/** 向服务端发送跳转至DS的请求. */
+	void JumpDSServer(int32 InSlotID);
+
 protected:
 	/** 循环创建与绑定. 绑定客户端的接收. */
 	void BindClientRcv();

@@ -10,6 +10,8 @@
 #include "../../Core/Hall/HallPlayerState.h"
 #include "MMOARPGType.h"
 #include "../../Core/Hall/HallPawn.h"
+#include "SimpleNetChannelType.h"
+#include "Kismet/GameplayStatics.h"
 
 #define LOCTEXT_NAMESPACE "UUI_HallMain"// 用于本地化.
 
@@ -172,6 +174,14 @@ void UUI_HallMain::DestroyCharacter()
 	}
 }
 
+/** 向服务端发送跳转至DS的请求. */
+void UUI_HallMain::JumpDSServer(int32 InSlotID)
+{
+	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
+		SEND_DATA(SP_LoginToDSServerRequests, InGameInstance->GetUserData().ID, InSlotID);// InSlotID是具体的哪个槽号的人物.
+	}
+}
+
 void UUI_HallMain::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -298,6 +308,17 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 				PrintLog(LOCTEXT("DELETE_CHARACTER_ERROR", "Failed to delete the role. Please check if the role exists."));
 			}
 		}
+
+		/** 登录DS服务器. */
+		case SP_LoginToDSServerResponses :
+		{
+			FSimpleAddr Addr;// 里面存有IP和端口.
+			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginToDSServerResponses, Addr);
+
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+			break;
+		}
+
 	}
 }
 

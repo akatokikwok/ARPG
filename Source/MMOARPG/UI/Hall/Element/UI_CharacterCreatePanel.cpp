@@ -5,6 +5,7 @@
 #include "../../../Core/Hall/HallPlayerState.h"
 #include "UI_CharacterButton.h"
 #include "../../../Core/Hall/HallPawn.h"
+#include "../UI_HallMain.h"
 
 void UUI_CharacterCreatePanel::NativeConstruct()
 {
@@ -158,4 +159,12 @@ UUI_CharacterButton* UUI_CharacterCreatePanel::GetHighlightButton()
 			}
 			return false;
 		});
+}
+
+/** 向服务端请求跳转至DS. */
+void UUI_CharacterCreatePanel::JumpDSServer(int32 InSlotID)
+{
+	if (UUI_HallMain* InHallMain = GetParents<UUI_HallMain>()) {
+		InHallMain->JumpDSServer(InSlotID);
+	}
 }

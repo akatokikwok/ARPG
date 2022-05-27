@@ -34,7 +34,9 @@ void UUI_CharacterButton::SetSlotPosition(const int32 InNewPos)
 
 void UUI_CharacterButton::JumpDSServer()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+	if (UUI_CharacterCreatePanel* InUI_CharacterCreatePanel = GetParents<UUI_CharacterCreatePanel>()) {
+		InUI_CharacterCreatePanel->JumpDSServer(SlotPosition);
+	}
 }
 
 /** 用于点击加号槽位被绑定的方法. */
