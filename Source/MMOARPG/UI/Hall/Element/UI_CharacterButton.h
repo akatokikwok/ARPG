@@ -27,11 +27,16 @@ public:
 	void InitCharacterButton(const FMMOARPGCharacterAppearance& InCA);
 	/** 使高亮 CharacterButton. */
 	void SetHighlight(bool bHighlight);
+	/** 检查CharacterButton 是否为高亮色. */
+	bool IsHighlight();
 
 	// 覆写槽序数.
 	void SetSlotPosition(const int32 InNewPos);
 	/** 拿本类的槽序数. */
 	FORCEINLINE int32 GetSlotPosition() { return SlotPosition; }
+
+	//
+	void JumpDSServer();
 
 protected:
 	// 用于点击CharacterButton被绑定的方法.

@@ -82,12 +82,12 @@ void UUI_CharacterCreatePanel::SpawnCharacter(const int32 InSlotIndex)
 		);
 	}
 
-// 		if (FMMOARPGCharacterAppearance* InCAData = InPS->GetCharacterAppearance().FindByPredicate([&](const FMMOARPGCharacterAppearance& InCA) ->bool {
-// 				return InCA.SlotPosition == InSlotIndex;
-// 			}))
-// 		{
-// 			SpawnCharacter(InCAData);
-// 		}
+	// 		if (FMMOARPGCharacterAppearance* InCAData = InPS->GetCharacterAppearance().FindByPredicate([&](const FMMOARPGCharacterAppearance& InCA) ->bool {
+	// 				return InCA.SlotPosition == InSlotIndex;
+	// 			}))
+	// 		{
+	// 			SpawnCharacter(InCAData);
+	// 		}
 }
 
 /** 仅负责生成玩家人物. */
@@ -127,7 +127,7 @@ void UUI_CharacterCreatePanel::SetCurrentSlotPosition(const int32 InNewPos)
 {
 	SlotPosition = InNewPos;
 
-// 	HighlightSelection(SlotPosition);
+	// 	HighlightSelection(SlotPosition);
 }
 
 /** 高亮指定槽号的UI. */
@@ -139,13 +139,23 @@ void UUI_CharacterCreatePanel::HighlightSelection(int32 InNewIndex)
 		[InNewIndex](UUI_CharacterButton* InButton) ->bool {
 			if (InNewIndex == InButton->GetSlotPosition()) {
 				InButton->SetHighlight(true);
-// 				return true;// 此时终止查找.
+				// 				return true;// 此时终止查找.
 			}
 			else {
 				InButton->SetHighlight(false);// 不符合条件的button都禁用高亮.
 			}
-			return false;
-		}
+			return false;}
 	);
+}
 
+/** 获取符合正在高亮的 CharacterButton. */
+UUI_CharacterButton* UUI_CharacterCreatePanel::GetHighlightButton()
+{
+	return FindByPredicateInList<UUI_CharacterButton>(
+		[](UUI_CharacterButton* InButton) ->bool {
+			if (InButton->IsHighlight()) {
+				return true;
+			}
+			return false;
+		});
 }
