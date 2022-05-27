@@ -45,22 +45,27 @@ public:
 	/** 高亮指定槽号的UI. */
 	void HighlightSelection(int32 InNewIndex);
 
+	/** 获取符合正在高亮的 CharacterButton. */
+	UUI_CharacterButton* GetHighlightButton();
+
 	/** 泛化功能性方法.
-	 * 以特定逻辑 对滑动框各子元素进行操作并检查.
+	 * 在List里查找满足 Func条件的 T型控件.
 	 * 需要一根函数指针,它只负责条件核验是否允许循环.
 	 */
 	template<class T>
-	void FindByPredicateInList(TFunction<bool(T*)> Func)//bool 代表着 是否继续循环
+	T* FindByPredicateInList(TFunction<bool(T*)> Func)//bool 代表着 是否继续循环
 	{
 		if (List->GetAllChildren().Num() > 0u) {
 			for (auto& Tmp : List->GetAllChildren()) {
-				if (T* InButton = Cast<T>(Tmp)) {
-					if (Func(InButton) == true) {
-						break;
+				if (T* InCorrectWidget = Cast<T>(Tmp)) {
+					if (Func(InCorrectWidget) == true) {
+						return InCorrectWidget;
 					}
 				}
 			}
+			return nullptr;
 		}
+		return nullptr;
 	}
 
 private:

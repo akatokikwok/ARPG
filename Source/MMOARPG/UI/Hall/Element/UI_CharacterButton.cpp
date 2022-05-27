@@ -32,6 +32,11 @@ void UUI_CharacterButton::SetSlotPosition(const int32 InNewPos)
 	SlotPosition = InNewPos;
 }
 
+void UUI_CharacterButton::JumpDSServer()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+}
+
 /** 用于点击加号槽位被绑定的方法. */
 void UUI_CharacterButton::ClickedCharacter_callback()
 {
@@ -61,10 +66,19 @@ void UUI_CharacterButton::ClickedCharacter_callback()
 					InMainPanel->SetSlotPosition(SlotPosition);// 设置Renmae 控件的关联槽号.
 				}
 			}
-			else if (InState->IsCharacterExistInSlot(SlotPosition) == true) {// PS里找到了对应槽号数据就跳转关卡.
+			else if (UI_CharacterCreatePanel->GetHighlightButton() == this) {// 点自己.
 
 				// DS服务器
-				UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+				JumpDSServer();
+				
+			}
+			else {// 点别的按钮.
+				UI_CharacterCreatePanel->GetHighlightButton()->SetHighlight(false);// 先暗化已高亮的
+				SetHighlight(true);// 高亮自己.
+
+				if (FMMOARPGCharacterAppearance* InCA = InState->GetCharacterCA(SlotPosition)) {
+					UI_CharacterCreatePanel->SpawnCharacter(InCA);
+				}
 			}
 
 			// 每点击一次就要刷新一次槽号.
@@ -95,4 +109,10 @@ void UUI_CharacterButton::SetHighlight(bool bHighlight)
 		CharacterButton->WidgetStyle.Normal.TintColor = DefaultColor;
 		CharacterButton->SetStyle(CharacterButton->WidgetStyle);
 	}
+}
+
+/** 检查CharacterButton 是否为高亮色. */
+bool UUI_CharacterButton::IsHighlight()
+{
+	return CharacterButton->WidgetStyle.Normal.TintColor == HighlightColor;
 }
