@@ -48,6 +48,9 @@ public:
 	/** 获取符合正在高亮的 CharacterButton. */
 	UUI_CharacterButton* GetHighlightButton();
 
+	/** 向服务端请求跳转至DS. */
+	void JumpDSServer(int32 InSlotID);
+
 	/** 泛化功能性方法.
 	 * 在List里查找满足 Func条件的 T型控件.
 	 * 需要一根函数指针,它只负责条件核验是否允许循环.
