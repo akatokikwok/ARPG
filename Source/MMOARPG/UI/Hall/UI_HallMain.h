@@ -70,6 +70,12 @@ protected:
 	/** 根据核验结果分别打印提示. */
 	void PrintLogByCheckName(ECheckNameType InCheckNameType);
 
+protected:
+	// 播放主界面淡入动画.
+	void HallMainIn();
+	// 播放主界面淡出动画.
+	void HallMainOut();
+
 private:
 	// 接收代理.
 	FDelegateHandle mRecvDelegate;
