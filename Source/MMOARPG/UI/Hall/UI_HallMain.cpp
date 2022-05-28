@@ -19,6 +19,8 @@ void UUI_HallMain::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
+	HallMainIn();// 播亮屏动画.
+
 	// 将主面板设置为各子层级UI的持有者.
 	UI_RenameCreate->SetParents(this);
 	UI_CharacterCreatePanel->SetParents(this);
@@ -314,8 +316,14 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 		{
 			FSimpleAddr Addr;// 里面存有IP和端口.
 			SIMPLE_PROTOCOLS_RECEIVE(SP_LoginToDSServerResponses, Addr);
+			FString DSAddrString = FSimpleNetManage::GetAddrString(Addr);
 
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameMap"));
+			HallMainOut();// 播熄屏动画.
+
+			//协程
+			GThread::Get()->GetCoroutines().BindLambda(1.f, [=]() {
+				UGameplayStatics::OpenLevel(GetWorld(), *DSAddrString);
+			});
 			break;
 		}
 
@@ -350,6 +358,18 @@ void UUI_HallMain::PrintLogByCheckName(ECheckNameType InCheckNameType)
 			PrintLog(LOCTEXT("CHECK_NAME_NAME_EXIST", "The name has been registered."));
 			break;
 	}
+}
+
+// 播放主界面淡入动画.
+void UUI_HallMain::HallMainIn()
+{
+	PlayWidgetAnim(TEXT("HallMainIn"));
+}
+
+// 播放主界面淡出动画.
+void UUI_HallMain::HallMainOut()
+{
+	PlayWidgetAnim(TEXT("HallMainOut"));
 }
 
 #undef LOCTEXT_NAMESPACE// 用于本地化.
