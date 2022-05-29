@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -6,6 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "MMOARPGGameMode.generated.h"
 
+/**
+ * 主要使用的GM.
+ */
 UCLASS(minimalapi)
 class AMMOARPGGameMode : public AGameModeBase
 {
