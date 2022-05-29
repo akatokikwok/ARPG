@@ -1,30 +1,44 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "../Core/UI_Base.h"
-#include "../Common/UI_Print.h"
-#include "Element/UI_CharacterCreatePanel.h"
-#include "Element/UI_RenameCreate.h"
-#include "SimpleNetChannelType.h"
-#include "Element/KneadFace/UI_EditorCharacter.h"
+#include "../Core/UI_MainBase.h"
 #include "UI_HallMain.generated.h"
+class UUI_CharacterCreatePanel;
+class UUI_RenameCreate;
+class UUI_EditorCharacter;
 
 /**
  * 大厅主界面Widget.
  */
 UCLASS()
-class MMOARPG_API UUI_HallMain : public UUI_Base
+class MMOARPG_API UUI_HallMain : public UUI_MainBase
 {
 	GENERATED_BODY()
+private:
+	// 负责创建角色的面板.
+	UPROPERTY(meta = (BindWidget))
+		UUI_CharacterCreatePanel* UI_CharacterCreatePanel;
+	// 负责详细创建舞台人物信息的控件.
+	UPROPERTY(meta = (BindWidget))
+		UUI_RenameCreate* UI_RenameCreate;
+	// 负责删除与编辑的控件.
+	UPROPERTY(meta = (BindWidget))
+		UUI_EditorCharacter* UI_EditorCharacter;
+
+protected:
+	/** 重载UI_Base重要方法: RecvProtocol */
+	/** 服务器向 UI发送数据后,会激活此函数. */
+	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
+
+	/** 网络消息协议绑定的回调. */
+	void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg) override;
+
+	/** 根据核验结果分别打印提示. */
+	void PrintLogByCheckName(ECheckNameType InCheckNameType);
+
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	// 屏幕打印日志.
-	void PrintLog(const FString& InMsg);
-	void PrintLog(const FText& InMsg);
 
 	// 播放Rename控件的淡入淡出动画.
 	void PlayRenameIn();
@@ -36,7 +50,7 @@ public:
 	void SpawnRecentCharacter();
 	/** 使最近存档关联的槽位按钮高亮. */
 	void HighlightDefaultSelection();
-	
+
 	/** 向服务端核验角色命名 */
 	void CheckRename(FString& InCharacterName);
 	/** 向服务端发送创建角色的请求. */
@@ -45,30 +59,17 @@ public:
 	// 刷新Rename控件的关联槽位.
 	void SetSlotPosition(const int32 InSlotIndex);
 
+	/** 向服务端发送跳转至DS的请求. */
+	void JumpDSServer(int32 InSlotID);
+
 	// 删除角色入口.
 	void DeleteCharacter(int32 InSlot);
 
 	// 设定正在编辑的槽孔.
 	void SetEditCharacter(const FMMOARPGCharacterAppearance* InCA);
 
-	//
+	// 移除舞台角色.
 	void DestroyCharacter();
-
-	/** 向服务端发送跳转至DS的请求. */
-	void JumpDSServer(int32 InSlotID);
-
-protected:
-	/** 循环创建与绑定. 绑定客户端的接收. */
-	void BindClientRcv();
-	/** 重载UI_Base重要方法: RecvProtocol */
-	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel) override;
-
-	/** 网络消息协议绑定的回调. */
-	UFUNCTION()
-	void Callback_LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
-
-	/** 根据核验结果分别打印提示. */
-	void PrintLogByCheckName(ECheckNameType InCheckNameType);
 
 protected:
 	// 播放主界面淡入动画.
@@ -76,19 +77,4 @@ protected:
 	// 播放主界面淡出动画.
 	void HallMainOut();
 
-private:
-	// 接收代理.
-	FDelegateHandle mRecvDelegate;
-	// 打印控件.
-	UPROPERTY(meta = (BindWidget))
-		UUI_Print* UI_Print;
-	// 负责创建角色的面板.
-	UPROPERTY(meta = (BindWidget))
-		UUI_CharacterCreatePanel* UI_CharacterCreatePanel;
-	// 负责详细创建舞台人物信息的控件.
-	UPROPERTY(meta = (BindWidget))
-		UUI_RenameCreate* UI_RenameCreate;
-	// 负责删除与编辑的控件.
-	UPROPERTY(meta = (BindWidget))
-		UUI_EditorCharacter* UI_EditorCharacter;
 };

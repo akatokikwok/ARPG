@@ -11,7 +11,7 @@
 class UUI_Print;
 
 /**
- *
+ * 各级UI主要继承的基类.
  */
 UCLASS()
 class MMOARPG_API UUI_MainBase : public UUI_Base
@@ -37,11 +37,12 @@ protected:
 	 */
 	void BindClientRcv();
 
+	/** 网络消息协议绑定的回调. */
 	UFUNCTION()
 		virtual void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
 	// 	void LinkServer(const FSimpleAddr &InAddr);
 	// 	void LinkServer();
 private:
-	FDelegateHandle RecvDelegate;
+	FDelegateHandle mRecvDelegate;
 };

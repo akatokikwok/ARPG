@@ -8,6 +8,7 @@
 
 class UUI_Print;
 /**
+ * 类似于LoginMain, HallMain
  * 切换到Game,之后会激活这个类.
  */
 UCLASS()
