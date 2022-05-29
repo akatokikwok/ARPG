@@ -24,17 +24,10 @@ void UUI_HallMain::NativeConstruct()
 	UI_CharacterCreatePanel->SetParents(this);
 	UI_EditorCharacter->SetParents(this);
 
-// 	/** 1.创建客户端 */
-// 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
-// 		if (InGameIns->GetClient() != nullptr) {
-// 			// CharacterRequests是从这里借助这个代理发送出去的; 为网络消息协议绑定回调.
-// 			InGameIns->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_HallMain::LinkServerInfo);
-// 			// 利用客户端直接实行初始化.
-// 			InGameIns->GetClient()->Init(InGameIns->GetGateStatus().GateServerAddrInfo.Addr);
-// 			// 在构造的时候 就循环创建与绑定.
-// 			BindClientRcv();
-// 		}
-// 	}
+	if (UMMOARPGGameInstance* InGIns = GetGameInstance<UMMOARPGGameInstance>()) {
+		UUI_MainBase::LinkServer(InGIns->GetGateStatus().GateServerAddrInfo.Addr);// 链接至GINS里的网关服务器地址 并循环创建绑定.
+	}
+	
 }
 
 void UUI_HallMain::NativeDestruct()

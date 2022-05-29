@@ -41,8 +41,11 @@ protected:
 	UFUNCTION()
 		virtual void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
-	// 	void LinkServer(const FSimpleAddr &InAddr);
-	// 	void LinkServer();
+	/** 让UI链接至服务器,需要1个指定的网关. */
+	void LinkServer(const FSimpleAddr& InAddr);
+
+	/**  无参数版*/
+	void LinkServer();
 private:
 	FDelegateHandle mRecvDelegate;
 };

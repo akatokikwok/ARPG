@@ -30,9 +30,14 @@ public:
 public:
 	// 创建客户端.
 	void CreateClient();
+
 	// 链接至服务器.
 	void LinkServer();
-	//
+	// 链接至服务器.
+	void LinkServer(const FSimpleAddr& InAddr);
+	// 链接至服务器.
+	void LinkServer(const TCHAR* InIP, uint32 InPort);
+
 
 	// API. 拿取客户端亦或是服务器.
 	FSimpleNetManage* GetClient();

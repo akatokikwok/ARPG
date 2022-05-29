@@ -40,12 +40,13 @@ void UMMOARPGGameInstance::Shutdown()
 
 void UMMOARPGGameInstance::CreateClient()
 {
-	// 初始化全局表.
-	FSimpleNetGlobalInfo::Get()->Init();
-	// 创建客户端对象.
-	Client = 
-		FSimpleNetManage::CreateManage(ESimpleNetLinkState::LINKSTATE_CONNET, ESimpleSocketType::SIMPLESOCKETTYPE_TCP);
-	//
+	if (Client == nullptr) {// 仅当空才创建,已存在客户端则不二次创建.
+		// 初始化全局表.
+		FSimpleNetGlobalInfo::Get()->Init();
+		// 创建客户端对象.
+		Client =
+			FSimpleNetManage::CreateManage(ESimpleNetLinkState::LINKSTATE_CONNET, ESimpleSocketType::SIMPLESOCKETTYPE_TCP);
+	}
 }
 
 void UMMOARPGGameInstance::LinkServer()
@@ -54,6 +55,26 @@ void UMMOARPGGameInstance::LinkServer()
 		if (!Client->Init()) {
 			delete Client;
 			Client = nullptr;
+		}
+	}
+}
+
+void UMMOARPGGameInstance::LinkServer(const FSimpleAddr& InAddr)
+{
+	if (Client) {
+		if (!Client->Init(InAddr)) {
+			delete Client;
+			Client = NULL;
+		}
+	}
+}
+
+void UMMOARPGGameInstance::LinkServer(const TCHAR* InIP, uint32 InPort)
+{
+	if (Client) {
+		if (!Client->Init(InIP, InPort)) {
+			delete Client;
+			Client = NULL;
 		}
 	}
 }

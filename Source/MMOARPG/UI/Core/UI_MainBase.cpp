@@ -4,47 +4,11 @@
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
 #include "../../MMOAPRGMacroType.h"
-#include "../../MMOARPGGameInstance.h"
+#include "../../Core/Common/MMOARPGGameInstance.h"
 
-// void UUI_MainBase::LinkServer(const FSimpleAddr& InAddr)
-// {
-// 	//创建客户端
-// 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>())
-// 	{
-// 		InGameInstance->CreateClient();
-// 		if (InGameInstance->GetClient())
-// 		{
-// 			InGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_MainBase::LinkServerInfo);
-// 
-// 			InGameInstance->LinkServer(InAddr);
-// 
-// 			BindClientRcv();
-// 		}
-// 	}
-// }
-// 
-// void UUI_MainBase::LinkServer()
-// {
-// 	//创建客户端
-// 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>())
-// 	{
-// 		InGameInstance->CreateClient();
-// 		if (InGameInstance->GetClient())
-// 		{
-// 			InGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_MainBase::LinkServerInfo);
-// 
-// 			InGameInstance->LinkServer();
-// 
-// 			BindClientRcv();
-// 		}
-// 	}
-// }
-
-
-void UUI_MainBase::NativeConstruct()
+/** 让UI链接至服务器,需要1个指定的网关. */
+void UUI_MainBase::LinkServer(const FSimpleAddr& InAddr)
 {
-	Super::NativeConstruct();
-
 	/** 创建客户端 */
 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
 		InGameIns->CreateClient();// 创建客户端.
@@ -55,12 +19,51 @@ void UUI_MainBase::NativeConstruct()
 			// 			// 利用客户端直接实行初始化.
 			// 			InGameIns->GetClient()->Init(InGameIns->GetGateStatus().GateServerAddrInfo.Addr);
 
-			InGameIns->LinkServer();// 链接至服务器.
+			InGameIns->LinkServer(InAddr);// 链接至服务器.
 
 			// 在构造的时候 就循环创建与绑定.
 			BindClientRcv();
 		}
 	}
+}
+
+ void UUI_MainBase::LinkServer()
+ {
+ 	//创建客户端
+ 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>())
+ 	{
+ 		InGameInstance->CreateClient();
+ 		if (InGameInstance->GetClient())
+ 		{
+ 			InGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_MainBase::LinkServerInfo);
+ 
+ 			InGameInstance->LinkServer();
+ 
+ 			BindClientRcv();
+ 		}
+ 	}
+ }
+
+void UUI_MainBase::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+// 	/** 创建客户端 */
+// 	if (UMMOARPGGameInstance* InGameIns = GetGameInstance<UMMOARPGGameInstance>()) {
+// 		InGameIns->CreateClient();// 创建客户端.
+// 
+// 		if (InGameIns->GetClient() != nullptr) {
+// 			// CharacterRequests是从这里借助这个代理发送出去的; 为网络消息协议绑定回调.
+// 			InGameIns->GetClient()->NetManageMsgDelegate.BindUObject(this, &UUI_MainBase::LinkServerInfo);
+// 			// 			// 利用客户端直接实行初始化.
+// 			// 			InGameIns->GetClient()->Init(InGameIns->GetGateStatus().GateServerAddrInfo.Addr);
+// 
+// 			InGameIns->LinkServer();// 链接至服务器.
+// 
+// 			// 在构造的时候 就循环创建与绑定.
+// 			BindClientRcv();
+// 		}
+// 	}
 
 }
 
@@ -98,13 +101,13 @@ void UUI_MainBase::BindClientRcv()
 			mRecvDelegate = InGameIns->GetClient()->GetController()->RecvDelegate.AddLambda(
 				[&](uint32 ProtocolNumber, FSimpleChannel* Channel) ->void {
 					this->RecvProtocol(ProtocolNumber, Channel);
-			});
+				});
 		}
 		else {/// 有Gameinstance,但没客户端的情况.
 			GThread::Get()->GetCoroutines().BindLambda(// 借助协程的形式.
 				0.5f, [&]() {
 					this->BindClientRcv();// 递归进来又一遍执行自己.
-			});
+				});
 		}
 
 	}
@@ -113,7 +116,7 @@ void UUI_MainBase::BindClientRcv()
 		GThread::Get()->GetCoroutines().BindLambda(// 借助协程的形式.
 			0.5f, [&]() {
 				this->BindClientRcv();// 递归进来又一遍执行自己.
-		});
+			});
 	}
 
 	// 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
