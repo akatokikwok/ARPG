@@ -50,12 +50,12 @@ AMMOARPGCharacter::AMMOARPGCharacter()
 void AMMOARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
-	InitKneadingLocation(GetMesh()->GetComponentLocation());
+// 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
+// 	InitKneadingLocation(GetMesh()->GetComponentLocation());
 }
 
-void AMMOARPGCharacter::UpdateKneadingBoby()
-{
+// void AMMOARPGCharacter::UpdateKneadingBoby()
+// {
 // 	if (SlotID != INDEX_NONE) {// 异常保护.
 // 
 // 		if (AHallPlayerState* InPS = GetWorld()->GetFirstPlayerController()->GetPlayerState<AHallPlayerState>()) {
@@ -73,17 +73,17 @@ void AMMOARPGCharacter::UpdateKneadingBoby()
 // 			}
 // 		}
 // 	}
-}
+// }
 
-void AMMOARPGCharacter::UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA)
-{
-	SetLegSize(InCA.LegSize);
-	SetWaistSize(InCA.WaistSize);
-	SetArmSize(InCA.ArmSize);
-
-	// 需要Mesh也要和我们的骨骼保持一致变化.
-	SetMeshPostion(GetMesh());
-}
+// void AMMOARPGCharacter::UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA)
+// {
+// 	SetLegSize(InCA.LegSize);
+// 	SetWaistSize(InCA.WaistSize);
+// 	SetArmSize(InCA.ArmSize);
+// 
+// 	// 需要Mesh也要和我们的骨骼保持一致变化.
+// 	SetMeshPostion(GetMesh());
+// }
 
 //////////////////////////////////////////////////////////////////////////
 // Input

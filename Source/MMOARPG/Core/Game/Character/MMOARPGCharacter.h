@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../Common/Interface/KneadingInterface.h"
 #include "MMOARPGCharacter.generated.h"
 
 UCLASS(config=Game)
-class AMMOARPGCharacter : public ACharacter, public IKneadingInterface
+class AMMOARPGCharacter : public ACharacter/*, public IKneadingInterface*/
 {
 	GENERATED_BODY()
 
@@ -23,8 +22,8 @@ public:
 	AMMOARPGCharacter();
 
 	virtual void BeginPlay() override;
-	virtual	void UpdateKneadingBoby() override;
-	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA) override;
+// 	virtual	void UpdateKneadingBoby() override;
+// 	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
