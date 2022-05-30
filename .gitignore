@@ -309,3 +309,6 @@ MMOARPGDSServer/MMOARPG/Content/Paks/global.utoc
 MMOARPGDSServer/MMOARPG/Content/Paks/MMOARPG-Windows.pak
 MMOARPGDSServer/MMOARPG/Content/Paks/MMOARPG-Windows.ucas
 MMOARPGDSServer/MMOARPG/Content/Paks/MMOARPG-Windows.utoc
+Content/Map/output/
+Content/Stylized_Landscape/
+raw/
