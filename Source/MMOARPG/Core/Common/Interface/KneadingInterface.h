@@ -16,7 +16,7 @@ class UKneadingInterface : public UInterface
 };
 
 /**
- * 
+ * 允许自定义调节模特身材的类.
  */
 class MMOARPG_API IKneadingInterface
 {
