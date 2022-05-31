@@ -24,6 +24,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 	float ArmSize;
 
-public:
-	virtual void NativeUpdateAnimation(float Deltaseconds);
+// public:
+// 	virtual void NativeUpdateAnimation(float Deltaseconds);
 };

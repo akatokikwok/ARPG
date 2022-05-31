@@ -3,15 +3,15 @@
 #include "MMOARPGPlayerAnimInstance.h"
 #include "../../../Common/Interface/KneadingInterface.h"
 
-void UMMOARPGPlayerAnimInstance::NativeUpdateAnimation(float Deltaseconds)
-{
-	Super::NativeUpdateAnimation(Deltaseconds);
-
-	if (IKneadingInterface* InCharacterBase = Cast<IKneadingInterface>(TryGetPawnOwner()))
-	{
-		LegSize = InCharacterBase->GetLegSize();
-		WaistSize = InCharacterBase->GetWaistSize();
-		ArmSize = InCharacterBase->GetArmSize();
-	}
-}
+// void UMMOARPGPlayerAnimInstance::NativeUpdateAnimation(float Deltaseconds)
+// {
+// 	Super::NativeUpdateAnimation(Deltaseconds);
+// 
+// 	if (IKneadingInterface* InCharacterBase = Cast<IKneadingInterface>(TryGetPawnOwner()))
+// 	{
+// 		LegSize = InCharacterBase->GetLegSize();
+// 		WaistSize = InCharacterBase->GetWaistSize();
+// 		ArmSize = InCharacterBase->GetArmSize();
+// 	}
+// }
 
