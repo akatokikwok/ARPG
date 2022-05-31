@@ -28,7 +28,9 @@ protected:
 	// 是否启用战斗姿势.
 	UPROPERTY()
 		bool bFight;
-
+	// 用户去配置的ID.
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+		int32 ID;
 	// 动画表.
 		FCharacterAnimTable* AnimTable;
 };

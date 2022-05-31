@@ -5,7 +5,8 @@
 #include "CharacterAnimTable.generated.h"
 
 /**
- * 用以管理动画蒙太奇的表.
+ * 用以管理动画蒙太奇的结构体.
+ * 与DataTable搭配使用.
  */
 USTRUCT(BlueprintType)
 struct FCharacterAnimTable :public FTableRowBase
