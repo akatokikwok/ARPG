@@ -10,7 +10,7 @@ UCLASS()
 class MMOARPG_API AMMOARPGCharacterBase : public ACharacter
 {
 	GENERATED_BODY()
-
+public:
 	friend class AMMOARPGGameMode;
 public:
 	// Sets default values for this character's properties
@@ -19,4 +19,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	FORCEINLINE bool IsFight() { return bFight; }
+
+protected:
+	bool bFight;
 };

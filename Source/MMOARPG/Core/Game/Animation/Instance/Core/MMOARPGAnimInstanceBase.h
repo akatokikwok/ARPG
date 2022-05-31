@@ -29,9 +29,9 @@ public:
 	// 是否滞空.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bInAir;
-	// 
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-	// 	bool bFight;
+	// 是否战斗姿势.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bFight;
 	// 
 	// 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
 	// 	bool bFootIK;
