@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Core/MMOARPGCharacterBase.h"
 #include "MMOARPGCharacter.generated.h"
 
 UCLASS(config=Game)
-class AMMOARPGCharacter : public ACharacter/*, public IKneadingInterface*/
+class AMMOARPGCharacter : public AMMOARPGCharacterBase/*, public IKneadingInterface*/
 {
 	GENERATED_BODY()
 
