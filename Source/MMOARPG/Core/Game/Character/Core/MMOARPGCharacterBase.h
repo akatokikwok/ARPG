@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../../../../DataTable/CharacterAnimTable.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 UCLASS()
@@ -21,7 +22,13 @@ public:
 
 public:
 	FORCEINLINE bool IsFight() { return bFight; }
+	FORCEINLINE FCharacterAnimTable* GetAnimTable() { return AnimTable; }
 
 protected:
-	bool bFight;
+	// 是否启用战斗姿势.
+	UPROPERTY()
+		bool bFight;
+
+	// 动画表.
+		FCharacterAnimTable* AnimTable;
 };

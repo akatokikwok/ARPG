@@ -185,9 +185,19 @@ void AMMOARPGCharacter::SwitchFight()
 	// 在客户端切换战斗姿势启用/禁用.
 	if (bFight) {
 		bFight = false;
+		if (FCharacterAnimTable* InAnimTable = AMMOARPGCharacterBase::GetAnimTable()) {
+			if (InAnimTable->SwitchFightMontage != nullptr) {
+				PlayAnimMontage(InAnimTable->SwitchFightMontage, 1.0f, TEXT("1"));// 播放片段名为"1"的部分.(收剑动画)
+			}
+		}
 	}
 	else {
 		bFight = true;
+		if (FCharacterAnimTable* InAnimTable = AMMOARPGCharacterBase::GetAnimTable()) {
+			if (InAnimTable->SwitchFightMontage != nullptr) {
+				PlayAnimMontage(InAnimTable->SwitchFightMontage, 1.0f, TEXT("0"));// 播放片段名为"0"的部分.(拔剑动画)
+			}
+		}
 	}
 
 }

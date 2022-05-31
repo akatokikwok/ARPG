@@ -7,10 +7,14 @@
 #include "../Common/MMOARPGGameInstance.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
+#include "MMOARPGPlayerState.h"
+#include "MMOARPGGameState.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
 	HUDClass = AMMOARPGHUD::StaticClass();// HUD暂设为 Game-HUD,游玩时候的HUD.
+	PlayerStateClass = AMMOARPGPlayerState::StaticClass();// 注册PS
+	GameStateClass = AMMOARPGGameState::StaticClass();// 注册GS
 
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPersonCPP/Blueprints/ThirdPersonCharacter"));
