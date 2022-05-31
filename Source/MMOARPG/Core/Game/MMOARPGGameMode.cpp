@@ -9,6 +9,7 @@
 #include "UObject/SimpleController.h"
 #include "MMOARPGPlayerState.h"
 #include "MMOARPGGameState.h"
+#include "Character/MMOARPGPlayerCharacter.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -48,6 +49,29 @@ void AMMOARPGGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AMMOARPGGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+/** 玩家登录到DS后会激活的1个接口. */
+void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	// 使用协程,让这一步有时间去准备.延迟0.5s是因为DS准备好之后,要给予客户端一些时间执行同步.
+	GThread::Get()->GetCoroutines().BindLambda(
+		0.5f, [&](APlayerController* InNewController) ->void {
+			if (InNewController != nullptr) {
+				// to do.
+				
+				if (AMMOARPGPlayerCharacter* InPawn = InNewController->GetPawn<AMMOARPGPlayerCharacter>()) {// 先拿人
+					if (AMMOARPGGameState* InGS = GetGameState<AMMOARPGGameState>()) {// 再拿GS
+						// 把GS里的动画数据解算到Player身上.
+						if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(InPawn->GetID())) {
+							InPawn->AnimTable = InAnimRowData;
+						}
+					}
+				}
+			}
+		}, NewPlayer
+	);
 }
 
 void AMMOARPGGameMode::BindClientRcv()

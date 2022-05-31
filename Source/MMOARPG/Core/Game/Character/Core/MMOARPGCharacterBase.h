@@ -12,7 +12,7 @@ class MMOARPG_API AMMOARPGCharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 public:
-	friend class AMMOARPGGameMode;
+	friend class AMMOARPGGameMode;// 人物基类的一切数据均提供GM访问.
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -23,14 +23,20 @@ public:
 public:
 	FORCEINLINE bool IsFight() { return bFight; }
 	FORCEINLINE FCharacterAnimTable* GetAnimTable() { return AnimTable; }
+	FORCEINLINE int32 GetID() { return ID; }
+	FORCEINLINE int32 GetUserID() { return UserID; }
 
 protected:
 	// 是否启用战斗姿势.
 	UPROPERTY()
 		bool bFight;
-	// 用户去配置的ID.
+	// 蒙太奇动画数据点 ID, 用户去配置的ID.
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 		int32 ID;
-	// 动画表.
-		FCharacterAnimTable* AnimTable;
+	// 用户ID.
+	UPROPERTY()
+		int32 UserID;
+
+	// 关联动画蒙太奇DT的某 行数据.
+	FCharacterAnimTable* AnimTable;
 };

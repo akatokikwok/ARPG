@@ -22,6 +22,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostLogin(APlayerController* NewPlayer) override;/** 玩家登录到DS后会激活的1个接口. */
 
 private:
 	//

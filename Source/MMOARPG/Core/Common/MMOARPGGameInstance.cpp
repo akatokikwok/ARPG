@@ -17,9 +17,10 @@ void UMMOARPGGameInstance::Tick(float DeltaTime)
 
 	if (Client) {
 		Client->Tick(DeltaTime);
-		// 手动执行让这个协程运行起来.
-		GThread::Get()->Tick(DeltaTime);
+		
 	}
+	// 手动执行让这个协程Tick起来.
+	GThread::Get()->Tick(DeltaTime);
 }
 
 TStatId UMMOARPGGameInstance::GetStatId() const
