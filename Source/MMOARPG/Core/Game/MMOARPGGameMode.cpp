@@ -61,14 +61,14 @@ void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
 			if (InNewController != nullptr) {
 				// to do.
 				
-				if (AMMOARPGPlayerCharacter* InPawn = InNewController->GetPawn<AMMOARPGPlayerCharacter>()) {// 先拿人
-					if (AMMOARPGGameState* InGS = GetGameState<AMMOARPGGameState>()) {// 再拿GS
-						// 把GS里的动画数据解算到Player身上.
-						if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(InPawn->GetID())) {
-							InPawn->AnimTable = InAnimRowData;
-						}
-					}
-				}
+// 				if (AMMOARPGPlayerCharacter* InPawn = InNewController->GetPawn<AMMOARPGPlayerCharacter>()) {// 先拿人
+// 					if (AMMOARPGGameState* InGS = GetGameState<AMMOARPGGameState>()) {// 再拿GS
+// 						// 把GS里的动画数据解算到Player身上.
+// 						if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(InPawn->GetID())) {
+// 							InPawn->AnimTable = InAnimRowData;
+// 						}
+// 					}
+// 				}
 			}
 		}, NewPlayer
 	);

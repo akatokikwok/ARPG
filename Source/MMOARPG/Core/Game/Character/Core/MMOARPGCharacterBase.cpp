@@ -1,5 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "MMOARPGCharacterBase.h"
+#include "../../MMOARPGGameState.h"
+#include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -17,6 +20,16 @@ void AMMOARPGCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 客户端/服务端都应执行如下逻辑:
+	if (GetWorld()) {
+		if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+			// 把GS里的动画数据解算到Character身上.
+			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
+				this->AnimTable = InAnimRowData;
+			}
+		}
+		
+	}
 }
 
 // Called every frame
@@ -31,4 +44,24 @@ void AMMOARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+// 同步变量需要重写的方法.
+void AMMOARPGCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 手动条件注册,条件变量 使用此宏网络同步 bFight字段.
+	// 此处设定规则是COND_SimulatedOnly,意为当主机本机客户端发生了某些行为后, 这些行为只同步给模拟玩家.
+	DOREPLIFETIME_CONDITION(AMMOARPGCharacterBase, bFight, COND_SimulatedOnly);
+}
+
+void AMMOARPGCharacterBase::SwitchFightOnServer_Implementation(bool bNewFight)
+{
+	bFight = bNewFight;
+}
+
+void AMMOARPGCharacterBase::OnRep_FightChanged()
+{
+	// 虚方法,在其他地方实现.
 }

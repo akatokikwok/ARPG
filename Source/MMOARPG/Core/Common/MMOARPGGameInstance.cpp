@@ -35,8 +35,9 @@ void UMMOARPGGameInstance::Shutdown()
 
 	if (Client) {
 		FSimpleNetManage::Destroy(Client);  
-		GThread::Destroy();// 同时把协程也干掉.
+		
 	}
+	GThread::Destroy();// 同时把协程也干掉.
 }
 
 void UMMOARPGGameInstance::CreateClient()
