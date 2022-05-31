@@ -22,13 +22,30 @@ public:
 
 public:
 	FORCEINLINE bool IsFight() { return bFight; }
+	// 拿取蒙太奇DT里的 行数据.
 	FORCEINLINE FCharacterAnimTable* GetAnimTable() { return AnimTable; }
+	
 	FORCEINLINE int32 GetID() { return ID; }
 	FORCEINLINE int32 GetUserID() { return UserID; }
 
 protected:
+	// 同步变量需要重写的方法.
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/* 客户端通知DS上执行修改; 
+	 * 用以修改bFight字段. 
+	 * UFUNCTION(Server 运行在服务器 , Reliable 同步的,可靠的,TCP
+	 */
+	UFUNCTION(Server, Reliable)
+		void SwitchFightOnServer(bool bNewFight);
+
+	// bFight更新时 响应的RPC.
+	UFUNCTION()
+		virtual void OnRep_FightChanged();
+
+protected:
 	// 是否启用战斗姿势.
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing = OnRep_FightChanged)
 		bool bFight;
 	// 蒙太奇动画数据点 ID, 用户去配置的ID.
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
