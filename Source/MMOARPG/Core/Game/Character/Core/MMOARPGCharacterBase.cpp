@@ -46,6 +46,11 @@ void AMMOARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 }
 
+void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
+{
+	K2_AnimSignal(InSignal);
+}
+
 // 同步变量需要重写的方法.
 void AMMOARPGCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
