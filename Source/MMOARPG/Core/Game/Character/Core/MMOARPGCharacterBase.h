@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../../../../DataTable/CharacterAnimTable.h"
+#include "CombatInterface/SimpleCombatInterface.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 UCLASS()
-class MMOARPG_API AMMOARPGCharacterBase : public ACharacter
+class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleCombatInterface
 {
 	GENERATED_BODY()
 public:
@@ -21,11 +22,18 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
+	virtual void AnimSignal(int32 InSignal) override;
+	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
+		void K2_AnimSignal(int32 InSignal);
+	//
 	FORCEINLINE bool IsFight() { return bFight; }
 	// 拿取蒙太奇DT里的 行数据.
 	FORCEINLINE FCharacterAnimTable* GetAnimTable() { return AnimTable; }
-	
+	//
 	FORCEINLINE int32 GetID() { return ID; }
+	//
 	FORCEINLINE int32 GetUserID() { return UserID; }
 
 protected:
