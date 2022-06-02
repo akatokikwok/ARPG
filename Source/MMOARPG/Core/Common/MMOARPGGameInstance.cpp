@@ -4,6 +4,7 @@
 #include "MMOARPGGameInstance.h"
 #include "../Plugins/SimpleNetChannel/Source/SimpleNetChannel/Public/Global/SimpleNetGlobalInfo.h"
 #include "ThreadManage.h"
+#include "SimpleAdvancedAnimationBPLibrary.h"
 
 void UMMOARPGGameInstance::Init()
 {
@@ -38,6 +39,9 @@ void UMMOARPGGameInstance::Shutdown()
 		
 	}
 	GThread::Destroy();// 同时把协程也干掉.
+
+	// GINS退出的时候也要销毁高级动画插件里的单例.
+	USimpleAdvancedAnimationBPLibrary::Destroy();// 销毁高级动画架构层单例.
 }
 
 void UMMOARPGGameInstance::CreateClient()

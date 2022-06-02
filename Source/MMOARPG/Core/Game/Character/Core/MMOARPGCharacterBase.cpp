@@ -29,6 +29,14 @@ void AMMOARPGCharacterBase::BeginPlay()
 			}
 		}
 		
+		if (!GetWorld()->IsServer()) {// 服务器没必要执行IK.
+			if (GetMesh()) {
+				if (UMMOARPGAnimInstanceBase* InMMOARPGAnimInstanceBase = Cast<UMMOARPGAnimInstanceBase>(GetMesh()->GetAnimInstance())) {
+					InMMOARPGAnimInstanceBase->InitAnimInstance(this);// 拿到动画实例并构建IK数据.
+				}
+			}
+		}
+
 	}
 }
 

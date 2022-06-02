@@ -23,18 +23,19 @@ TStatId FSimpleAdvancedAnimSystem::GetStatId() const
 	return TStatId();
 }
 
-FSAAHandle FSimpleAdvancedAnimSystem::CreateFootIK(ACharacter* InCharacter, const TArray<FName>& InBoneNames, float InTraceDistance /*= 50.f*/, float InInterpSpeed /*= 18.f*/, float InTraceStart /*= 50.f*/)
+FSAAHandle FSimpleAdvancedAnimSystem::CreateFootIK(ACharacter* InCharacter, const TArray<FName>& InBoneNames, EDrawDebugTrace::Type InFootTraceDrawDebugType, float InTraceDistance /*= 50.f*/, float InInterpSpeed /*= 18.f*/, float InTraceStart /*= 50.f*/)
 {
 	FSAAHandle Handle = FMath::RandRange(0, 999999);
 	if (!FootIKs.Contains(Handle)) {
 		// 构造1个并填值.
 		FSimpleFootIK& InFootIK = FootIKs.Add(Handle, FSimpleFootIK());
 		InFootIK.Init(InCharacter, InBoneNames, InTraceDistance, InInterpSpeed, InTraceStart);
-
+		InFootIK.SetmFootTraceDrawDebugType(InFootTraceDrawDebugType);
+		
 		return Handle;
 	}
 	// 循环递归创数据直至查询表内不再有"重复"元素.
-	return CreateFootIK(InCharacter, InBoneNames, InTraceDistance, InInterpSpeed);
+	return CreateFootIK(InCharacter, InBoneNames, InFootTraceDrawDebugType, InTraceDistance, InInterpSpeed, InTraceStart);
 }
 
 FSimpleFootIK* FSimpleAdvancedAnimSystem::FindFootIK(const FSAAHandle InKey)
