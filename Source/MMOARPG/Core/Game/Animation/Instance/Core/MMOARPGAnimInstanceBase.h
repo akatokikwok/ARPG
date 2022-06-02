@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "MMOARPGAnimInstanceBase.generated.h"
 
 /**
@@ -19,6 +20,15 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 
+
+	// 找到指定骨骼名 的IK里的偏移值.
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+		float GetFootIKOffset(const FName& InBoneName);
+
+	// 初始化动画实例,构建一些数据,例如IK.
+	// 仅当启用IK时, 允许为一系列骨骼构建 IK数据.
+	virtual void InitAnimInstance(ACharacter* InCharacter);
+
 public:
 	// 是否死亡.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
@@ -32,32 +42,36 @@ public:
 	// 是否战斗姿势.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bFight;
-	// 
-	// 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
-	// 	bool bFootIK;
-	// 
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
-	// 	float LeftOffset;
-	// 
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
-	// 	float RightOffset;
-	// 
-	// 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
-	// 	FName LeftBoneName;
-	// 
-	// 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
-	// 	FName RightBoneName;
-	// 
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
-	// 	float ButtZOffset;
-	// 
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "AnimAttrubute|FootIK")
-	// 	int32 FookIKID;
-	// 
-	// 	//保留 
-	// 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
-	// 	TArray<FName> BoneNames;
-	// public:
-	// 	UFUNCTION(BlueprintPure, BlueprintCallable)
-	// 	float GetFootIKOffset(const FName &InBoneName);
+	
+	// 是否开启FootIK
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+		bool bFootIK;
+	// FOOTIK-ID
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
+		int32 FookIKID;
+	// 左脚IK偏移.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
+		float LeftOffset;
+	// 右脚IK偏移.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
+		float RightOffset;
+	// 臀部IK 偏移.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute|FootIK")
+		float ButtZOffset;
+	// 左脚IK 骨骼名.
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+		FName LeftBoneName;
+	// 右脚IK 骨骼名.
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+		FName RightBoneName;
+	// 适用于多足情况.
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+		TArray<FName> BoneNames;
+
+private:
+	// 脚部 射线追踪IK时候的 射线绘制选项.
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
+		TEnumAsByte<EDrawDebugTrace::Type> mFootDrawLineTraceType;
+		
+
 };

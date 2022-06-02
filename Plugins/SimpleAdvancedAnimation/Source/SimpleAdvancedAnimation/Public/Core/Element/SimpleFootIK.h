@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "SimpleAdvancedAnimationType.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 /**
  * 完整的FootIK结构.
@@ -24,6 +25,9 @@ public:
 	// 拿取 人销毁状态.
 	bool IsPendingKill() { return bPendingKill; }
 
+	// 设定一下检测射线的绘制形态.
+	void SetmFootTraceDrawDebugType(EDrawDebugTrace::Type OutmFootTraceDrawDebugType) { mFootTraceDrawDebugType = OutmFootTraceDrawDebugType; }
+
 protected:
 	// 执行射线检测IK, 返回某只脚的偏移; 若检测失败返回0.
 	// InTraceDistance是人为设定的. 要检测多深.
@@ -34,6 +38,9 @@ protected:
 	TMap<FName, FFootIKInfo> IKInfos;// <名称-单只脚IK信息>查询表.
 	float TraceDistance;// 人设的射线检测深度.
 	float InterpSpeed;// 渐变插值快慢速度.
-// 	float TraceStart;//
+ 	float TraceStart_bias;// 射线检测的起点(可以与骨骼点保持一些偏移距离).
 	bool bPendingKill;// 人销毁通知.
+
+	//
+	EDrawDebugTrace::Type mFootTraceDrawDebugType = EDrawDebugTrace::Type::ForOneFrame;
 };

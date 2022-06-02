@@ -2,12 +2,12 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 FSimpleFootIK::FSimpleFootIK()
 	: Character(NULL)
 	, TraceDistance(50.f)
 	, InterpSpeed(18.f)
+	, TraceStart_bias(50.0f)
 	, bPendingKill(false)
 {
 
@@ -29,7 +29,7 @@ void FSimpleFootIK::Init(ACharacter* InCharacter, const TArray<FName>& InBoneNam
 	Character = InCharacter;
 	TraceDistance = InTraceDistance;
 	InterpSpeed = InInterpSpeed;
-// 	TraceStart = InTraceStart;
+ 	TraceStart_bias = InTraceStart;
 	for (auto& BoneName_single : InBoneNames) {
 		IKInfos.Add(BoneName_single, FFootIKInfo());
 	}
@@ -58,13 +58,12 @@ float FSimpleFootIK::FootTrace(const FName& BoneName, float InTraceDistance)
 			return 0.0f;
 		}
 
-		// 射线起点.
-		FVector BoneLoc = Character->GetMesh()->GetSocketLocation(BoneName);
-		// 射线终点.
 		float CharacterLocZ = Character->GetActorLocation().Z;
 		float HalfHeight = Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
-		FVector StartLoc = BoneLoc;
+		// 射线起点.
+		FVector StartLoc = Character->GetMesh()->GetSocketLocation(BoneName) + FVector(0, 0, TraceStart_bias);
+		// 射线终点.
 		FVector EndLoc = FVector(StartLoc.X, StartLoc.Y,
 			CharacterLocZ - (HalfHeight + InTraceDistance)
 		);
@@ -79,7 +78,7 @@ float FSimpleFootIK::FootTrace(const FName& BoneName, float InTraceDistance)
 			ETraceTypeQuery::TraceTypeQuery1,
 			false,
 			Ignores,
-			EDrawDebugTrace::Type::ForOneFrame,
+			mFootTraceDrawDebugType,
 			HitResult,
 			true))
 		{

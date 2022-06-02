@@ -4,6 +4,7 @@
 #include "Tickable.h"
 #include "Core/Element/SimpleFootIK.h"
 #include "SimpleAdvancedAnimationType.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 /**
  * 管理高级动画、IK的架构层
@@ -19,7 +20,7 @@ public:
 	virtual TStatId GetStatId() const override;
 	
 	/** 手动构建 IK和与之匹配的Hanle. */
-	FSAAHandle CreateFootIK(ACharacter* InCharacter, const TArray<FName>& InBoneNames, float TraceDistance = 50.f, float InterpSpeed = 18.f, float InTraceStart = 50.f);
+	FSAAHandle CreateFootIK(ACharacter* InCharacter, const TArray<FName>& InBoneNames, EDrawDebugTrace::Type InFootTraceDrawDebugType, float TraceDistance = 50.f, float InterpSpeed = 18.f, float InTraceStart = 50.f);
 
 	// 找到指定Hanle的 IK.
 	FSimpleFootIK* FindFootIK(const FSAAHandle InKey);

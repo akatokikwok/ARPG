@@ -41,6 +41,10 @@
 		{
 			"Name": "SimpleCombat",
 			"Enabled": true
+		},
+		{
+			"Name": "SimpleAdvancedAnimation",
+			"Enabled": true
 		}
 	]
 }
