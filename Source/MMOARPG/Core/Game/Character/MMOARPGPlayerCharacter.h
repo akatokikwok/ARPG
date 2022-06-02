@@ -18,6 +18,10 @@ class MMOARPG_API AMMOARPGPlayerCharacter : public AMMOARPGCharacter, public IKn
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// RPC, 呼叫DS去
+	UFUNCTION(server, reliable)
+		void CallServerUpdateKneading(int32 InUserID);
 public:
 	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA);
 	virtual	void UpdateKneadingBoby();

@@ -22,8 +22,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void PostLogin(APlayerController* NewPlayer) override;/** 玩家登录到DS后会激活的1个接口. */
-
+	/** 玩家登录到DS后会激活的1个接口. */
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	/** 让登录到DS的角色发送捏身材请求. */
+	void LoginCharacterUpdateKneadingRequest(int32 InUserID);
 private:
 	//
 	void BindClientRcv();

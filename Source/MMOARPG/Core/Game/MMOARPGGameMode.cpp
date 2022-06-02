@@ -10,6 +10,8 @@
 #include "MMOARPGPlayerState.h"
 #include "MMOARPGGameState.h"
 #include "Character/MMOARPGPlayerCharacter.h"
+#include "Protocol/GameProtocol.h"
+#include "../../MMOAPRGMacroType.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -74,6 +76,11 @@ void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
 	);
 }
 
+void AMMOARPGGameMode::LoginCharacterUpdateKneadingRequest(int32 InUserID)
+{
+	SEND_DATA(SP_UpdateLoginCharacterInfoRequests, InUserID);// 向DS发送一个刷新登录人物请求.
+}
+
 void AMMOARPGGameMode::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -116,7 +123,24 @@ void AMMOARPGGameMode::LinkServer()
 	}
 }
 
+/// DS接收.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
+	switch (ProtocolNumber)
+	{
+		// 刷新登录人物请求.
+		case SP_UpdateLoginCharacterInfoResponses:
+		{
+			int32 UserID = INDEX_NONE;
+			FString CAJsonString;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateLoginCharacterInfoResponses, UserID, CAJsonString);
 
+			if (UserID != INDEX_NONE && !CAJsonString.IsEmpty()) {
+				// 解析出外貌.
+				FMMOARPGCharacterAppearance CA;
+				NetDataAnalysis::StringToCharacterAppearances(CAJsonString, CA);
+			}
+			break;
+		}
+	}
 }
