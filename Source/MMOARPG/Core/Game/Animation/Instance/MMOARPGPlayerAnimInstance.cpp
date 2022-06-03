@@ -15,3 +15,13 @@
 // 	}
 // }
 
+void UMMOARPGPlayerAnimInstance::NativeUpdateAnimation(float Deltaseconds)
+{
+	Super::NativeUpdateAnimation(Deltaseconds);
+
+	if (IKneadingInterface* InCharacterBase = Cast<IKneadingInterface>(TryGetPawnOwner())) {
+		LegSize = InCharacterBase->GetLegSize();
+		WaistSize = InCharacterBase->GetWaistSize();
+		ArmSize = InCharacterBase->GetArmSize();
+	}
+}

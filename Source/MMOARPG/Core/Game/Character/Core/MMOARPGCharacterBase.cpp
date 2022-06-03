@@ -8,7 +8,7 @@
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	: bFight(false)
 	, ID(INDEX_NONE)
-	// 	,UserID(INDEX_NONE)
+	, UserID(INDEX_NONE)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,7 +28,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 				this->AnimTable = InAnimRowData;
 			}
 		}
-		
+
 		if (!GetWorld()->IsServer()) {// 服务器没必要执行IK.
 			if (GetMesh()) {
 				if (UMMOARPGAnimInstanceBase* InMMOARPGAnimInstanceBase = Cast<UMMOARPGAnimInstanceBase>(GetMesh()->GetAnimInstance())) {

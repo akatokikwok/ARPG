@@ -31,9 +31,9 @@ public:
 	FORCEINLINE bool IsFight() { return bFight; }
 	// 拿取蒙太奇DT里的 行数据.
 	FORCEINLINE FCharacterAnimTable* GetAnimTable() { return AnimTable; }
-	//
+	// 拿取 游玩人物专属ID.
 	FORCEINLINE int32 GetID() { return ID; }
-	//
+	// 拿取 用户ID.用户去配置的ID.
 	FORCEINLINE int32 GetUserID() { return UserID; }
 
 protected:
@@ -55,10 +55,10 @@ protected:
 	// 是否启用战斗姿势.
 	UPROPERTY(ReplicatedUsing = OnRep_FightChanged)
 		bool bFight;
-	// 蒙太奇动画数据点 ID, 用户去配置的ID.
+	// 游玩人物专属ID.
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 		int32 ID;
-	// 用户ID.
+	// 用户ID.用户去配置的ID.
 	UPROPERTY()
 		int32 UserID;
 
