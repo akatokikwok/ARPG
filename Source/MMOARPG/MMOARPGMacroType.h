@@ -5,6 +5,8 @@
 #include "Core/Common/MMOARPGGameInstance.h"
 #include "SimpleProtocolsDefinition.h"
 
+#define UE_MMOARPG_DEBUG_DS 1 // 用于开关调试功能的宏. 1开启0关闭. 打包的时候要设置成0. 在DS下测试数据要设置为1.
+
 /** 包装一个发送协议的宏. */
 #if PLATFORM_WINDOWS
 

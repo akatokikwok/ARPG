@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 #include "../Core/UI_MainBase.h"
 #include "../../MMOARPGMacroType.h"
+
+#if UE_MMOARPG_DEBUG_DS
 #include "../../Robot/MMOARPGRobot.h"
+#endif// UE_MMOARPG_DEBUG_DS
+
 #include "UI_GameMain.generated.h"
 
 class UUI_Print;
@@ -27,5 +31,7 @@ protected:
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel);
 
 protected:
+#if UE_MMOARPG_DEBUG_DS
 	FMMOARPGRobot Robot;// 仅测试用机器人.
+#endif
 };

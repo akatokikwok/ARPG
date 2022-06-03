@@ -23,5 +23,5 @@ void FMMOARPGRobot::Tick(float DeltaTime)
 
 void FMMOARPGRobot::RunRobot()
 {
-	GateRobot.RunRobot();
+// 	GateRobot.Run_LoginToDSServerRequests();
 }

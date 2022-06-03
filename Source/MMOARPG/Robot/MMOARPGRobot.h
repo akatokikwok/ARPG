@@ -15,6 +15,7 @@ public:
 	void Tick(float DeltaTime);
 
 	void RunRobot();
+	FMMOARPGGateRobot& GetGateRobot() { return GateRobot; }
 private:
 	FMMOARPGGateRobot GateRobot;
 	FMMOAPRGDSRobot DSRobot;
