@@ -19,10 +19,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// RPC, 呼叫DS去
+	// RPC,在DS端的GM 执行发送刷新登录人物样貌请求.
 	UFUNCTION(server, reliable)
 		void CallServerUpdateKneading(int32 InUserID);
 public:
-	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA);
-	virtual	void UpdateKneadingBoby();
+	// 刷新人物的外貌身材.可用于DS-GM上/客户端亦可.
+	virtual	void UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA) override;
+	// 刷新人物的外貌身材.可用于DS-GM上/客户端亦可.
+	virtual	void UpdateKneadingBoby() override;
+
+	// RPC, 在客户端 执行刷新登录人物样貌.
+	UFUNCTION(Client, reliable)
+		void CallUpdateKneadingBobyOnClient(const FMMOARPGCharacterAppearance& InCA);
 };

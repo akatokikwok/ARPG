@@ -3,15 +3,16 @@
 #include "MMOARPGGameMode.h"
 #include "Character/MMOARPGCharacter.h"
 #include "UObject/ConstructorHelpers.h"
-#include "../../Core/Game/MMOARPGHUD.h"
-#include "../Common/MMOARPGGameInstance.h"
+#include "MMOARPGHUD.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
+#include "../../MMOAPRGMacroType.h"
 #include "MMOARPGPlayerState.h"
 #include "MMOARPGGameState.h"
+#include "ThreadManage.h"
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "Protocol/GameProtocol.h"
-#include "../../MMOAPRGMacroType.h"
+#include "Core/MethodUnit.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -62,7 +63,7 @@ void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
 		0.5f, [&](APlayerController* InNewController) ->void {
 			if (InNewController != nullptr) {
 				// to do.
-				
+
 // 				if (AMMOARPGPlayerCharacter* InPawn = InNewController->GetPawn<AMMOARPGPlayerCharacter>()) {// 先拿人
 // 					if (AMMOARPGGameState* InGS = GetGameState<AMMOARPGGameState>()) {// 再拿GS
 // 						// 把GS里的动画数据解算到Player身上.
@@ -123,12 +124,11 @@ void AMMOARPGGameMode::LinkServer()
 	}
 }
 
-/// DS接收.
+/// 当DS接收到来自中心服务器的回复.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
-	switch (ProtocolNumber)
-	{
-		// 刷新登录人物请求.
+	switch (ProtocolNumber) {
+		// 刷新登录人物外观回复.
 		case SP_UpdateLoginCharacterInfoResponses:
 		{
 			int32 UserID = INDEX_NONE;
@@ -139,6 +139,19 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 				// 解析出外貌.
 				FMMOARPGCharacterAppearance CA;
 				NetDataAnalysis::StringToCharacterAppearances(CAJsonString, CA);
+
+				// 使用仿函数处理 找到的所有 MMOARPGPlayerCharacter.
+				MethodUnit::ServerCallAllPlayer<AMMOARPGPlayerCharacter>(
+					GetWorld(), 
+					[&](AMMOARPGPlayerCharacter* InPawn) ->MethodUnit::EServerCallType {
+						if (InPawn->GetUserID() == UserID) {
+							InPawn->UpdateKneadingBoby(CA);// RPC在DS服务器的GM上, 刷新人物的样貌.
+							InPawn->CallUpdateKneadingBobyOnClient(CA);// RPC在客户端, 刷新登录人物样貌.
+							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
+						}
+						return MethodUnit::EServerCallType::INPROGRESS;
+				});
+				//
 			}
 			break;
 		}

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "SimpleNetChannelType.h"
+#include "MMOARPGType.h"
 #include "MMOARPGGameMode.generated.h"
 class FSimpleChannel;
 
@@ -34,7 +35,9 @@ private:
 		void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 	// 链接至指定端口号的服务器并 循环绑定创建客户端接收响应协议的回调RecvProtocol.
 	void LinkServer();
-	//
+
+private:
+	/// 当DS接收到来自中心服务器的回复.
 	void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel);
 
 private:
