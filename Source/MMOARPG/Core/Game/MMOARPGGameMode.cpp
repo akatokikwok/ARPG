@@ -6,7 +6,7 @@
 #include "MMOARPGHUD.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
-#include "../../MMOAPRGMacroType.h"
+#include "../../MMOARPGMacroType.h"
 #include "MMOARPGPlayerState.h"
 #include "MMOARPGGameState.h"
 #include "ThreadManage.h"

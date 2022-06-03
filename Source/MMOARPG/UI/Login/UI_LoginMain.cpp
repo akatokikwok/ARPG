@@ -10,7 +10,7 @@
 #include "UI_Login.h"
 #include "Protocol/LoginProtocol.h"
 #include "SimpleProtocolsDefinition.h"
-#include "../../MMOAPRGMacroType.h"
+#include "../../MMOARPGMacroType.h"
 #include "MMOARPGType.h"
 #include "Kismet/GameplayStatics.h"
 

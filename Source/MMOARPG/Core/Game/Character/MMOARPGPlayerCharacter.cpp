@@ -4,6 +4,7 @@
 #include "../MMOARPGPlayerState.h"
 #include "../../Common/MMOARPGGameInstance.h"
 #include "../MMOARPGGameMode.h"
+#include "ThreadManage.h"
 
 void AMMOARPGPlayerCharacter::UpdateKneadingBoby(const FMMOARPGCharacterAppearance& InCA)
 {
@@ -26,12 +27,20 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 
 	InitKneadingLocation(GetMesh()->GetComponentLocation());
 
-	// 
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {// 满足是服务器.
-		if (UMMOARPGGameInstance* InGins = GetWorld()->GetGameInstance<UMMOARPGGameInstance>()) {
-			// 开始游戏的时候就主动 RPC在DS-GM, 发送刷新容貌的请求.
-			CallServerUpdateKneading(InGins->GetUserData().ID);// 拿取客户端中GINS里存储的用户数据ID, 并呼叫DS去刷新登录人物样貌.
-		}
+		
+// 		// 开始游戏的时候就主动 RPC在DS-GM, 发送刷新容貌的请求.
+// 		if (UMMOARPGGameInstance* InGins = GetWorld()->GetGameInstance<UMMOARPGGameInstance>()) {
+// 			CallServerUpdateKneading(InGins->GetUserData().ID);// 拿取客户端中GINS里存储的用户数据ID, 并呼叫DS去刷新登录人物样貌.
+// 		}
+
+		/* 延迟0.6秒执行 RPC在DS-GM刷新登录人物外貌. */
+		GThread::Get()->GetCoroutines().BindLambda(0.6f, [=]() {
+			if (UMMOARPGGameInstance* InGins = GetWorld()->GetGameInstance<UMMOARPGGameInstance>()) {
+				// 开始游戏的时候就主动 RPC在DS-GM, 发送刷新容貌的请求.
+				CallServerUpdateKneading(1);// 暂测试ID为1号的登录人物.
+			}
+		});
 	}
 	else if (GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {// 满足是模拟玩家.
 

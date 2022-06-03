@@ -3,7 +3,7 @@
 #include "../Common/UI_Print.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
-#include "../../MMOAPRGMacroType.h"
+#include "../../MMOARPGMacroType.h"
 #include "../../Core/Common/MMOARPGGameInstance.h"
 
 /** 让UI链接至服务器,需要1个指定的网关. */

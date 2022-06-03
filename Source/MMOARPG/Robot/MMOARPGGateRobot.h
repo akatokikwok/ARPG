@@ -14,6 +14,7 @@ public:
 	virtual void RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel);
 	virtual void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
+	void RunRobot();
 private:
 	FSimpleNetManage* GateClient;// 模拟网关的客户端.
 };

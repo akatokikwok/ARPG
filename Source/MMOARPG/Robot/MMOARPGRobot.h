@@ -9,9 +9,12 @@
 class FMMOARPGRobot
 {
 public:
+	FMMOARPGRobot();
 	void InitGate(const FString& Host, const int32 Port);
 	void InitDS(const FString& Host, const int32 Port);
-	virtual void Tick(float DeltaTime);
+	void Tick(float DeltaTime);
+
+	void RunRobot();
 private:
 	FMMOARPGGateRobot GateRobot;
 	FMMOAPRGDSRobot DSRobot;
