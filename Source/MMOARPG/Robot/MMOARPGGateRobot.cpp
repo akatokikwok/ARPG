@@ -56,7 +56,7 @@ void FMMOARPGGateRobot::Run_LoginToDSServerRequests()
 {
 	/* 仅测试用的假数据.*/
 	int32 ID = 1;
-	int32 InSlotID = 0;// 第4个存档插槽.
+	int32 InSlotID = 3;// 第4个存档插槽.(长腿长腰的那个人物.以示区别)
 	// 扮演客户端 向CS服务器发送命令; 中心服务器上注册1个玩家.
 	SIMPLE_CLIENT_SEND(GateClient, SP_LoginToDSServerRequests, ID, InSlotID);
 }
