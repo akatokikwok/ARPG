@@ -6,7 +6,8 @@
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
-	: bFight(false)
+	: ActionState(ECharacterActionState::NORMAL_STATE)
+	, LastActionState(ECharacterActionState::NORMAL_STATE)
 	, ID(INDEX_NONE)
 	, UserID(INDEX_NONE)
 {
@@ -66,15 +67,17 @@ void AMMOARPGCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	// 手动条件注册,条件变量 使用此宏网络同步 bFight字段.
 	// 此处设定规则是COND_SimulatedOnly,意为当主机本机客户端发生了某些行为后, 这些行为只同步给模拟玩家.
-	DOREPLIFETIME_CONDITION(AMMOARPGCharacterBase, bFight, COND_SimulatedOnly);
+	DOREPLIFETIME_CONDITION(AMMOARPGCharacterBase, ActionState, COND_SimulatedOnly);
 }
 
-void AMMOARPGCharacterBase::SwitchFightOnServer_Implementation(bool bNewFight)
+void AMMOARPGCharacterBase::SwitchActionStateOnServer_Implementation(ECharacterActionState InActionState)
 {
-	bFight = bNewFight;
+	ActionState = InActionState;
+
+	LastActionState = ActionState;// 刷新最后姿态.
 }
 
-void AMMOARPGCharacterBase::OnRep_FightChanged()
+void AMMOARPGCharacterBase::OnRep_ActionStateChanged()
 {
 	// 虚方法,在其他地方实现.
 }
