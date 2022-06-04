@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "../../../../../MMOARPGGameType.h"
 #include "MMOARPGAnimInstanceBase.generated.h"
 
 /**
@@ -39,9 +40,9 @@ public:
 	// 是否滞空.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bInAir;
-	// 是否战斗姿势.
+	// 何种行为状态.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-		bool bFight;
+		ECharacterActionState ActionState;
 	
 	// 是否开启FootIK
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")

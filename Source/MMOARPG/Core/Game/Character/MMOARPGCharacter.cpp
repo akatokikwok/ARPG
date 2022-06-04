@@ -157,6 +157,9 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
+	PlayerInputComponent->BindAction("Fly", IE_Pressed, this, &AMMOARPGCharacter::Fly);// 飞行
+	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 加速飞行
+
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
@@ -180,52 +183,59 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMMOARPGCharacter::OnResetVR);
 }
 
-void AMMOARPGCharacter::SwitchFight()
-{
-	// 在客户端切换战斗姿势启用/禁用.
-	if (bFight == true) {
-		bFight = false;
-// 		if (FCharacterAnimTable* InAnimTable = AMMOARPGCharacterBase::GetAnimTable()) {
-// 			if (InAnimTable->SwitchFightMontage != nullptr) {
-// 				PlayAnimMontage(InAnimTable->SwitchFightMontage, 1.0f, TEXT("1"));// 播放片段名为"1"的部分.(收剑动画)
-// 			}
-// 		}
-	}
-	else {
-		bFight = true;
-// 		if (FCharacterAnimTable* InAnimTable = AMMOARPGCharacterBase::GetAnimTable()) {
-// 			if (InAnimTable->SwitchFightMontage != nullptr) {
-// 				PlayAnimMontage(InAnimTable->SwitchFightMontage, 1.0f, TEXT("0"));// 播放片段名为"0"的部分.(拔剑动画)
-// 			}
-// 		}
-	}
-	// 本地本机本客户端先执行一次动画逻辑.
-	// 本机客户端动作会第一时间优先执行.
-	FightChanged();
-
-	// 客户端发送命令通知一下DS刷新Fight; 除本机外的其他客户端或模拟对象收到后会执行OnRep_FightChanged.
-	AMMOARPGCharacterBase::SwitchFightOnServer(bFight);
-}
-
 void AMMOARPGCharacter::FightChanged()
 {
 	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
 		if (InAnimTable_row->SwitchFightMontage != nullptr) {
 			PlayAnimMontage(InAnimTable_row->SwitchFightMontage, // 蒙太奇资产: SwitchFight
 				1.f,// 播放倍率
-				bFight == true ? TEXT("0") : TEXT("1")// 按切换姿势来切换哪一个section.
+				ActionState == ECharacterActionState::FIGHT_STATE ? TEXT("0") : TEXT("1")// 按切换姿势来切换哪一个section.
 			);
 		}
 	}
 }
 
 /** 当字段被DS刷新后,客户端Player做出的反应. */
-void AMMOARPGCharacter::OnRep_FightChanged()
+void AMMOARPGCharacter::OnRep_ActionStateChanged()
 {
 	// 此处设定为不为不服务器的，诸如只在客户端或在模拟玩家上发生的行为.
 	// 它会第二时间,慢于本机客户端.
 	// AMMOARPGCharacterBase.GetLifetimeReplicatedProps 方法里条件设定为 只转发至模拟玩家
 	if (GetLocalRole() != ROLE_Authority) {
-		this->FightChanged();
+		
+		/* 当前动作状态 或收尾动作都处于战斗姿势.*/
+		if (ActionState == ECharacterActionState::FIGHT_STATE || LastActionState == ECharacterActionState::FIGHT_STATE) {
+			this->FightChanged();
+		}
+
+		/* .*/
+		LastActionState = ActionState;// 刷新最后一次动作点状态.
 	}
+}
+
+void AMMOARPGCharacter::SwitchFight()
+{
+	ResetActionState(ECharacterActionState::FIGHT_STATE);// 强制刷新到战斗姿态. 若和新姿态相同则还原为normal.
+
+	// 本地本机本客户端先执行一次动画逻辑.
+	// 本机客户端动作会第一时间优先执行.
+	FightChanged();
+
+	// 客户端发送命令通知一下DS刷新ActionState; 除本机外的其他客户端或模拟对象收到后会执行OnRep_ActionStateChanged.
+	AMMOARPGCharacterBase::SwitchActionStateOnServer(ActionState);
+
+	// 刷新最后姿态
+	LastActionState = ActionState;
+}
+
+void AMMOARPGCharacter::Fly()
+{
+	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
+
+	GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
+}
+
+void AMMOARPGCharacter::Fast()
+{
+
 }

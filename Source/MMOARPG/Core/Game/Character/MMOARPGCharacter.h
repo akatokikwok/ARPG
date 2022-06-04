@@ -50,7 +50,14 @@ protected:
 	/** 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
 	void FightChanged();
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
-	virtual void OnRep_FightChanged() override;
+	virtual void OnRep_ActionStateChanged() override;
+
+	/* 飞行. */
+	UFUNCTION()
+		void Fly();
+	/* 急速飞行.*/
+	UFUNCTION()
+		void Fast();
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
