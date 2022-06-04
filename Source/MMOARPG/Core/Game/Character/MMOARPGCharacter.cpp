@@ -231,6 +231,8 @@ void AMMOARPGCharacter::SwitchFight()
 void AMMOARPGCharacter::Fly()
 {
 	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
+
+	GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
 }
 
 void AMMOARPGCharacter::Fast()
