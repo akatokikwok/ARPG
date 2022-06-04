@@ -8,7 +8,7 @@
 #include "Protocol/HallProtocol.h"
 #include "../../Core/Hall/HallPlayerState.h"
 #include "Kismet/GameplayStatics.h"
-#include "../../MMOAPRGMacroType.h"
+#include "../../MMOARPGMacroType.h"
 #include "..\..\Core\Hall\HallPawn.h"
 
 #define LOCTEXT_NAMESPACE "UUI_HallMain"// 用于本地化.

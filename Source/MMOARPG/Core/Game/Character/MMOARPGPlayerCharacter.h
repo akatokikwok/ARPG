@@ -31,4 +31,8 @@ public:
 	// RPC, 在客户端 执行刷新登录人物样貌.
 	UFUNCTION(Client, reliable)
 		void CallUpdateKneadingBobyOnClient(const FMMOARPGCharacterAppearance& InCA);
+
+	// 绑定用的回调, 刷新操作人物相貌请求.
+	UFUNCTION()
+		void FlushKneadingRequest();
 };

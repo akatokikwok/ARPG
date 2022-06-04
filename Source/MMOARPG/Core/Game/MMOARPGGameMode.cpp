@@ -6,19 +6,21 @@
 #include "MMOARPGHUD.h"
 #include "ThreadManage.h"
 #include "UObject/SimpleController.h"
-#include "../../MMOAPRGMacroType.h"
+#include "../../MMOARPGMacroType.h"
 #include "MMOARPGPlayerState.h"
 #include "MMOARPGGameState.h"
 #include "ThreadManage.h"
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "Protocol/GameProtocol.h"
 #include "Core/MethodUnit.h"
+#include "MMOARPGPlayerController.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
 	HUDClass = AMMOARPGHUD::StaticClass();// HUD暂设为 Game-HUD,游玩时候的HUD.
 	PlayerStateClass = AMMOARPGPlayerState::StaticClass();// 注册PS
 	GameStateClass = AMMOARPGGameState::StaticClass();// 注册GS
+	PlayerControllerClass = AMMOARPGPlayerController::StaticClass();// 注册Controiler.
 
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPersonCPP/Blueprints/ThirdPersonCharacter"));
@@ -136,20 +138,28 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateLoginCharacterInfoResponses, UserID, CAJsonString);
 
 			if (UserID != INDEX_NONE && !CAJsonString.IsEmpty()) {
-				// 解析出外貌.
-				FMMOARPGCharacterAppearance CA;
-				NetDataAnalysis::StringToCharacterAppearances(CAJsonString, CA);
 
-				// 使用仿函数处理 找到的所有 MMOARPGPlayerCharacter.
-				MethodUnit::ServerCallAllPlayer<AMMOARPGPlayerCharacter>(
+				// 因为每个人物都有1个controller和1个PS,所以这边遍历的时候推荐用Controller而不是Player 
+				// 需要一个仿函数去处理.
+				MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(
 					GetWorld(), 
-					[&](AMMOARPGPlayerCharacter* InPawn) ->MethodUnit::EServerCallType {
-						if (InPawn->GetUserID() == UserID) {
-							InPawn->UpdateKneadingBoby(CA);// RPC在DS服务器的GM上, 刷新人物的样貌.
-							InPawn->CallUpdateKneadingBobyOnClient(CA);// RPC在客户端, 刷新登录人物样貌.
-							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
+					[&](AMMOARPGPlayerController* InController) ->MethodUnit::EServerCallType {
+
+						if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {//拿人
+							if (InPlayerCharacter->GetUserID() == UserID) {// 校验ID
+
+								if (AMMOARPGPlayerState* InPlayerState = InController->GetPlayerState<AMMOARPGPlayerState>()) {// 拿PS
+									// 解析外貌流 到PS里存一份.
+									NetDataAnalysis::StringToCharacterAppearances(CAJsonString, InPlayerState->GetCA());
+									// DS上刷新外貌 与 RPC客户端刷新容貌.
+									InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());
+									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
+								}
+								return MethodUnit::EServerCallType::PROGRESS_COMPLETE;// 所有步骤完成后就断开不再遍历.
+							}
 						}
-						return MethodUnit::EServerCallType::INPROGRESS;
+						
+						return MethodUnit::EServerCallType::INPROGRESS;// 没找到合适的人就继续遍历.
 				});
 				//
 			}

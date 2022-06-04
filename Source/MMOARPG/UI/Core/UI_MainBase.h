@@ -37,7 +37,7 @@ protected:
 	 */
 	void BindClientRcv();
 
-	/** 网络消息协议绑定的回调. */
+	/** 可以由子类覆写的回调, 用以从客户端发送协议给更高一层的网关. */
 	UFUNCTION()
 		virtual void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
 
