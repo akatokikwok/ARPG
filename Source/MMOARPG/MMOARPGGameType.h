@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "MMOARPGGameType.generated.h"
 
+/* 人物行为姿态.*/
 UENUM(BlueprintType)
 enum class ECharacterActionState : uint8
 {
@@ -13,6 +14,7 @@ enum class ECharacterActionState : uint8
 	SWIMMING_STATE	UMETA(DisplayName = "Swimming"),// 游泳
 };
 
+/* .*/
 UENUM(BlueprintType)
 enum class EDodgeFly : uint8
 {

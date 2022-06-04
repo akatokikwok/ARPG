@@ -13,6 +13,8 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	// 构造飞行组件.
+	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 
 }
 
@@ -58,6 +60,17 @@ void AMMOARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 {
 	K2_AnimSignal(InSignal);
+}
+
+void AMMOARPGCharacterBase::ResetActionState(ECharacterActionState InNewActionState)
+{
+	//客户端
+	if (ActionState == InNewActionState) {
+		ActionState = ECharacterActionState::NORMAL_STATE;
+	}
+	else {
+		ActionState = InNewActionState;
+	}
 }
 
 // 同步变量需要重写的方法.

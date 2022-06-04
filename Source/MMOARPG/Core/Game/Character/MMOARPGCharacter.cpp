@@ -157,6 +157,9 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
+	PlayerInputComponent->BindAction("Fly", IE_Pressed, this, &AMMOARPGCharacter::Fly);// 飞行
+	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 加速飞行
+
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
@@ -178,27 +181,6 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMMOARPGCharacter::OnResetVR);
-}
-
-void AMMOARPGCharacter::SwitchFight()
-{
-	// 在客户端切换战斗姿势启用/禁用.
-	if (ActionState == ECharacterActionState::FIGHT_STATE) {
-		ActionState = ECharacterActionState::NORMAL_STATE;
-	}
-	else {
-		ActionState = ECharacterActionState::FIGHT_STATE;
-	}
-
-	// 本地本机本客户端先执行一次动画逻辑.
-	// 本机客户端动作会第一时间优先执行.
-	FightChanged();
-
-	// 客户端发送命令通知一下DS刷新ActionState; 除本机外的其他客户端或模拟对象收到后会执行OnRep_ActionStateChanged.
-	AMMOARPGCharacterBase::SwitchActionStateOnServer(ActionState);
-
-	// 刷新最后姿态
-	LastActionState = ActionState;
 }
 
 void AMMOARPGCharacter::FightChanged()
@@ -229,4 +211,29 @@ void AMMOARPGCharacter::OnRep_ActionStateChanged()
 		/* .*/
 		LastActionState = ActionState;// 刷新最后一次动作点状态.
 	}
+}
+
+void AMMOARPGCharacter::SwitchFight()
+{
+	ResetActionState(ECharacterActionState::FIGHT_STATE);// 强制刷新到战斗姿态. 若和新姿态相同则还原为normal.
+
+	// 本地本机本客户端先执行一次动画逻辑.
+	// 本机客户端动作会第一时间优先执行.
+	FightChanged();
+
+	// 客户端发送命令通知一下DS刷新ActionState; 除本机外的其他客户端或模拟对象收到后会执行OnRep_ActionStateChanged.
+	AMMOARPGCharacterBase::SwitchActionStateOnServer(ActionState);
+
+	// 刷新最后姿态
+	LastActionState = ActionState;
+}
+
+void AMMOARPGCharacter::Fly()
+{
+	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
+}
+
+void AMMOARPGCharacter::Fast()
+{
+
 }
