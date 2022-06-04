@@ -7,33 +7,30 @@ AMMOARPGGameState::AMMOARPGGameState()
 	// 设置本类的动画DataTable.
 	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterAnimTable(TEXT("/Game/DataTable/CharacterAnimTable"));
 	CharacterAnimTablePtr = CharacterAnimTable.Object;
+
+	// 同上, 加载角色样式DT 蓝图资源.
+	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterStyleTable(TEXT("/Game/DataTable/CharacterStyleTable"));
+	CharacterStyleTablePtr = CharacterStyleTable.Object;
 }
 
 FCharacterAnimTable* AMMOARPGGameState::GetCharacterAnimTable(int32 InAnimTableID)
 {
-	if (TArray<FCharacterAnimTable*>* AnimTables = GetCharacterAnimTables()) {// 获取DataTable里所有数据源(很多个结构体的数组).
-
-		if (AnimTables->Num()) {
-			if (auto Anim = AnimTables->FindByPredicate([&](FCharacterAnimTable* InAnimTable) ->bool {
-				return InAnimTable->ID == InAnimTableID;
-				}))
-			{
-				return *Anim;
-			}
-		}
-	}
-
-	return NULL;
+	// 从动画DT里 读出指定ID的那一行
+	return GetTable_read(InAnimTableID, CharacterAnimTablePtr, CharacterAnimTables, TEXT("AnimTable"));
 }
 
 TArray<FCharacterAnimTable*>* AMMOARPGGameState::GetCharacterAnimTables()
 {
-	if (!CharacterAnimTables.Num()) {
-		// 获取DataTable里所有的数据源.
-		if (CharacterAnimTablePtr != nullptr) {
-			CharacterAnimTablePtr->GetAllRows(TEXT("AnimTable"), CharacterAnimTables);
-		}
-	}
+	// 把已存的多行蒙太奇动画数据 写入一张动画DT里.
+	return GetTables_write(CharacterAnimTablePtr, CharacterAnimTables, TEXT("AnimTable"));
+}
 
-	return &CharacterAnimTables;
+FCharacterStyleTable* AMMOARPGGameState::GetCharacterStyleTable(int32 InCharacterTableID)
+{
+	return GetTable_read(InCharacterTableID, CharacterStyleTablePtr, CharacterStyleTables, TEXT("CharacterTable"));
+}
+
+TArray<FCharacterStyleTable*>* AMMOARPGGameState::GetCharacterStyleTables()
+{
+	return GetTables_write(CharacterStyleTablePtr, CharacterStyleTables, TEXT("CharacterTable"));
 }
