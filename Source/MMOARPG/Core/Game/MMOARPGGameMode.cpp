@@ -13,12 +13,14 @@
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "Protocol/GameProtocol.h"
 #include "Core/MethodUnit.h"
+#include "MMOARPGPlayerController.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
 	HUDClass = AMMOARPGHUD::StaticClass();// HUD暂设为 Game-HUD,游玩时候的HUD.
 	PlayerStateClass = AMMOARPGPlayerState::StaticClass();// 注册PS
 	GameStateClass = AMMOARPGGameState::StaticClass();// 注册GS
+	PlayerControllerClass = AMMOARPGPlayerController::StaticClass();// 注册Controiler.
 
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPersonCPP/Blueprints/ThirdPersonCharacter"));
