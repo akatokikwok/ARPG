@@ -8,16 +8,17 @@
 
 class AMMOARPGCharacter;
 /**
- * 
+ *
  */
 UCLASS()
 class MMOARPG_API AMMOARPGPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
 public:
 	AMMOARPGPlayerController();
-
+	
+	// 运行在服务器.
 	UFUNCTION(server, reliable)
-	void ReplaceCharacter(int32 InCharacterID);
+		void ReplaceCharacter(int32 InCharacterID);
 };

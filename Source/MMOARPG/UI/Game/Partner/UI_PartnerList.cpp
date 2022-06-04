@@ -18,7 +18,7 @@ void UUI_PartnerList::NativeDestruct()
 void UUI_PartnerList::Init()
 {
 	if (UI_PartnerInfoClass != nullptr) {
-		for (int32 i = 1; i < 5; i++) {
+		for (int32 i = 1; i < 3; i++) {// 暂时生成1号和2号UI槽.
 			if (UUI_PartnerInfo* InPartner = CreateWidget<UUI_PartnerInfo>(GetWorld(), UI_PartnerInfoClass)) {
 				if (i == 1) {// 如果是1号主人物.就默认设置为选中状态.
 					InPartner->ShowSelected(true);

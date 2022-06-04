@@ -8,7 +8,7 @@
 #include "MMOARPGGameState.generated.h"
 
 /**
- * 
+ * GS,管理DataTable之类的数据.
  */
 UCLASS()
 class MMOARPG_API AMMOARPGGameState : public AGameStateBase

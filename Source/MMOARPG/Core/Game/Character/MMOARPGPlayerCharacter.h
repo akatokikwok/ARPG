@@ -32,7 +32,7 @@ public:
 	UFUNCTION(Client, reliable)
 		void CallUpdateKneadingBobyOnClient(const FMMOARPGCharacterAppearance& InCA);
 
-	// 刷新操作人物相貌请求.
+	// 绑定用的回调, 刷新操作人物相貌请求.
 	UFUNCTION()
 		void FlushKneadingRequest();
 };

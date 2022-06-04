@@ -49,5 +49,9 @@ void UUI_PartnerInfo::OnClickedCharacter(bool bClicked)
 		});
 	}
 
+	// 使用控制器替换人物.
+	if (AMMOARPGPlayerController* InPlayerController = GetPlayerController<AMMOARPGPlayerController>()) {
+		InPlayerController->ReplaceCharacter(CharacterID);
+	}
 
 }
