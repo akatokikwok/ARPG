@@ -26,6 +26,8 @@ public:
 protected:
 	//
 	void Reset();
+	// 打印指定时长的指定语句.
+	void Print(float InTime, const FString& InString);
 
 public:
 	// 控制飞行姿态中人在yaw朝向.
@@ -52,7 +54,7 @@ protected:
 
 	UPROPERTY()
 		TWeakObjectPtr<UCharacterMovementComponent> CharacterMovementComponent;
-
+	/* 上一帧人物转向.*/
 	UPROPERTY()
 		FRotator LastRotator;
 

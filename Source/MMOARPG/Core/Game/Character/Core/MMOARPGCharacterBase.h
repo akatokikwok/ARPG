@@ -17,9 +17,13 @@ class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleComba
 private:
 	friend class AMMOARPGGameMode;// 人物基类的一切数据均提供GM访问.
 
-	// 飞行组件.
+	/**
+	 * 飞行组件.(是一个强指针,引用它的那些要设计成弱指针.)
+	 * 某份数据全局只能有一个,则需要设计为强指针.所有引用这份数据的设计为弱指针.
+	 * 当强指针被释放了,引用它的那些弱指针们都会感应到,从而阻止出错.
+	 */
 	UPROPERTY()
-		UFlyComponent* FlyComponent;
+		TObjectPtr<UFlyComponent> FlyComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
