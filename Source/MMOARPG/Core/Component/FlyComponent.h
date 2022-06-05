@@ -23,11 +23,18 @@ public:
 
 	// 还原一套用于飞行姿态下的组件设置.
 	void ResetFly();
+	// 用来计算飞行轴向.
+	void FlyForwardAxis(float InAxisValue);
 protected:
 	//
 	void Reset();
+	// 打印指定时长的指定语句.
+	void Print(float InTime, const FString& InString);
+
+//////////////////////////////////////////////////////////////////////////
 
 public:
+	// 控制飞行姿态中人在yaw朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
 
@@ -42,6 +49,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<AMMOARPGCharacterBase> MMOARPGCharacterBase;
 
+	/* 由于人物所有组件都附着在胶囊体下,所以保存1个胶囊体.*/
 	UPROPERTY()
 		TWeakObjectPtr<UCapsuleComponent> CapsuleComponent;
 
@@ -50,7 +58,7 @@ protected:
 
 	UPROPERTY()
 		TWeakObjectPtr<UCharacterMovementComponent> CharacterMovementComponent;
-
+	/* 上一帧人物转向.*/
 	UPROPERTY()
 		FRotator LastRotator;
 
