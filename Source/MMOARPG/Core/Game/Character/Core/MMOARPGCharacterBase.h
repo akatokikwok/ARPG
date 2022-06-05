@@ -43,6 +43,8 @@ public:
 	FORCEINLINE int32 GetUserID() { return UserID; }
 	// 拿取飞行组件.
 	FORCEINLINE UFlyComponent* GetFlyComponent() { return FlyComponent; }
+	// 拿附属的相机,虚接口.
+	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);

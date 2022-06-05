@@ -44,5 +44,7 @@ void UMMOARPGFlyAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			FlySpeed.Y = FMath::GetMappedRangeValueClamped(FVector2D(-MaxFlySpeed, MaxFlySpeed), FVector2D(-1.f, 1.f), SpeedVector.Y);
 			FlySpeed.Z = FMath::GetMappedRangeValueClamped(FVector2D(-MaxFlySpeed, MaxFlySpeed), FVector2D(-1.f, 1.f), SpeedVector.Z);
 		}
+		// 从飞行组件里解算出合适的值去更新Blendspace 字段; 
+		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
 	}
 }

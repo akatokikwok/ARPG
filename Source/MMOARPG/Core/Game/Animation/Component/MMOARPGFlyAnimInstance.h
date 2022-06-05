@@ -20,13 +20,13 @@ public:
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 
 public:
-	// 控制飞行速度 带3个朝向.
+	// Blendspace 字段; 控制飞行速度 带3个朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector FlySpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bFastFly;
-
+	// Blendspace 字段; 控制飞行姿态中人在yaw朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
 

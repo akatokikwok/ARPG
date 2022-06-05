@@ -28,6 +28,7 @@ protected:
 	void Reset();
 
 public:
+	// 控制飞行姿态中人在yaw朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
 
@@ -42,6 +43,7 @@ protected:
 	UPROPERTY()
 		TWeakObjectPtr<AMMOARPGCharacterBase> MMOARPGCharacterBase;
 
+	/* 由于人物所有组件都附着在胶囊体下,所以保存1个胶囊体.*/
 	UPROPERTY()
 		TWeakObjectPtr<UCapsuleComponent> CapsuleComponent;
 

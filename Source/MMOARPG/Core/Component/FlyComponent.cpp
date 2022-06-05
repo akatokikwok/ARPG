@@ -16,14 +16,6 @@ UFlyComponent::UFlyComponent()
 	// ...
 }
 
-// Called every frame
-void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 // Called when the game starts
 void UFlyComponent::BeginPlay()
 {
@@ -31,11 +23,41 @@ void UFlyComponent::BeginPlay()
 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
 	if (MMOARPGCharacterBase.IsValid()) {
 		CharacterMovementComponent = Cast<UCharacterMovementComponent>(MMOARPGCharacterBase->GetMovementComponent());
-		if (CharacterMovementComponent.IsValid()) {
-// 			CharacterMovementComponent->MaxAcceleration = 2500.f;
-// 			CharacterMovementComponent->BrakingDecelerationFlying = 1400.f;
+		CapsuleComponent = MMOARPGCharacterBase->GetCapsuleComponent();
+		CameraComponent = MMOARPGCharacterBase->GetFollowCamera();
+
+
+
+
+
+	}
+}
+
+// Called every frame
+void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (CharacterMovementComponent.IsValid() && MMOARPGCharacterBase.IsValid() &&
+		CapsuleComponent.IsValid() && CameraComponent.IsValid()) {
+		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE) {
+			/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
+			FRotator CameraRotator = CameraComponent->GetComponentRotation();
+			FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
+			FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
+			// Flush人的朝向趋近于相机朝向.
+			MMOARPGCharacterBase->SetActorRotation(NewRot);
+
+			/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
+			FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
+			RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
+				PhysicsAngularVelocityInDegrees.Z// 绕Z就是Yaw
+			);
+
+
+
 		}
 	}
+
 }
 
 void UFlyComponent::ResetFly()
@@ -54,7 +76,7 @@ void UFlyComponent::ResetFly()
 			CharacterMovementComponent->bOrientRotationToMovement = true;// 开启随移动组件旋转.
 			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);// 切换为UE提供的 Walking Mode.
 		}
-// 		bFastFly = false;
+		// 		bFastFly = false;
 	}
 }
 

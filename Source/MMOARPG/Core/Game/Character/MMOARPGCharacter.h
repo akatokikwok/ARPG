@@ -19,8 +19,8 @@ public:
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	/** 覆写虚接口, 拿附属的相机. **/
+	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 protected:
 	/** Resets HMD orientation in VR. */
