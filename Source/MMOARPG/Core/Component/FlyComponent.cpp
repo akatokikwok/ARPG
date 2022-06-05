@@ -40,15 +40,16 @@ void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	if (CharacterMovementComponent.IsValid() && MMOARPGCharacterBase.IsValid() &&
 		CapsuleComponent.IsValid() && CameraComponent.IsValid()) {
 		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE) {
-			
+
 			FRotator CameraRotator = CameraComponent->GetComponentRotation();
 			FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
+			CameraRotator.Pitch = 0.0f;// 不需要相机转动角的pitch参与计算,故清空.
+			
+			/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
+			FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
+			MMOARPGCharacterBase->SetActorRotation(NewRot);
 
 			if (1) {/* 第一种算法*/
-				
-				/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
-				FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
-				MMOARPGCharacterBase->SetActorRotation(NewRot);
 
 				/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
 				FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
@@ -91,6 +92,19 @@ void UFlyComponent::ResetFly()
 		}
 		// 		bFastFly = false;
 	}
+}
+
+void UFlyComponent::FlyForwardAxis(float InAxisValue)
+{
+	if (CharacterMovementComponent.IsValid() &&
+		MMOARPGCharacterBase.IsValid() &&
+		CapsuleComponent.IsValid() &&
+		CameraComponent.IsValid()) {
+
+		const FVector Direction = CameraComponent->GetForwardVector();
+		MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
+	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////

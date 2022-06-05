@@ -23,11 +23,15 @@ public:
 
 	// 还原一套用于飞行姿态下的组件设置.
 	void ResetFly();
+	// 用来计算飞行轴向.
+	void FlyForwardAxis(float InAxisValue);
 protected:
 	//
 	void Reset();
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
+
+//////////////////////////////////////////////////////////////////////////
 
 public:
 	// 控制飞行姿态中人在yaw朝向.
