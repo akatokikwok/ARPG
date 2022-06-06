@@ -14,6 +14,7 @@ UFlyComponent::UFlyComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	bFastFly = false;
+	DodgeFlyTime = 0.0f;
 }
 
 // Called when the game starts
@@ -75,10 +76,17 @@ void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 					PhysicsAngularVelocityInDegrees.X// 绕x就是Pitch.
 				);
 			}
-			//			
+			
+			// // 逐渐扣除延时时长直至耗尽延时,把急速翻滚设为停止.
+			if (DodgeFlyTime > 0.0f) {
+				DodgeFlyTime -= DeltaTime;
+				if (DodgeFlyTime <= 0.0f) {
+					DodgeFly = EDodgeFly::DODGE_NONE;
+					DodgeFlyTime = 0.f;
+				}
+			}
 		}
 	}
-
 }
 
 void UFlyComponent::ResetFly()
@@ -114,11 +122,23 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
+		Print(3.0f, FString::SanitizeFloat(InAxisValue));
+
 		if (bFastFly == true) {
+			Print(3.0f, TEXT("bfastfly == true"));
 			const FVector Direction = CameraComponent->GetForwardVector();
-			MMOARPGCharacterBase->AddMovementInput(Direction, 1.0f);// 按相机指向的方向进行输入移动.但不接收外部value,只用1.0f保持永远前向而不是其他方向(例如后退)
+
+			if (InAxisValue > 0.0f) {// 在急速飞行下, 确实按下键盘键位w.
+				MMOARPGCharacterBase->AddMovementInput(Direction, 1.0f);// 按相机指向的方向进行输入移动.但不接收外部value,只用1.0f保持永远前向而不是其他方向(例如后退)
+			}
+			else {// 没按下任意键盘键位或者按了后退键
+				MMOARPGCharacterBase->AddMovementInput(Direction, 0.0f);
+			}
+			
 		}
 		else {
+			Print(3.0f, TEXT("bfastfly == false"));
+
 			const FVector Direction = CameraComponent->GetForwardVector();
 			MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
 		}
@@ -139,6 +159,16 @@ void UFlyComponent::ResetFastFly()
 	}
 }
 
+void UFlyComponent::ResetDodgeFly(EDodgeFly InFlyState)
+{
+	if (bFastFly) {// 仅在加速飞行下生效
+		DodgeFly = InFlyState;
+
+		// 重刷新 延时器(关联翻滚的)延时时长.
+ 		DodgeFlyTime = 1.6f;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void UFlyComponent::Reset()
@@ -155,7 +185,7 @@ void UFlyComponent::Reset()
 void UFlyComponent::Print(float InTime, const FString& InString)
 {
 	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, InTime, FColor::Red, FString::Printf(TEXT("%s"), *InString));
+		GEngine->AddOnScreenDebugMessage(-1, InTime, FColor::Yellow, FString::Printf(TEXT("%s"), *InString));
 	}
 }
 

@@ -27,6 +27,8 @@ public:
 	void FlyForwardAxis(float InAxisValue);
 	// 还原一套急速飞行的组件配置.
 	void ResetFastFly();
+	// 还原一套用于空中翻滚的组件配置.
+	void ResetDodgeFly(EDodgeFly InFlyState);
 protected:
 	//
 	void Reset();
@@ -42,8 +44,8 @@ public:
 	// 是否加速飞行.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bFastFly;
-
-	//
+	
+	// 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
 protected:
@@ -67,5 +69,8 @@ protected:
 	/* 上一帧人物转向.*/
 	UPROPERTY()
 		FRotator LastRotator;
+
+	UPROPERTY()
+		float DodgeFlyTime;
 
 };

@@ -23,6 +23,8 @@ public:
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 protected:
+	// 打印指定时长的指定语句.
+	void Print(float InTime, const FString& InString);
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 	/** Called for forwards/backward input */
@@ -58,6 +60,12 @@ protected:
 	/* 急速飞行.*/
 	UFUNCTION()
 		void Fast();
+	/* 空中左翻滚.*/
+	UFUNCTION()
+		void DodgeLeft();
+	/* 空中右翻滚.*/
+	UFUNCTION()
+		void DodgeRight();
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
