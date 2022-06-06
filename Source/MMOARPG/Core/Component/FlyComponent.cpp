@@ -27,7 +27,10 @@ void UFlyComponent::BeginPlay()
 		CapsuleComponent = MMOARPGCharacterBase->GetCapsuleComponent();
 		CameraComponent = MMOARPGCharacterBase->GetFollowCamera();
 
-
+		if (CharacterMovementComponent.IsValid()) {
+			CharacterMovementComponent->MaxAcceleration = 2500.f;// 最大加速度, 用于辅助调试飞行手感
+			CharacterMovementComponent->BrakingDecelerationFlying = 1400.f;// 飞行减速, 用于辅助调试飞行手感
+		}
 
 
 
@@ -122,10 +125,10 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-		Print(3.0f, FString::SanitizeFloat(InAxisValue));
+// 		Print(3.0f, FString::SanitizeFloat(InAxisValue));
 
 		if (bFastFly == true) {
-			Print(3.0f, TEXT("bfastfly == true"));
+// 			Print(3.0f, TEXT("bfastfly == true"));
 			const FVector Direction = CameraComponent->GetForwardVector();
 
 			if (InAxisValue > 0.0f) {// 在急速飞行下, 确实按下键盘键位w.
@@ -137,7 +140,7 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 			
 		}
 		else {
-			Print(3.0f, TEXT("bfastfly == false"));
+// 			Print(3.0f, TEXT("bfastfly == false"));
 
 			const FVector Direction = CameraComponent->GetForwardVector();
 			MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
