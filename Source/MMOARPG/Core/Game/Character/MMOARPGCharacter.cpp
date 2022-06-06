@@ -85,6 +85,13 @@ void AMMOARPGCharacter::BeginPlay()
 // 	SetMeshPostion(GetMesh());
 // }
 
+void AMMOARPGCharacter::Print(float InTime, const FString& InString)
+{
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, InTime, FColor::Purple, FString::Printf(TEXT("%s"), *InString));
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -122,27 +129,6 @@ void AMMOARPGCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMMOARPGCharacter::MoveForward(float Value)
-{
-	if ((Controller != nullptr) && (Value != 0.0f))
-	{
-			
-		// 按姿态重新划分逻辑.
-		if (ActionState == ECharacterActionState::FLIGHT_STATE) {
-			GetFlyComponent()->FlyForwardAxis(Value);// 计算飞行组件的轴向.
-
-		}
-		else {
-			// find out which way is forward
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-			// get forward vector
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			AddMovementInput(Direction, Value);
-		}
-	}
-}
-
 void AMMOARPGCharacter::MoveRight(float Value)
 {
 	if ( (Controller != nullptr) && (Value != 0.0f) )
@@ -166,7 +152,8 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
 	PlayerInputComponent->BindAction("Fly", IE_Pressed, this, &AMMOARPGCharacter::Fly);// 飞行
 	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 加速飞行
-
+	PlayerInputComponent->BindAction("DodgeLeft", IE_Pressed, this, &AMMOARPGCharacter::DodgeLeft);
+	PlayerInputComponent->BindAction("DodgeRight", IE_Pressed, this, &AMMOARPGCharacter::DodgeRight);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
@@ -235,6 +222,28 @@ void AMMOARPGCharacter::SwitchFight()
 	LastActionState = ActionState;
 }
 
+void AMMOARPGCharacter::MoveForward(float Value)
+{
+ 	//if ((Controller != nullptr) && (Value != 0.0f)) {
+	if (Controller != nullptr) {
+
+		// 按姿态重新划分逻辑.
+		if (ActionState == ECharacterActionState::FLIGHT_STATE) {
+// 			Print(1.0f, FString::SanitizeFloat(Value));
+			GetFlyComponent()->FlyForwardAxis(Value);// 计算飞行组件的轴向.
+
+		}
+		else {
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+			// get forward vector
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			AddMovementInput(Direction, Value);
+		}
+	}
+}
+
 void AMMOARPGCharacter::Fly()
 {
 	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
@@ -244,5 +253,21 @@ void AMMOARPGCharacter::Fly()
 
 void AMMOARPGCharacter::Fast()
 {
+	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
+		GetFlyComponent()->ResetFastFly();// 还原一套加速飞行的组件配置.
+	}
+}
 
+void AMMOARPGCharacter::DodgeLeft()
+{
+	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
+		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_LEFT);
+	}
+}
+
+void AMMOARPGCharacter::DodgeRight()
+{
+	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
+		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_RIGHT);
+	}
 }

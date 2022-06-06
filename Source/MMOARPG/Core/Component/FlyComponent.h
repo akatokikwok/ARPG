@@ -12,11 +12,11 @@ class UCharacterMovementComponent;
 class UCapsuleComponent;
 class UCameraComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MMOARPG_API UFlyComponent : public UActorComponent
 {
 	GENERATED_BODY()
-public:	
+public:
 	UFlyComponent();
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -25,19 +25,27 @@ public:
 	void ResetFly();
 	// 用来计算飞行轴向.
 	void FlyForwardAxis(float InAxisValue);
+	// 还原一套急速飞行的组件配置.
+	void ResetFastFly();
+	// 还原一套用于空中翻滚的组件配置.
+	void ResetDodgeFly(EDodgeFly InFlyState);
 protected:
 	//
 	void Reset();
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
 
-//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 
 public:
 	// 控制飞行姿态中人在yaw朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
-
+	// 是否加速飞行.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bFastFly;
+	
+	// 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
 protected:
@@ -61,5 +69,8 @@ protected:
 	/* 上一帧人物转向.*/
 	UPROPERTY()
 		FRotator LastRotator;
+
+	UPROPERTY()
+		float DodgeFlyTime;
 
 };

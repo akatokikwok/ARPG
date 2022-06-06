@@ -19,6 +19,6 @@ UENUM(BlueprintType)
 enum class EDodgeFly : uint8
 {
 	DODGE_NONE		UMETA(DisplayName = "None"),
-	DODGE_LEFT		UMETA(DisplayName = "Left"),
-	DODGE_RIGHT		UMETA(DisplayName = "Right"),
+	DODGE_LEFT		UMETA(DisplayName = "Left"),// 空中左翻滚
+	DODGE_RIGHT		UMETA(DisplayName = "Right"),// 空中右翻滚
 };
