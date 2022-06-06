@@ -244,5 +244,7 @@ void AMMOARPGCharacter::Fly()
 
 void AMMOARPGCharacter::Fast()
 {
-
+	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
+		GetFlyComponent()->ResetFastFly();// 还原一套加速飞行的组件配置.
+	}
 }
