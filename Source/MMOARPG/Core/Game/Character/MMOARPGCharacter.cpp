@@ -124,7 +124,7 @@ void AMMOARPGCharacter::LookUpAtRate(float Rate)
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if ((Controller != nullptr)/* && (Value != 0.0f)*/)
 	{
 			
 		// 按姿态重新划分逻辑.

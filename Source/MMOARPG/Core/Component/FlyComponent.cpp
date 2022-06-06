@@ -95,7 +95,13 @@ void UFlyComponent::ResetFly()
 		}
 		else {/*非飞行姿态.*/
 			CharacterMovementComponent->bOrientRotationToMovement = true;// 开启随移动组件旋转.
+			CharacterMovementComponent->MaxFlySpeed = 600.f;
 			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);// 切换为UE提供的 Walking Mode.
+
+			// 修正落地后人物pitch轴向是倾斜的.
+			FRotator NewRot = MMOARPGCharacterBase->GetActorRotation();
+			NewRot.Pitch = 0.0f;
+			MMOARPGCharacterBase->SetActorRotation(NewRot);
 		}
 		bFastFly = false;// 慢速飞行下禁用加速飞行.
 	}
@@ -108,10 +114,15 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-		const FVector Direction = CameraComponent->GetForwardVector();
-		MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
+		if (bFastFly == true) {
+			const FVector Direction = CameraComponent->GetForwardVector();
+			MMOARPGCharacterBase->AddMovementInput(Direction, 1.0f);// 按相机指向的方向进行输入移动.但不接收外部value,只用1.0f保持永远前向而不是其他方向(例如后退)
+		}
+		else {
+			const FVector Direction = CameraComponent->GetForwardVector();
+			MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
+		}
 	}
-
 }
 
 void UFlyComponent::ResetFastFly()
