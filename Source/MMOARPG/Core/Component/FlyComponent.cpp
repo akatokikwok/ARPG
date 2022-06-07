@@ -13,8 +13,6 @@ UFlyComponent::UFlyComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bFastFly = false;
-	DodgeFlyTime = 0.0f;
 }
 
 // Called when the game starts
@@ -32,8 +30,22 @@ void UFlyComponent::BeginPlay()
 			CharacterMovementComponent->BrakingDecelerationFlying = 1400.f;// 飞行减速, 用于辅助调试飞行手感
 		}
 
+		// 		MMOARPGCharacterBase->LandedDelegate.AddDynamic(this, &UFlyComponent::Landed);// LandedDelegate是蹦起来之后落地那一刻的代理
 
+		CapsuleComponent->OnComponentHit.AddDynamic(this, &UFlyComponent::Landed);// 人的胶囊接触地面一刻给代理绑着落回调.
 
+		/// 疾飞计时结束后 绑定lambda: 刷新翻滚种类为none.
+		bFastFly.Fun.BindLambda([&]() ->void {
+			DodgeFly = EDodgeFly::DODGE_NONE;
+			});
+		/// 着陆计时结束后 绑定lambda: 
+		bLand.Fun.BindLambda([&]() ->void {
+			if (MMOARPGCharacterBase.IsValid()) {
+				// 这一步保护一下,若落地仍是飞行姿态则强制切换为normal状态.
+				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::FLIGHT_STATE);
+				// 还原一套慢飞姿态或站立姿态下的组件设置.
+				ResetFly();
+			}});
 	}
 }
 
@@ -43,52 +55,51 @@ void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (CharacterMovementComponent.IsValid() && MMOARPGCharacterBase.IsValid() &&
 		CapsuleComponent.IsValid() && CameraComponent.IsValid()) {
-		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE) {
 
-			FRotator CameraRotator = CameraComponent->GetComponentRotation();
-			FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
+		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE) {/* 仅在飞行姿态下. */
 
-			if (bFastFly == false) {
-				CameraRotator.Pitch = 0.0f;// 慢速飞行姿态下 不需要相机转动角的pitch参与计算,故清空.
-			}
+			if (!bLand) {
+				FRotator CameraRotator = CameraComponent->GetComponentRotation();
+				FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
 
-			/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
-			FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
-			MMOARPGCharacterBase->SetActorRotation(NewRot);
+				if (!bFastFly) {
+					CameraRotator.Pitch = 0.0f;// 慢速飞行姿态下 不需要相机转动角的pitch参与计算,故清空.
+				}
 
-			if (1) {/* 第一种算法*/
+				/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
+				FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
+				MMOARPGCharacterBase->SetActorRotation(NewRot);
 
-				float PreFrameNum = 1.f / DeltaTime;// 单秒帧数.
-				FRotator NewDeltaTimeRot = MMOARPGCharacterBase->GetActorRotation() - LastRotator;// 单帧转动弧度.
-				NewDeltaTimeRot *= PreFrameNum;// 一秒内转过的弧度.
-				//Print(DeltaTime, NewDeltaTimeRot.ToString());
-				RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Yaw);
-				RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Pitch);
-				LastRotator = MMOARPGCharacterBase->GetActorRotation();
+				if (1) {/* 第一种算法*/
 
-			}
-			else {/*第二种思路,备用*/
+					float PreFrameNum = 1.f / DeltaTime;// 单秒帧数.
+					FRotator NewDeltaTimeRot = MMOARPGCharacterBase->GetActorRotation() - LastRotator;// 单帧转动弧度.
+					NewDeltaTimeRot *= PreFrameNum;// 一秒内转过的弧度.
+					//Print(DeltaTime, NewDeltaTimeRot.ToString());
+					RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Yaw);
+					RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Pitch);
+					LastRotator = MMOARPGCharacterBase->GetActorRotation();
 
-				/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
-				FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
-				Print(DeltaTime, PhysicsAngularVelocityInDegrees.ToString());
-				RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
-					PhysicsAngularVelocityInDegrees.Z// 绕Z就是Yaw
-				);
-				RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
-					PhysicsAngularVelocityInDegrees.X// 绕x就是Pitch.
-				);
-			}
-			
-			// // 逐渐扣除延时时长直至耗尽延时,把急速翻滚设为停止.
-			if (DodgeFlyTime > 0.0f) {
-				DodgeFlyTime -= DeltaTime;
-				if (DodgeFlyTime <= 0.0f) {
-					DodgeFly = EDodgeFly::DODGE_NONE;
-					DodgeFlyTime = 0.f;
+				}
+				else {/*第二种思路,备用*/
+
+					/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
+					FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
+					Print(DeltaTime, PhysicsAngularVelocityInDegrees.ToString());
+					RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
+						PhysicsAngularVelocityInDegrees.Z// 绕Z就是Yaw
+					);
+					RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
+						PhysicsAngularVelocityInDegrees.X// 绕x就是Pitch.
+					);
 				}
 			}
 		}
+
+		// 疾飞Tick;
+		bFastFly.Tick(DeltaTime);
+		// 着陆Tick;
+		bLand.Tick(DeltaTime);
 	}
 }
 
@@ -105,14 +116,8 @@ void UFlyComponent::ResetFly()
 			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);// 切换为UE提供的飞行MODE,(即此MODE下无法跳等其他操作)
 		}
 		else {/*非飞行姿态.*/
-			CharacterMovementComponent->bOrientRotationToMovement = true;// 开启随移动组件旋转.
-			CharacterMovementComponent->MaxFlySpeed = 600.f;
-			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);// 切换为UE提供的 Walking Mode.
-
-			// 修正落地后人物pitch轴向是倾斜的.
-			FRotator NewRot = MMOARPGCharacterBase->GetActorRotation();
-			NewRot.Pitch = 0.0f;
-			MMOARPGCharacterBase->SetActorRotation(NewRot);
+			
+			Reset();// 还原一套仅用于站立姿态下的组件设置.
 		}
 		bFastFly = false;// 慢速飞行下禁用加速飞行.
 	}
@@ -125,10 +130,7 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-// 		Print(3.0f, FString::SanitizeFloat(InAxisValue));
-
-		if (bFastFly == true) {
-// 			Print(3.0f, TEXT("bfastfly == true"));
+		if (bFastFly) {
 			const FVector Direction = CameraComponent->GetForwardVector();
 
 			if (InAxisValue > 0.0f) {// 在急速飞行下, 确实按下键盘键位w.
@@ -137,11 +139,8 @@ void UFlyComponent::FlyForwardAxis(float InAxisValue)
 			else {// 没按下任意键盘键位或者按了后退键
 				MMOARPGCharacterBase->AddMovementInput(Direction, 0.0f);
 			}
-			
 		}
 		else {
-// 			Print(3.0f, TEXT("bfastfly == false"));
-
 			const FVector Direction = CameraComponent->GetForwardVector();
 			MMOARPGCharacterBase->AddMovementInput(Direction, InAxisValue);// 按相机指向的方向进行输入移动.
 		}
@@ -168,20 +167,40 @@ void UFlyComponent::ResetDodgeFly(EDodgeFly InFlyState)
 		DodgeFly = InFlyState;
 
 		// 重刷新 延时器(关联翻滚的)延时时长.
- 		DodgeFlyTime = 1.6f;
+		bFastFly = 1.6f;
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
+void UFlyComponent::Landed(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (MMOARPGCharacterBase.IsValid()) {
+		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE
+			&& bFastFly) { /* 满足是疾飞*/
+
+			Reset();// 还原一套仅用于站立姿态下的组件设置.
+			bLand = true;// 着陆刷为真
+			bLand = 1.6f;// 落地之后总计时再刷回去.
+// 			float CosValue = FVector::DotProduct(CapsuleComponent->GetForwardVector(), Hit.ImpactNormal);
+// 			float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
+// 			if (CosAngle >= 125.f) {
+// 				if (Hit.ImpactNormal.Z > 0.5f) {
+// 
+// 					
+// 				}
+// 			}
+		}
+	}
+}
 
 void UFlyComponent::Reset()
 {
-	CharacterMovementComponent->bOrientRotationToMovement = true;
+	CharacterMovementComponent->bOrientRotationToMovement = true;// 开启随移动组件旋转.
 	CharacterMovementComponent->MaxFlySpeed = 600.f;
-	CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+	CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);// 切换为UE提供的 Walking Mode.
 
+	// 修正落地后人物pitch轴向是倾斜的.
 	FRotator NewRot = MMOARPGCharacterBase->GetActorRotation();
-	NewRot.Pitch = 0.f;
+	NewRot.Pitch = 0.0f;
 	MMOARPGCharacterBase->SetActorRotation(NewRot);
 }
 
