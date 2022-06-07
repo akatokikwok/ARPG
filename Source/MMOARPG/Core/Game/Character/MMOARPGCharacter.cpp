@@ -270,14 +270,24 @@ void AMMOARPGCharacter::MulticastFast_Implementation()
 	}
 }
 
-void AMMOARPGCharacter::DodgeLeft()
+void AMMOARPGCharacter::DodgeLeft_Implementation()
+{
+	MulticastDodgeLeft();
+}
+
+void AMMOARPGCharacter::MulticastDodgeLeft_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_LEFT);
 	}
 }
 
-void AMMOARPGCharacter::DodgeRight()
+void AMMOARPGCharacter::DodgeRight_Implementation()
+{
+	MulticastDodgeRight();
+}
+
+void AMMOARPGCharacter::MulticastDodgeRight_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_RIGHT);

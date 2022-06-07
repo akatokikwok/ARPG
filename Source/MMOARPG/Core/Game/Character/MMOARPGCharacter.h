@@ -67,12 +67,18 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFast();
 	/* 空中左翻滚.*/
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 		void DodgeLeft();
+	/* 服务器上广播左躲闪. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDodgeLeft();
 	/* 空中右翻滚.*/
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 		void DodgeRight();
-
+	/* 服务器上广播右躲闪. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDodgeRight();
+	
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
