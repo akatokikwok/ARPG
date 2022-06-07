@@ -177,17 +177,22 @@ void UFlyComponent::Landed(UPrimitiveComponent* HitComponent, AActor* OtherActor
 		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE
 			&& bFastFly) { /* 满足是疾飞*/
 
-			Reset();// 还原一套仅用于站立姿态下的组件设置.
-			bLand = true;// 着陆刷为真
-			bLand = 1.6f;// 落地之后总计时再刷回去.
-// 			float CosValue = FVector::DotProduct(CapsuleComponent->GetForwardVector(), Hit.ImpactNormal);
-// 			float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
-// 			if (CosAngle >= 125.f) {
-// 				if (Hit.ImpactNormal.Z > 0.5f) {
-// 
-// 					
-// 				}
-// 			}
+			
+
+			/* 计算出人物前向与 撞击点法线的夹角角度(比如人落地时候相互垂直,是90度.)*/
+ 			float CosValue = FVector::DotProduct(CapsuleComponent->GetForwardVector(), Hit.ImpactNormal);
+ 			float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
+
+			/* 认为大于125度比较符合人倾斜着想要着陆. */
+ 			if (CosAngle >= 125.f) {
+ 				if (Hit.ImpactNormal.Z > 0.5f) {// 排除撞到山体或者竖墙的意外情况.
+
+					Reset();// 还原一套仅用于站立姿态下的组件设置.
+					bLand = true;// 着陆刷为真
+					bLand = 1.6f;// 落地之后总计时再刷回去.
+ 				}
+ 			}
+
 		}
 	}
 }
