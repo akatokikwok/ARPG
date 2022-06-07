@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "../../MMOARPGGameType.h"
+#include "Core/MotionComponent.h"
 #include "FlyComponent.generated.h"
 
 class AMMOARPGCharacterBase;
@@ -13,7 +14,7 @@ class UCapsuleComponent;
 class UCameraComponent;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class MMOARPG_API UFlyComponent : public UActorComponent
+class MMOARPG_API UFlyComponent : public UMotionComponent
 {
 	GENERATED_BODY()
 public:

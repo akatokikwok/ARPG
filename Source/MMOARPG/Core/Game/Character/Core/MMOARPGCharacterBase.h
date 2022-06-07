@@ -8,6 +8,7 @@
 #include "CombatInterface/SimpleCombatInterface.h"
 #include "../../../../MMOARPGGameType.h"
 #include "../../../Component/FlyComponent.h"
+#include "../../../Component/SwimmingComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 UCLASS()
@@ -24,6 +25,10 @@ private:
 	 */
 	UPROPERTY()
 		TObjectPtr<UFlyComponent> FlyComponent;
+	
+	/** 游泳组件. */
+	UPROPERTY()
+		TObjectPtr<USwimmingComponent> SwimmingComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -47,6 +52,9 @@ public:
 	FORCEINLINE int32 GetUserID() { return UserID; }
 	// 拿取飞行组件.
 	FORCEINLINE UFlyComponent* GetFlyComponent() { return FlyComponent; }
+	// 拿取游泳组件.
+	FORCEINLINE USwimmingComponent* GetSwimmingComponent() { return SwimmingComponent; }
+
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 
