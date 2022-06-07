@@ -258,7 +258,12 @@ void AMMOARPGCharacter::MulticastFly_Implementation()
 	GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
 }
 
-void AMMOARPGCharacter::Fast()
+void AMMOARPGCharacter::Fast_Implementation()
+{
+	MulticastFast();
+}
+
+void AMMOARPGCharacter::MulticastFast_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetFastFly();// 还原一套加速飞行的组件配置.
