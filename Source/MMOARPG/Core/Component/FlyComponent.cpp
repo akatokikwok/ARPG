@@ -57,41 +57,46 @@ void UFlyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 		CapsuleComponent.IsValid() && CameraComponent.IsValid()) {
 
 		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE) {/* 仅在飞行姿态下. */
+			
+			/** 在服务器和主机玩家上都需要做的逻辑. (次一级衰弱权限的模拟玩家不需要进行,因为服务器执行的时候已经广播同步到客户端了). */
+			if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority 
+				|| MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_AutonomousProxy)
+			{
+				if (!bLand) {
+					FRotator CameraRotator = CameraComponent->GetComponentRotation();
+					FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
 
-			if (!bLand) {
-				FRotator CameraRotator = CameraComponent->GetComponentRotation();
-				FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
+					if (!bFastFly) {
+						CameraRotator.Pitch = 0.0f;// 慢速飞行姿态下 不需要相机转动角的pitch参与计算,故清空.
+					}
 
-				if (!bFastFly) {
-					CameraRotator.Pitch = 0.0f;// 慢速飞行姿态下 不需要相机转动角的pitch参与计算,故清空.
-				}
+					/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
+					FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
+					MMOARPGCharacterBase->SetActorRotation(NewRot);
 
-				/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
-				FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
-				MMOARPGCharacterBase->SetActorRotation(NewRot);
+					if (1) {/* 第一种算法*/
 
-				if (1) {/* 第一种算法*/
+						float PreFrameNum = 1.f / DeltaTime;// 单秒帧数.
+						FRotator NewDeltaTimeRot = MMOARPGCharacterBase->GetActorRotation() - LastRotator;// 单帧转动弧度.
+						NewDeltaTimeRot *= PreFrameNum;// 一秒内转过的弧度.
+						//Print(DeltaTime, NewDeltaTimeRot.ToString());
+						RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Yaw);
+						RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Pitch);
+						LastRotator = MMOARPGCharacterBase->GetActorRotation();
 
-					float PreFrameNum = 1.f / DeltaTime;// 单秒帧数.
-					FRotator NewDeltaTimeRot = MMOARPGCharacterBase->GetActorRotation() - LastRotator;// 单帧转动弧度.
-					NewDeltaTimeRot *= PreFrameNum;// 一秒内转过的弧度.
-					//Print(DeltaTime, NewDeltaTimeRot.ToString());
-					RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Yaw);
-					RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1.f, 1.f), NewDeltaTimeRot.Pitch);
-					LastRotator = MMOARPGCharacterBase->GetActorRotation();
+					}
+					else {/*第二种思路,备用*/
 
-				}
-				else {/*第二种思路,备用*/
-
-					/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
-					FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
-					Print(DeltaTime, PhysicsAngularVelocityInDegrees.ToString());
-					RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
-						PhysicsAngularVelocityInDegrees.Z// 绕Z就是Yaw
-					);
-					RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
-						PhysicsAngularVelocityInDegrees.X// 绕x就是Pitch.
-					);
+						/* 设置角速度(yaw上正负360度)并映射到混合空间里的人物头转向的的(-1,1)*/
+						FVector  PhysicsAngularVelocityInDegrees = CapsuleComponent->GetPhysicsAngularVelocityInDegrees();// 通过胶囊体拿角速度.
+						Print(DeltaTime, PhysicsAngularVelocityInDegrees.ToString());
+						RotationRate.X = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
+							PhysicsAngularVelocityInDegrees.Z// 绕Z就是Yaw
+						);
+						RotationRate.Y = FMath::GetMappedRangeValueClamped(FVector2D(-360.f, 360.f), FVector2D(-1, 1),
+							PhysicsAngularVelocityInDegrees.X// 绕x就是Pitch.
+						);
+					}
 				}
 			}
 		}
@@ -176,8 +181,6 @@ void UFlyComponent::Landed(UPrimitiveComponent* HitComponent, AActor* OtherActor
 	if (MMOARPGCharacterBase.IsValid()) {
 		if (MMOARPGCharacterBase->GetActionState() == ECharacterActionState::FLIGHT_STATE
 			&& bFastFly) { /* 满足是疾飞*/
-
-			
 
 			/* 计算出人物前向与 撞击点法线的夹角角度(比如人落地时候相互垂直,是90度.)*/
  			float CosValue = FVector::DotProduct(CapsuleComponent->GetForwardVector(), Hit.ImpactNormal);

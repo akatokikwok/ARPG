@@ -54,9 +54,12 @@ protected:
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
 	virtual void OnRep_ActionStateChanged() override;
 
-	/* 飞行. */
-	UFUNCTION()
+	/* 飞行. RPC 客户端到DS. */
+	UFUNCTION(Server, Reliable)
 		void Fly();
+	/* 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFly();
 	/* 急速飞行.*/
 	UFUNCTION()
 		void Fast();
