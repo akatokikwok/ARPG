@@ -32,7 +32,7 @@ public:
 	// 加速飞行时, 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
-
+	// 是否着陆.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bLand;
 };

@@ -47,7 +47,8 @@ void UMMOARPGFlyAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 
 		// 从飞行组件里解算出合适的值去关联动画字段.
 		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
-		bFastFly = InCharacterBase->GetFlyComponent()->bFastFly;
 		DodgeFly = InCharacterBase->GetFlyComponent()->DodgeFly;
+		bFastFly = *(InCharacterBase->GetFlyComponent()->bFastFly);
+		bLand = *(InCharacterBase->GetFlyComponent()->bLand);
 	}
 }

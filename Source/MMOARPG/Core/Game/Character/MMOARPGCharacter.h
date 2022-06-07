@@ -54,19 +54,31 @@ protected:
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
 	virtual void OnRep_ActionStateChanged() override;
 
-	/* 飞行. */
-	UFUNCTION()
+	/* 飞行. RPC 客户端到DS. */
+	UFUNCTION(Server, Reliable)
 		void Fly();
+	/* 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFly();
 	/* 急速飞行.*/
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 		void Fast();
+	/* 服务器上广播疾飞. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFast();
 	/* 空中左翻滚.*/
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 		void DodgeLeft();
+	/* 服务器上广播左躲闪. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDodgeLeft();
 	/* 空中右翻滚.*/
-	UFUNCTION()
+	UFUNCTION(Server, Reliable)
 		void DodgeRight();
-
+	/* 服务器上广播右躲闪. */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDodgeRight();
+	
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)

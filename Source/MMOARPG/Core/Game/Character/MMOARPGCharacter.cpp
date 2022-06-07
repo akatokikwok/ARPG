@@ -50,8 +50,8 @@ AMMOARPGCharacter::AMMOARPGCharacter()
 void AMMOARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-// 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
-// 	InitKneadingLocation(GetMesh()->GetComponentLocation());
+	// 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
+	// 	InitKneadingLocation(GetMesh()->GetComponentLocation());
 }
 
 // void AMMOARPGCharacter::UpdateKneadingBoby()
@@ -109,12 +109,12 @@ void AMMOARPGCharacter::OnResetVR()
 
 void AMMOARPGCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector InLocation)
 {
-		Jump();
+	Jump();
 }
 
 void AMMOARPGCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector InLocation)
 {
-		StopJumping();
+	StopJumping();
 }
 
 void AMMOARPGCharacter::TurnAtRate(float Rate)
@@ -131,12 +131,11 @@ void AMMOARPGCharacter::LookUpAtRate(float Rate)
 
 void AMMOARPGCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
-	{
+	if ((Controller != nullptr) && (Value != 0.0f)) {
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
@@ -196,7 +195,7 @@ void AMMOARPGCharacter::OnRep_ActionStateChanged()
 	// 它会第二时间,慢于本机客户端.
 	// AMMOARPGCharacterBase.GetLifetimeReplicatedProps 方法里条件设定为 只转发至模拟玩家
 	if (GetLocalRole() != ROLE_Authority) {
-		
+
 		/* 当前动作状态 或收尾动作都处于战斗姿势.*/
 		if (ActionState == ECharacterActionState::FIGHT_STATE || LastActionState == ECharacterActionState::FIGHT_STATE) {
 			this->FightChanged();
@@ -224,12 +223,12 @@ void AMMOARPGCharacter::SwitchFight()
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
- 	//if ((Controller != nullptr) && (Value != 0.0f)) {
+	//if ((Controller != nullptr) && (Value != 0.0f)) {
 	if (Controller != nullptr) {
 
 		// 按姿态重新划分逻辑.
 		if (ActionState == ECharacterActionState::FLIGHT_STATE) {
-// 			Print(1.0f, FString::SanitizeFloat(Value));
+			// 			Print(1.0f, FString::SanitizeFloat(Value));
 			GetFlyComponent()->FlyForwardAxis(Value);// 计算飞行组件的轴向.
 
 		}
@@ -244,28 +243,51 @@ void AMMOARPGCharacter::MoveForward(float Value)
 	}
 }
 
-void AMMOARPGCharacter::Fly()
-{
-	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
+void AMMOARPGCharacter::Fly_Implementation()
+{	
+	// 发指令给服务器; 在服务器上做MulticastFly()里的一些具体逻辑.
+	MulticastFly();
 
+}
+
+void AMMOARPGCharacter::MulticastFly_Implementation()
+{
+	/* 在服务器上做这些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
+
+	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
 	GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
 }
 
-void AMMOARPGCharacter::Fast()
+void AMMOARPGCharacter::Fast_Implementation()
+{
+	MulticastFast();
+}
+
+void AMMOARPGCharacter::MulticastFast_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetFastFly();// 还原一套加速飞行的组件配置.
 	}
 }
 
-void AMMOARPGCharacter::DodgeLeft()
+void AMMOARPGCharacter::DodgeLeft_Implementation()
+{
+	MulticastDodgeLeft();
+}
+
+void AMMOARPGCharacter::MulticastDodgeLeft_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_LEFT);
 	}
 }
 
-void AMMOARPGCharacter::DodgeRight()
+void AMMOARPGCharacter::DodgeRight_Implementation()
+{
+	MulticastDodgeRight();
+}
+
+void AMMOARPGCharacter::MulticastDodgeRight_Implementation()
 {
 	if (ActionState == ECharacterActionState::FLIGHT_STATE) {
 		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_RIGHT);

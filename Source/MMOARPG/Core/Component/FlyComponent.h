@@ -21,7 +21,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// 还原一套用于飞行姿态下的组件设置.
+	// 还原一套慢飞姿态或站立姿态下的组件设置.
 	void ResetFly();
 	// 用来计算飞行轴向.
 	void FlyForwardAxis(float InAxisValue);
@@ -29,25 +29,30 @@ public:
 	void ResetFastFly();
 	// 还原一套用于空中翻滚的组件配置.
 	void ResetDodgeFly(EDodgeFly InFlyState);
+	// 绑定回调.落地逻辑.
+	UFUNCTION()
+		void Landed(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 protected:
-	//
+	// 还原一套仅用于站立姿态下的组件设置.
 	void Reset();
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
 
-	//////////////////////////////////////////////////////////////////////////
-
+///	//////////////////////////////////////////////////////////////////////////
 public:
 	// 控制飞行姿态中人在yaw朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
-	// 是否加速飞行.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-		bool bFastFly;
-	
 	// 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
+
+	// 是否加速飞行.
+	FResetBool bFastFly;
+	// 是否着陆.
+	FResetBool bLand;
+
 protected:
 	/**
 	 * TWeakObjectPtr是UnrealEngine中UObject型的WeakPtr，其作用：
@@ -70,7 +75,7 @@ protected:
 	UPROPERTY()
 		FRotator LastRotator;
 
-	UPROPERTY()
-		float DodgeFlyTime;
+// 	UPROPERTY()
+// 		float DodgeFlyTime;
 
 };
