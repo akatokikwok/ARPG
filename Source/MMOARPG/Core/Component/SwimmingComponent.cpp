@@ -32,8 +32,22 @@ void USwimmingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Swimming
 			&& MMOARPGCharacterBase->GetActionState() == ECharacterActionState::SWIMMING_STATE) {
 			/** 仅当完全进入游泳行为才执行真正逻辑. */
-
+			LockView(DeltaTime);
 		}
 
+	}
+}
+
+void USwimmingComponent::SwimForwardAxis(float InVlaue)
+{
+	if (CharacterMovementComponent.IsValid() &&
+		MMOARPGCharacterBase.IsValid() &&
+		CapsuleComponent.IsValid() &&
+		CameraComponent.IsValid()) {
+		if (InVlaue >= 0.f) {
+
+			const FVector Direction = CameraComponent->GetForwardVector();
+			MMOARPGCharacterBase->AddMovementInput(Direction, InVlaue);// 按相机指向的方向进行输入移动.
+		}
 	}
 }

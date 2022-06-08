@@ -228,9 +228,10 @@ void AMMOARPGCharacter::MoveForward(float Value)
 
 		// 按姿态重新划分逻辑.
 		if (ActionState == ECharacterActionState::FLIGHT_STATE) {
-			// 			Print(1.0f, FString::SanitizeFloat(Value));
 			GetFlyComponent()->FlyForwardAxis(Value);// 计算飞行组件的轴向.
-
+		}
+		else if (ActionState == ECharacterActionState::SWIMMING_STATE) {
+			GetSwimmingComponent()->SwimForwardAxis(Value);
 		}
 		else {
 			// find out which way is forward

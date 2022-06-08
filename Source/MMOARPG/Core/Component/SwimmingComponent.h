@@ -16,4 +16,7 @@ class MMOARPG_API USwimmingComponent : public UMotionComponent
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	// 接收具体运动方向的键盘输入.
+	void SwimForwardAxis(float InVlaue);
 };

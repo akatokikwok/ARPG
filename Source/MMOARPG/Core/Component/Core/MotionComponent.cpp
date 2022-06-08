@@ -40,3 +40,17 @@ void UMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
+void UMotionComponent::LockView(float DeltaTime, bool bClearPitch)
+{
+	FRotator CameraRotator = CameraComponent->GetComponentRotation();
+	FRotator CapsuleRotator = CapsuleComponent->GetComponentRotation();
+
+	if (!bClearPitch) {
+		CameraRotator.Pitch = 0.0f;// 慢速飞行姿态下 不需要相机转动角的pitch参与计算,故清空.
+	}
+
+	/* 迫使 胶囊体旋转朝向 以插值形式快速近似 观察相机朝向.*/
+	FRotator NewRot = FMath::RInterpTo(CapsuleRotator, CameraRotator, DeltaTime, 8.0f);
+	MMOARPGCharacterBase->SetActorRotation(NewRot);
+}
+

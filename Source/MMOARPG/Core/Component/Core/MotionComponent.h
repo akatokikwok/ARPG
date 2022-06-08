@@ -27,6 +27,8 @@ public:
 	virtual void BeginPlay() override;
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// 锁定视角.
+	void LockView(float DeltaTime, bool bClearPitch = false);
 
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
