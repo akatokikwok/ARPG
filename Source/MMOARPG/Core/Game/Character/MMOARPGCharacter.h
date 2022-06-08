@@ -54,12 +54,12 @@ protected:
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
 	virtual void OnRep_ActionStateChanged() override;
 
-	/* 飞行. RPC 客户端到DS. */
+	/* 各自运动姿态系统里的切换(如站立切到飞行, 游泳切到潜泳). RPC 客户端到DS. */
 	UFUNCTION(Server, Reliable)
-		void Fly();
+		void ActionSwitching();
 	/* 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastFly();
+		void MulticastActionSwitching();
 	/* 急速飞行.*/
 	UFUNCTION(Server, Reliable)
 		void Fast();

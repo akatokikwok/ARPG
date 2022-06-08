@@ -22,4 +22,11 @@ public:
 
 	// 还原一套用于急速游泳姿态的组件设置.
 	void ResetFastSwiming();
+
+	// 还原一套潜入至水底的组件配置.
+	void GoUnderWater();
+
+public:
+	// 是否潜泳至水下.
+	FResetBool bDiving;
 };

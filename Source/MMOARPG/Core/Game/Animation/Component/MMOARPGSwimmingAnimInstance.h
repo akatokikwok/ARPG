@@ -16,4 +16,9 @@ class MMOARPG_API UMMOARPGSwimmingAnimInstance : public UAnimInstanceComponentBa
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
+
+public:
+	// 是否潜泳.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bDiving;
 };

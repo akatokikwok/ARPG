@@ -149,7 +149,7 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
-	PlayerInputComponent->BindAction("Fly", IE_Pressed, this, &AMMOARPGCharacter::Fly);// 飞行
+	PlayerInputComponent->BindAction("ActionSwitching", IE_Pressed, this, &AMMOARPGCharacter::ActionSwitching);// 各种姿态系统的内部切换(如站立切飞行,游泳切潜泳)
 	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 急速执行某运动动作.
 	PlayerInputComponent->BindAction("Fast", IE_Released, this, &AMMOARPGCharacter::FastReleased);// 解除急速执行某运动动作.
 	PlayerInputComponent->BindAction("DodgeLeft", IE_Pressed, this, &AMMOARPGCharacter::DodgeLeft);
@@ -245,19 +245,28 @@ void AMMOARPGCharacter::MoveForward(float Value)
 	}
 }
 
-void AMMOARPGCharacter::Fly_Implementation()
+void AMMOARPGCharacter::ActionSwitching_Implementation()
 {	
 	// 发指令给服务器; 在服务器上做MulticastFly()里的一些具体逻辑.
-	MulticastFly();
+	MulticastActionSwitching();
 
 }
 
-void AMMOARPGCharacter::MulticastFly_Implementation()
+void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 {
 	/* 在服务器上做这些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 
-	ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
-	GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
+	if (UCharacterMovementComponent* CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
+		if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Walking ||
+			CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Flying) {
+			ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
+			GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
+		}
+		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Swimming) {
+			GetSwimmingComponent()->GoUnderWater();// 潜入水下.
+		}
+
+	}
 }
 
 void AMMOARPGCharacter::Fast_Implementation()

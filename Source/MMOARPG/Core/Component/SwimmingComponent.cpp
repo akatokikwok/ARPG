@@ -32,7 +32,8 @@ void USwimmingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Swimming
 			&& MMOARPGCharacterBase->GetActionState() == ECharacterActionState::SWIMMING_STATE) {
 			/** 仅当完全进入游泳行为才执行真正逻辑. */
-			LockView(DeltaTime, false);
+			
+			LockView(DeltaTime, *bDiving);
 		}
 
 	}
@@ -63,5 +64,27 @@ void USwimmingComponent::ResetFastSwiming()
 			bFast = true;
 			CharacterMovementComponent->MaxSwimSpeed = 600.f;
 		}
+	}
+}
+
+void USwimmingComponent::GoUnderWater()
+{
+	if (bDiving) {
+		bDiving = false;
+
+		if (bFast) {
+			CharacterMovementComponent->MaxSwimSpeed = 600.f;
+		}
+		else {
+			CharacterMovementComponent->MaxSwimSpeed = 300.f;
+		}
+
+// 		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 300.f);
+	}
+	else {
+		bDiving = true;
+		CharacterMovementComponent->MaxSwimSpeed = 600.f;
+
+// 		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 540.f);
 	}
 }
