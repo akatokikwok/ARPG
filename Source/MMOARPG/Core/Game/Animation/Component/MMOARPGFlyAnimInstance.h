@@ -21,9 +21,6 @@ public:
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 
 public:
-	// 是否启用急速飞行.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-		bool bFastFly;
 
 	// 加速飞行时, 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")

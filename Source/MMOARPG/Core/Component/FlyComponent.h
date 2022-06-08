@@ -48,9 +48,7 @@ public:
 	// 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
-
-	// 是否加速飞行.
-	FResetBool bFastFly;
+	
 	// 是否着陆.
 	FResetBool bLand;
 

@@ -31,6 +31,9 @@ public:
 	void LockView(float DeltaTime, bool bClearPitch = false);
 
 	/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 是否加速/急速 执行某种运动动作.
+	FResetBool bFast;
 protected:
 	/**
 	 * TWeakObjectPtr是UnrealEngine中UObject型的WeakPtr，其作用：

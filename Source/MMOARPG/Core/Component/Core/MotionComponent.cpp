@@ -37,7 +37,8 @@ void UMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	// 急速 执行某运动动作.
+	bFast.Tick(DeltaTime);
 }
 
 void UMotionComponent::LockView(float DeltaTime, bool bClearPitch)

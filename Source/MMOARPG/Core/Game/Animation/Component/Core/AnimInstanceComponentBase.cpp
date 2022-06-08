@@ -33,7 +33,8 @@ void UAnimInstanceComponentBase::NativeUpdateAnimation(float Deltaseconds)
 			AxisSpeed.Z = FMath::GetMappedRangeValueClamped(FVector2D(-MaxFlySpeed, MaxFlySpeed), FVector2D(-1.f, 1.f), SpeedVector.Z);
 		}
 
-		// 从飞行组件里解算出合适的值去关联动画字段.
-		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
+// 		// 从派生类 组件里解算出合适的值去关联动画字段.
+// 		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
+//  		bFast = *(InCharacterBase->GetSwimmingComponent()->bFast);
 	}
 }

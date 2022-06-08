@@ -66,6 +66,10 @@ protected:
 	/* 服务器上广播疾飞. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFast();
+	/* 松开急速执行某运动动作. */
+	UFUNCTION(Server, Reliable)
+		void FastReleased();
+
 	/* 空中左翻滚.*/
 	UFUNCTION(Server, Reliable)
 		void DodgeLeft();

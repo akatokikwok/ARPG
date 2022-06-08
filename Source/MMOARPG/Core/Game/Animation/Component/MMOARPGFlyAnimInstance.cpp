@@ -28,10 +28,13 @@ void UMMOARPGFlyAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 {
 	Super::NativeUpdateAnimation(Deltaseconds);
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
-		
+
 		// 从飞行组件里解算出合适的值去关联动画字段.
 		DodgeFly = InCharacterBase->GetFlyComponent()->DodgeFly;
-		bFastFly = *(InCharacterBase->GetFlyComponent()->bFastFly);
 		bLand = *(InCharacterBase->GetFlyComponent()->bLand);
+		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
+		bFast = *(InCharacterBase->GetFlyComponent()->bFast);
+
 	}
+
 }

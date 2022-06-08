@@ -19,4 +19,7 @@ public:
 	
 	// 接收具体运动方向的键盘输入.
 	void SwimForwardAxis(float InVlaue);
+
+	// 还原一套用于急速游泳姿态的组件设置.
+	void ResetFastSwiming();
 };
