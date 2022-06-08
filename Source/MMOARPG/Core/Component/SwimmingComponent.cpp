@@ -34,6 +34,8 @@ void USwimmingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			/** 仅当完全进入游泳行为才执行真正逻辑. */
 			
 			LockView(DeltaTime, *bDiving);
+
+			ResetRotationRate(DeltaTime);// 在单帧内矫正并映射(-1,1) 的角速度(yaw轴 pitch轴)
 		}
 
 	}

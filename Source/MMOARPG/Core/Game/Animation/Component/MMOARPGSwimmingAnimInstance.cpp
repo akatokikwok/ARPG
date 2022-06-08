@@ -19,5 +19,7 @@ void UMMOARPGSwimmingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		// 把组件的各字段关联至动画实例.
 		bFast = *InCharacterBase->GetSwimmingComponent()->bFast;
 		bDiving = *InCharacterBase->GetSwimmingComponent()->bDiving;
+		RotationRate = InCharacterBase->GetSwimmingComponent()->RotationRate;
+
 	}
 }

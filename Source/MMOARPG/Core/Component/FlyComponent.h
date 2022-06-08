@@ -42,9 +42,7 @@ protected:
 
 ///	//////////////////////////////////////////////////////////////////////////
 public:
-	// 控制飞行姿态中人在yaw朝向.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-		FVector2D RotationRate;
+	
 	// 空中翻滚种类.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EDodgeFly DodgeFly;
