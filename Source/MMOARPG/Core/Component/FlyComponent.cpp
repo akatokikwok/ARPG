@@ -19,11 +19,7 @@ UFlyComponent::UFlyComponent()
 void UFlyComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
 	if (MMOARPGCharacterBase.IsValid()) {
-		CharacterMovementComponent = Cast<UCharacterMovementComponent>(MMOARPGCharacterBase->GetMovementComponent());
-		CapsuleComponent = MMOARPGCharacterBase->GetCapsuleComponent();
-		CameraComponent = MMOARPGCharacterBase->GetFollowCamera();
 
 		if (CharacterMovementComponent.IsValid()) {
 			CharacterMovementComponent->MaxAcceleration = 2500.f;// 最大加速度, 用于辅助调试飞行手感
@@ -32,7 +28,9 @@ void UFlyComponent::BeginPlay()
 
 		// 		MMOARPGCharacterBase->LandedDelegate.AddDynamic(this, &UFlyComponent::Landed);// LandedDelegate是蹦起来之后落地那一刻的代理
 
-		CapsuleComponent->OnComponentHit.AddDynamic(this, &UFlyComponent::Landed);// 人的胶囊接触地面一刻给代理绑着落回调.
+		if (CapsuleComponent.IsValid()) {
+			CapsuleComponent->OnComponentHit.AddDynamic(this, &UFlyComponent::Landed);// 人的胶囊接触地面一刻给代理绑着落回调.
+		}
 
 		/// 疾飞计时结束后 绑定lambda: 刷新翻滚种类为none.
 		bFastFly.Fun.BindLambda([&]() ->void {

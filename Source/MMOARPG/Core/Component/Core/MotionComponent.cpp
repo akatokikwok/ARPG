@@ -2,6 +2,11 @@
 
 
 #include "MotionComponent.h"
+#include "../../Game/Character/Core/MMOARPGCharacterBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values for this component's properties
 UMotionComponent::UMotionComponent()
@@ -18,9 +23,12 @@ UMotionComponent::UMotionComponent()
 void UMotionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
+	if (MMOARPGCharacterBase.IsValid()) {
+		CharacterMovementComponent = Cast<UCharacterMovementComponent>(MMOARPGCharacterBase->GetMovementComponent());
+		CapsuleComponent = MMOARPGCharacterBase->GetCapsuleComponent();
+		CameraComponent = MMOARPGCharacterBase->GetFollowCamera();
+	}
 }
 
 

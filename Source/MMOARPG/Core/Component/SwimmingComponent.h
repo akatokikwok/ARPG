@@ -13,5 +13,7 @@ UCLASS()
 class MMOARPG_API USwimmingComponent : public UMotionComponent
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };
