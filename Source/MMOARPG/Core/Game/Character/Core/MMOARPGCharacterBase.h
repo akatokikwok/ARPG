@@ -9,6 +9,7 @@
 #include "../../../../MMOARPGGameType.h"
 #include "../../../Component/FlyComponent.h"
 #include "../../../Component/SwimmingComponent.h"
+#include "../../../Component/ClimbingComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 UCLASS()
@@ -19,16 +20,20 @@ private:
 	friend class AMMOARPGGameMode;// 人物基类的一切数据均提供GM访问.
 
 	/**
-	 * 飞行组件.(是一个强指针,引用它的那些要设计成弱指针.)
+	 * 飞行系统组件.(是一个强指针,引用它的那些要设计成弱指针.)
 	 * 某份数据全局只能有一个,则需要设计为强指针.所有引用这份数据的设计为弱指针.
 	 * 当强指针被释放了,引用它的那些弱指针们都会感应到,从而阻止出错.
 	 */
 	UPROPERTY()
 		TObjectPtr<UFlyComponent> FlyComponent;
 	
-	/** 游泳组件. */
+	/** 游泳系统组件. */
 	UPROPERTY()
 		TObjectPtr<USwimmingComponent> SwimmingComponent;
+
+	/** 攀爬系统组件. */
+	UPROPERTY()
+		TObjectPtr<UClimbingComponent> ClimbingComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -54,7 +59,8 @@ public:
 	FORCEINLINE UFlyComponent* GetFlyComponent() { return FlyComponent; }
 	// 拿取游泳组件.
 	FORCEINLINE USwimmingComponent* GetSwimmingComponent() { return SwimmingComponent; }
-
+	// 拿取攀爬组件.
+	FORCEINLINE UClimbingComponent* GetClimbingComponent() { return ClimbingComponent; }
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 
