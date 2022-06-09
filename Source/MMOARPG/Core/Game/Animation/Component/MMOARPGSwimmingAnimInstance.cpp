@@ -4,6 +4,7 @@
 #include "MMOARPGSwimmingAnimInstance.h"
 #include "../../../Component/SwimmingComponent.h"
 #include "../../Character/Core/MMOARPGCharacterBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UMMOARPGSwimmingAnimInstance::NativeInitializeAnimation()
 {
@@ -20,6 +21,10 @@ void UMMOARPGSwimmingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		bFast = *InCharacterBase->GetSwimmingComponent()->bFast;
 		bDiving = *InCharacterBase->GetSwimmingComponent()->bDiving;
 		RotationRate = InCharacterBase->GetSwimmingComponent()->RotationRate;
+
+		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
+			ResetAxisSpeed(InCharacterMovementComponent->MaxSwimSpeed);// 最大蝶泳速度映射到(-1,1)
+		}
 
 	}
 }

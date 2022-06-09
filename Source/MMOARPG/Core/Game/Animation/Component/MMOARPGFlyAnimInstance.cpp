@@ -35,6 +35,8 @@ void UMMOARPGFlyAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		RotationRate = InCharacterBase->GetFlyComponent()->RotationRate;
 		bFast = *(InCharacterBase->GetFlyComponent()->bFast);
 
+		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
+			ResetAxisSpeed(InCharacterMovementComponent->MaxFlySpeed);// 最大飞行速度映射到(-1,1)
+		}
 	}
-
 }

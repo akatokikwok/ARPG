@@ -41,6 +41,7 @@ void USwimmingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	}
 }
 
+// 接收具体运动方向的键盘输入.
 void USwimmingComponent::SwimForwardAxis(float InVlaue)
 {
 	if (CharacterMovementComponent.IsValid() &&
@@ -48,9 +49,22 @@ void USwimmingComponent::SwimForwardAxis(float InVlaue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 		if (InVlaue >= 0.f) {
-
-			const FVector Direction = CameraComponent->GetForwardVector();
-			MMOARPGCharacterBase->AddMovementInput(Direction, InVlaue);// 按相机指向的方向进行输入移动.
+			
+			if (bDiving) {
+				const FVector Direction = CameraComponent->GetForwardVector();
+				MMOARPGCharacterBase->AddMovementInput(Direction, InVlaue);// 按相机指向的方向进行输入移动.
+			}
+			else {
+				if (AController* Controller = MMOARPGCharacterBase->GetController()) {
+					// find out which way is forward
+					const FRotator Rotation = Controller->GetControlRotation();
+					const FRotator YawRotation(0, Rotation.Yaw, 0);
+					// get forward vector
+					const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+					MMOARPGCharacterBase->AddMovementInput(Direction, InVlaue);
+				}
+			}
+			
 		}
 	}
 }
@@ -81,12 +95,12 @@ void USwimmingComponent::GoUnderWater()
 			CharacterMovementComponent->MaxSwimSpeed = 300.f;
 		}
 
-// 		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 300.f);
+ 		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 300.f);// CharacterMovement里的Rotation Rate字段负责控制人物转动的阻滞感.
 	}
 	else {
 		bDiving = true;
 		CharacterMovementComponent->MaxSwimSpeed = 600.f;
 
-// 		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 540.f);
+		CharacterMovementComponent->RotationRate = FRotator(0.f, 0.f, 540.f);// CharacterMovement里的Rotation Rate字段负责控制人物转动的阻滞感.
 	}
 }

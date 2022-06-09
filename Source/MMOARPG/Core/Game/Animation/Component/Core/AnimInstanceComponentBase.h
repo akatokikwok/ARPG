@@ -17,6 +17,9 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 
+	// 映射人在某姿态下的轴向速度至(-1, 1).
+	void ResetAxisSpeed(float InNewSpeed);
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// Blendspace 字段; 控制任意行为或动作的速度 带3个朝向.
