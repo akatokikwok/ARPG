@@ -60,10 +60,10 @@ protected:
 	/* 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastActionSwitching();
-	/* 急速飞行.*/
+	/* RPC在服务器 命令其 广播急速运动动作至其他服务器.*/
 	UFUNCTION(Server, Reliable)
 		void Fast();
-	/* 服务器上广播疾飞. */
+	/* 服务器上广播 那些急速动作. 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFast();
 	/* 松开急速执行某运动动作. */
