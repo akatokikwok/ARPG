@@ -131,7 +131,12 @@ void AMMOARPGCharacter::LookUpAtRate(float Rate)
 
 void AMMOARPGCharacter::MoveRight(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f)) {
+	if (ActionState == ECharacterActionState::CLIMB_STATE) {/* 进入攀岩姿态. */
+		// 在攀岩姿态下是独一套键盘输入.
+
+		GetClimbingComponent()->ClimbingMoveRightAxis(Value);
+	}
+	else if ((Controller != nullptr) && (Value != 0.0f)) {		
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -242,7 +247,7 @@ void AMMOARPGCharacter::MoveForward(float Value)
 			GetSwimmingComponent()->SwimForwardAxis(Value);
 		}
 		else if (ActionState == ECharacterActionState::CLIMB_STATE) {
-			GetClimbingComponent()->ClimbForwardAxis(Value);
+			GetClimbingComponent()->ClimbingForwardAxis(Value);
 		}
 		else if (Value != 0.0f) {/* 存在按键输入时.*/
 

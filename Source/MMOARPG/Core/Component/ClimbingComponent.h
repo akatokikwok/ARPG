@@ -29,7 +29,8 @@ public:
 	virtual void PhysClimbong(float deltaTime, int32 Iterations);
 
 public:
-	// 接收具体运动方向的键盘输入.
-	void ClimbForwardAxis(float InVlaue);
-
+	// 接收具体运动方向的键盘输入(前向轴移动).
+	void ClimbingForwardAxis(float InValue);
+	// 接收具体运动方向的键盘输入(横向轴移动)
+	void ClimbingMoveRightAxis(float InValue);
 };
