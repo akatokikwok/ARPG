@@ -82,6 +82,19 @@ protected:
 	/* 服务器上广播右躲闪. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastDodgeRight();
+
+	/** RPC人物某运动动作减速 */
+	UFUNCTION(Server, Reliable)
+		void SlowDown();
+	/** 人物某运动动作减速服务器广播 */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSlowDown();
+	/** RPC人物某运动动作减速 松开 */
+	UFUNCTION(Server, Reliable)
+		void SlowDownReleased();
+	/** 人物某运动动作减速服务器广播 松开 */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSlowDownReleased();
 	
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

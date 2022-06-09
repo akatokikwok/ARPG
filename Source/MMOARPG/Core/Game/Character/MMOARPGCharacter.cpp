@@ -314,3 +314,23 @@ void AMMOARPGCharacter::MulticastDodgeRight_Implementation()
 		GetFlyComponent()->ResetDodgeFly(EDodgeFly::DODGE_RIGHT);
 	}
 }
+
+void AMMOARPGCharacter::SlowDown_Implementation()
+{
+	MulticastSlowDown();
+}
+
+void AMMOARPGCharacter::MulticastSlowDown_Implementation()
+{
+
+}
+
+void AMMOARPGCharacter::SlowDownReleased_Implementation()
+{
+	MulticastSlowDownReleased();
+}
+
+void AMMOARPGCharacter::MulticastSlowDownReleased_Implementation()
+{
+	
+}
