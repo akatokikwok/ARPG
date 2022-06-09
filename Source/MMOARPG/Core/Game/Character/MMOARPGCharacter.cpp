@@ -150,8 +150,13 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
 	PlayerInputComponent->BindAction("ActionSwitching", IE_Pressed, this, &AMMOARPGCharacter::ActionSwitching);// 各种姿态系统的内部切换(如站立切飞行,游泳切潜泳)
+	
 	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 急速执行某运动动作.
 	PlayerInputComponent->BindAction("Fast", IE_Released, this, &AMMOARPGCharacter::FastReleased);// 解除急速执行某运动动作.
+
+	PlayerInputComponent->BindAction("SlowDown", IE_Pressed, this, &AMMOARPGCharacter::SlowDown);
+	PlayerInputComponent->BindAction("SlowDown", IE_Released, this, &AMMOARPGCharacter::SlowDownReleased);
+
 	PlayerInputComponent->BindAction("DodgeLeft", IE_Pressed, this, &AMMOARPGCharacter::DodgeLeft);
 	PlayerInputComponent->BindAction("DodgeRight", IE_Pressed, this, &AMMOARPGCharacter::DodgeRight);
 
@@ -282,12 +287,18 @@ void AMMOARPGCharacter::MulticastFast_Implementation()
 	else if (ActionState == ECharacterActionState::SWIMMING_STATE) {
 		GetSwimmingComponent()->ResetFastSwiming();// 还原一套用于急速游泳姿态的组件设置.
 	}
+	else if (ActionState == ECharacterActionState::NORMAL_STATE) {
+		GetCharacterMovement()->MaxWalkSpeed = 800.f;
+	}
 }
 
 void AMMOARPGCharacter::FastReleased_Implementation()
 {
 	if (ActionState == ECharacterActionState::SWIMMING_STATE) {
 		GetSwimmingComponent()->ResetFastSwiming();
+	}
+	else if (ActionState == ECharacterActionState::NORMAL_STATE) {
+		GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	}
 }
 
@@ -322,7 +333,7 @@ void AMMOARPGCharacter::SlowDown_Implementation()
 
 void AMMOARPGCharacter::MulticastSlowDown_Implementation()
 {
-
+	GetCharacterMovement()->MaxWalkSpeed = 190.f;
 }
 
 void AMMOARPGCharacter::SlowDownReleased_Implementation()
@@ -332,5 +343,5 @@ void AMMOARPGCharacter::SlowDownReleased_Implementation()
 
 void AMMOARPGCharacter::MulticastSlowDownReleased_Implementation()
 {
-	
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
