@@ -24,15 +24,15 @@ private:
 	 * 某份数据全局只能有一个,则需要设计为强指针.所有引用这份数据的设计为弱指针.
 	 * 当强指针被释放了,引用它的那些弱指针们都会感应到,从而阻止出错.
 	 */
-	UPROPERTY()
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFlyComponent> FlyComponent;
 	
 	/** 游泳系统组件. */
-	UPROPERTY()
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<USwimmingComponent> SwimmingComponent;
 
 	/** 攀爬系统组件. */
-	UPROPERTY()
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
 public:
 	// Sets default values for this character's properties

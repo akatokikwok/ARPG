@@ -20,5 +20,16 @@ UCLASS()
 class MMOARPG_API UClimbingComponent : public UMotionComponent
 {
 	GENERATED_BODY()
-	
+public:
+	/**
+	 * 仿照自 UCharacterMovementComponent::PhysCustom.
+	 * 暴露至蓝图给蓝图使用.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
+	virtual void PhysClimbong(float deltaTime, int32 Iterations);
+
+public:
+	// 接收具体运动方向的键盘输入.
+	void ClimbForwardAxis(float InVlaue);
+
 };

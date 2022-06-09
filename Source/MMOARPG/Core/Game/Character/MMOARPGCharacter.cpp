@@ -229,6 +229,8 @@ void AMMOARPGCharacter::SwitchFight()
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
+	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
+
 	//if ((Controller != nullptr) && (Value != 0.0f)) {
 	if (Controller != nullptr) {
 
@@ -239,7 +241,11 @@ void AMMOARPGCharacter::MoveForward(float Value)
 		else if (ActionState == ECharacterActionState::SWIMMING_STATE) {
 			GetSwimmingComponent()->SwimForwardAxis(Value);
 		}
-		else {
+		else if (ActionState == ECharacterActionState::CLIMB_STATE) {
+			GetClimbingComponent()->ClimbForwardAxis(Value);
+		}
+		else if (Value != 0.0f) {/* 存在按键输入时.*/
+
 			// find out which way is forward
 			const FRotator Rotation = Controller->GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);

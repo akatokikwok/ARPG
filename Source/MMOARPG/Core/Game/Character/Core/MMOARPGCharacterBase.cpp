@@ -17,7 +17,7 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	// 构造一系列组件.
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
-
+	ClimbingComponent = CreateDefaultSubobject<UClimbingComponent>(TEXT("ClimbingComponent"));
 }
 
 // Called when the game starts or when spawned
