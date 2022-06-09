@@ -7,3 +7,21 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../../Component/ClimbingComponent.h"
 
+void UMMOARPGClimbingAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+}
+
+void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
+{
+	Super::NativeUpdateAnimation(Deltaseconds);
+	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
+
+		// 把组件的各字段关联至动画实例.
+		RotationRate = InCharacterBase->GetClimbingComponent()->RotationRate;
+
+		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
+			ResetAxisSpeed(InCharacterMovementComponent->MaxCustomMovementSpeed);// 最大攀岩速度映射到(-1,1)
+		}
+	}
+}

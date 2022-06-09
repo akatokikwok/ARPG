@@ -4,14 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Core/AnimInstanceComponentBase.h"
+#include "../Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "MMOARPGClimbingAnimInstance.generated.h"
 
 /**
  * 攀爬系统动画实例.
+ * 派生自UAnimInstanceComponentBase.
  */
 UCLASS()
 class MMOARPG_API UMMOARPGClimbingAnimInstance : public UAnimInstanceComponentBase
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float Deltaseconds) override;
+
 };

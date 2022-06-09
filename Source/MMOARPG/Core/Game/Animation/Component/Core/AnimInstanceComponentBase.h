@@ -7,7 +7,7 @@
 #include "AnimInstanceComponentBase.generated.h"
 
 /**
- * 
+ * 与各运动系统交互的动画势力类, 派生自UMMOARPGAnimInstanceBase.
  */
 UCLASS()
 class MMOARPG_API UAnimInstanceComponentBase : public UMMOARPGAnimInstanceBase
@@ -26,7 +26,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector AxisSpeed;
 
-	// Blendspace 字段; 控制飞行姿态中人在yaw, pitch朝向.
+	// Blendspace 字段; 控制某种运动姿态中人在yaw, pitch朝向.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		FVector2D RotationRate;
 
