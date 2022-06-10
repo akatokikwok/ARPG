@@ -14,6 +14,7 @@ const float MaxDistance = 999999.0f;
 UClimbingComponent::UClimbingComponent()
 	: Super()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
+	, bJumpToClimbing(false)
 {
 
 }
@@ -100,6 +101,7 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
 	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
+	FVector UpDirection = MMOARPGCharacterBase->GetActorUpVector();
 	FVector LocalLocation = MMOARPGCharacterBase->GetActorLocation();
 
 	FHitResult HitChestResult;
@@ -125,7 +127,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		// 射线检测 -头部偏上.
 		TArray<AActor*> ActorsToIgnore2;
 		FVector StartTraceHeadLocation = LocalLocation;
-		StartTraceHeadLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();
+		StartTraceHeadLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();// 头颅位置.
 		FVector EndTraceHeadLocation = StartTraceHeadLocation + ForwardDirection * 100.0f;
 		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceHeadLocation, EndTraceHeadLocation,
 			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore2,
@@ -136,23 +138,81 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		}
 	}
 
+	FHitResult HitGroundResult;
+	float GroundDistance = MaxDistance;// 脚部到射线相交点的距离.
+	{
+		// 射线检测 - 在攀爬中脚部到地面.
+		TArray<AActor*> ActorsToIgnore3;
+		FVector StartTraceGroundLocation = LocalLocation;
+		StartTraceGroundLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();// 脚底板位置.
+		FVector EndTraceGroundLocation = StartTraceGroundLocation + (-UpDirection) * 40.f;
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceGroundLocation, EndTraceGroundLocation,
+			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore3,
+			EDrawDebugTrace::ForOneFrame, HitGroundResult, true);
+
+		if (HitGroundResult.bBlockingHit) {
+			GroundDistance = FVector::Distance(StartTraceGroundLocation, HitGroundResult.Location);
+		}
+	}
+
+
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
-		if (ChestDistance <= 50.f && HeadDistance <= 50.f) {
+		
+		if (ChestDistance <= 43.f && HeadDistance <= 43.f) {// 因为胶囊体半径是42. 
+			
+			/* 攀爬中落地*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
-				
+				if (HitGroundResult.bBlockingHit) {
+					if (GroundDistance < 1.f) {
+						ClimbingState = EClimbingState::CLIMBING_TOGROUND;
+						CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+						CharacterMovementComponent->bOrientRotationToMovement = true;
+						MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
+					}
+				}
 			}
-			else {
+			/* 攀岩且不落地. */
+			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
 				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
 				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
 				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
+				bJumpToClimbing = false;
 			}
+		}
+
+		/** 离墙面距离大于43就认为用户不再想攀岩. */
+		else {
+			if (ClimbingState == EClimbingState::CLIMBING_TOGROUND) {
+				ClimbingState = EClimbingState::CLIMBING_NONE;
+			}
+		}
+
+		/** 非常贴近墙面的时候按脚离地面高度 来启用是否切换跳爬 */
+		if (HitGroundResult.bBlockingHit == false) {
+			if (bJumpToClimbing) {
+				bJumpToClimbing = false;// 浮空且已在跳爬才视为关闭跳爬.
+			}
+			else {
+				bJumpToClimbing = true;// 浮空且不在跳爬中才视为启用跳爬.
+			}
+		}
+		else {
+			bJumpToClimbing = false;// 落地之后重置跳爬
 		}
 	}
 	else if (HitChestResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
 		ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
 	}
 	else {
-		ClimbingState = EClimbingState::CLIMBING_NONE;
+
+		/** 攀岩中左移或者右移身体有半截对着空气就释放攀岩状态,落地. */
+		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+			ClimbingState = EClimbingState::CLIMBING_NONE;
+			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+			CharacterMovementComponent->bOrientRotationToMovement = true;
+			MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
+			bJumpToClimbing = false;
+		}
 	}
 }

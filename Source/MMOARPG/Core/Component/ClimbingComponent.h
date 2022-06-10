@@ -43,4 +43,7 @@ public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EClimbingState ClimbingState;
+	// 是否跳爬吸附.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bJumpToClimbing;
 };

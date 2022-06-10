@@ -34,7 +34,8 @@ enum class EClimbingState : uint8
 	CLIMBING_NONE					UMETA(DisplayName = "None"),
 	CLIMBING_CLIMBOVEROBSTACLES		UMETA(DisplayName = "Climb Over Obstacles"),// 翻越矮小障碍物.
 	CLIMBING_WALLCLIMBING			UMETA(DisplayName = "Wall Climbing"),// 翻墙
-	CLIMBING_CLIMBING				UMETA(DisplayName = "Climbing")// 攀岩.
+	CLIMBING_CLIMBING				UMETA(DisplayName = "Climbing"),// 攀岩.
+	CLIMBING_TOGROUND				UMETA(DisplayName = "Climbing to Ground")// 攀岩.
 };
 
 /**
