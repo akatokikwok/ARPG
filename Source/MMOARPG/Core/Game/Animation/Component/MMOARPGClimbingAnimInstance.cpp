@@ -19,6 +19,7 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 
 		// 把组件的各字段关联至动画实例.
 		RotationRate = InCharacterBase->GetClimbingComponent()->RotationRate;
+		ClimbingState = InCharacterBase->GetClimbingComponent()->ClimbingState;
 
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			ResetAxisSpeed(InCharacterMovementComponent->MaxCustomMovementSpeed);// 最大攀岩速度映射到(-1,1)

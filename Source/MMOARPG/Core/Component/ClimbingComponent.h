@@ -21,16 +21,26 @@ class MMOARPG_API UClimbingComponent : public UMotionComponent
 {
 	GENERATED_BODY()
 public:
+	UClimbingComponent();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
 	/**
 	 * 仿照自 UCharacterMovementComponent::PhysCustom.
 	 * 暴露至蓝图给蓝图使用.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	virtual void PhysClimbong(float deltaTime, int32 Iterations);
+		virtual void PhysClimbong(float deltaTime, int32 Iterations);
 
-public:
 	// 接收具体运动方向的键盘输入(前向轴移动).
 	void ClimbingForwardAxis(float InValue);
 	// 接收具体运动方向的键盘输入(横向轴移动)
 	void ClimbingMoveRightAxis(float InValue);
+private:
+	/** 监测攀岩的具体射线检测逻辑. */
+	void TraceClimbingState(float DeltaTime);
+
+public:
+	// 攀爬状态枚举.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		EClimbingState ClimbingState;
 };

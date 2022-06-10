@@ -234,7 +234,7 @@ void AMMOARPGCharacter::SwitchFight()
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
-	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
+// 	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
 
 	//if ((Controller != nullptr) && (Value != 0.0f)) {
 	if (Controller != nullptr) {

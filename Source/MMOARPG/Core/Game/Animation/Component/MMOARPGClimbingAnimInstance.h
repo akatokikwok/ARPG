@@ -19,4 +19,9 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 
+public:
+	// 攀爬状态枚举.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		EClimbingState ClimbingState;
+
 };

@@ -7,6 +7,28 @@
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+const float MaxDistance = 999999.0f;
+
+UClimbingComponent::UClimbingComponent()
+	: Super()
+	, ClimbingState(EClimbingState::CLIMBING_NONE)
+{
+
+}
+
+void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (CharacterMovementComponent.IsValid() &&
+		MMOARPGCharacterBase.IsValid() &&
+		CapsuleComponent.IsValid() &&
+		CameraComponent.IsValid()) {
+
+		TraceClimbingState(DeltaTime);// 命令其射线检测.
+	}
+}
 
 /**
  * 仿照自 UCharacterMovementComponent::PhysCustom.
@@ -40,7 +62,7 @@ void UClimbingComponent::ClimbingForwardAxis(float InValue)
 		MMOARPGCharacterBase.IsValid() &&
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
-		
+
 		if (AController* Controller = MMOARPGCharacterBase->GetController()) {
 			// find out which way is forward
 			const FRotator Rotation = Controller->GetControlRotation();// 拿鼠标的Rot.
@@ -51,9 +73,9 @@ void UClimbingComponent::ClimbingForwardAxis(float InValue)
 			MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
 		}
 
-// 		if (InValue >= 0.f) {/* >0相当于键盘事件只按下W. <0相当于键盘事件按下S.*/
-// 			
-// 		}
+		// 		if (InValue >= 0.f) {/* >0相当于键盘事件只按下W. <0相当于键盘事件按下S.*/
+		// 			
+		// 		}
 	}
 }
 
@@ -67,9 +89,70 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 
 		const FRotator Rotation = MMOARPGCharacterBase->GetActorRotation();// 拿人自身Rot而非Controller Rot.
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		
+
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);// Y是人物横向轴移动.X是前向轴移动,Z是垂直轴移动.
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
 
+	}
+}
+
+/** 监测攀岩的具体射线检测逻辑. */
+void UClimbingComponent::TraceClimbingState(float DeltaTime)
+{
+	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
+	FVector LocalLocation = MMOARPGCharacterBase->GetActorLocation();
+
+	FHitResult HitChestResult;
+	float ChestDistance = MaxDistance;// 胸膛到射线相交点的距离.
+	{
+		// 射线检测 -胸.
+		TArray<AActor*> ActorsToIgnore1;
+		FVector StartTraceChestLocation = LocalLocation;
+		StartTraceChestLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight() / 4.0f;// 胸位置
+		FVector EndTraceChestLocation = StartTraceChestLocation + ForwardDirection * 100.0f;
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceChestLocation, EndTraceChestLocation,
+			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore1,
+			EDrawDebugTrace::ForOneFrame, HitChestResult, true);
+
+		if (HitChestResult.bBlockingHit) {
+			ChestDistance = FVector::Distance(StartTraceChestLocation, HitChestResult.Location);
+		}
+	}
+
+	FHitResult HitHeadResult;
+	float HeadDistance = MaxDistance;// 头颅到射线相交点的距离.
+	{
+		// 射线检测 -头部偏上.
+		TArray<AActor*> ActorsToIgnore2;
+		FVector StartTraceHeadLocation = LocalLocation;
+		StartTraceHeadLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();
+		FVector EndTraceHeadLocation = StartTraceHeadLocation + ForwardDirection * 100.0f;
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceHeadLocation, EndTraceHeadLocation,
+			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore2,
+			EDrawDebugTrace::ForOneFrame, HitHeadResult, true);
+
+		if (HitHeadResult.bBlockingHit) {
+			HeadDistance = FVector::Distance(StartTraceHeadLocation, HitHeadResult.Location);
+		}
+	}
+
+	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
+		if (ChestDistance <= 50.f && HeadDistance <= 50.f) {
+			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+				
+			}
+			else {
+				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
+				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
+				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
+				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
+			}
+		}
+	}
+	else if (HitChestResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
+		ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
+	}
+	else {
+		ClimbingState = EClimbingState::CLIMBING_NONE;
 	}
 }

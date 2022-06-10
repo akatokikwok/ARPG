@@ -26,6 +26,18 @@ enum class EDodgeFly : uint8
 };
 
 /**
+ * 攀爬或者翻越状态.
+ */
+UENUM( BlueprintType)
+enum class EClimbingState : uint8
+{
+	CLIMBING_NONE					UMETA(DisplayName = "None"),
+	CLIMBING_CLIMBOVEROBSTACLES		UMETA(DisplayName = "Climb Over Obstacles"),// 翻越矮小障碍物.
+	CLIMBING_WALLCLIMBING			UMETA(DisplayName = "Wall Climbing"),// 翻墙
+	CLIMBING_CLIMBING				UMETA(DisplayName = "Climbing")// 攀岩.
+};
+
+/**
  * 刷新切换BOOL状态的结构, 用于飞行姿态中的疾飞和落地.
  */
 struct FResetBool
