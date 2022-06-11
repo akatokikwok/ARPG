@@ -12,6 +12,46 @@
 //////////////////////////////////////////////////////////////////////////
 // AMMOARPGCharacter
 
+/** 按键绑定. */
+void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	// Set up gameplay key bindings
+	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMMOARPGCharacter::CharacterJump);// 跳
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMMOARPGCharacter::CharacterStopJumping);// 跳, 释放.
+
+	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
+	PlayerInputComponent->BindAction("ActionSwitching", IE_Pressed, this, &AMMOARPGCharacter::ActionSwitching);// 各种姿态系统的内部切换(如站立切飞行,游泳切潜泳)
+
+	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 急速执行某运动动作.
+	PlayerInputComponent->BindAction("Fast", IE_Released, this, &AMMOARPGCharacter::FastReleased);// 解除急速执行某运动动作.
+
+	PlayerInputComponent->BindAction("SlowDown", IE_Pressed, this, &AMMOARPGCharacter::SlowDown);
+	PlayerInputComponent->BindAction("SlowDown", IE_Released, this, &AMMOARPGCharacter::SlowDownReleased);
+
+	PlayerInputComponent->BindAction("DodgeLeft", IE_Pressed, this, &AMMOARPGCharacter::DodgeLeft);
+	PlayerInputComponent->BindAction("DodgeRight", IE_Pressed, this, &AMMOARPGCharacter::DodgeRight);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMMOARPGCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMMOARPGCharacter::MoveRight);
+
+	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	// "turn" handles devices that provide an absolute delta, such as a mouse.
+	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AMMOARPGCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AMMOARPGCharacter::LookUpAtRate);
+
+	// handle touch devices
+	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMMOARPGCharacter::TouchStarted);
+	PlayerInputComponent->BindTouch(IE_Released, this, &AMMOARPGCharacter::TouchStopped);
+
+	// VR headset functionality
+	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMMOARPGCharacter::OnResetVR);
+}
+
 AMMOARPGCharacter::AMMOARPGCharacter()
 {
 	// Set size for collision capsule
@@ -148,45 +188,7 @@ void AMMOARPGCharacter::MoveRight(float Value)
 	}
 }
 
-void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-
-	PlayerInputComponent->BindAction("SwitchFight", IE_Pressed, this, &AMMOARPGCharacter::SwitchFight);// 切换战斗姿势.
-	PlayerInputComponent->BindAction("ActionSwitching", IE_Pressed, this, &AMMOARPGCharacter::ActionSwitching);// 各种姿态系统的内部切换(如站立切飞行,游泳切潜泳)
-	
-	PlayerInputComponent->BindAction("Fast", IE_Pressed, this, &AMMOARPGCharacter::Fast);// 急速执行某运动动作.
-	PlayerInputComponent->BindAction("Fast", IE_Released, this, &AMMOARPGCharacter::FastReleased);// 解除急速执行某运动动作.
-
-	PlayerInputComponent->BindAction("SlowDown", IE_Pressed, this, &AMMOARPGCharacter::SlowDown);
-	PlayerInputComponent->BindAction("SlowDown", IE_Released, this, &AMMOARPGCharacter::SlowDownReleased);
-
-	PlayerInputComponent->BindAction("DodgeLeft", IE_Pressed, this, &AMMOARPGCharacter::DodgeLeft);
-	PlayerInputComponent->BindAction("DodgeRight", IE_Pressed, this, &AMMOARPGCharacter::DodgeRight);
-
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &AMMOARPGCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AMMOARPGCharacter::MoveRight);
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AMMOARPGCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AMMOARPGCharacter::LookUpAtRate);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMMOARPGCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &AMMOARPGCharacter::TouchStopped);
-
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMMOARPGCharacter::OnResetVR);
-}
-
+/** 抽刀收刀的切换逻辑; 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
 void AMMOARPGCharacter::FightChanged()
 {
 	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
@@ -194,6 +196,19 @@ void AMMOARPGCharacter::FightChanged()
 			PlayAnimMontage(InAnimTable_row->SwitchFightMontage, // 蒙太奇资产: SwitchFight
 				1.f,// 播放倍率
 				ActionState == ECharacterActionState::FIGHT_STATE ? TEXT("0") : TEXT("1")// 按切换姿势来切换哪一个section.
+			);
+		}
+	}
+}
+
+/** 攀爬跳姿势的切换逻辑. */
+void AMMOARPGCharacter::ClimbingJumpChanged(EClimbingJumpState InJumpState)
+{
+	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
+		if (InAnimTable_row->ClimbJumpMontage != nullptr) {
+			PlayAnimMontage(InAnimTable_row->ClimbJumpMontage,
+				1.f,// 播放倍率
+				*FString::FromInt((int32)InJumpState)// 播蒙太奇的哪一个sectionname?
 			);
 		}
 	}
@@ -355,4 +370,21 @@ void AMMOARPGCharacter::SlowDownReleased_Implementation()
 void AMMOARPGCharacter::MulticastSlowDownReleased_Implementation()
 {
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
+}
+
+/** 用于攀爬系统的 跳爬 */
+void AMMOARPGCharacter::CharacterJump()
+{
+	Jump();// 基类的.
+
+	if (ActionState == ECharacterActionState::CLIMB_STATE) {
+		GetClimbingComponent()->ResetJump();
+	}
+}
+
+/** 用于攀爬系统的 跳爬释放 */
+void AMMOARPGCharacter::CharacterStopJumping()
+{
+	StopJumping();// 基类的.
+
 }

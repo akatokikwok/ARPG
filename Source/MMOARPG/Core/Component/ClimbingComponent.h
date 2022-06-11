@@ -35,6 +35,8 @@ public:
 	void ClimbingForwardAxis(float InValue);
 	// 接收具体运动方向的键盘输入(横向轴移动)
 	void ClimbingMoveRightAxis(float InValue);
+	// 重设一套用于爬跳的 按键逻辑.
+	void ResetJump();
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -46,4 +48,7 @@ public:
 	// 是否跳爬吸附.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bJumpToClimbing;
+
+	// 是否跳跃爬.
+	FResetBool bJump;
 };

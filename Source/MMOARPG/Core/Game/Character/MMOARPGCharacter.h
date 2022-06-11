@@ -22,6 +22,12 @@ public:
 	/** 覆写虚接口, 拿附属的相机. **/
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+public:
+	/** 抽刀收刀的切换逻辑; 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
+	void FightChanged();
+
+	/** 攀爬跳姿势的切换逻辑. */
+	virtual void ClimbingJumpChanged(EClimbingJumpState InJumpState) override;
 protected:
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
@@ -48,9 +54,7 @@ protected:
 
 	/** 切换战斗姿势启用/禁用. */
 	void SwitchFight();
-	
-	/** 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
-	void FightChanged();
+
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
 	virtual void OnRep_ActionStateChanged() override;
 
@@ -95,7 +99,14 @@ protected:
 	/** 人物某运动动作减速服务器广播 松开 */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSlowDownReleased();
-	
+
+	/** 用于攀爬系统的 跳爬 */
+	void CharacterJump();
+
+	/** 用于攀爬系统的 跳爬释放 */
+	void CharacterStopJumping();
+
+/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)

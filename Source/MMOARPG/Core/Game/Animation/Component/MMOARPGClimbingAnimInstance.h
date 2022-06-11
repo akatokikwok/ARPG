@@ -18,7 +18,11 @@ class MMOARPG_API UMMOARPGClimbingAnimInstance : public UAnimInstanceComponentBa
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
+private:
+	// 爬跳的具体逻辑.
+	void ClimpJump();
 
+/// //////////////////////////////////////////////////////////////////////////
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
@@ -26,4 +30,8 @@ public:
 	// 是否跳爬吸附.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bJumpToClimbing;
+
+	// 是否跳跃爬
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bJump;
 };

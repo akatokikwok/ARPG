@@ -21,9 +21,21 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		RotationRate = InCharacterBase->GetClimbingComponent()->RotationRate;
 		ClimbingState = InCharacterBase->GetClimbingComponent()->ClimbingState;
 		bJumpToClimbing = InCharacterBase->GetClimbingComponent()->bJumpToClimbing;
+		bJump = *InCharacterBase->GetClimbingComponent()->bJump;
 
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			ResetAxisSpeed(InCharacterMovementComponent->MaxCustomMovementSpeed);// 最大攀岩速度映射到(-1,1)
 		}
+	}
+}
+
+void UMMOARPGClimbingAnimInstance::ClimpJump()
+{
+	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
+		EClimbingJumpState JumpState;
+		{
+			// 按照AxisSpeed的轴向速度, 划定一个比较概括的范围去判断爬的时候怎么跳.(播具体哪一段蒙太奇section)
+		}
+		InCharacterBase->ClimbingJumpChanged(JumpState);
 	}
 }

@@ -28,6 +28,7 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		CameraComponent.IsValid()) {
 
 		TraceClimbingState(DeltaTime);// 命令其射线检测.
+		bJump.Tick(DeltaTime);// Tick 跳爬动作
 	}
 }
 
@@ -89,6 +90,13 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
 
 	}
+}
+
+/** 重设一套用于爬跳的 按键逻辑. */
+void UClimbingComponent::ResetJump()
+{
+	bJump = true;
+	bJump = 1.6f;// 刷新此动作延迟计时.
 }
 
 /** 监测攀岩的具体射线检测逻辑. */

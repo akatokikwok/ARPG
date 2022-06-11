@@ -66,6 +66,9 @@ public:
 
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);
+
+	/** 攀爬跳姿势的切换逻辑. */
+	virtual void ClimbingJumpChanged(EClimbingJumpState InJumpState) {};
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
