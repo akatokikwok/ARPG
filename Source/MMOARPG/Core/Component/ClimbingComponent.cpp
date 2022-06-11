@@ -64,19 +64,13 @@ void UClimbingComponent::ClimbingForwardAxis(float InValue)
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-		if (AController* Controller = MMOARPGCharacterBase->GetController()) {
-			// find out which way is forward
-			const FRotator Rotation = Controller->GetControlRotation();// 拿鼠标的Rot.
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-			// get forward vector
-			/// 改成按Z轴取前向向量,来模拟攀岩.
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Z);// 改成按Z轴取前向向量,来模拟攀岩.
-			MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
-		}
-
-		// 		if (InValue >= 0.f) {/* >0相当于键盘事件只按下W. <0相当于键盘事件按下S.*/
-		// 			
-		// 		}
+		// find out which way is forward
+		const FRotator Rotation = MMOARPGCharacterBase->GetActorRotation();// 使用人物自身转向.
+		const FRotator YawRotation(Rotation.Pitch, Rotation.Yaw, 0);/** 希望同时受到yaw和pitch的影响. */
+		// get forward vector
+		/// 改成按Z轴取前向向量,来模拟攀岩.
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Z);// 改成按Z轴取前向向量,来模拟攀岩.
+		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
 	}
 }
 
@@ -103,6 +97,8 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
 	FVector UpDirection = MMOARPGCharacterBase->GetActorUpVector();
 	FVector LocalLocation = MMOARPGCharacterBase->GetActorLocation();
+	FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
+
 
 	FHitResult HitChestResult;
 	float ChestDistance = MaxDistance;// 胸膛到射线相交点的距离.
@@ -158,16 +154,22 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
 		
-		if (ChestDistance <= 43.f && HeadDistance <= 43.f) {// 因为胶囊体半径是42. 
+		if (ChestDistance <= 80.0f && HeadDistance <= 80.f) {// 因为胶囊体半径是42. 
 			
 			/* 攀爬中落地*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+				
 				if (HitGroundResult.bBlockingHit) {
 					if (GroundDistance < 1.f) {
 						ClimbingState = EClimbingState::CLIMBING_TOGROUND;
+
 						CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
 						CharacterMovementComponent->bOrientRotationToMovement = true;
 						MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
+
+						ActorRotation.Pitch = 0.0f;
+						MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
+						bJumpToClimbing = false;
 					}
 				}
 			}
@@ -177,6 +179,9 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
 				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
 				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
+				
+				ActorRotation.Pitch = 0.0f;
+				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
 				bJumpToClimbing = false;
 			}
 		}
@@ -212,7 +217,20 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
 			CharacterMovementComponent->bOrientRotationToMovement = true;
 			MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
+			
+			ActorRotation.Pitch = 0.0f;
+			MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
 			bJumpToClimbing = false;
 		}
+	}
+
+	/** 爬圆柱体. */
+	if (HitChestResult.bBlockingHit) {
+		
+		// 类似于FindLookAt
+		FRotator NewRot = FRotationMatrix::MakeFromX(MMOARPGCharacterBase->GetActorForwardVector() - HitChestResult.Normal).Rotator();
+		ActorRotation.Yaw = NewRot.Yaw;
+		ActorRotation.Pitch = NewRot.Pitch;
+		MMOARPGCharacterBase->SetActorRotation(ActorRotation);
 	}
 }
