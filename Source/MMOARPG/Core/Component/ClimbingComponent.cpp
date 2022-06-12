@@ -26,11 +26,15 @@ void UClimbingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bWallClimbing.Fun.BindLambda([&]() {
+	// 翻墙计时结束后绑定的回调
+	bWallClimbing.Fun.BindLambda([&]() ->void {
 		AdjustmentClimbing(false);
 		});
 
+	// 攀岩-拐弯行为计时结束后绑定的回调
+	bTurn.Fun.BindLambda([&]() ->void {
 
+		});
 }
 
 void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,6 +48,7 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		TraceClimbingState(DeltaTime);// 命令其射线检测.
 		bJump.Tick(DeltaTime);// Tick 跳爬动作
 		bWallClimbing.Tick(DeltaTime);// Tick翻墙.
+		bTurn.Tick(DeltaTime);
 
 		AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
 	}
@@ -134,6 +139,12 @@ void UClimbingComponent::ReleaseClimbing()
 	SetClimbingState(EMovementMode::MOVE_Walking, ECharacterActionState::NORMAL_STATE, true);
 }
 
+// 还原攀爬系统为爬墙状态.
+void UClimbingComponent::ResetClimbingState()
+{
+	ClimbingState = EClimbingState::CLIMBING_CLIMBING;
+}
+
 void UClimbingComponent::ClearClimbingState()
 {
 	ClimbingState = EClimbingState::CLIMBING_NONE;
@@ -164,6 +175,10 @@ void UClimbingComponent::DropClimbingState()
 /** 监测攀岩的具体射线检测逻辑. */
 void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
+	if (bTurn) {
+		return;
+	}
+
 	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
 	FVector UpVectorDirection = MMOARPGCharacterBase->GetActorUpVector();
 	FVector RightVectorDirection = MMOARPGCharacterBase->GetActorRightVector();
@@ -195,30 +210,87 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		EndTraceLocation = StartTraceLocation + (-UpVectorDirection) * 40.f;
 		});
 
+	/**
+	 * 用以墙角拐弯的四条射线.
+	 */
 	FHitResult HitRightResult;
 	float RightDistance = Scanning(HitRightResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
 		StartTraceLocation = LocalLocation + RightVectorDirection * 70.f;
 		EndTraceLocation = StartTraceLocation + ForwardDirection * 100.f;
 		});
-
 	FHitResult HitLeftSideResult;
 	float LeftSideDistance = Scanning(HitLeftSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
 		StartTraceLocation = LocalLocation - RightVectorDirection * 10.f - ForwardDirection * 10.f;;
 		EndTraceLocation = StartTraceLocation - RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
 		});
-
 	FHitResult HitRightSideResult;
 	float RightSideDistance = Scanning(HitRightSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
 		StartTraceLocation = LocalLocation + RightVectorDirection * 10.f - ForwardDirection * 10.f;;
 		EndTraceLocation = StartTraceLocation + RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
 		});
-
 	FHitResult HitLeftResult;
 	float LeftDistance = Scanning(HitLeftResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
 		StartTraceLocation = LocalLocation - RightVectorDirection * 70.f;
 		EndTraceLocation = StartTraceLocation + ForwardDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
 		});
 
+	/// 检测内径或者外径拐弯的具体执行Lambda.
+	auto CheckTurn = [&]() {
+		// 外径,右拐角.
+		if (!HitRightResult.bBlockingHit && !HitLeftSideResult.bBlockingHit && !HitRightSideResult.bBlockingHit) {
+			FHitResult HitRightClimbingSideResult;
+			float RightClimbingSideDistance = Scanning(HitRightClimbingSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+				StartTraceLocation = LocalLocation + RightVectorDirection * 70.f + ForwardDirection * 40.f;
+				EndTraceLocation = StartTraceLocation - RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
+				});
+
+			if (HitRightClimbingSideResult.bBlockingHit && RightClimbingSideDistance != 0.f) {
+				if (RightClimbingSideDistance >= 8.f) {
+					bTurn = true;
+					bTurn = 1.2f;
+					TurnState = EClimbingTurnState::OUTSIDE_RIGHT;;
+				}
+			}
+		}
+		// 外径,左拐角.
+		else if (!HitLeftResult.bBlockingHit && !HitLeftSideResult.bBlockingHit && !HitRightSideResult.bBlockingHit) {
+			FHitResult HitLeftClimbingSideResult;
+			float LeftClimbingSideDistance = Scanning(HitLeftClimbingSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+				StartTraceLocation = LocalLocation - RightVectorDirection * 70.f + ForwardDirection * 40.f;
+				EndTraceLocation = StartTraceLocation + RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
+				});
+
+			if (HitLeftClimbingSideResult.bBlockingHit) {
+				if (LeftClimbingSideDistance >= 8.f && LeftClimbingSideDistance != 0.f) {
+					bTurn = true;
+					bTurn = 1.2f;
+					TurnState = EClimbingTurnState::OUTSIDE_LEFT;
+				}
+			}
+		}
+		// 内径,左拐角.
+		else if (HitLeftSideResult.bBlockingHit) {
+			if (FMath::IsNearlyEqual(LeftSideDistance, 43.f, 0.7f)) {
+				bTurn = true;
+				bTurn = 1.20f;
+				TurnState = EClimbingTurnState::INSIDE_LEFT;
+			}
+		}
+		// 内径, 右拐角.
+		else if (HitRightSideResult.bBlockingHit) {
+			if (FMath::IsNearlyEqual(RightSideDistance, 49.f, 0.7f)) {// 设计成与47不一致是为了减少反复turn的bug
+				bTurn = true;
+				bTurn = 1.20f;
+				TurnState = EClimbingTurnState::INSIDE_RIGHT;
+			}
+		}
+
+		// 如若启用拐弯.
+		if (bTurn) {
+			ClimbingState = EClimbingState::CLIMBING_TURN;
+			CharacterMovementComponent->GravityScale = 0.f;
+		}
+	};
 
 
 	/// <summary>
@@ -237,7 +309,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				MMOARPGCharacterBase->SetActorLocation(TargetLocation);
 			}
 
-			/* 攀爬中落地*/
+			/* 开始爬墙*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
 
 				if (HitGroundResult.bBlockingHit) {
@@ -245,8 +317,42 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 						ClimbingState = EClimbingState::CLIMBING_TOGROUND;
 						ReleaseClimbing();// 释放攀爬.						
 					}
+					/** 是否攀岩拐弯; 满足任一条件即可执行 */
+					else if (HitRightResult.bBlockingHit ||
+						HitLeftResult.bBlockingHit ||
+						HitLeftSideResult.bBlockingHit ||
+						HitRightSideResult.bBlockingHit) {
+						if (!bTurn) {
+							CheckTurn();
+						}
+					}
 				}
+				// 离地面很搞,检测是否攀岩拐弯.
+				else if (
+					HitRightResult.bBlockingHit ||
+					HitLeftResult.bBlockingHit ||
+					HitLeftSideResult.bBlockingHit ||
+					HitRightSideResult.bBlockingHit) {
+					if (!bTurn) {
+						CheckTurn();
+					}
+				}
+
+// 				//角度调整
+// 				{
+// 					FVector ZAxis = FVector(0.f, 0.f, 1.0f);
+// 					float CosValue = FVector::DotProduct(ZAxis, HitChestResult.ImpactNormal);
+// 					float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
+// 					if (CosAngle < 35.f) {
+// 						ClimbingState = EClimbingState::CLIMBING_NONE;
+// 						ReleaseClimbing();
+// 					}
+// 
+// 					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
+// 				}
 			}
+
+
 			/* 攀岩且不落地. */
 			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND && ClimbingState != EClimbingState::CLIMBING_DROP) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.

@@ -45,6 +45,10 @@ public:
 	void Climbing();
 	// 释放攀爬.
 	void ReleaseClimbing();
+	
+	// 还原攀爬系统为爬墙状态.
+	void ResetClimbingState();
+
 	// 清除攀岩状态.
 	void ClearClimbingState();
 	// 是否爬矮墙.
@@ -57,6 +61,8 @@ public:
 	// 切换为攀岩-坠落状态.
 	void DropClimbingState();
 
+	// 拿取攀岩拐弯类型
+	EClimbingTurnState GetTurnState() { return TurnState; }
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -94,4 +100,8 @@ private:
 	FVector ClimbingTracePoint;
 	// 判定是矮墙还是高墙的翻墙高度.
 	float ClimbingHeight;
+	// 攀岩墙角拐弯枚举
+	EClimbingTurnState TurnState;
+	// 是否激活攀岩-墙角拐弯
+	FResetBool bTurn;
 };

@@ -26,7 +26,7 @@ enum class EDodgeFly : uint8
 };
 
 /**
- * 攀爬或者翻越状态.
+ * 攀爬系统的哪个姿态.
  */
 UENUM(BlueprintType)
 enum class EClimbingState : uint8
@@ -42,7 +42,7 @@ enum class EClimbingState : uint8
 };
 
 /**
- * 攀爬跳这种姿态的各型枚举.
+ * 攀岩-跳 行为的哪个子型
  */
 UENUM(BlueprintType)
 enum class EClimbingMontageState : uint8
@@ -67,6 +67,18 @@ enum class EClimbingMontageState : uint8
 	CLIMBING_DASH_MAX							UMETA(DisplayName = "Max"),
 };
 
+/**
+ * 攀岩-拐弯 行为的哪个子型
+ */
+UENUM(BlueprintType)
+enum class EClimbingTurnState : uint8
+{
+	TURN_NONE,
+	OUTSIDE_RIGHT,
+	OUTSIDE_LEFT,
+	INSIDE_RIGHT,
+	INSIDE_LEFT,
+};
 
 /**
  * 刷新切换BOOL状态的结构, 用于飞行姿态中的疾飞和落地.

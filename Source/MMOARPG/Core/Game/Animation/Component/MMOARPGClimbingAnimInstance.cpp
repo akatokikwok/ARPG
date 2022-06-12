@@ -51,8 +51,28 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			else {// 双手翻高墙的蒙太奇.
 				InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_ALS_N_MANTLE_2M);
 			}
-
 		}
+		/** 攀岩拐弯姿态. */
+		else if (ClimbingState == EClimbingState::CLIMBING_TURN) {
+			EClimbingTurnState TurnState = InCharacterBase->GetClimbingComponent()->GetTurnState();
+
+			switch (TurnState) {
+				case EClimbingTurnState::OUTSIDE_RIGHT:
+					InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_OUTSIDE_R_RM);
+					break;
+				case EClimbingTurnState::OUTSIDE_LEFT:
+					InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_OUTSIDE_L_RM);
+					break;
+				case EClimbingTurnState::INSIDE_RIGHT:
+					InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_INSIDE_R_RM);
+					break;
+				case EClimbingTurnState::INSIDE_LEFT:
+					InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_INSIDE_L_RM);
+					break;
+			}
+			InCharacterBase->GetClimbingComponent()->ResetClimbingState();
+		}
+			
 	}
 }
 
