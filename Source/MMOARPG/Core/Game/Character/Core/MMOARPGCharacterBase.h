@@ -10,7 +10,9 @@
 #include "../../../Component/FlyComponent.h"
 #include "../../../Component/SwimmingComponent.h"
 #include "../../../Component/ClimbingComponent.h"
+#include "../../../Component/FightComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
+
 
 UCLASS()
 class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleCombatInterface
@@ -34,6 +36,13 @@ private:
 	/** 攀爬系统组件. */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
+	
+	/** 战斗系统组件. */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UFightComponent> FightComponent;
+
+// 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+// 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -61,6 +70,8 @@ public:
 	FORCEINLINE USwimmingComponent* GetSwimmingComponent() { return SwimmingComponent; }
 	// 拿取攀爬组件.
 	FORCEINLINE UClimbingComponent* GetClimbingComponent() { return ClimbingComponent; }
+	// 拿取战斗系统组件.
+	FORCEINLINE UFightComponent* GetFightComponent() { return FightComponent; }
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 

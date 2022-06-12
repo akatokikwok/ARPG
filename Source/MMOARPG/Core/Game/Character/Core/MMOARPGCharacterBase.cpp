@@ -4,6 +4,7 @@
 #include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
 
+
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	: ActionState(ECharacterActionState::NORMAL_STATE)
@@ -18,6 +19,8 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
 	ClimbingComponent = CreateDefaultSubobject<UClimbingComponent>(TEXT("ClimbingComponent"));
+
+	FightComponent = CreateDefaultSubobject<UFightComponent>(TEXT("FightComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -104,7 +107,7 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 	// 在坠地着陆的时候 清掉攀岩状态的一切播的动画.
 // 	if (LastActionState == ECharacterActionState::CLIMB_STATE) 
 	{
-		StopAnimMontage();
+// 		StopAnimMontage();
 	}
 
 }

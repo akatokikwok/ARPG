@@ -367,7 +367,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 						ClimbingState = EClimbingState::CLIMBING_NONE;
 						ReleaseClimbing();
 					}
-					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
+// 					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
 				}
 			}
 
