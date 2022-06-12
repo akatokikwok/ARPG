@@ -182,8 +182,16 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
 		
-		if (ChestDistance <= 24.f /*&& HeadDistance <= 80.f*/) {// 因为胶囊体半径是42. 
+		if (ChestDistance <= 45.f /*&& HeadDistance <= 80.f*/) {// 因为胶囊体半径是42. 
 			
+			/** 针对半圆球那种情况的修正;让人再稍微前进一步. */
+			float CompensationValue = ChestDistance - 29.f;
+			if (CompensationValue > 0.f) {
+				FVector TargetPoint = ForwardDirection * CompensationValue;
+				FVector TargetLocation = MMOARPGCharacterBase->GetActorLocation() + TargetPoint * (DeltaTime * 8.f);// 按帧间隔递进,平滑一下
+				MMOARPGCharacterBase->SetActorLocation(TargetLocation);
+			}
+
 			/* 攀爬中落地*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
 				
@@ -252,12 +260,14 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	/** 爬圆柱体. */
 	if (HitChestResult.bBlockingHit) {
-		
-		// 类似于FindLookAt
-		FRotator NewRot = FRotationMatrix::MakeFromX(MMOARPGCharacterBase->GetActorForwardVector() - HitChestResult.Normal).Rotator();
-		ActorRotation.Yaw = NewRot.Yaw;
-		ActorRotation.Pitch = NewRot.Pitch;
-		MMOARPGCharacterBase->SetActorRotation(ActorRotation);
+		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+			// 类似于FindLookAt
+			FRotator NewRot = FRotationMatrix::MakeFromX(MMOARPGCharacterBase->GetActorForwardVector() - HitChestResult.Normal).Rotator();
+			ActorRotation.Yaw = NewRot.Yaw;
+			ActorRotation.Pitch = NewRot.Pitch;
+			ActorRotation.Roll = 0.f;// 清空roll.
+			MMOARPGCharacterBase->SetActorRotation(ActorRotation);
+		}
 	}
 }
 
