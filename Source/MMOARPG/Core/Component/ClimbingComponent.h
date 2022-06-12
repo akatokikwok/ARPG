@@ -49,6 +49,9 @@ public:
 	void ClearClimbingState();
 	// 是否爬矮墙.
 	bool IsLowClimbing();
+
+	//
+	void LaunchCharacter(const FVector& LaunchVelocity);
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -58,6 +61,9 @@ private:
 
 	// 微调优化翻墙后的人物位置.
 	void AdjustmentClimbing(bool bStart = true);
+	
+	// 调节坠落给的蹬腿反力方向
+	void AdjustmentPendingLaunchVelocity(float DeltaTime);
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
@@ -73,6 +79,8 @@ public:
 	FResetBool bJump;
 	// 是否翻越墙.
 	FResetBool bWallClimbing;
+	// 坠落时候的给力.
+	FVector PendingLaunchVelocity;
 private:
 	// 翻越矮墙射线与墙顶的交点.
 	FVector ClimbingTracePoint;

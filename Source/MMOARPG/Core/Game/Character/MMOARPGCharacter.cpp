@@ -297,10 +297,15 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 			GetSwimmingComponent()->GoUnderWater();// 潜入水下.
 		}
 		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Custom) {
-			GetClimbingComponent()->ReleaseClimbing();
-			GetClimbingComponent()->ClearClimbingState();
+			GetClimbingComponent()->ReleaseClimbing();// 还原一套walking设置
+			GetClimbingComponent()->ClearClimbingState();// 清除攀岩状态为none
+			ClimbingMontageChanged(EClimbingMontageState::CLIMBING_DROP_RM);// 播坠地蒙太奇section
 
-			ClimbingMontageChanged(EClimbingMontageState::CLIMBING_DROP_RM);
+			// 手动坠落的时候 反方向蹬腿给力.
+			// 暂定给1000的数值, 它会影响给力的大小,进而影响到
+			// UClimbingComponent.PhysClimbong里的速度大小. 
+			FVector Dir = -GetActorForwardVector();
+			GetClimbingComponent()->LaunchCharacter(Dir * 1000.f);
 		}
 	}
 }

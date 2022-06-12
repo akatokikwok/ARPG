@@ -102,7 +102,8 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 	// 在坠地着陆的时候 清掉攀岩状态的一切播的动画.
-	if (LastActionState == ECharacterActionState::CLIMB_STATE) {
+// 	if (LastActionState == ECharacterActionState::CLIMB_STATE) 
+	{
 		StopAnimMontage();
 	}
 

@@ -17,6 +17,7 @@ UClimbingComponent::UClimbingComponent()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
 	, bJumpToClimbing(false)
 	, ClimbingHeight(0.f)
+// 	, PendingLaunchVelocity(FVector(0,0,0))
 {
 
 }
@@ -43,6 +44,8 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		TraceClimbingState(DeltaTime);// 命令其射线检测.
 		bJump.Tick(DeltaTime);// Tick 跳爬动作
 		bWallClimbing.Tick(DeltaTime);// Tick翻墙.
+
+		AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
 	}
 }
 
@@ -64,17 +67,16 @@ void UClimbingComponent::PhysClimbong(float deltaTime, int32 Iterations)
 
 		// 依据是否具备ROOTMOTION来挑选合适的速度.
 		if (!CharacterMovementComponent->HasAnimRootMotion()) {
-			CharacterMovementComponent->Velocity = CharacterMovementComponent->GetLastInputVector() * CharacterMovementComponent->MaxCustomMovementSpeed;// 单位按键输入 * 最大自定义移速.
+			CharacterMovementComponent->Velocity = PendingLaunchVelocity + CharacterMovementComponent->GetLastInputVector() * CharacterMovementComponent->MaxCustomMovementSpeed;// 单位按键输入 * 最大自定义移速.
 		}
 		else {
-			CharacterMovementComponent->Velocity = CharacterMovementComponent->ConstrainAnimRootMotionVelocity(CharacterMovementComponent->AnimRootMotionVelocity, CharacterMovementComponent->Velocity);
+			CharacterMovementComponent->Velocity = PendingLaunchVelocity + CharacterMovementComponent->ConstrainAnimRootMotionVelocity(CharacterMovementComponent->AnimRootMotionVelocity, CharacterMovementComponent->Velocity);
 		}
 
 		/* 安全刷新移动组件(扫过一段距离或者弧边), (移动距离, 排除意外万向锁,)*/
 		const FVector Adjusted = CharacterMovementComponent->Velocity * deltaTime;// 帧间隔的移动距离.
 		FHitResult Hit(1.0f);
 		CharacterMovementComponent->SafeMoveUpdatedComponent(Adjusted, CharacterMovementComponent->UpdatedComponent->GetComponentQuat(), true, Hit);
-
 	}
 }
 
@@ -140,6 +142,11 @@ void UClimbingComponent::ClearClimbingState()
 bool UClimbingComponent::IsLowClimbing()
 {
 	return ClimbingHeight > 40.f;
+}
+
+void UClimbingComponent::LaunchCharacter(const FVector& LaunchVelocity)
+{
+	PendingLaunchVelocity = LaunchVelocity;
 }
 
 /** 监测攀岩的具体射线检测逻辑. */
@@ -366,4 +373,23 @@ void UClimbingComponent::AdjustmentClimbing(bool bStart /*= true*/)
 		RelativeLocation.Z -= AdjustValue;
 	}
 	MMOARPGCharacterBase->GetMesh()->SetRelativeLocation(RelativeLocation);
+}
+
+void UClimbingComponent::AdjustmentPendingLaunchVelocity(float DeltaTime)
+{
+	auto AxisCheck = [](double& InValue, float DeltaTime) {
+		if (FMath::IsNearlyEqual(InValue, 0.f, 1.f)) {// 误差接近0和1就清除误差.
+			InValue = 0.f;
+		}
+		else if (InValue > 0.f) {
+			InValue -= InValue * DeltaTime;
+		}
+		else if (InValue < 0.f) {
+			InValue += -InValue * DeltaTime;
+		}
+	};
+
+	AxisCheck(PendingLaunchVelocity.X, DeltaTime);
+	AxisCheck((PendingLaunchVelocity.Y), DeltaTime);
+	AxisCheck((PendingLaunchVelocity.Z), DeltaTime);
 }
