@@ -46,6 +46,8 @@ public:
 	void ReleaseClimbing();
 	// 清除攀岩状态.
 	void ClearClimbingState();
+	// 是否爬矮墙.
+	bool IsLowClimbing();
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -64,4 +66,9 @@ public:
 	FResetBool bJump;
 	// 是否翻越墙.
 	FResetBool bWallClimbing;
+private:
+	// 翻越矮墙射线与墙顶的交点.
+	FVector ClimbingTracePoint;
+	// 判定是矮墙还是高墙的翻墙高度.
+	float ClimbingHeight;
 };

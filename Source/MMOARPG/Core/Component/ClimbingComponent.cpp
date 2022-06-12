@@ -16,6 +16,7 @@ UClimbingComponent::UClimbingComponent()
 	: Super()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
 	, bJumpToClimbing(false)
+	, ClimbingHeight(0.f)
 {
 
 }
@@ -125,11 +126,16 @@ void UClimbingComponent::ClearClimbingState()
 	ClimbingState = EClimbingState::CLIMBING_NONE;
 }
 
+bool UClimbingComponent::IsLowClimbing()
+{
+	return ClimbingHeight > 40.f;
+}
+
 /** 监测攀岩的具体射线检测逻辑. */
 void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
 	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
-	FVector UpDirection = MMOARPGCharacterBase->GetActorUpVector();
+	FVector UpVectorDirection = MMOARPGCharacterBase->GetActorUpVector();
 	FVector LocalLocation = MMOARPGCharacterBase->GetActorLocation();
 	FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
 
@@ -140,7 +146,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		// 射线检测 -胸.
 		TArray<AActor*> ActorsToIgnore1;
 		FVector StartTraceChestLocation = LocalLocation;
-		StartTraceChestLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight() / 4.0f;// 胸位置
+// 		StartTraceChestLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight() / 4.0f;// 胸位置略抬高于胶囊体位置.
 		FVector EndTraceChestLocation = StartTraceChestLocation + ForwardDirection * 100.0f;
 		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceChestLocation, EndTraceChestLocation,
 			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore1,
@@ -175,7 +181,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		TArray<AActor*> ActorsToIgnore3;
 		FVector StartTraceGroundLocation = LocalLocation;
 		StartTraceGroundLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();// 脚底板位置.
-		FVector EndTraceGroundLocation = StartTraceGroundLocation + (-UpDirection) * 40.f;
+		FVector EndTraceGroundLocation = StartTraceGroundLocation + (-UpVectorDirection) * 40.f;
 		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceGroundLocation, EndTraceGroundLocation,
 			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore3,
 			EDrawDebugTrace::ForOneFrame, HitGroundResult, true);
@@ -212,13 +218,6 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
 				Climbing();// 启用攀岩.
-
-// 				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
-// 				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
-// 				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
-// 				ActorRotation.Pitch = 0.0f;
-// 				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
-// 				bJumpToClimbing = false;
 			}
 		}
 
@@ -251,15 +250,51 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				ReleaseClimbing();
 				});
 		}
+		/// //////////////////////////////////////////////////////////////////////////
 		/** 翻越矮墙 */
 		else if (ClimbingState != EClimbingState::CLIMBING_TOTOP &&
-				 ClimbingState != EClimbingState::CLIMBING_WALLCLIMBING &&
-				 !bWallClimbing) 
-		{
+			ClimbingState != EClimbingState::CLIMBING_WALLCLIMBING &&
+			!bWallClimbing) {
 			if (ChestDistance <= 18.f) {
-				ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
-				bWallClimbing = true;
-				bWallClimbing = 1.6f;// 计时1.6f结束.
+				
+				// 1.正面面向朝向矮墙.
+				{
+					// 类似于FindLookAt
+					FRotator NewRot = FRotationMatrix::MakeFromX(MMOARPGCharacterBase->GetActorForwardVector() - HitChestResult.Normal).Rotator();
+					ActorRotation.Yaw = NewRot.Yaw;
+					ActorRotation.Pitch = 0.0f;
+					ActorRotation.Roll = 0.f;// 清空roll.
+					MMOARPGCharacterBase->SetActorRotation(ActorRotation);
+				}
+
+				// 一条从身体前侧40公分处从上往下打的射线.
+				FHitResult HitWallClimbing;
+				FVector StartTraceLocation = LocalLocation + ForwardDirection * 40.f;
+				StartTraceLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();
+				FVector EndTraceLocation = StartTraceLocation - UpVectorDirection * 100.f;
+				TArray<AActor*> ClimbingActorsToIgnore;
+				UKismetSystemLibrary::LineTraceSingle(GetWorld(),
+					StartTraceLocation,
+					EndTraceLocation,
+					ETraceTypeQuery::TraceTypeQuery1,
+					false,
+					ClimbingActorsToIgnore,
+					EDrawDebugTrace::ForDuration, HitWallClimbing, true);
+
+				if (HitWallClimbing.bBlockingHit) {// 当确认有矮墙墙顶
+					HitWallClimbing.Location.Z += HitWallClimbing.Distance;
+					
+					ClimbingTracePoint = HitWallClimbing.Location;
+					ClimbingHeight = HitWallClimbing.Distance;
+					ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;// 攀岩状态刷新至翻墙
+
+					if (IsLowClimbing()) {
+						
+					}
+
+					bWallClimbing = true;
+					bWallClimbing = 1.6f;// 计时1.6f结束.
+				}
 			}
 		}
 	}
@@ -282,6 +317,12 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			ActorRotation.Roll = 0.f;// 清空roll.
 			MMOARPGCharacterBase->SetActorRotation(ActorRotation);
 		}
+	}
+
+	/** 翻墙时候人的位置到矮墙顶渐变. */
+	if (bWallClimbing) {
+		FVector VInterpToLocation = FMath::VInterpTo(LocalLocation, ClimbingTracePoint, DeltaTime, 7.f);
+		MMOARPGCharacterBase->SetActorLocation(VInterpToLocation);
 	}
 }
 

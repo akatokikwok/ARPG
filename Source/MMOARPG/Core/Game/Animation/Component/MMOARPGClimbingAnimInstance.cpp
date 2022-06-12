@@ -38,12 +38,20 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			InCharacterBase->GetClimbingComponent()->ClimbingState = EClimbingState::CLIMBING_NONE;// 状态刷新.
 			InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_CLIMB_UP_AT_TOP);// 播蒙太奇.
 		}
+		/** 翻越任意高度的墙. */
 		else if (ClimbingState == EClimbingState::CLIMBING_WALLCLIMBING) {
 			// 先清空攀爬.
  			InCharacterBase->GetClimbingComponent()->ClearClimbingState();
-			// 随机播一个矮墙跨越蒙太奇.
-			InCharacterBase->ClimbingMontageChanged(
-				(EClimbingMontageState)FMath::RandRange((int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_LH, (int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_RH));
+
+			if (InCharacterBase->GetClimbingComponent()->IsLowClimbing()) {// 单手翻矮墙.
+				// 随机播一个单手翻矮墙的蒙太奇.
+				InCharacterBase->ClimbingMontageChanged(
+					(EClimbingMontageState)FMath::RandRange((int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_LH, (int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_RH));
+			}
+			else {// 双手翻高墙的蒙太奇.
+				InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_ALS_N_MANTLE_2M);
+			}
+
 		}
 	}
 }
