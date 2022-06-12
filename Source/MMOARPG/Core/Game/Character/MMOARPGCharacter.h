@@ -27,7 +27,7 @@ public:
 	void FightChanged();
 
 	/** 攀爬跳姿势的切换逻辑. */
-	virtual void ClimbingJumpChanged(EClimbingJumpState InJumpState) override;
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) override;
 protected:
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);

@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThreadManage.h"
 
 const float MaxDistance = 999999.0f;
 
@@ -222,13 +223,30 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		}
 	}
 	else if (HitChestResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
-		ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
+		
+		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+			
+			ClimbingState = EClimbingState::CLIMBING_TOTOP;
+			GThread::Get()->GetCoroutines().BindLambda(1.f, [this]() {
+				FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
+				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+				CharacterMovementComponent->bOrientRotationToMovement = true;
+				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
+				ActorRotation.Pitch = 0.0f;
+				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
+				bJumpToClimbing = false;
+			});
+		}
+		else if (ClimbingState != EClimbingState::CLIMBING_TOTOP) {
+			ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
+		}
 	}
 	else {
 
 		/** 攀岩中左移或者右移身体有半截对着空气就释放攀岩状态,落地. */
 		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
 			ClimbingState = EClimbingState::CLIMBING_NONE;
+
 			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
 			CharacterMovementComponent->bOrientRotationToMovement = true;
 			MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);

@@ -68,7 +68,7 @@ public:
 	void ResetActionState(ECharacterActionState InNewActionState);
 
 	/** 攀爬跳姿势的切换逻辑. */
-	virtual void ClimbingJumpChanged(EClimbingJumpState InJumpState) {};
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

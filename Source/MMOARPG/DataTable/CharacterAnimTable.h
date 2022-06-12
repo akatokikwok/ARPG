@@ -25,5 +25,5 @@ public:
 
 	// 蒙太奇: 攀爬姿势;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAnim")
-		UAnimMontage* ClimbJumpMontage;
+		UAnimMontage* ClimbingMontage;
 };

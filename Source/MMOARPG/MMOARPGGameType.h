@@ -35,14 +35,17 @@ enum class EClimbingState : uint8
 	CLIMBING_CLIMBOVEROBSTACLES		UMETA(DisplayName = "Climb Over Obstacles"),// 翻越矮小障碍物.
 	CLIMBING_WALLCLIMBING			UMETA(DisplayName = "Wall Climbing"),// 翻墙
 	CLIMBING_CLIMBING				UMETA(DisplayName = "Climbing"),// 攀岩.
-	CLIMBING_TOGROUND				UMETA(DisplayName = "Climbing to Ground")// 攀岩.
+	CLIMBING_TOGROUND				UMETA(DisplayName = "Climbing to Ground"),// 攀岩.
+	CLIMBING_TOTOP					UMETA(DisplayName = "To Top"),
+	CLIMBING_DROP					UMETA(DisplayName = "Drop"),
+	CLIMBING_TURN					UMETA(DisplayName = "Turn"),
 };
 
 /**
  * 攀爬跳这种姿态的各型枚举.
  */
 UENUM(BlueprintType)
-enum class EClimbingJumpState : uint8
+enum class EClimbingMontageState : uint8
 {
 	CLIMBING_DASH_DR_RM							UMETA(DisplayName = "Climbing Dash Down Right"),
 	CLIMBING_DASH_D_RM							UMETA(DisplayName = "Climbing Dash Down"),

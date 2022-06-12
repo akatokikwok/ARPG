@@ -202,11 +202,11 @@ void AMMOARPGCharacter::FightChanged()
 }
 
 /** 攀爬跳姿势的切换逻辑. */
-void AMMOARPGCharacter::ClimbingJumpChanged(EClimbingJumpState InJumpState)
+void AMMOARPGCharacter::ClimbingMontageChanged(EClimbingMontageState InJumpState)
 {
 	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
-		if (InAnimTable_row->ClimbJumpMontage != nullptr) {
-			PlayAnimMontage(InAnimTable_row->ClimbJumpMontage,
+		if (InAnimTable_row->ClimbingMontage != nullptr) {
+			PlayAnimMontage(InAnimTable_row->ClimbingMontage,
 				1.f,// 播放倍率
 				*FString::FromInt((int32)InJumpState)// 播蒙太奇的哪一个sectionname?
 			);

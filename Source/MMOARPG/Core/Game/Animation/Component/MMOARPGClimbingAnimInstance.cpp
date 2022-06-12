@@ -27,9 +27,16 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			ResetAxisSpeed(InCharacterMovementComponent->MaxCustomMovementSpeed);// 最大攀岩速度映射到(-1,1)
 		}
 
+		/* 常规攀岩跳激活检测.*/
 		if (bJump) {
 			InCharacterBase->GetClimbingComponent()->bJump = false;// 每次跳完都需要重置状态.
 			ClimpJump();// 攀岩跳的具体逻辑.
+		}
+
+		/* 若符合爬顶状态*/
+		if (ClimbingState == EClimbingState::CLIMBING_TOTOP) {
+			InCharacterBase->GetClimbingComponent()->ClimbingState = EClimbingState::CLIMBING_NONE;// 状态刷新.
+			InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_CLIMB_UP_AT_TOP);// 播蒙太奇.
 		}
 
 
@@ -42,15 +49,15 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 void UMMOARPGClimbingAnimInstance::ClimpJump()
 {
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
-		EClimbingJumpState JumpState = CalculationClimbingJumpState();// 先解算一下蒙太奇类型.
-		if (JumpState != EClimbingJumpState::CLIMBING_DASH_MAX) {
-			InCharacterBase->ClimbingJumpChanged(JumpState);
+		EClimbingMontageState JumpState = CalculationClimbingJumpState();// 先解算一下蒙太奇类型.
+		if (JumpState != EClimbingMontageState::CLIMBING_DASH_MAX) {
+			InCharacterBase->ClimbingMontageChanged(JumpState);
 		}
 	}
 }
 
 // 解算出合适的攀岩跳枚举.
-EClimbingJumpState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState()
+EClimbingMontageState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState()
 {
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
@@ -79,31 +86,31 @@ EClimbingJumpState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState()
 
 			/// 依据横轴度数和 上下半轴为依据, 执行具体蒙太奇类型.
 			if (FMath::IsWithinInclusive(XAxisCosAngle, 22.5f, 67.5f) && bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_UR_RM;
+				return EClimbingMontageState::CLIMBING_DASH_UR_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 112.5f, 157.5f) && !bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_DL_RM;
+				return EClimbingMontageState::CLIMBING_DASH_DL_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 112.5f, 157.5f) && bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_UL_RM;
+				return EClimbingMontageState::CLIMBING_DASH_UL_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 22.5f, 67.5f) && !bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_DR_RM;
+				return EClimbingMontageState::CLIMBING_DASH_DR_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 67.5f, 112.5f) && bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_U_RM;
+				return EClimbingMontageState::CLIMBING_DASH_U_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 67.5f, 112.5f) && !bUPAxis) {
-				return EClimbingJumpState::CLIMBING_DASH_D_RM;
+				return EClimbingMontageState::CLIMBING_DASH_D_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 157.5f, 180.f)) {
-				return EClimbingJumpState::CLIMBING_DASH_L_RM;
+				return EClimbingMontageState::CLIMBING_DASH_L_RM;
 			}
 			else if (FMath::IsWithinInclusive(XAxisCosAngle, 0.f, 22.5f)) {
-				return EClimbingJumpState::CLIMBING_DASH_R_RM;
+				return EClimbingMontageState::CLIMBING_DASH_R_RM;
 			}
 		}
 	}
 
-	return EClimbingJumpState::CLIMBING_DASH_MAX;
+	return EClimbingMontageState::CLIMBING_DASH_MAX;
 }
