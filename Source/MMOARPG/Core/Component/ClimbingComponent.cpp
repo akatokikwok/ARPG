@@ -107,6 +107,18 @@ void UClimbingComponent::ResetJump()
 // 	bJump = 1.6f;// 刷新此动作延迟计时.
 }
 
+// 启用或设置攀岩.
+void UClimbingComponent::Climbing()
+{
+	SetClimbingState(EMovementMode::MOVE_Custom, ECharacterActionState::CLIMB_STATE, false);
+}
+
+// 释放攀爬.
+void UClimbingComponent::ReleaseClimbing()
+{
+	SetClimbingState(EMovementMode::MOVE_Walking, ECharacterActionState::NORMAL_STATE, true);
+}
+
 /** 监测攀岩的具体射线检测逻辑. */
 void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
@@ -176,29 +188,23 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
 				
 				if (HitGroundResult.bBlockingHit) {
-					if (GroundDistance < 1.f) {
+					if (GroundDistance <= 1.f) {
 						ClimbingState = EClimbingState::CLIMBING_TOGROUND;
-
-						CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-						CharacterMovementComponent->bOrientRotationToMovement = true;
-						MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
-
-						ActorRotation.Pitch = 0.0f;
-						MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
-						bJumpToClimbing = false;
+						ReleaseClimbing();// 释放攀爬.						
 					}
 				}
 			}
 			/* 攀岩且不落地. */
 			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
-				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
-				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
-				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
-				
-				ActorRotation.Pitch = 0.0f;
-				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
-				bJumpToClimbing = false;
+				Climbing();// 启用攀岩.
+
+// 				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Custom);// 切换为custom的攀岩mode.
+// 				CharacterMovementComponent->bOrientRotationToMovement = false;// 禁用随运动旋转.
+// 				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::CLIMB_STATE);// 切位攀岩姿态.
+// 				ActorRotation.Pitch = 0.0f;
+// 				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
+// 				bJumpToClimbing = false;
 			}
 		}
 
@@ -228,13 +234,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			
 			ClimbingState = EClimbingState::CLIMBING_TOTOP;
 			GThread::Get()->GetCoroutines().BindLambda(1.f, [this]() {
-				FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
-				CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-				CharacterMovementComponent->bOrientRotationToMovement = true;
-				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
-				ActorRotation.Pitch = 0.0f;
-				MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
-				bJumpToClimbing = false;
+				ReleaseClimbing();
 			});
 		}
 		else if (ClimbingState != EClimbingState::CLIMBING_TOTOP) {
@@ -246,14 +246,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		/** 攀岩中左移或者右移身体有半截对着空气就释放攀岩状态,落地. */
 		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
 			ClimbingState = EClimbingState::CLIMBING_NONE;
-
-			CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-			CharacterMovementComponent->bOrientRotationToMovement = true;
-			MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
-			
-			ActorRotation.Pitch = 0.0f;
-			MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
-			bJumpToClimbing = false;
+			ReleaseClimbing();// 释放攀爬.
 		}
 	}
 
@@ -266,4 +259,16 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		ActorRotation.Pitch = NewRot.Pitch;
 		MMOARPGCharacterBase->SetActorRotation(ActorRotation);
 	}
+}
+
+// 给一套自定义的攀岩配置.
+void UClimbingComponent::SetClimbingState(EMovementMode InMode, ECharacterActionState InCharacterActionState, bool bOrientRotationToMovement)
+{
+	FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
+	CharacterMovementComponent->SetMovementMode(InMode);
+	CharacterMovementComponent->bOrientRotationToMovement = bOrientRotationToMovement;
+	MMOARPGCharacterBase->ResetActionState(InCharacterActionState);
+	ActorRotation.Pitch = 0.0f;
+	MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
+	bJumpToClimbing = false;
 }

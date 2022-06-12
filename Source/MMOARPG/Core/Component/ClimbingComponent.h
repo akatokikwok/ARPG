@@ -33,14 +33,25 @@ public:
 
 	// 接收具体运动方向的键盘输入(前向轴移动).
 	void ClimbingForwardAxis(float InValue);
+	
 	// 接收具体运动方向的键盘输入(横向轴移动)
 	void ClimbingMoveRightAxis(float InValue);
+	
 	// 重设一套用于爬跳的 按键逻辑.
 	void ResetJump();
+
+	// 启用或设置攀岩.
+	void Climbing();
+	// 释放攀爬.
+	void ReleaseClimbing();
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
 
+	// 给一套自定义的攀岩配置.
+	void SetClimbingState(EMovementMode InMode, ECharacterActionState InCharacterActionState, bool bOrientRotationToMovement);
+
+	
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
