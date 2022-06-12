@@ -13,7 +13,7 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	// 构造一系列组件.
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
@@ -95,4 +95,15 @@ void AMMOARPGCharacterBase::SwitchActionStateOnServer_Implementation(ECharacterA
 void AMMOARPGCharacterBase::OnRep_ActionStateChanged()
 {
 	// 虚方法,在其他地方实现.
+}
+
+// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
+void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	// 在坠地着陆的时候 清掉攀岩状态的一切播的动画.
+	if (LastActionState == ECharacterActionState::CLIMB_STATE) {
+		StopAnimMontage();
+	}
+
 }

@@ -296,7 +296,12 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Swimming) {
 			GetSwimmingComponent()->GoUnderWater();// 潜入水下.
 		}
+		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Custom) {
+			GetClimbingComponent()->ReleaseClimbing();
+			GetClimbingComponent()->ClearClimbingState();
 
+			ClimbingMontageChanged(EClimbingMontageState::CLIMBING_DROP_RM);
+		}
 	}
 }
 

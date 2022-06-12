@@ -84,6 +84,10 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_ActionStateChanged();
 
+	// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
+	virtual void Landed(const FHitResult& Hit) override;
+
+/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.
 	UPROPERTY(ReplicatedUsing = OnRep_ActionStateChanged)
