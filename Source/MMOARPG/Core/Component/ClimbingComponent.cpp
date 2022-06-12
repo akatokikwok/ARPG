@@ -48,8 +48,15 @@ void UClimbingComponent::PhysClimbong(float deltaTime, int32 Iterations)
 			return;
 		}
 
+		// 依据是否具备ROOTMOTION来挑选合适的速度.
+		if (!CharacterMovementComponent->HasAnimRootMotion()) {
+			CharacterMovementComponent->Velocity = CharacterMovementComponent->GetLastInputVector() * CharacterMovementComponent->MaxCustomMovementSpeed;// 单位按键输入 * 最大自定义移速.
+		}
+		else {
+			CharacterMovementComponent->Velocity = CharacterMovementComponent->ConstrainAnimRootMotionVelocity(CharacterMovementComponent->AnimRootMotionVelocity, CharacterMovementComponent->Velocity);
+		}
+
 		/* 安全刷新移动组件(扫过一段距离或者弧边), (移动距离, 排除意外万向锁,)*/
-		CharacterMovementComponent->Velocity = CharacterMovementComponent->GetLastInputVector() * CharacterMovementComponent->MaxCustomMovementSpeed;// 单位按键输入 * 最大自定义移速.
 		const FVector Adjusted = CharacterMovementComponent->Velocity * deltaTime;// 帧间隔的移动距离.
 		FHitResult Hit(1.0f);
 		CharacterMovementComponent->SafeMoveUpdatedComponent(Adjusted, CharacterMovementComponent->UpdatedComponent->GetComponentQuat(), true, Hit);

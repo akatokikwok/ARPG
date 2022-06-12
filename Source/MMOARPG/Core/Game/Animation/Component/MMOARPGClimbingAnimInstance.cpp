@@ -56,6 +56,7 @@ EClimbingJumpState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState()
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			
 			// 速度的Pitch,Yaw都存入了1个2D向量.
+			// 一定要使用GetLastInputVector() 即使用按键的方向而非运动组件速度的方向.
 			FVector2D Axis(InCharacterMovementComponent->GetLastInputVector().Y, InCharacterMovementComponent->GetLastInputVector().Z);
 
 			/// 区分左右
@@ -71,7 +72,7 @@ EClimbingJumpState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState()
 			FVector2D YAxis(0.f, 1.f);
 			CosValue = FVector2D::DotProduct(Axis, YAxis);
 			float YAxisCosAngle = (180.f) / PI * FMath::Acos(CosValue);// 判定竖轴, 这个角度是0到180,静止不动的时候为90,往上为0,往下为180
-			bool bUPAxis = FMath::IsWithinInclusive(YAxisCosAngle, 0.2f, 90.f);
+			bool bUPAxis = FMath::IsWithinInclusive(YAxisCosAngle, 0.f, 90.f);
 			if (GEngine) {
 				GEngine->AddOnScreenDebugMessage(-1, 0.04f, FColor::White, FString::SanitizeFloat(YAxisCosAngle));
 			}
