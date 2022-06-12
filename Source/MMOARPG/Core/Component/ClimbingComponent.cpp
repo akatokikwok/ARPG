@@ -33,7 +33,26 @@ void UClimbingComponent::BeginPlay()
 
 	// 攀岩-拐弯行为计时结束后绑定的回调
 	bTurn.Fun.BindLambda([&]() ->void {
+		CharacterMovementComponent->GravityScale = 1.f;// 恢复重力.
 
+		// 再打一次射线并用作记录距离.
+		FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
+		FVector LocaLocation = MMOARPGCharacterBase->GetActorLocation();
+		FHitResult HitChestResult;
+		float ChestDistance = Scanning(HitChestResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+			StartTraceLocation = LocaLocation;
+			StartTraceLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight() / 2.f;
+			EndTraceLocation = StartTraceLocation + ForwardDirection * CapsuleComponent->GetScaledCapsuleHalfHeight() * 2.f;
+			});
+
+		// turn的修正. 让人与墙的距离保持合适的视觉效果.
+		if (ChestDistance >= 29.f) {
+			LocaLocation += ForwardDirection * (ChestDistance - 29.f);
+		}
+		else {
+			LocaLocation -= ForwardDirection * (29.f - ChestDistance);
+		}
+		MMOARPGCharacterBase->SetActorLocation(LocaLocation);
 		});
 }
 
@@ -175,6 +194,7 @@ void UClimbingComponent::DropClimbingState()
 /** 监测攀岩的具体射线检测逻辑. */
 void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
+	// 一旦拐弯跳,必须关闭射线检测.
 	if (bTurn) {
 		return;
 	}
@@ -338,20 +358,18 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 					}
 				}
 
-// 				//角度调整
-// 				{
-// 					FVector ZAxis = FVector(0.f, 0.f, 1.0f);
-// 					float CosValue = FVector::DotProduct(ZAxis, HitChestResult.ImpactNormal);
-// 					float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
-// 					if (CosAngle < 35.f) {
-// 						ClimbingState = EClimbingState::CLIMBING_NONE;
-// 						ReleaseClimbing();
-// 					}
-// 
-// 					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
-// 				}
+				// 爬半圆球的算法 角度调整.
+				{
+					FVector ZAxis = FVector(0.f, 0.f, 1.0f);
+					float CosValue = FVector::DotProduct(ZAxis, HitChestResult.ImpactNormal);
+					float CosAngle = (180.f) / PI * FMath::Acos(CosValue);
+					if (CosAngle < 35.f) {
+						ClimbingState = EClimbingState::CLIMBING_NONE;
+						ReleaseClimbing();
+					}
+					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
+				}
 			}
-
 
 			/* 攀岩且不落地. */
 			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND && ClimbingState != EClimbingState::CLIMBING_DROP) {
