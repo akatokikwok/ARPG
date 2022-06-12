@@ -22,6 +22,12 @@ public:
 	/** 覆写虚接口, 拿附属的相机. **/
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+public:
+	/** 抽刀收刀的切换逻辑; 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
+	void FightChanged();
+
+	/** 攀爬跳姿势的切换逻辑. */
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) override;
 protected:
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
@@ -48,24 +54,26 @@ protected:
 
 	/** 切换战斗姿势启用/禁用. */
 	void SwitchFight();
-	
-	/** 变量bFight在DS被修改之后发生的逻辑; 可供OnRep_FightChanged调用. */
-	void FightChanged();
+
 	/** 当字段被DS刷新后,本机/其他的客户端Player做出的反应. */
 	virtual void OnRep_ActionStateChanged() override;
 
-	/* 飞行. RPC 客户端到DS. */
+	/* 各自运动姿态系统里的切换(如站立切到飞行, 游泳切到潜泳). RPC 客户端到DS. */
 	UFUNCTION(Server, Reliable)
-		void Fly();
+		void ActionSwitching();
 	/* 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastFly();
-	/* 急速飞行.*/
+		void MulticastActionSwitching();
+	/* RPC在服务器 命令其 广播急速运动动作至其他服务器.*/
 	UFUNCTION(Server, Reliable)
 		void Fast();
-	/* 服务器上广播疾飞. */
+	/* 服务器上广播 那些急速动作. 在服务器上做一些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFast();
+	/* 松开急速执行某运动动作. */
+	UFUNCTION(Server, Reliable)
+		void FastReleased();
+
 	/* 空中左翻滚.*/
 	UFUNCTION(Server, Reliable)
 		void DodgeLeft();
@@ -78,7 +86,27 @@ protected:
 	/* 服务器上广播右躲闪. */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastDodgeRight();
-	
+
+	/** RPC人物某运动动作减速 */
+	UFUNCTION(Server, Reliable)
+		void SlowDown();
+	/** 人物某运动动作减速服务器广播 */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSlowDown();
+	/** RPC人物某运动动作减速 松开 */
+	UFUNCTION(Server, Reliable)
+		void SlowDownReleased();
+	/** 人物某运动动作减速服务器广播 松开 */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSlowDownReleased();
+
+	/** 用于攀爬系统的 跳爬 */
+	void CharacterJump();
+
+	/** 用于攀爬系统的 跳爬释放 */
+	void CharacterStopJumping();
+
+/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)

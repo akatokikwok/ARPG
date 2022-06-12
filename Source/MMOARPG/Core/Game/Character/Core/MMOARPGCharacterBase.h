@@ -8,7 +8,11 @@
 #include "CombatInterface/SimpleCombatInterface.h"
 #include "../../../../MMOARPGGameType.h"
 #include "../../../Component/FlyComponent.h"
+#include "../../../Component/SwimmingComponent.h"
+#include "../../../Component/ClimbingComponent.h"
+#include "../../../Component/FightComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
+
 
 UCLASS()
 class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleCombatInterface
@@ -18,12 +22,27 @@ private:
 	friend class AMMOARPGGameMode;// 人物基类的一切数据均提供GM访问.
 
 	/**
-	 * 飞行组件.(是一个强指针,引用它的那些要设计成弱指针.)
+	 * 飞行系统组件.(是一个强指针,引用它的那些要设计成弱指针.)
 	 * 某份数据全局只能有一个,则需要设计为强指针.所有引用这份数据的设计为弱指针.
 	 * 当强指针被释放了,引用它的那些弱指针们都会感应到,从而阻止出错.
 	 */
-	UPROPERTY()
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFlyComponent> FlyComponent;
+	
+	/** 游泳系统组件. */
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<USwimmingComponent> SwimmingComponent;
+
+	/** 攀爬系统组件. */
+	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UClimbingComponent> ClimbingComponent;
+	
+	/** 战斗系统组件. */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UFightComponent> FightComponent;
+
+// 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+// 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -47,11 +66,20 @@ public:
 	FORCEINLINE int32 GetUserID() { return UserID; }
 	// 拿取飞行组件.
 	FORCEINLINE UFlyComponent* GetFlyComponent() { return FlyComponent; }
+	// 拿取游泳组件.
+	FORCEINLINE USwimmingComponent* GetSwimmingComponent() { return SwimmingComponent; }
+	// 拿取攀爬组件.
+	FORCEINLINE UClimbingComponent* GetClimbingComponent() { return ClimbingComponent; }
+	// 拿取战斗系统组件.
+	FORCEINLINE UFightComponent* GetFightComponent() { return FightComponent; }
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);
+
+	/** 攀爬跳姿势的切换具体蒙太奇动画. */
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -67,6 +95,10 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_ActionStateChanged();
 
+	// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
+	virtual void Landed(const FHitResult& Hit) override;
+
+/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.
 	UPROPERTY(ReplicatedUsing = OnRep_ActionStateChanged)

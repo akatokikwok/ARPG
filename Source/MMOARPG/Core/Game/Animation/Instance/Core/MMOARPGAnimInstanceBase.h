@@ -9,7 +9,7 @@
 #include "MMOARPGAnimInstanceBase.generated.h"
 
 /**
- *
+ * MMOARPG项目的动画势力的 最基类.
  */
 UCLASS()
 class MMOARPG_API UMMOARPGAnimInstanceBase : public UAnimInstance

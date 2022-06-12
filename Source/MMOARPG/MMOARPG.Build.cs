@@ -8,7 +8,10 @@ public class MMOARPG : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", 
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
 			"InputCore", 
 			"SimpleNetChannel",
 			"SimpleHTTP",
@@ -18,7 +21,10 @@ public class MMOARPG : ModuleRules
 			"SlateCore",
 			"SimpleActorBrowsing",
 			"SimpleCombat",
-			"SimpleAdvancedAnimation"
-		});
+			"SimpleAdvancedAnimation",
+            "GameplayAbilities",
+            "GameplayTasks",
+            "DataRegistry",
+        });
 	}
 }

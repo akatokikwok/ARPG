@@ -22,4 +22,8 @@ public:
 	// 蒙太奇: 切换战斗姿势;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAnim")
 		UAnimMontage* SwitchFightMontage;
+
+	// 蒙太奇: 攀爬姿势;
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAnim")
+		UAnimMontage* ClimbingMontage;
 };
