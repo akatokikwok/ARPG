@@ -297,15 +297,17 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 			GetSwimmingComponent()->GoUnderWater();// 潜入水下.
 		}
 		else if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Custom) {
-			GetClimbingComponent()->ReleaseClimbing();// 还原一套walking设置
-			GetClimbingComponent()->ClearClimbingState();// 清除攀岩状态为none
-			ClimbingMontageChanged(EClimbingMontageState::CLIMBING_DROP_RM);// 播坠地蒙太奇section
+			if (!GetClimbingComponent()->IsDropClimbingState()) {/*复查是不是攀岩-坠落.防止与UE原生的falling重复, 做一层保护*/
+				GetClimbingComponent()->ReleaseClimbing();// 还原一套walking设置
+				GetClimbingComponent()->DropClimbingState();// 攀岩状态切换为坠落.
+				ClimbingMontageChanged(EClimbingMontageState::CLIMBING_DROP_RM);// 播坠地蒙太奇section
 
-			// 手动坠落的时候 反方向蹬腿给力.
-			// 暂定给1000的数值, 它会影响给力的大小,进而影响到
-			// UClimbingComponent.PhysClimbong里的速度大小. 
-			FVector Dir = -GetActorForwardVector();
-			GetClimbingComponent()->LaunchCharacter(Dir * 1000.f);
+				// 手动坠落的时候 反方向蹬腿给力.
+				// 暂定给1000的数值, 它会影响给力的大小,进而影响到
+				// UClimbingComponent.PhysClimbong里的速度大小. 
+				FVector Dir = -GetActorForwardVector();
+				GetClimbingComponent()->LaunchCharacter(Dir * 1000.f);
+			}
 		}
 	}
 }

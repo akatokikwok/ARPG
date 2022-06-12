@@ -49,9 +49,14 @@ public:
 	void ClearClimbingState();
 	// 是否爬矮墙.
 	bool IsLowClimbing();
-
-	//
+	// 是否已切换至攀岩-坠落姿态.
+	bool IsDropClimbingState();
+	// 设定给力系统的给力值.
 	void LaunchCharacter(const FVector& LaunchVelocity);
+
+	// 切换为攀岩-坠落状态.
+	void DropClimbingState();
+
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);

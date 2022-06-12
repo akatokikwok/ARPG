@@ -144,9 +144,21 @@ bool UClimbingComponent::IsLowClimbing()
 	return ClimbingHeight > 40.f;
 }
 
+// 是否已切换至攀岩-坠落姿态.
+bool UClimbingComponent::IsDropClimbingState()
+{
+	return ClimbingState == EClimbingState::CLIMBING_DROP;
+}
+
 void UClimbingComponent::LaunchCharacter(const FVector& LaunchVelocity)
 {
 	PendingLaunchVelocity = LaunchVelocity;
+}
+
+// 切换为攀岩-坠落状态.
+void UClimbingComponent::DropClimbingState()
+{
+	ClimbingState = EClimbingState::CLIMBING_DROP;
 }
 
 /** 监测攀岩的具体射线检测逻辑. */
@@ -233,7 +245,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				}
 			}
 			/* 攀岩且不落地. */
-			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND) {
+			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND && ClimbingState != EClimbingState::CLIMBING_DROP) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
 				Climbing();// 启用攀岩.
 			}
@@ -259,9 +271,9 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			bJumpToClimbing = false;// 落地之后重置跳爬
 		}
 	}
-	else if (HitChestResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
+	else if (HitChestResult.bBlockingHit && !HitHeadResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
 		/** 爬顶 */
-		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
+		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING && !HitGroundResult.bBlockingHit) {
 
 			ClimbingState = EClimbingState::CLIMBING_TOTOP;
 			GThread::Get()->GetCoroutines().BindLambda(1.f, [this]() {
@@ -346,6 +358,13 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 // 		MMOARPGCharacterBase->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		FVector VInterpToLocation = FMath::VInterpTo(LocalLocation, ClimbingTracePoint, DeltaTime, ClimbToWallTopVInterlerpSpeed);
 		MMOARPGCharacterBase->SetActorLocation(VInterpToLocation);
+	}
+
+	/** 坠落情况下就清除攀岩. */
+	if (ClimbingState == EClimbingState::CLIMBING_DROP) {
+		if (CharacterMovementComponent->MovementMode != EMovementMode::MOVE_Falling) {
+			ClearClimbingState();
+		}
 	}
 }
 
