@@ -52,8 +52,6 @@ private:
 
 	// 给一套自定义的攀岩配置.
 	void SetClimbingState(EMovementMode InMode, ECharacterActionState InCharacterActionState, bool bOrientRotationToMovement);
-
-	
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
