@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Core/AnimInstanceComponentBase.h"
 #include "../Instance/Core/MMOARPGAnimInstanceBase.h"
+#include "../../../../MMOARPGGameType.h"
 #include "MMOARPGClimbingAnimInstance.generated.h"
 
 /**
@@ -21,7 +22,8 @@ public:
 private:
 	// 爬跳的具体逻辑.
 	void ClimpJump();
-
+	// 解算出合适的攀岩跳枚举.
+	EClimbingJumpState CalculationClimbingJumpState();
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 攀爬状态枚举.

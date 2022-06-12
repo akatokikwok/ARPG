@@ -96,7 +96,7 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 void UClimbingComponent::ResetJump()
 {
 	bJump = true;
-	bJump = 1.6f;// 刷新此动作延迟计时.
+// 	bJump = 1.6f;// 刷新此动作延迟计时.
 }
 
 /** 监测攀岩的具体射线检测逻辑. */
