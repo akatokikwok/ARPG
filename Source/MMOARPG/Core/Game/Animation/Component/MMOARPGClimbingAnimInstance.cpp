@@ -22,7 +22,7 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		ClimbingState = InCharacterBase->GetClimbingComponent()->ClimbingState;
 		bJumpToClimbing = InCharacterBase->GetClimbingComponent()->bJumpToClimbing;
 		bJump = *InCharacterBase->GetClimbingComponent()->bJump;// 攀岩跳是否激活.
-
+		
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			ResetAxisSpeed(InCharacterMovementComponent->MaxCustomMovementSpeed);// 最大攀岩速度映射到(-1,1)
 		}
@@ -38,10 +38,13 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			InCharacterBase->GetClimbingComponent()->ClimbingState = EClimbingState::CLIMBING_NONE;// 状态刷新.
 			InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_CLIMB_UP_AT_TOP);// 播蒙太奇.
 		}
-
-
-
-// 		CalculationClimbingJumpState();
+		else if (ClimbingState == EClimbingState::CLIMBING_WALLCLIMBING) {
+			// 先清空攀爬.
+ 			InCharacterBase->GetClimbingComponent()->ClearClimbingState();
+			// 随机播一个矮墙跨越蒙太奇.
+			InCharacterBase->ClimbingMontageChanged(
+				(EClimbingMontageState)FMath::RandRange((int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_LH, (int32)EClimbingMontageState::CLIMBING_ALS_N_MANTLE_1M_RH));
+		}
 	}
 }
 
@@ -61,7 +64,7 @@ EClimbingMontageState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState
 {
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
-			
+
 			// 速度的Pitch,Yaw都存入了1个2D向量.
 			// 一定要使用GetLastInputVector() 即使用按键的方向而非运动组件速度的方向.
 			FVector2D Axis(InCharacterMovementComponent->GetLastInputVector().Y, InCharacterMovementComponent->GetLastInputVector().Z);

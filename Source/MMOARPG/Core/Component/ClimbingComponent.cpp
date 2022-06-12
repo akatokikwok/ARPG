@@ -30,6 +30,7 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 		TraceClimbingState(DeltaTime);// 命令其射线检测.
 		bJump.Tick(DeltaTime);// Tick 跳爬动作
+		bWallClimbing.Tick(DeltaTime);// Tick翻墙.
 	}
 }
 
@@ -104,7 +105,7 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 void UClimbingComponent::ResetJump()
 {
 	bJump = true;
-// 	bJump = 1.6f;// 刷新此动作延迟计时.
+	// 	bJump = 1.6f;// 刷新此动作延迟计时.
 }
 
 // 启用或设置攀岩.
@@ -117,6 +118,11 @@ void UClimbingComponent::Climbing()
 void UClimbingComponent::ReleaseClimbing()
 {
 	SetClimbingState(EMovementMode::MOVE_Walking, ECharacterActionState::NORMAL_STATE, true);
+}
+
+void UClimbingComponent::ClearClimbingState()
+{
+	ClimbingState = EClimbingState::CLIMBING_NONE;
 }
 
 /** 监测攀岩的具体射线检测逻辑. */
@@ -181,9 +187,9 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
-		
+
 		if (ChestDistance <= 45.f /*&& HeadDistance <= 80.f*/) {// 因为胶囊体半径是42. 
-			
+
 			/** 针对半圆球那种情况的修正;让人再稍微前进一步. */
 			float CompensationValue = ChestDistance - 29.f;
 			if (CompensationValue > 0.f) {
@@ -194,7 +200,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 			/* 攀爬中落地*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
-				
+
 				if (HitGroundResult.bBlockingHit) {
 					if (GroundDistance <= 1.f) {
 						ClimbingState = EClimbingState::CLIMBING_TOGROUND;
@@ -237,16 +243,24 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 		}
 	}
 	else if (HitChestResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
-		
+		/** 爬顶 */
 		if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
-			
+
 			ClimbingState = EClimbingState::CLIMBING_TOTOP;
 			GThread::Get()->GetCoroutines().BindLambda(1.f, [this]() {
 				ReleaseClimbing();
-			});
+				});
 		}
-		else if (ClimbingState != EClimbingState::CLIMBING_TOTOP) {
-			ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
+		/** 翻越矮墙 */
+		else if (ClimbingState != EClimbingState::CLIMBING_TOTOP &&
+				 ClimbingState != EClimbingState::CLIMBING_WALLCLIMBING &&
+				 !bWallClimbing) 
+		{
+			if (ChestDistance <= 18.f) {
+				ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;
+				bWallClimbing = true;
+				bWallClimbing = 1.6f;// 计时1.6f结束.
+			}
 		}
 	}
 	else {

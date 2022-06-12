@@ -67,7 +67,7 @@ public:
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);
 
-	/** 攀爬跳姿势的切换逻辑. */
+	/** 攀爬跳姿势的切换具体蒙太奇动画. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
 protected:
 	// 同步变量需要重写的方法.

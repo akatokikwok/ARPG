@@ -44,6 +44,8 @@ public:
 	void Climbing();
 	// 释放攀爬.
 	void ReleaseClimbing();
+	// 清除攀岩状态.
+	void ClearClimbingState();
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -62,4 +64,6 @@ public:
 
 	// 是否跳跃爬.
 	FResetBool bJump;
+	// 是否翻越墙.
+	FResetBool bWallClimbing;
 };
