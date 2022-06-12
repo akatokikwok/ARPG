@@ -21,6 +21,17 @@ UClimbingComponent::UClimbingComponent()
 
 }
 
+void UClimbingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	bWallClimbing.Fun.BindLambda([&]() {
+		AdjustmentClimbing(false);
+		});
+
+
+}
+
 void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -282,18 +293,22 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 					EDrawDebugTrace::ForDuration, HitWallClimbing, true);
 
 				if (HitWallClimbing.bBlockingHit) {// 当确认有矮墙墙顶
-					HitWallClimbing.Location.Z += HitWallClimbing.Distance;
 					
+					HitWallClimbing.Location.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();// 胶囊体中心点挪到墙顶上头.
 					ClimbingTracePoint = HitWallClimbing.Location;
 					ClimbingHeight = HitWallClimbing.Distance;
 					ClimbingState = EClimbingState::CLIMBING_WALLCLIMBING;// 攀岩状态刷新至翻墙
 
-					if (IsLowClimbing()) {
-						
-					}
+					AdjustmentClimbing(true);// 微调并优化翻墙后人物的位置.
 
+					if (IsLowClimbing()) {
+						bWallClimbing = 0.7f;// 翻矮墙播时长0.8秒
+					}
+					else { 
+						bWallClimbing = 1.7f;// 翻高墙播时长1.7秒
+					}
+					
 					bWallClimbing = true;
-					bWallClimbing = 1.6f;// 计时1.6f结束.
 				}
 			}
 		}
@@ -321,7 +336,8 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	/** 翻墙时候人的位置到矮墙顶渐变. */
 	if (bWallClimbing) {
-		FVector VInterpToLocation = FMath::VInterpTo(LocalLocation, ClimbingTracePoint, DeltaTime, 7.f);
+// 		MMOARPGCharacterBase->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		FVector VInterpToLocation = FMath::VInterpTo(LocalLocation, ClimbingTracePoint, DeltaTime, ClimbToWallTopVInterlerpSpeed);
 		MMOARPGCharacterBase->SetActorLocation(VInterpToLocation);
 	}
 }
@@ -336,4 +352,18 @@ void UClimbingComponent::SetClimbingState(EMovementMode InMode, ECharacterAction
 	ActorRotation.Pitch = 0.0f;
 	MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
 	bJumpToClimbing = false;
+}
+
+// 微调优化翻墙后的人物位置.
+void UClimbingComponent::AdjustmentClimbing(bool bStart /*= true*/)
+{
+	FVector RelativeLocation = MMOARPGCharacterBase->GetMesh()->GetRelativeLocation();
+	float AdjustValue = 10.f;
+	if (bStart) {
+		RelativeLocation.Z += AdjustValue;
+	}
+	else {
+		RelativeLocation.Z -= AdjustValue;
+	}
+	MMOARPGCharacterBase->GetMesh()->SetRelativeLocation(RelativeLocation);
 }

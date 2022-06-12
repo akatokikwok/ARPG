@@ -22,6 +22,7 @@ class MMOARPG_API UClimbingComponent : public UMotionComponent
 	GENERATED_BODY()
 public:
 	UClimbingComponent();
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
 	/**
@@ -54,6 +55,9 @@ private:
 
 	// 给一套自定义的攀岩配置.
 	void SetClimbingState(EMovementMode InMode, ECharacterActionState InCharacterActionState, bool bOrientRotationToMovement);
+
+	// 微调优化翻墙后的人物位置.
+	void AdjustmentClimbing(bool bStart = true);
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
@@ -61,6 +65,9 @@ public:
 	// 是否跳爬吸附.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bJumpToClimbing;
+	// 人的位置到矮墙顶渐变差值速度.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimAttrubute")
+		float ClimbToWallTopVInterlerpSpeed = 27.0f;
 
 	// 是否跳跃爬.
 	FResetBool bJump;

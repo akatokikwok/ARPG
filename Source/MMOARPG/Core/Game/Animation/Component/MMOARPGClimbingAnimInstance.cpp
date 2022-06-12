@@ -82,18 +82,18 @@ EClimbingMontageState UMMOARPGClimbingAnimInstance::CalculationClimbingJumpState
 			Axis.Normalize();
 			float CosValue = FVector2D::DotProduct(Axis, XAxis);
 			float XAxisCosAngle = (180.f) / PI * FMath::Acos(CosValue);// 判定横轴, 这个角度是0到180,静止不动的时候为90,向右为0,向左为180
-			if (GEngine) {
-				GEngine->AddOnScreenDebugMessage(-1, 0.04f, FColor::Yellow, FString::SanitizeFloat(XAxisCosAngle));
-			}
+// 			if (GEngine) {
+// 				GEngine->AddOnScreenDebugMessage(-1, 0.04f, FColor::Yellow, FString::SanitizeFloat(XAxisCosAngle));
+// 			}
 
 			/// 区分上下
 			FVector2D YAxis(0.f, 1.f);
 			CosValue = FVector2D::DotProduct(Axis, YAxis);
 			float YAxisCosAngle = (180.f) / PI * FMath::Acos(CosValue);// 判定竖轴, 这个角度是0到180,静止不动的时候为90,往上为0,往下为180
 			bool bUPAxis = FMath::IsWithinInclusive(YAxisCosAngle, 0.f, 90.f);
-			if (GEngine) {
-				GEngine->AddOnScreenDebugMessage(-1, 0.04f, FColor::White, FString::SanitizeFloat(YAxisCosAngle));
-			}
+// 			if (GEngine) {
+// 				GEngine->AddOnScreenDebugMessage(-1, 0.04f, FColor::White, FString::SanitizeFloat(YAxisCosAngle));
+// 			}
 
 			/// 依据横轴度数和 上下半轴为依据, 执行具体蒙太奇类型.
 			if (FMath::IsWithinInclusive(XAxisCosAngle, 22.5f, 67.5f) && bUPAxis) {
