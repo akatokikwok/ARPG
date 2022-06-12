@@ -182,7 +182,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
 		
-		if (ChestDistance <= 80.0f && HeadDistance <= 80.f) {// 因为胶囊体半径是42. 
+		if (ChestDistance <= 24.f /*&& HeadDistance <= 80.f*/) {// 因为胶囊体半径是42. 
 			
 			/* 攀爬中落地*/
 			if (ClimbingState == EClimbingState::CLIMBING_CLIMBING) {
