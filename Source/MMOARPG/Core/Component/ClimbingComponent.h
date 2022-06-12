@@ -69,6 +69,9 @@ private:
 	
 	// 调节坠落给的蹬腿反力方向
 	void AdjustmentPendingLaunchVelocity(float DeltaTime);
+
+	/** 任意射线检测的封装接口 */
+	float Scanning(FHitResult& HitResult, TFunction<void(FVector&, FVector&)> TraceLocation);
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")

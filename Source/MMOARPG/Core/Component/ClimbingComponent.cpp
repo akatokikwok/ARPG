@@ -17,7 +17,7 @@ UClimbingComponent::UClimbingComponent()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
 	, bJumpToClimbing(false)
 	, ClimbingHeight(0.f)
-// 	, PendingLaunchVelocity(FVector(0,0,0))
+	// 	, PendingLaunchVelocity(FVector(0,0,0))
 {
 
 }
@@ -166,62 +166,65 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 {
 	FVector ForwardDirection = MMOARPGCharacterBase->GetActorForwardVector();
 	FVector UpVectorDirection = MMOARPGCharacterBase->GetActorUpVector();
+	FVector RightVectorDirection = MMOARPGCharacterBase->GetActorRightVector();
 	FVector LocalLocation = MMOARPGCharacterBase->GetActorLocation();
 	FRotator ActorRotation = MMOARPGCharacterBase->GetActorRotation();
 
 
 	FHitResult HitChestResult;
-	float ChestDistance = MaxDistance;// 胸膛到射线相交点的距离.
-	{
-		// 射线检测 -胸.
-		TArray<AActor*> ActorsToIgnore1;
-		FVector StartTraceChestLocation = LocalLocation;
-// 		StartTraceChestLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight() / 4.0f;// 胸位置略抬高于胶囊体位置.
-		FVector EndTraceChestLocation = StartTraceChestLocation + ForwardDirection * 100.0f;
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceChestLocation, EndTraceChestLocation,
-			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore1,
-			EDrawDebugTrace::ForOneFrame, HitChestResult, true);
-
-		if (HitChestResult.bBlockingHit) {
-			ChestDistance = FVector::Distance(StartTraceChestLocation, HitChestResult.Location);
-		}
-	}
+	// 胸膛到射线相交点的距离.
+	float ChestDistance = Scanning(HitChestResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation;
+		StartTraceLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight() / 2.f;
+		EndTraceLocation = StartTraceLocation + ForwardDirection * CapsuleComponent->GetScaledCapsuleHalfHeight() * 2.f;
+		});
 
 	FHitResult HitHeadResult;
-	float HeadDistance = MaxDistance;// 头颅到射线相交点的距离.
-	{
-		// 射线检测 -头部偏上.
-		TArray<AActor*> ActorsToIgnore2;
-		FVector StartTraceHeadLocation = LocalLocation;
-		StartTraceHeadLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();// 头颅位置.
-		FVector EndTraceHeadLocation = StartTraceHeadLocation + ForwardDirection * 100.0f;
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceHeadLocation, EndTraceHeadLocation,
-			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore2,
-			EDrawDebugTrace::ForOneFrame, HitHeadResult, true);
-
-		if (HitHeadResult.bBlockingHit) {
-			HeadDistance = FVector::Distance(StartTraceHeadLocation, HitHeadResult.Location);
-		}
-	}
+	// 头颅到射线相交点的距离.
+	float HeadDistance = Scanning(HitHeadResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation;
+		StartTraceLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();
+		EndTraceLocation = StartTraceLocation + ForwardDirection * CapsuleComponent->GetScaledCapsuleHalfHeight() * 2.f;
+		});
 
 	FHitResult HitGroundResult;
-	float GroundDistance = MaxDistance;// 脚部到射线相交点的距离.
-	{
-		// 射线检测 - 在攀爬中脚部到地面.
-		TArray<AActor*> ActorsToIgnore3;
-		FVector StartTraceGroundLocation = LocalLocation;
-		StartTraceGroundLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();// 脚底板位置.
-		FVector EndTraceGroundLocation = StartTraceGroundLocation + (-UpVectorDirection) * 40.f;
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartTraceGroundLocation, EndTraceGroundLocation,
-			ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore3,
-			EDrawDebugTrace::ForOneFrame, HitGroundResult, true);
+	// 脚部到射线相交点的距离.
+	float GroundDistance = Scanning(HitGroundResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation;
+		StartTraceLocation.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();
+		EndTraceLocation = StartTraceLocation + (-UpVectorDirection) * 40.f;
+		});
 
-		if (HitGroundResult.bBlockingHit) {
-			GroundDistance = FVector::Distance(StartTraceGroundLocation, HitGroundResult.Location);
-		}
-	}
+	FHitResult HitRightResult;
+	float RightDistance = Scanning(HitRightResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation + RightVectorDirection * 70.f;
+		EndTraceLocation = StartTraceLocation + ForwardDirection * 100.f;
+		});
+
+	FHitResult HitLeftSideResult;
+	float LeftSideDistance = Scanning(HitLeftSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation - RightVectorDirection * 10.f - ForwardDirection * 10.f;;
+		EndTraceLocation = StartTraceLocation - RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
+		});
+
+	FHitResult HitRightSideResult;
+	float RightSideDistance = Scanning(HitRightSideResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation + RightVectorDirection * 10.f - ForwardDirection * 10.f;;
+		EndTraceLocation = StartTraceLocation + RightVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
+		});
+
+	FHitResult HitLeftResult;
+	float LeftDistance = Scanning(HitLeftResult, [&](FVector& StartTraceLocation, FVector& EndTraceLocation) {
+		StartTraceLocation = LocalLocation - RightVectorDirection * 70.f;
+		EndTraceLocation = StartTraceLocation + ForwardDirection * CapsuleComponent->GetScaledCapsuleHalfHeight();
+		});
 
 
+
+	/// <summary>
+	/// 攀岩系统复杂判定.
+	/// </summary>
+	/// <param name="DeltaTime"></param>
 	if (HitChestResult.bBlockingHit && HitHeadResult.bBlockingHit) {/* 两根都命中认为是攀岩. */
 
 		if (ChestDistance <= 45.f /*&& HeadDistance <= 80.f*/) {// 因为胶囊体半径是42. 
@@ -286,7 +289,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			ClimbingState != EClimbingState::CLIMBING_WALLCLIMBING &&
 			!bWallClimbing) {
 			if (ChestDistance <= 18.f) {
-				
+
 				// 1.正面面向朝向矮墙.
 				{
 					// 类似于FindLookAt
@@ -301,7 +304,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				FHitResult HitWallClimbing;
 				FVector StartTraceLocation = LocalLocation + ForwardDirection * 40.f;
 				StartTraceLocation.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();
-				FVector EndTraceLocation = StartTraceLocation - UpVectorDirection * 100.f;
+				FVector EndTraceLocation = StartTraceLocation - UpVectorDirection * CapsuleComponent->GetScaledCapsuleHalfHeight() * 2.f;
 				TArray<AActor*> ClimbingActorsToIgnore;
 				UKismetSystemLibrary::LineTraceSingle(GetWorld(),
 					StartTraceLocation,
@@ -312,7 +315,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 					EDrawDebugTrace::ForDuration, HitWallClimbing, true);
 
 				if (HitWallClimbing.bBlockingHit) {// 当确认有矮墙墙顶
-					
+
 					HitWallClimbing.Location.Z += CapsuleComponent->GetScaledCapsuleHalfHeight();// 胶囊体中心点挪到墙顶上头.
 					ClimbingTracePoint = HitWallClimbing.Location;
 					ClimbingHeight = HitWallClimbing.Distance;
@@ -323,10 +326,10 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 					if (IsLowClimbing()) {
 						bWallClimbing = 0.7f;// 翻矮墙播时长0.8秒
 					}
-					else { 
+					else {
 						bWallClimbing = 1.7f;// 翻高墙播时长1.7秒
 					}
-					
+
 					bWallClimbing = true;
 				}
 			}
@@ -355,7 +358,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 
 	/** 翻墙时候人的位置到矮墙顶渐变. */
 	if (bWallClimbing) {
-// 		MMOARPGCharacterBase->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 		MMOARPGCharacterBase->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		FVector VInterpToLocation = FMath::VInterpTo(LocalLocation, ClimbingTracePoint, DeltaTime, ClimbToWallTopVInterlerpSpeed);
 		MMOARPGCharacterBase->SetActorLocation(VInterpToLocation);
 	}
@@ -411,4 +414,28 @@ void UClimbingComponent::AdjustmentPendingLaunchVelocity(float DeltaTime)
 	AxisCheck(PendingLaunchVelocity.X, DeltaTime);
 	AxisCheck((PendingLaunchVelocity.Y), DeltaTime);
 	AxisCheck((PendingLaunchVelocity.Z), DeltaTime);
+}
+
+/** 任意射线检测的封装接口 */
+float UClimbingComponent::Scanning(FHitResult& HitResult, TFunction<void(FVector&, FVector&)> TraceLambda)
+{
+	float ChestDistance = MaxDistance;
+
+	FVector StartTraceLocation, EndTraceLocation;
+	TraceLambda(StartTraceLocation, EndTraceLocation);
+
+	TArray<AActor*> ActorsToIgnore;
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(),
+		StartTraceLocation,
+		EndTraceLocation,
+		ETraceTypeQuery::TraceTypeQuery1,
+		true,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForOneFrame, HitResult, true);
+
+	if (HitResult.bBlockingHit) {
+		ChestDistance = FVector::Distance(StartTraceLocation, HitResult.Location);
+	}
+
+	return ChestDistance;
 }
