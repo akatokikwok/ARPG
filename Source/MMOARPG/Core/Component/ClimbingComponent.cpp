@@ -17,7 +17,7 @@ UClimbingComponent::UClimbingComponent()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
 	, bJumpToClimbing(false)
 	, ClimbingHeight(0.f)
-	// 	, PendingLaunchVelocity(FVector(0,0,0))
+	, mTraceLineType(EDrawDebugTrace::None)
 {
 
 }
@@ -555,7 +555,7 @@ float UClimbingComponent::Scanning(FHitResult& HitResult, TFunction<void(FVector
 		ETraceTypeQuery::TraceTypeQuery1,
 		true,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForOneFrame, HitResult, true);
+		mTraceLineType, HitResult, true);
 
 	if (HitResult.bBlockingHit) {
 		ChestDistance = FVector::Distance(StartTraceLocation, HitResult.Location);

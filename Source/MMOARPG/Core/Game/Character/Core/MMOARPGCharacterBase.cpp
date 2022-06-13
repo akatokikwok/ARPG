@@ -19,8 +19,16 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
 	ClimbingComponent = CreateDefaultSubobject<UClimbingComponent>(TEXT("ClimbingComponent"));
-
 	FightComponent = CreateDefaultSubobject<UFightComponent>(TEXT("FightComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<UMMOARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+
+	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
+
+}
+
+UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +43,11 @@ void AMMOARPGCharacterBase::BeginPlay()
 			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
 				this->AnimTable = InAnimRowData;
 			}
+
+			// 添加固有技能. 从DT蓝图资源里解算出的技能
+			if (FCharacterSkillTable* InSkillTable = InGS->GetCharacterSkillTable(GetID())) {
+				Skills.Add(TEXT("NormalAttack"), AddAbility(InSkillTable->NormalAttack));
+			}
 		}
 
 		if (!GetWorld()->IsServer()) {// 服务器没必要执行IK.
@@ -45,6 +58,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 			}
 		}
 
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);// 把ASC注册进去.
 	}
 }
 
@@ -107,7 +121,17 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 	// 在坠地着陆的时候 清掉攀岩状态的一切播的动画.
 // 	if (LastActionState == ECharacterActionState::CLIMB_STATE) 
 	{
-// 		StopAnimMontage();
+		// 		StopAnimMontage();
 	}
 
+}
+
+// 添加技能
+FGameplayAbilitySpecHandle AMMOARPGCharacterBase::AddAbility(TSubclassOf<UGameplayAbility> InNewAbility)
+{
+	if (IsValid(InNewAbility) && AbilitySystemComponent != nullptr) {
+		return AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(InNewAbility));
+	}
+
+	return FGameplayAbilitySpecHandle();
 }

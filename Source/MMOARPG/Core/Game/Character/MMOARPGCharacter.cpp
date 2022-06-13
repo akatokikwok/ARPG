@@ -400,3 +400,13 @@ void AMMOARPGCharacter::CharacterStopJumping()
 	StopJumping();// 基类的.
 
 }
+
+// 执行平砍
+void AMMOARPGCharacter::NormalAttack(int32 Index)
+{
+	if (AbilitySystemComponent != nullptr) {
+		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
+			AbilitySystemComponent->TryActivateAbility(*Handle);
+		}
+	}
+}

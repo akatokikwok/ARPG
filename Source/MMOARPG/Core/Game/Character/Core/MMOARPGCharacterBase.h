@@ -11,15 +11,22 @@
 #include "../../../Component/SwimmingComponent.h"
 #include "../../../Component/ClimbingComponent.h"
 #include "../../../Component/FightComponent.h"
+#include "AbilitySystemInterface.h"
+#include "../../Abilities/MMOARPGAbilitySystemComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
+/**
+ * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
+ */
 UCLASS()
-class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleCombatInterface
+class MMOARPG_API AMMOARPGCharacterBase : 
+	public ACharacter, public ISimpleCombatInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 private:
 	friend class AMMOARPGGameMode;// 人物基类的一切数据均提供GM访问.
+	friend class AMMOARPGCharacter;
 
 	/**
 	 * 飞行系统组件.(是一个强指针,引用它的那些要设计成弱指针.)
@@ -41,11 +48,13 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
 
-// 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-// 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+	/** MMOARPG ASC组件. */
+ 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+ 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -98,6 +107,12 @@ protected:
 	// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
 	virtual void Landed(const FHitResult& Hit) override;
 
+public:/// 技能相关
+
+	// 添加技能
+	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
+
+
 /// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.
@@ -118,4 +133,6 @@ protected:
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
 
+	// 能力或者技能缓存池.
+	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 };
