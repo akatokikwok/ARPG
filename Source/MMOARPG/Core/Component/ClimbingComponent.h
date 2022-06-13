@@ -6,6 +6,7 @@
 #include "Core/MotionComponent.h"
 #include "../../MMOARPGGameType.h"
 #include "Core/MotionComponent.h"
+#include "Kismet\KismetSystemLibrary.h"
 #include "ClimbingComponent.generated.h"
 
 class AMMOARPGCharacterBase;
@@ -104,4 +105,7 @@ private:
 	EClimbingTurnState TurnState;
 	// 是否激活攀岩-墙角拐弯
 	FResetBool bTurn;
+	// 是否渲染检测射线.
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
+		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineType;
 };
