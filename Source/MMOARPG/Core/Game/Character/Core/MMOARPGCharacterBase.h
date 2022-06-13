@@ -11,11 +11,17 @@
 #include "../../../Component/SwimmingComponent.h"
 #include "../../../Component/ClimbingComponent.h"
 #include "../../../Component/FightComponent.h"
+#include "AbilitySystemInterface.h"
+#include "../../Abilities/MMOARPGAbilitySystemComponent.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
+/**
+ * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
+ */
 UCLASS()
-class MMOARPG_API AMMOARPGCharacterBase : public ACharacter, public ISimpleCombatInterface
+class MMOARPG_API AMMOARPGCharacterBase : 
+	public ACharacter, public ISimpleCombatInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 private:
@@ -41,11 +47,13 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
 
-// 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-// 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+	/** MMOARPG ASC组件. */
+ 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+ 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
