@@ -41,7 +41,7 @@ protected:/// 一些关于DT读写行数据的通用模板.
 
 		return &rowDatas;
 	}
-	
+
 	/* 在指定DT里 读出 指定ID号 的单行 .*/
 	template<class T>
 	T* GetTable_read(int32 InTableRow_ID, UDataTable* OneTable, TArray<T*>& Rows, const FString& MsgTag = TEXT("MyTable"))
@@ -65,9 +65,9 @@ protected:
 	// 管理多行角色样式 的DataTable.
 	UPROPERTY()
 		UDataTable* CharacterStyleTablePtr;
+
 	// 管理多行技能 的DataTable.
-	UPROPERTY()
-		UDataTable* CharacterSkillTablePtr;
+	UDataTable* CharacterSkillTablePtr;
 
 	// 动画蒙太奇 DTRow集合.
 	TArray<FCharacterAnimTable*> CharacterAnimTables;
