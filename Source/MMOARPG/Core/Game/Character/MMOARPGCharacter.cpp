@@ -18,6 +18,12 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AMMOARPGCharacter::MouseLeftClick);
+	PlayerInputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AMMOARPGCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction("MouseClick", IE_Released, this, &AMMOARPGCharacter::MouseLeftClickReleased);
+	PlayerInputComponent->BindAction("MouseRightClick", IE_Released, this, &AMMOARPGCharacter::MouseRightClickReleased);
+
+
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMMOARPGCharacter::CharacterJump);// 跳
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMMOARPGCharacter::CharacterStopJumping);// 跳, 释放.
 
@@ -405,4 +411,36 @@ void AMMOARPGCharacter::CharacterStopJumping()
 void AMMOARPGCharacter::NormalAttack(const FName& InKey)
 {
 	GetFightComponent()->NormalAttack(InKey);
+}
+
+//
+void AMMOARPGCharacter::MouseLeftClick()
+{
+	GetSimpleComboInfo()->Press();
+}
+
+//
+void AMMOARPGCharacter::MouseRightClick()
+{
+
+}
+
+//
+void AMMOARPGCharacter::MouseLeftClickReleased()
+{
+	GetSimpleComboInfo()->Released();
+}
+
+//
+void AMMOARPGCharacter::MouseRightClickReleased()
+{
+
+}
+
+void AMMOARPGCharacter::AnimSignal(int32 InSignal)
+{
+	Super::AnimSignal(InSignal);
+	if (InSignal == 2) {
+		GetSimpleComboInfo()->Reset();
+	}
 }

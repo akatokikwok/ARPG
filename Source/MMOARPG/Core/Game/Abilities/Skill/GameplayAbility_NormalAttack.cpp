@@ -9,9 +9,13 @@ void UGameplayAbility_NormalAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) {
 		return;// 技能提交失败则直接放弃.
 	}
+	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
+		/* 传入明确的 第几段招式*/
+		if (UMMOARPGGameplayAbility::PlayMontageAnim(
+				*FString::FromInt(InCharacterBase->GetSimpleComboInfo()->ComboIndex) )) {
+			//
 
-	if (UMMOARPGGameplayAbility::PlayMontageAnim(TEXT("0"))) {
-		
+		}
 	}
 }
 

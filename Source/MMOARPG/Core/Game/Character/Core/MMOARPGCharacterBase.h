@@ -13,6 +13,7 @@
 #include "../../../Component/FightComponent.h"
 #include "AbilitySystemInterface.h"
 #include "../../Abilities/MMOARPGAbilitySystemComponent.h"
+#include "SimpleComboType.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
@@ -58,13 +59,18 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
+	
 	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
 		void K2_AnimSignal(int32 InSignal);
+	
+	// // 放平砍技能.
+	void NormalAttack(const FName& InKey);
+	// 覆盖ISimpleComboInterface::ComboAttack
+	virtual void ComboAttack(const FName& InKey) override;
+public:
 	// 拿取人物姿态.
 	FORCEINLINE ECharacterActionState GetActionState() { return ActionState; }
 	// 拿取蒙太奇DT里的 行数据.
@@ -89,6 +95,7 @@ public:
 
 	/** 攀爬跳姿势的切换具体蒙太奇动画. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
+
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -108,10 +115,8 @@ protected:
 	virtual void Landed(const FHitResult& Hit) override;
 
 public:/// 技能相关
-
-// 	// 添加技能
-// 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
-
+	// 覆盖基类; 获取连招检测器.
+	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:

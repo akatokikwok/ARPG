@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../MMOARPGGameplayAbility.h"
+#include "..\..\Character\Core\MMOARPGCharacterBase.h"
 #include "GameplayAbility_NormalAttack.generated.h"
 
 /**

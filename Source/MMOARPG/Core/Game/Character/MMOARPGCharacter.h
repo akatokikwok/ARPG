@@ -112,6 +112,15 @@ public:/// 技能相关
 	UFUNCTION( BlueprintCallable)
 	void NormalAttack(const FName& InKey);
 
+	// 鼠标键位控制(平砍技能)
+	void MouseLeftClick();
+	void MouseRightClick();
+	void MouseLeftClickReleased();
+	void MouseRightClickReleased();
+
+	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
+	virtual void AnimSignal(int32 InSignal) override;
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

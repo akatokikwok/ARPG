@@ -34,6 +34,8 @@ void UFightComponent::BeginPlay()
 		// 注册ASC的持有对象(即人物基类.).
 		AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 	}
+	// 在连招触发器实例的内部,为普攻这个技能注册数据.
+	this->RegisterComboAttack(ComboAttackCheck, TEXT("NormalAttack"));
 }
 
 // 添加并授权某技能. 返回技能实例的句柄.
@@ -46,6 +48,19 @@ FGameplayAbilitySpecHandle UFightComponent::AddAbility(TSubclassOf<UGameplayAbil
 	return FGameplayAbilitySpecHandle();
 }
 
+// 拿到技能池里指定名字的技能实例.
+UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
+{
+	if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(InKey)) {
+		if (AbilitySystemComponent.IsValid()) {
+			if (FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(*InHandle)) {
+				Cast<UMMOARPGGameplayAbility>(Spec->Ability);
+			}
+		}
+	}
+	return nullptr;
+}
+
 // 放GA: 普攻.
 void UFightComponent::NormalAttack(const FName& InKey)
 {
@@ -54,5 +69,19 @@ void UFightComponent::NormalAttack(const FName& InKey)
 		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
 			AbilitySystemComponent->TryActivateAbility(*Handle);
 		}
+	}
+}
+
+// 注册连击触发器内部数据.
+void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InKey)
+{
+	InComboAttackCheck.Character = MMOARPGCharacterBase.Get();
+	InComboAttackCheck.ComboKey = InKey;
+
+	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InKey)) {
+		InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
+	}
+	else {/*没找到就给个默认4.f. */
+		InComboAttackCheck.MaxIndex = 4;
 	}
 }

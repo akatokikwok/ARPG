@@ -26,6 +26,15 @@ void UMMOARPGGameplayAbility::OnCancelled()
 	K2_OnCancelled();
 }
 
+// 拿取蒙太奇里section的总段数.
+int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
+{
+	if (MontageToPlay) {
+		return MontageToPlay->CompositeSections.Num();
+	}
+	return 0;
+}
+
 /** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
 UAbilityTask_PlayMontageAndWait* UMMOARPGGameplayAbility::CreatePlayMontageAndWaitProxy(/*UGameplayAbility* OwningAbility, */FName TaskInstanceName, UAnimMontage* InMontageToPlay, float Rate /*= 1.f*/, FName StartSection /*= NAME_None*/, bool bStopWhenAbilityEnds /*= true*/, float AnimRootMotionTranslationScale /*= 1.f*/, float StartTimeSeconds /*= 0.f*/)
 {

@@ -30,6 +30,9 @@ public:// 蓝图版. 提供给CPP版使用
 	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnCancelled", meta = (ScriptName = "OnCancelled"))
 		void K2_OnCancelled();
 public:
+	// 拿取蒙太奇内部的总段数.
+	int32 GetCompositeSectionsNumber();
+public:
 	/** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
 	UFUNCTION(BlueprintCallable, Category = "MMOARPGGameplayAbility|Tasks", meta = (DisplayName = "PlayMontageAndWait"/*, HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE")*/))
 		UAbilityTask_PlayMontageAndWait* CreatePlayMontageAndWaitProxy(/*UGameplayAbility* OwningAbility, */FName TaskInstanceName, UAnimMontage* InMontageToPlay, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f);

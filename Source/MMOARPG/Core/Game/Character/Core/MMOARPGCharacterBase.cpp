@@ -117,3 +117,20 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 	}
 
 }
+
+// 放平砍技能.
+void AMMOARPGCharacterBase::NormalAttack(const FName& InKey)
+{
+	GetFightComponent()->NormalAttack(InKey);
+}
+
+// 覆盖ISimpleComboInterface::ComboAttack
+void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
+{
+	this->NormalAttack(InKey);
+}
+
+struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
+{
+	return GetFightComponent()->GetSimpleComboInfo();
+}
