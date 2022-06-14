@@ -107,10 +107,6 @@ protected:
 	void CharacterStopJumping();
 
 public:/// 技能相关
-	
-	// 执行平砍
-	UFUNCTION( BlueprintCallable)
-	void NormalAttack(const FName& InKey);
 
 	// 鼠标键位控制(平砍技能)
 	void MouseLeftClick();
@@ -118,7 +114,7 @@ public:/// 技能相关
 	void MouseLeftClickReleased();
 	void MouseRightClickReleased();
 
-	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
+	/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
 	virtual void AnimSignal(int32 InSignal) override;
 
 /// //////////////////////////////////////////////////////////////////////////

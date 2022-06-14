@@ -34,7 +34,7 @@ void UFightComponent::BeginPlay()
 		// 注册ASC的持有对象(即人物基类.).
 		AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 	}
-	// 在连招触发器实例的内部,为普攻这个技能注册数据.
+	// 在连招触发器实例的内部, 使用GA:平砍 写入它.
 	this->RegisterComboAttack(ComboAttackCheck, TEXT("NormalAttack"));
 }
 
@@ -72,16 +72,15 @@ void UFightComponent::NormalAttack(const FName& InKey)
 	}
 }
 
-// 注册连击触发器内部数据.
+/** 注册连招触发器, 往里写入值. */ 
 void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InKey)
 {
-	InComboAttackCheck.Character = MMOARPGCharacterBase.Get();
+	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
 	InComboAttackCheck.ComboKey = InKey;
-
-	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InKey)) {
+	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InKey)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
 		InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
 	}
-	else {/*没找到就给个默认4.f. */
+	else {/*没找到GA就给个4段. */
 		InComboAttackCheck.MaxIndex = 4;
 	}
 }

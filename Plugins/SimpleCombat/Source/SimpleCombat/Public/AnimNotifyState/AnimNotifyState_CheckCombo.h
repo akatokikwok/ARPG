@@ -7,7 +7,7 @@
 #include "AnimNotifyState_CheckCombo.generated.h"
 
 /**
- * 
+ * 专门负责执行连击效果的AnimNotifyState.
  */
 UCLASS()
 class SIMPLECOMBAT_API UAnimNotifyState_CheckCombo : public UAnimNotifyState

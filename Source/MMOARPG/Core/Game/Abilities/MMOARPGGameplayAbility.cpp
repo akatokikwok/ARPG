@@ -26,7 +26,7 @@ void UMMOARPGGameplayAbility::OnCancelled()
 	K2_OnCancelled();
 }
 
-// 拿取蒙太奇里section的总段数.
+/** 拿取本GA里指定蒙太奇里的总段数. */
 int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
 {
 	if (MontageToPlay) {

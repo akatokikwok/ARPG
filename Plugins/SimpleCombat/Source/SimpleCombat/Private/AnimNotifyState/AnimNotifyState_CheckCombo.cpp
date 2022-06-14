@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "CombatInterface/SimpleCombatInterface.h"
 
+/**  */
 void UAnimNotifyState_CheckCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
@@ -19,6 +20,7 @@ void UAnimNotifyState_CheckCombo::NotifyTick(USkeletalMeshComponent* MeshComp, U
 
 }
 
+/**  */
 void UAnimNotifyState_CheckCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);

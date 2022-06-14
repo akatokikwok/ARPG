@@ -13,11 +13,11 @@ struct SIMPLECOMBAT_API FSimpleComboCheck
 public:
 	FSimpleComboCheck();
 
-	//
+	// 在总段数内循环递增刷新段号.
 	void UpdateComboIndex();
-	//
+	// Press()激发连击触发器黑盒.
 	void Press();
-	//
+	// 主动结束连击触发器黑盒.
 	void Released();
 	// 释放总的状态.
 	void Reset();
@@ -35,13 +35,13 @@ public:
 		bool bShortPress;
 	
 	// 给人的类继承的战斗IInterface.
-	class ISimpleComboInterface* Character;
+	class ISimpleComboInterface* Character_CombatInterface;
 
 	// Combo支持的最大段数.
 	UPROPERTY()
 		int32 MaxIndex;
 	
-	// 一个FName管理多个连招.
+	// 具体依赖的GA名称.
 	UPROPERTY()
 		FName ComboKey;
 };
