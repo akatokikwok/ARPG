@@ -416,7 +416,9 @@ void AMMOARPGCharacter::NormalAttack(const FName& InKey)
 //
 void AMMOARPGCharacter::MouseLeftClick()
 {
-	GetSimpleComboInfo()->Press();
+	if (ActionState == ECharacterActionState::FIGHT_STATE) {// 仅在战斗姿态里.
+		GetSimpleComboInfo()->Press();
+	}
 }
 
 //
