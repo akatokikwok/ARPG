@@ -110,7 +110,7 @@ public:/// 技能相关
 	
 	// 执行平砍
 	UFUNCTION( BlueprintCallable)
-	void NormalAttack(int32 Index);
+	void NormalAttack(const FName& InKey);
 
 /// //////////////////////////////////////////////////////////////////////////
 public:

@@ -18,11 +18,11 @@ struct FCharacterSkillTable :public FTableRowBase
 public:
 	FCharacterSkillTable();
 
-	// ID号.
+	// ID号, 存在于负责技能的DTRow.
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
 		int32 ID;
 	
-	// 技能:平砍.
+	// GA:平砍, 存在于负责技能的DTRow.
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
 		TSubclassOf<UGameplayAbility> NormalAttack;
 };

@@ -43,13 +43,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
 				this->AnimTable = InAnimRowData;
 			}
-
-			// 添加固有技能. 从DT蓝图资源里解算出的技能
-			if (FCharacterSkillTable* InSkillTable = InGS->GetCharacterSkillTable(GetID())) {
-				Skills.Add(TEXT("NormalAttack"), AddAbility(InSkillTable->NormalAttack));
-			}
 		}
-
 		if (!GetWorld()->IsServer()) {// 服务器没必要执行IK.
 			if (GetMesh()) {
 				if (UMMOARPGAnimInstanceBase* InMMOARPGAnimInstanceBase = Cast<UMMOARPGAnimInstanceBase>(GetMesh()->GetAnimInstance())) {
@@ -57,8 +51,6 @@ void AMMOARPGCharacterBase::BeginPlay()
 				}
 			}
 		}
-
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);// 把ASC注册进去.
 	}
 }
 
@@ -124,14 +116,4 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 		// 		StopAnimMontage();
 	}
 
-}
-
-// 添加技能
-FGameplayAbilitySpecHandle AMMOARPGCharacterBase::AddAbility(TSubclassOf<UGameplayAbility> InNewAbility)
-{
-	if (IsValid(InNewAbility) && AbilitySystemComponent != nullptr) {
-		return AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(InNewAbility));
-	}
-
-	return FGameplayAbilitySpecHandle();
 }

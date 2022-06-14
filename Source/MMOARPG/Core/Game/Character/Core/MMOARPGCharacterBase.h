@@ -44,7 +44,7 @@ private:
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
 	
-	/** 战斗系统组件. */
+	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
 
@@ -109,8 +109,8 @@ protected:
 
 public:/// 技能相关
 
-	// 添加技能
-	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
+// 	// 添加技能
+// 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
 
 
 /// //////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,4 @@ protected:
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
-
-	// 能力或者技能缓存池.
-	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 };

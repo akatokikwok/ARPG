@@ -401,12 +401,8 @@ void AMMOARPGCharacter::CharacterStopJumping()
 
 }
 
-// 执行平砍
-void AMMOARPGCharacter::NormalAttack(int32 Index)
+// 放平砍技能.
+void AMMOARPGCharacter::NormalAttack(const FName& InKey)
 {
-	if (AbilitySystemComponent != nullptr) {
-		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
-			AbilitySystemComponent->TryActivateAbility(*Handle);
-		}
-	}
+	GetFightComponent()->NormalAttack(InKey);
 }
