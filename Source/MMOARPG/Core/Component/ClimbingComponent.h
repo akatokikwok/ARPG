@@ -108,4 +108,8 @@ private:
 	// 是否渲染检测射线.
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
 		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineType;
+
+	// 是否渲染检测射线(当翻越矮墙时候).
+	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
+		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineTypeWhenStepWall;
 };

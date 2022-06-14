@@ -18,6 +18,7 @@ UClimbingComponent::UClimbingComponent()
 	, bJumpToClimbing(false)
 	, ClimbingHeight(0.f)
 	, mTraceLineType(EDrawDebugTrace::None)
+	, mTraceLineTypeWhenStepWall(EDrawDebugTrace::None)
 {
 
 }
@@ -436,7 +437,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 					ETraceTypeQuery::TraceTypeQuery1,
 					false,
 					ClimbingActorsToIgnore,
-					EDrawDebugTrace::ForDuration, HitWallClimbing, true);
+					mTraceLineTypeWhenStepWall, HitWallClimbing, true);
 
 				if (HitWallClimbing.bBlockingHit) {// 当确认有矮墙墙顶
 
