@@ -3,7 +3,8 @@
 #include "SimpleComboType.generated.h"
 
 /**
- * 负责检测combo连击的检测类.
+ * 连击检测感知器. 
+ * 负责检测combo连击.
  */
 USTRUCT( BlueprintType)
 struct SIMPLECOMBAT_API FSimpleComboCheck
@@ -18,7 +19,7 @@ public:
 	void Press();
 	//
 	void Released();
-	//
+	// 释放总的状态.
 	void Reset();
 
 /// //////////////////////////////////////////////////////////////////////////
