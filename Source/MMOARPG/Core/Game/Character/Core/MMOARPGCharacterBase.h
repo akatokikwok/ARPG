@@ -21,7 +21,7 @@
  */
 UCLASS()
 class MMOARPG_API AMMOARPGCharacterBase : 
-	public ACharacter, public ISimpleCombatInterface, public IAbilitySystemInterface
+	public ACharacter, public ISimpleComboInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 private:

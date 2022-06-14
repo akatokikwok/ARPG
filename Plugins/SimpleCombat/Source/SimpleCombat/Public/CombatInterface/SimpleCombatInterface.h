@@ -8,15 +8,15 @@
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
-class USimpleCombatInterface : public UInterface
+class USimpleComboInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
 /**
- * 
+ * 让人继承的I接口,负责技能连击Combo逻辑的部分实现.
  */
-class SIMPLECOMBAT_API ISimpleCombatInterface
+class SIMPLECOMBAT_API ISimpleComboInterface
 {
 	GENERATED_BODY()
 
