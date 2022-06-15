@@ -19,9 +19,10 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
 	ClimbingComponent = CreateDefaultSubobject<UClimbingComponent>(TEXT("ClimbingComponent"));
+	ClimbingComponent->SetIsReplicated(true);
 	FightComponent = CreateDefaultSubobject<UFightComponent>(TEXT("FightComponent"));
+	FightComponent->SetIsReplicated(true);
 	AbilitySystemComponent = CreateDefaultSubobject<UMMOARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-
 	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
 
 }

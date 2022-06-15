@@ -7,7 +7,7 @@
 #include "Core/MMOARPGCharacterBase.h"
 #include "MMOARPGCharacter.generated.h"
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class AMMOARPGCharacter : public AMMOARPGCharacterBase/*, public IKneadingInterface*/
 {
 	GENERATED_BODY()
@@ -108,16 +108,23 @@ protected:
 
 public:/// 技能相关
 
-	// 鼠标键位控制(平砍技能)
-	void MouseLeftClick();
-	void MouseRightClick();
-	void MouseLeftClickReleased();
-	void MouseRightClickReleased();
+	// RPC在服务器, 左mouse按下后续
+	UFUNCTION(Server, Reliable)
+		void MouseLeftClick();
+	// RPC在服务器, 右mouse按下后续
+	UFUNCTION(Server, Reliable)
+		void MouseRightClick();
+	// RPC在服务器, 左mouse松开后续
+	UFUNCTION(Server, Reliable)
+		void MouseLeftClickReleased();
+	// RPC在服务器, 右mouse松开后续
+	UFUNCTION(Server, Reliable)
+		void MouseRightClickReleased();
 
 	/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
 	virtual void AnimSignal(int32 InSignal) override;
 
-/// //////////////////////////////////////////////////////////////////////////
+	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -130,11 +137,11 @@ public:
 private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+		class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+		class UCameraComponent* FollowCamera;
 
 };
 

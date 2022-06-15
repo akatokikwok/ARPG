@@ -25,15 +25,19 @@ void UFightComponent::BeginPlay()
 	if (MMOARPGCharacterBase.IsValid()) {
 		// 初始化ASC.
 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
-
-		const FName& InKey = TEXT("NormalAttack");
- 		if (GetWorld()) {
-			// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
- 			AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
-			// 注册ASC的持有对象(即人物基类.).
-			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
- 		}
-		// 在连招触发器实例的内部, 使用GA:平砍 写入它.
+		
+		const FName InKey = TEXT("NormalAttack");
+		/* 仅运行在服务器的逻辑. */
+		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
+			if (GetWorld()) {
+				// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
+				AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+				// 注册ASC的持有对象(即人物基类.).
+				AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
+			}
+		}
+		
+		// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
 		this->RegisterComboAttack(ComboAttackCheck, InKey);
 	}
 }
@@ -144,4 +148,22 @@ void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck,
 	else {/*没找到GA就给个4段. */
 		InComboAttackCheck.MaxIndex = 4;
 	}
+}
+
+// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
+void UFightComponent::Press_Implementation()
+{
+	ComboAttackCheck.Press();
+}
+
+// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
+void UFightComponent::Released_Implementation()
+{
+	ComboAttackCheck.Released();
+}
+
+// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
+void UFightComponent::Reset_Implementation()
+{
+	ComboAttackCheck.Reset();
 }

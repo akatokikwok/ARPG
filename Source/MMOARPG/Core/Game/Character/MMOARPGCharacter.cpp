@@ -407,38 +407,40 @@ void AMMOARPGCharacter::CharacterStopJumping()
 
 }
 
-//
-void AMMOARPGCharacter::MouseLeftClick()
+// RPC在服务器, 左mouse按下后续
+void AMMOARPGCharacter::MouseLeftClick_Implementation()
 {
 	if (ActionState == ECharacterActionState::FIGHT_STATE) {// 仅在战斗姿态里.
-		GetSimpleComboInfo()->Press();// 使用连招触发器里的Press.
+		// 广播COMBO触发器Press()至其他客户端.
+		GetFightComponent()->Press();
 	}
 }
 
-//
-void AMMOARPGCharacter::MouseRightClick()
+// RPC在服务器, 右mouse按下后续
+void AMMOARPGCharacter::MouseRightClick_Implementation()
 {
 
 }
 
-//
-void AMMOARPGCharacter::MouseLeftClickReleased()
+// RPC在服务器, 左mouse松开后续
+void AMMOARPGCharacter::MouseLeftClickReleased_Implementation()
 {
-	GetSimpleComboInfo()->Released();
+	// 广播COMBO触发器Release()至其他客户端.
+	GetFightComponent()->Released();
 }
 
-//
-void AMMOARPGCharacter::MouseRightClickReleased()
+// RPC在服务器, 右mouse松开后续
+void AMMOARPGCharacter::MouseRightClickReleased_Implementation()
 {
 
 }
 
-/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
+/** 覆盖CombatInterface接口, 如若信号值设定2,则复位触发器黑盒. */
 void AMMOARPGCharacter::AnimSignal(int32 InSignal)
 {
 	Super::AnimSignal(InSignal);
 	/* 如果在蓝图蒙太奇里配的这个AnimNotify-AnimSignal型的Notify的信号值被配成2.f, 则让连招触发器黑盒重置. */
 	if (InSignal == 2) {
-		GetSimpleComboInfo()->Reset();
+		GetFightComponent()->Reset();
 	}
 }

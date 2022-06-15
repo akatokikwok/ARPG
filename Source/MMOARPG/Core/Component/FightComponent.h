@@ -52,7 +52,17 @@ public:
 	// 拿连击触发器.
 	FSimpleComboCheck* GetSimpleComboInfo() { return &ComboAttackCheck; }
 
-	/// //////////////////////////////////////////////////////////////////////////
+	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
+	UFUNCTION(NetMulticast, Reliable)
+		void Press();
+	// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
+	UFUNCTION(NetMulticast, Reliable)
+		void Released();
+	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
+	UFUNCTION(NetMulticast, Reliable)
+		void Reset();
+
+		/// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC
