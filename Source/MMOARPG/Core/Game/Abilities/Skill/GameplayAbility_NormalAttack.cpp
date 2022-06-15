@@ -14,7 +14,7 @@ void UGameplayAbility_NormalAttack::ActivateAbility(const FGameplayAbilitySpecHa
 		if (UMMOARPGGameplayAbility::PlayMontageAnim(
 				*FString::FromInt(InCharacterBase->GetSimpleComboInfo()->ComboIndex) )) {
 			//
-
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Purple, FString::SanitizeFloat(InCharacterBase->GetSimpleComboInfo()->ComboIndex));
 		}
 	}
 }

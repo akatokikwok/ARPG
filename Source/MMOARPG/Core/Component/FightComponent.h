@@ -9,6 +9,13 @@
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
 #include "FightComponent.generated.h"
 
+// 攻击形式来源枚举.
+enum EMMOARPGGameplayAbilityType
+{
+	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
+	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
+};
+
 /**
  * 战斗组件.继承自MotionComp
  */
@@ -19,13 +26,16 @@ class MMOARPG_API UFightComponent : public UMotionComponent
 public:
 	UFightComponent();
 	virtual void BeginPlay() override;
-	
+
 	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
-	
+
 	// 放GA: 普攻.
 	UFUNCTION(BlueprintCallable)
 		void NormalAttack(const FName& InKey);// 放GA: 普攻.
+
+	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
+	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
 	void AddSkillAttack(const FName& InKey);
@@ -51,11 +61,13 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TWeakObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 
-	// Combo触发器
+	// Combo形式的攻击 触发器
 	UPROPERTY()
-	FSimpleComboCheck ComboAttackCheck;
+		FSimpleComboCheck ComboAttackCheck;
 protected:
 	// 能力或者技能缓存池.
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 
+private:
+	FName KeyNameUsedIter = FName();
 };

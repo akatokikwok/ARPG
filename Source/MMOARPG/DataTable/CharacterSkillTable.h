@@ -24,9 +24,9 @@ public:
 	
 	// 普攻(连招)形式的攻击 缓存池, 存在于负责技能的DTRow;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
-		TMap<FName, TSubclassOf<UGameplayAbility>> ComboAttack;// 普攻(连招)形式的攻击 缓存池, 存在于负责技能的DTRow;
+		TMap<FName, TSubclassOf<UGameplayAbility>> ComboAttack;// 攻击缓存池:连招形式, 存在于负责技能的DTRow;
 	
 	// 技能形式的攻击 缓存池, 存在于负责技能的DTRow;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
-		TMap<FName, TSubclassOf<UGameplayAbility>> SkillAttack;// 技能形式的攻击 缓存池, 存在于负责技能的DTRow;
+		TMap<FName, TSubclassOf<UGameplayAbility>> SkillAttack;// 攻击缓存池:技能形式, 存在于负责技能的DTRow;
 };

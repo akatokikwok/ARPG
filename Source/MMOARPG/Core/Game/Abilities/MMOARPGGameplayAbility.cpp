@@ -47,7 +47,8 @@ UAbilityTask_PlayMontageAndWait* UMMOARPGGameplayAbility::CreatePlayMontageAndWa
 		InWait_Node->OnInterrupted.AddDynamic(this, &UMMOARPGGameplayAbility::OnInterrupted);
 		InWait_Node->OnCancelled.AddDynamic(this, &UMMOARPGGameplayAbility::OnCancelled);
 
-		InWait_Node->Activate();// 激活ATNode
+ 		InWait_Node->Activate();// 激活ATNode
+		//InWait_Node->ReadyForActivation();
 		return InWait_Node;
 	}
 

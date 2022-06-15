@@ -26,13 +26,16 @@ void UFightComponent::BeginPlay()
 		// 初始化ASC.
 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
 
-		// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
-		AddComboAttack(TEXT("NormalAttack"));
-		// 注册ASC的持有对象(即人物基类.).
-		AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
+		const FName& InKey = TEXT("NormalAttack");
+ 		if (GetWorld()) {
+			// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
+ 			AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+			// 注册ASC的持有对象(即人物基类.).
+			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
+ 		}
+		// 在连招触发器实例的内部, 使用GA:平砍 写入它.
+		this->RegisterComboAttack(ComboAttackCheck, InKey);
 	}
-	// 在连招触发器实例的内部, 使用GA:平砍 写入它.
-	this->RegisterComboAttack(ComboAttackCheck, TEXT("NormalAttack"));
 }
 
 // 添加并授权某技能. 返回技能实例的句柄.
@@ -62,9 +65,44 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 void UFightComponent::NormalAttack(const FName& InKey)
 {
 	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
-		// 查技能池里的平砍技能并触发它.
-		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
+		// 查技能池里的平砍技能并触发它. TEXT("NormalAttack")
+		
+		if (InKey == TEXT("NormalAttack")) {
+ 			KeyNameUsedIter = InKey;
+		}
+		
+		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(KeyNameUsedIter)) {
 			AbilitySystemComponent->TryActivateAbility(*Handle);
+		}
+	}
+}
+
+// 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.
+void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType /*= EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK*/)
+{
+	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		// 用GameState找出人身上配的 DTRow::技能表
+		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+			// 从DTR里拿表中的TMAP作为数据源.
+			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TMap<FName, TSubclassOf<UGameplayAbility>>* {
+				switch (InGAType) {
+					case GAMEPLAYABILITY_SKILLATTACK: {
+						return &(InSkillTable_row->SkillAttack);
+  						break;
+					}
+					case GAMEPLAYABILITY_COMBOATTACK: {
+						return &(InSkillTable_row->ComboAttack);
+  						break;
+					}
+				}
+				return nullptr;
+			};
+			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
+				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)->Find(InKey_GAName)) {
+					Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));
+				}
+			}
 		}
 	}
 }
@@ -72,7 +110,14 @@ void UFightComponent::NormalAttack(const FName& InKey)
 // 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
 void UFightComponent::AddSkillAttack(const FName& InKey)
 {
-
+	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+			// DT单行里查找Skill缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->SkillAttack.Find(InKey)) {
+				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+			}
+		}
+	}
 }
 
 // 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
