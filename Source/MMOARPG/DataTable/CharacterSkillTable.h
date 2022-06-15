@@ -22,7 +22,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
 		int32 ID;
 	
-	// GA:平砍, 存在于负责技能的DTRow.
+	// 普攻(连招)形式的攻击 缓存池, 存在于负责技能的DTRow;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
-		TSubclassOf<UGameplayAbility> NormalAttack;
+		TMap<FName, TSubclassOf<UGameplayAbility>> ComboAttack;// 普攻(连招)形式的攻击 缓存池, 存在于负责技能的DTRow;
+	
+	// 技能形式的攻击 缓存池, 存在于负责技能的DTRow;
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		TMap<FName, TSubclassOf<UGameplayAbility>> SkillAttack;// 技能形式的攻击 缓存池, 存在于负责技能的DTRow;
 };

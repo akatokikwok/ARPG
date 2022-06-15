@@ -23,14 +23,11 @@ void UFightComponent::BeginPlay()
 	Super::BeginPlay();
 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
 	if (MMOARPGCharacterBase.IsValid()) {
-		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());// 初始化ASC.
+		// 初始化ASC.
+		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
 
-		if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-			// 技能池里添加1个名叫"NormalAttack"的平砍技能. 数据源是来自GS的DataTable.
-			if (FCharacterSkillTable* InSkillTable = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-				Skills.Add(TEXT("NormalAttack"), AddAbility(InSkillTable->NormalAttack));
-			}
-		}
+		// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
+		AddComboAttack(TEXT("NormalAttack"));
 		// 注册ASC的持有对象(即人物基类.).
 		AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 	}
@@ -68,6 +65,25 @@ void UFightComponent::NormalAttack(const FName& InKey)
 		// 查技能池里的平砍技能并触发它.
 		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
 			AbilitySystemComponent->TryActivateAbility(*Handle);
+		}
+	}
+}
+
+// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
+void UFightComponent::AddSkillAttack(const FName& InKey)
+{
+
+}
+
+// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
+void UFightComponent::AddComboAttack(const FName& InKey)
+{
+	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+			// DT单行里查找连击缓存池,并按名字找到GA,	往Skill池子里写入这个GA
+			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->ComboAttack.Find(InKey)) {
+				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+			}
 		}
 	}
 }
