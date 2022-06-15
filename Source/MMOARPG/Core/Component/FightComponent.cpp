@@ -48,7 +48,7 @@ FGameplayAbilitySpecHandle UFightComponent::AddAbility(TSubclassOf<UGameplayAbil
 	return FGameplayAbilitySpecHandle();
 }
 
-// 拿到技能池里指定名字的技能实例.
+// 从技能池里找指定名字的GA.
 UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 {
 	if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(InKey)) {
@@ -72,12 +72,12 @@ void UFightComponent::NormalAttack(const FName& InKey)
 	}
 }
 
-/** 注册连招触发器, 往里写入值. */ 
-void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InKey)
+/** 用指定GA去注册连招触发器黑盒. */ 
+void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName)
 {
 	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
-	InComboAttackCheck.ComboKey = InKey;
-	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InKey)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
+	InComboAttackCheck.ComboKey_GA = InGAName;
+	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
 		InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
 	}
 	else {/*没找到GA就给个4段. */

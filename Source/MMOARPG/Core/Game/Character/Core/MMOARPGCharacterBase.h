@@ -69,6 +69,7 @@ public:
 	// // 放平砍技能.
 	void NormalAttack(const FName& InKey);
 	// 覆盖ISimpleComboInterface::ComboAttack
+	// 本质上执行战斗组件放出平砍GA.
 	virtual void ComboAttack(const FName& InKey) override;
 public:
 	// 拿取人物姿态.

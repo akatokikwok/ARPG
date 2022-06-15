@@ -124,7 +124,7 @@ void AMMOARPGCharacterBase::NormalAttack(const FName& InKey)
 	GetFightComponent()->NormalAttack(InKey);
 }
 
-// 覆盖ISimpleComboInterface::ComboAttack
+// 覆盖ISimpleComboInterface::ComboAttack; 本质上执行战斗组件放出平砍GA.
 void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
 {
 	this->NormalAttack(InKey);

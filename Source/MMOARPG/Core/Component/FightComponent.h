@@ -23,15 +23,15 @@ public:
 	// 添加并授权某技能. 返回技能实例的句柄.
 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
 
-	// 拿到技能池里指定名字的技能实例.
+	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
 
 	// 放GA: 普攻.
 	UFUNCTION(BlueprintCallable)
 		void NormalAttack(const FName& InKey);
 protected:
-	// 以指定名称的技能 去注册连击触发器内部数据.
-	void RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InKey);
+	/** 用指定GA去注册连招触发器黑盒. */
+	void RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName);
 
 public:
 	FSimpleComboCheck* GetSimpleComboInfo() { return &ComboAttackCheck; }// 拿连击触发器.

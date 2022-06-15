@@ -41,7 +41,7 @@ public:
 	UPROPERTY()
 		int32 MaxIndex;
 	
-	// 具体依赖的GA名称.
+	// GA名字; 由外界主动注册.
 	UPROPERTY()
-		FName ComboKey;
+		FName ComboKey_GA;
 };
