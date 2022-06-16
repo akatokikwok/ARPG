@@ -72,10 +72,9 @@ void UFightComponent::Attack_TriggerGA(const FName& InKey)
 {
 	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
 		if (InKey != TEXT("")) {
-			KeyNameUsedIter = InKey;
-		}
-		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(KeyNameUsedIter)) {
-			AbilitySystemComponent->TryActivateAbility(*Handle);
+			if (FGameplayAbilitySpecHandle* Handle = Skills.Find(InKey)) {
+				AbilitySystemComponent->TryActivateAbility(*Handle);
+			}
 		}
 	}
 }
