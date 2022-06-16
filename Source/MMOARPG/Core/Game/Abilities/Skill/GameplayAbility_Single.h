@@ -2,15 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "../MMOARPGGameplayAbility.h"
-#include "../../Character/Core/MMOARPGCharacterBase.h"
 #include "Core/GameplayAbility_Skill.h"
-#include "GameplayAbility_NormalAttack.generated.h"
+#include "GameplayAbility_Single.generated.h"
 
 /**
- * GA:普攻
+ * GA: 单技能
  */
 UCLASS()
-class MMOARPG_API UGameplayAbility_NormalAttack : public UGameplayAbility_Skill
+class MMOARPG_API UGameplayAbility_Single : public UGameplayAbility_Skill
 {
 	GENERATED_BODY()
 public:

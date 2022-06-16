@@ -419,7 +419,7 @@ void AMMOARPGCharacter::MouseLeftClick_Implementation()
 // RPC在服务器, 右mouse按下后续
 void AMMOARPGCharacter::MouseRightClick_Implementation()
 {
-
+	GetFightComponent()->DodgeSkill();
 }
 
 // RPC在服务器, 左mouse松开后续

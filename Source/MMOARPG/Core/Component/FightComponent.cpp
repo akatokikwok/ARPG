@@ -25,18 +25,18 @@ void UFightComponent::BeginPlay()
 	if (MMOARPGCharacterBase.IsValid()) {
 		// 初始化ASC.
 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
-		
+
 		const FName InKey = TEXT("NormalAttack");
 		/* 仅运行在服务器的逻辑. */
 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
-			if (GetWorld()) {
-				// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
-				AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
-				// 注册ASC的持有对象(即人物基类.).
-				AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
-			}
+			// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
+			AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+			// 往Skills整个池子里写入注册 闪避
+			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Dodge"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+
+			// 仅允许服务器注册ASC的持有对象(即人物基类.).
+			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 		}
-		
 		// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
 		this->RegisterComboAttack(ComboAttackCheck, InKey);
 	}
@@ -58,27 +58,30 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 	if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(InKey)) {
 		if (AbilitySystemComponent.IsValid()) {
 			if (FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(*InHandle)) {
-				Cast<UMMOARPGGameplayAbility>(Spec->Ability);
+				return Cast<UMMOARPGGameplayAbility>(Spec->Ability);
 			}
 		}
 	}
 	return nullptr;
 }
 
-// 放GA: 普攻.
+// 按指定名字, 在Skills大池子里查找技能并激活.
 void UFightComponent::NormalAttack(const FName& InKey)
 {
 	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
-		// 查技能池里的平砍技能并触发它. TEXT("NormalAttack")
-		
-		if (InKey == TEXT("NormalAttack")) {
- 			KeyNameUsedIter = InKey;
+		if (InKey != TEXT("")) {
+			KeyNameUsedIter = InKey;
 		}
-		
 		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(KeyNameUsedIter)) {
 			AbilitySystemComponent->TryActivateAbility(*Handle);
 		}
 	}
+}
+
+// 放闪避技能.
+void UFightComponent::DodgeSkill_Implementation()
+{
+	NormalAttack(TEXT("Dodge"));
 }
 
 // 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.
@@ -90,13 +93,15 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 			// 从DTR里拿表中的TMAP作为数据源.
 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TMap<FName, TSubclassOf<UGameplayAbility>>* {
 				switch (InGAType) {
-					case GAMEPLAYABILITY_SKILLATTACK: {
+					case GAMEPLAYABILITY_SKILLATTACK:
+					{
 						return &(InSkillTable_row->SkillAttack);
-  						break;
+						break;
 					}
-					case GAMEPLAYABILITY_COMBOATTACK: {
+					case GAMEPLAYABILITY_COMBOATTACK:
+					{
 						return &(InSkillTable_row->ComboAttack);
-  						break;
+						break;
 					}
 				}
 				return nullptr;
@@ -137,7 +142,7 @@ void UFightComponent::AddComboAttack(const FName& InKey)
 	}
 }
 
-/** 用指定GA去注册连招触发器黑盒. */ 
+/** 用指定GA去注册连招触发器黑盒. */
 void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName)
 {
 	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();

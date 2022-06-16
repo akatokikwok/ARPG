@@ -30,10 +30,11 @@ public:
 	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
 
-	// 放GA: 普攻.
+	// 按指定名字, 在Skills大池子里查找技能并激活.
 	UFUNCTION(BlueprintCallable)
 		void NormalAttack(const FName& InKey);// 放GA: 普攻.
 
+	
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
@@ -61,6 +62,10 @@ public:
 	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
 	UFUNCTION(NetMulticast, Reliable)
 		void Reset();
+
+	// 放闪避技能. 广播至其他客户端
+	UFUNCTION(NetMulticast, Reliable)
+		void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
 		/// //////////////////////////////////////////////////////////////////////////
 private:
