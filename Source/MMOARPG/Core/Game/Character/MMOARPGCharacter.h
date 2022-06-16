@@ -118,8 +118,12 @@ public:/// 技能相关
 	UFUNCTION(Server, Reliable)
 		void MouseLeftClickReleased();
 	// RPC在服务器, 右mouse松开后续
-	UFUNCTION(Server, Reliable)
+// 	UFUNCTION(Server, Reliable)
 		void MouseRightClickReleased();
+
+	// 按键冲刺, RPC在服务器.
+	UFUNCTION(Server, Reliable)
+		void Sprint();// 按键冲刺, RPC在服务器.
 
 	/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
 	virtual void AnimSignal(int32 InSignal) override;

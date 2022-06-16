@@ -67,6 +67,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
+	// 放冲刺技能. 广播至其他客户端
+	UFUNCTION(NetMulticast, Reliable)
+		void SprintSkill();// 放冲刺技能; 广播至其他客户端
+
 		/// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC

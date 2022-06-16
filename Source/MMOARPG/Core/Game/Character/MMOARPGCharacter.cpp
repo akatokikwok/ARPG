@@ -22,6 +22,7 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AMMOARPGCharacter::MouseRightClick);
 	PlayerInputComponent->BindAction("MouseClick", IE_Released, this, &AMMOARPGCharacter::MouseLeftClickReleased);
 	PlayerInputComponent->BindAction("MouseRightClick", IE_Released, this, &AMMOARPGCharacter::MouseRightClickReleased);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMMOARPGCharacter::Sprint);// 冲刺
 
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMMOARPGCharacter::CharacterJump);// 跳
@@ -430,9 +431,15 @@ void AMMOARPGCharacter::MouseLeftClickReleased_Implementation()
 }
 
 // RPC在服务器, 右mouse松开后续
-void AMMOARPGCharacter::MouseRightClickReleased_Implementation()
+void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
 {
 
+}
+
+// 按键后冲刺.
+void AMMOARPGCharacter::Sprint_Implementation() 
+{
+	GetFightComponent()->SprintSkill();
 }
 
 /** 覆盖CombatInterface接口, 如若信号值设定2,则复位触发器黑盒. */
