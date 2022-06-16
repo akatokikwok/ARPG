@@ -35,6 +35,8 @@ void UFightComponent::BeginPlay()
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Dodge"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 			// 往Skills整个池子里写入注册 冲刺
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Sprint"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+			// 往Skills整个池子里写入注册 冲刺2
+			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
 			// 仅允许服务器注册ASC的持有对象(即人物基类.).
 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
@@ -89,6 +91,11 @@ void UFightComponent::DodgeSkill_Implementation()
 void UFightComponent::SprintSkill_Implementation()
 {
 	Attack_TriggerGA(TEXT("Sprint"));
+}
+
+void UFightComponent::Sprint2Skill_Implementation()
+{
+	Attack_TriggerGA(TEXT("Sprint2"));
 }
 
 // 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.

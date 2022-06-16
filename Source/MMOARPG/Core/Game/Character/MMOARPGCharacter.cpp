@@ -295,8 +295,9 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 	/* 在服务器上做这些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 
 	if (UCharacterMovementComponent* CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
-		if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Walking ||
-			CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Flying) {
+		if ((CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Walking || CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Flying)
+			&& ActionState != ECharacterActionState::FIGHT_STATE) // 后面优化,战斗姿态中禁用飞行.
+		{
 			ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
 			GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
 		}
@@ -315,6 +316,9 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 				FVector Dir = -GetActorForwardVector();
 				GetClimbingComponent()->LaunchCharacter(Dir * 1000.f);
 			}
+		}
+		else if (ActionState == ECharacterActionState::FIGHT_STATE) {
+
 		}
 	}
 }
