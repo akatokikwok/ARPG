@@ -22,7 +22,12 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
 public:
-	// 信号值.
+	/**
+	 * 信号值,可以被设为不同的浮点数,挂载在AnimSeq或者蒙太奇上的Notify槽位追踪里
+	 * 0.f, 1.f 设定为装卸武器
+	 * 2.f 设定为复位Combo触发器.
+	 * 
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify")
 		int32 SignalValue;
 	

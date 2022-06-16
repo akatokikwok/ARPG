@@ -68,7 +68,7 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 }
 
 // 按指定名字, 在Skills大池子里查找技能并激活.
-void UFightComponent::NormalAttack(const FName& InKey)
+void UFightComponent::Attack_TriggerGA(const FName& InKey)
 {
 	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
 		if (InKey != TEXT("")) {
@@ -83,13 +83,13 @@ void UFightComponent::NormalAttack(const FName& InKey)
 // 放闪避技能.
 void UFightComponent::DodgeSkill_Implementation()
 {
-	NormalAttack(TEXT("Dodge"));
+	Attack_TriggerGA(TEXT("Dodge"));
 }
 
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill_Implementation()
 {
-	NormalAttack(TEXT("Sprint"));
+	Attack_TriggerGA(TEXT("Sprint"));
 }
 
 // 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.

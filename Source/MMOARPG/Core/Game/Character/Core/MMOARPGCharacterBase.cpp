@@ -122,7 +122,7 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 // 放平砍技能.
 void AMMOARPGCharacterBase::NormalAttack(const FName& InKey)
 {
-	GetFightComponent()->NormalAttack(InKey);
+	GetFightComponent()->Attack_TriggerGA(InKey);
 }
 
 // 覆盖ISimpleComboInterface::ComboAttack; 本质上执行战斗组件放出平砍GA.

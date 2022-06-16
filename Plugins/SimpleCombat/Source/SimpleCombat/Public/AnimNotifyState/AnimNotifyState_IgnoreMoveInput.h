@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "AnimNotifyState_BlockInputInTime.generated.h"
+#include "AnimNotifyState_IgnoreMoveInput.generated.h"
 
 /**
- * 屏蔽输入的NotifyState.
+ * 此notifystate负责 仅屏蔽移动输入.
  */
 UCLASS()
-class SIMPLECOMBAT_API UAnimNotifyState_BlockInputInTime : public UAnimNotifyState
+class SIMPLECOMBAT_API UAnimNotifyState_IgnoreMoveInput : public UAnimNotifyState
 {
 	GENERATED_BODY()
 public:

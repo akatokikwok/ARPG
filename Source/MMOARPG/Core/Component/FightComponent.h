@@ -32,7 +32,7 @@ public:
 
 	// 按指定名字, 在Skills大池子里查找技能并激活.
 	UFUNCTION(BlueprintCallable)
-		void NormalAttack(const FName& InKey);// 放GA: 普攻.
+		void Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
 
 	
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
