@@ -9,7 +9,7 @@
 /**
  * 此notifystate负责 仅屏蔽移动输入.
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "IgnoreMoveInput"))
 class SIMPLECOMBAT_API UAnimNotifyState_IgnoreMoveInput : public UAnimNotifyState
 {
 	GENERATED_BODY()

@@ -9,7 +9,7 @@
 /**
  * 专门负责执行连击效果的AnimNotifyState.
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "CheckCombo"))
 class SIMPLECOMBAT_API UAnimNotifyState_CheckCombo : public UAnimNotifyState
 {
 	GENERATED_BODY()

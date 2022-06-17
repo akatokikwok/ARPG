@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "IgnoreInput"))
 class SIMPLECOMBAT_API UAnimNotifyState_IgnoreInput : public UAnimNotifyState
 {
 	GENERATED_BODY()

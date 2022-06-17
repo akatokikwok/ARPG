@@ -21,4 +21,3 @@ TSubclassOf<UGameplayAbility>* FCharacterSkillTable::FindSkillAttack(const FName
 		return InGameplayAbility.GetDefaultObject()->AbilityTags == FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InKey));
 		});
 }
-

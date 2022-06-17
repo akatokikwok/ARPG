@@ -9,7 +9,7 @@
 /**
  * AnimNotifyState_StopAnimMontage: 用于停止最后的滑步.
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "StopAnimMontage"))
 class SIMPLECOMBAT_API UAnimNotifyState_StopAnimMontage : public UAnimNotifyState
 {
 	GENERATED_BODY()

@@ -7,9 +7,9 @@
 #include "AnimNotify_AnimSignal.generated.h"
 
 /**
- * 
+ * 借助信号量来触发特定逻辑的 Notify.
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "AnimSignal"))// 让类名UAnimNotify_AnimSignal在蓝图资源里显示为"AnimSignal".
 class SIMPLECOMBAT_API UAnimNotify_AnimSignal : public UAnimNotify
 {
 	GENERATED_BODY()
