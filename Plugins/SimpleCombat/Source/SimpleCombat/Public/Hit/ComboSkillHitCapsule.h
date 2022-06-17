@@ -25,4 +25,8 @@ public:
 
 	// 覆写基类的. 拿取胶囊型comp.
 	virtual UPrimitiveComponent* GetHitDamage() override;
+
+	// 影响外观; 设定胶囊的半径和半高
+	void SetCapsuleHalfHeight(float InNewCapsuleHalfHeight);
+	void SetCapsuleRadius(float InNewCapsuleRadius);
 };

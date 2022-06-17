@@ -25,4 +25,7 @@ public:
 
 	// 覆写基类的.拿取球形Comp.
 	virtual UPrimitiveComponent* GetHitDamage() override;
+
+	// 影响外观; 设定球半径.
+	void SetRadius(const float& InRadius);
 };

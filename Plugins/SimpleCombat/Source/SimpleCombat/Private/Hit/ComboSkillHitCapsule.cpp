@@ -29,3 +29,15 @@ UPrimitiveComponent* AHitCapsuleCollision::GetHitDamage()
 {
 	return HitDamage;
 }
+
+// 影响外观; 设定胶囊的半径和半高
+void AHitCapsuleCollision::SetCapsuleHalfHeight(float InNewCapsuleHalfHeight)
+{
+	HitDamage->SetCapsuleHalfHeight(InNewCapsuleHalfHeight);
+}
+
+// 影响外观; 设定胶囊的半径和半高
+void AHitCapsuleCollision::SetCapsuleRadius(float InNewCapsuleRadius)
+{
+	HitDamage->SetCapsuleRadius(InNewCapsuleRadius);
+}

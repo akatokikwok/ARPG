@@ -27,7 +27,7 @@ UPrimitiveComponent* AHitBoxCollision::GetHitDamage()
 	return HitDamage;
 }
 
-//
+// 影响外观; 设定盒子的extent;
 void AHitBoxCollision::SetBoxExtent(const FVector& InNewBoxExtent)
 {
 	HitDamage->SetBoxExtent(InNewBoxExtent);

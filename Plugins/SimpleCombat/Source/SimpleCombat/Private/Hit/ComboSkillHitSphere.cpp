@@ -27,3 +27,9 @@ UPrimitiveComponent* AHitSphereCollision::GetHitDamage()
 {
 	return HitDamage;
 }
+
+// 影响外观; 设定球半径.
+void AHitSphereCollision::SetRadius(const float& InRadius)
+{
+	HitDamage->SetSphereRadius(InRadius);
+}

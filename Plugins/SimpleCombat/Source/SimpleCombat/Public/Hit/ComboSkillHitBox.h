@@ -25,6 +25,7 @@ public:
 	
 	// 覆写基类的. 拿取盒子形Comp.
 	virtual UPrimitiveComponent* GetHitDamage() override;
-	//
+	
+	// 影响外观; 设定盒子的extent;
 	void SetBoxExtent(const FVector& InNewBoxExtent);
 };
