@@ -1,1 +1,34 @@
 ﻿#include "SimpleCombat/Public/Hit/ComboSkillHitBox.h"
+#include "Components/BoxComponent.h"
+
+//
+AHitBoxCollision::AHitBoxCollision(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	HitDamage = CreateDefaultSubobject<UBoxComponent>(TEXT("HitDamage"));
+	HitDamage->SetupAttachment(RootComponent);
+}
+
+// Called when the game starts or when spawned
+void AHitBoxCollision::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+// Called every frame
+void AHitBoxCollision::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+// 覆写基类的. 拿取盒子形Comp.
+UPrimitiveComponent* AHitBoxCollision::GetHitDamage()
+{
+	return HitDamage;
+}
+
+//
+void AHitBoxCollision::SetBoxExtent(const FVector& InNewBoxExtent)
+{
+	HitDamage->SetBoxExtent(InNewBoxExtent);
+}
