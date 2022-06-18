@@ -21,7 +21,7 @@ void AMMOARPGBoxHit::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// 覆写AHitCollision; 
+// 覆写一个回调函数AHitCollision; 当其他武器触碰hitbox时候会引发伤害.
 void AMMOARPGBoxHit::HandleDamage(
 	UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
@@ -38,6 +38,7 @@ void AMMOARPGBoxHit::HandleDamage(
 			EventData.Instigator = GetInstigator();// 施法者
 			EventData.Target = OtherActor;// 攻击目标,打到谁了
 
+			/** 接收到伤害时候,会把伤害信息用此API把伤害事件与Tag传出去,传至GA::基类里的AbilityTask_PMAWDamage里 */
 			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 				GetInstigator(), 
 				FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")), 

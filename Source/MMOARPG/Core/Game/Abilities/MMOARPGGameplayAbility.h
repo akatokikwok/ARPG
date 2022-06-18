@@ -41,6 +41,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MMOARPGGameplayAbility|Tasks")
 		UAbilityTask_PlayMontageAndWait* PlayMontageAnim(FName StartSection = NAME_None);
 
+	// <UAbilityTask_PNAWDamageEvent>节点 受击委托绑定的回调.
+	// 虚方法,允许派生类的GA覆写
+	UFUNCTION()
+		virtual	void OnDamageGameplayEvent(FGameplayTag InGameplayTag, FGameplayEventData Payload);
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 播哪个蒙太奇.

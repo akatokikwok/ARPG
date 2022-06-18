@@ -19,19 +19,22 @@ void UAbilityTask_PNAWDamageEvent::Activate()
 	if (AbilitySystemComponent) {/* 仿自基类Activate部分的逻辑.*/
 		const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
 		UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+		// 使用ASC::AddGameplayEventTagContainerDelegate 去接收外部给到的GATag 并存成一个句柄.
 		if (AnimInstance != nullptr) {
 			DamageEventHandle = AbilitySystemComponent->AddGameplayEventTagContainerDelegate(
 				EventTags,
-				FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &UAbilityTask_PNAWDamageEvent::OnDamageGameplayEvent));
+				FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &UAbilityTask_PNAWDamageEvent::OnDamageGameplayEvent)
+			);
 		}
 	}
 
 	Super::Activate();
 }
 
-// 覆写AbilityTask的删除.
+// 覆写AbilityTask的删除或卸载.
 void UAbilityTask_PNAWDamageEvent::OnDestroy(bool AbilityEnded)
 {
+	// 移除标签组和施击伤害句柄.
 	if (AbilitySystemComponent) {
 		AbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(EventTags, DamageEventHandle);
 	}
@@ -39,6 +42,7 @@ void UAbilityTask_PNAWDamageEvent::OnDestroy(bool AbilityEnded)
 	Super::OnDestroy(AbilityEnded);
 }
 
+// AT节点创建.
 UAbilityTask_PNAWDamageEvent* UAbilityTask_PNAWDamageEvent::CreatePNAWDamageEventProxy(
 	UGameplayAbility* OwningAbility,
 	FName TaskInstanceName,
@@ -58,17 +62,18 @@ UAbilityTask_PNAWDamageEvent* UAbilityTask_PNAWDamageEvent::CreatePNAWDamageEven
 	MyObj->AnimRootMotionTranslationScale = AnimRootMotionTranslationScale;
 	MyObj->bStopWhenAbilityEnds = bStopWhenAbilityEnds;
 	MyObj->StartTimeSeconds = StartTimeSeconds;
-	MyObj->EventTags = InEventTags;
+	MyObj->EventTags = InEventTags;// 标签组也得注册.
 
 	return MyObj;
 }
 
+// 回调; 当伤害事件发生时 动态多播由持有者GA传入的标签与伤害event
 void UAbilityTask_PNAWDamageEvent::OnDamageGameplayEvent(FGameplayTag InGameplayTag, const FGameplayEventData* Payload)
 {
-	if (ShouldBroadcastAbilityTaskDelegates()) {
+	if (UAbilityTask::ShouldBroadcastAbilityTaskDelegates()) {
 		FGameplayEventData EventData = *Payload;
 		EventData.EventTag = InGameplayTag;
 
-		DamageEventReceived.Broadcast(InGameplayTag, EventData);
+		DamageEventReceived.Broadcast(InGameplayTag, EventData);// 多播由持有者GA传入的标签与伤害event.
 	}
 }
