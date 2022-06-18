@@ -23,11 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
-
 	// 回调虚方法: 处理碰撞接触时候的逻辑;  可由子类覆写.
 	UFUNCTION()
-		virtual void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		virtual void HandleDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	// 虚方法,让派生类覆写; 拿取对应的形状comp;
 	virtual UPrimitiveComponent* GetHitDamage();

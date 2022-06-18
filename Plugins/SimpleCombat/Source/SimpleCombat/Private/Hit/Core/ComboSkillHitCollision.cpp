@@ -18,7 +18,7 @@ void AHitCollision::BeginPlay()
 
 	if (UPrimitiveComponent* InHitComponent = GetHitDamage()) {
 		InHitComponent->SetHiddenInGame(false);
-		InHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AHitCollision::BeginOverlap);// 与场景物体相撞接触的时候绑定回调.
+		InHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AHitCollision::HandleDamage);// 与场景物体相撞接触的时候绑定回调.
 	}
 }
 
@@ -29,7 +29,7 @@ void AHitCollision::Tick(float DeltaTime)
 }
 
 // 回调虚方法: 处理碰撞接触时候的逻辑;  可由子类覆写.
-void AHitCollision::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AHitCollision::HandleDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
 }
