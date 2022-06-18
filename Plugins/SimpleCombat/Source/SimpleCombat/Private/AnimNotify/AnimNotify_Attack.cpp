@@ -39,11 +39,31 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.Instigator = Cast<APawn>(InSimpleCombatCharacter);// 施法者设定为自己.
-		// 生成1个碰撞物.
-		if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActor<AHitCollision>(HitObjectClass, ComponentLocation, ComponentRotation, ActorSpawnParameters)) {
-			HitCollision->SetLifeSpan(LifeTime);
-		}
 		
+		/** 生成一个碰撞物hitbox, 大概位于刀尖上的socket上 */
+		if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActor<AHitCollision>(HitObjectClass, ComponentLocation, ComponentRotation, ActorSpawnParameters)) {
+			if (HitCollision->GetHitDamage()) {/* 若形状comp确实存在也就是可以转换成确切形状的hitbox. */
+
+				FVector RelativeLocation = HitCollision->GetHitDamage()->GetRelativeLocation();
+				HitCollision->SetLifeSpan(LifeTime);// 设定hitbox寿命
+				HitCollision->SetHitDamageRelativePosition(RelativeLocation + RelativeOffsetLocation);// 设定hitbox的3D相对位置.
+
+				// 设定各外形hitbox的形状.
+				if (AHitBoxCollision* InBox = Cast<AHitBoxCollision>(HitCollision)) {
+					InBox->SetBoxExtent(BoxExtent);
+				}
+				else if (AHitCapsuleCollision* InCapsule = Cast<AHitCapsuleCollision>(HitCollision)) {
+					InCapsule->SetCapsuleHalfHeight(CapsuleHalfHeight);
+					InCapsule->SetCapsuleRadius(CapsuleRadius);
+				}
+				else if (AHitSphereCollision* InSphere = Cast<AHitSphereCollision>(HitCollision)) {
+					InSphere->SetRadius(SphereRadius);
+				}
+				else if (AHitCustomCollision* InCustom = Cast<AHitCustomCollision>(HitCollision)) {
+
+				}
+			}
+		}
 	}
 }
 

@@ -39,9 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		TSubclassOf<AHitCollision> HitObjectClass;// 要生成什么物体?
 
-	// 碰撞体的相对位置.
+	// 碰撞体再补上一段偏移位置.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
-		FVector RelativeLocation;// 碰撞体的相对位置.
+		FVector RelativeOffsetLocation;// 碰撞体再补上一段偏移位置.
 
 	// 存在的生命周期.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

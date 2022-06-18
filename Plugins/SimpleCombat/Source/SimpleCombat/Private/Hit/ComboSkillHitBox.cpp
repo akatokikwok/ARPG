@@ -6,7 +6,7 @@ AHitBoxCollision::AHitBoxCollision(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	HitDamage = CreateDefaultSubobject<UBoxComponent>(TEXT("HitDamage"));
-	HitDamage->SetupAttachment(RootComponent);
+	HitDamage->SetupAttachment(RootComponent);// 让本盒子形状附着在根组件之下.
 }
 
 // Called when the game starts or when spawned
