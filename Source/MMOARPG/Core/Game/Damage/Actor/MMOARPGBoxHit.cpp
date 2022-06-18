@@ -33,7 +33,7 @@ void AMMOARPGBoxHit::HandleDamage(
 	Super::HandleDamage(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
 	if (GetInstigator() != OtherActor) {// 首先不能打到自己.
-		if (OtherActor->IsA(AMMOARPGCharacterBase::StaticClass())) {
+		if (OtherActor->IsA(AMMOARPGCharacterBase::StaticClass())) {// 只承认只接收与人形态的生物hitbox关联.
 			FGameplayEventData EventData;
 			EventData.Instigator = GetInstigator();// 施法者
 			EventData.Target = OtherActor;// 攻击目标,打到谁了

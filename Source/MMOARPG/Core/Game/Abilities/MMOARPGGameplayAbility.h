@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Abilities/GameplayAbility.h"
+#include "MMOARPGGameplayAbilityType.h"
 #include "MMOARPGGameplayAbility.generated.h"
 class UAbilityTask_PlayMontageAndWait;
 
@@ -51,4 +52,8 @@ public:
 	// 播哪个蒙太奇.
 	UPROPERTY(EditDefaultsOnly, Category = "MontageAbility")
 		UAnimMontage* MontageToPlay;
+
+	// 缓存池: 由一个GA诱发带来的一组buff.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = GameplayEffects)
+		TMap<FGameplayTag, FMMOARPGGameplayEffects> EffectMap;
 };
