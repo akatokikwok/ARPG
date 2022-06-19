@@ -14,6 +14,7 @@
 #include "AbilitySystemInterface.h"
 #include "../../Abilities/MMOARPGAbilitySystemComponent.h"
 #include "SimpleComboType.h"
+#include "../../Abilities/MMOARPGAttributeSet.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
@@ -52,6 +53,11 @@ private:
 	/** MMOARPG ASC组件. */
  	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
  		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+
+	/** GAS属性集指针. */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UMMOARPGAttributeSet> AttributeSet;
+
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();

@@ -25,6 +25,7 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	AbilitySystemComponent = CreateDefaultSubobject<UMMOARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
 
+	AttributeSet = CreateDefaultSubobject<UMMOARPGAttributeSet>(TEXT("AttributeSet"));
 }
 
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
@@ -52,6 +53,11 @@ void AMMOARPGCharacterBase::BeginPlay()
 				}
 			}
 		}
+
+		/* 在人内部 给ASC注册GAS属性集.*/
+		TArray<UAttributeSet*> AttributeSets;
+		AttributeSets.Add(AttributeSet);
+		AbilitySystemComponent->SetSpawnedAttributes(AttributeSets);
 	}
 }
 
