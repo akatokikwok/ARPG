@@ -27,6 +27,9 @@ public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	/** 让登录到DS的角色发送捏身材请求. */
 	void LoginCharacterUpdateKneadingRequest(int32 InUserID);
+
+	/** 向CS服务器发送 gas人物属性集请求 */
+	void GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot);
 private:
 	//
 	void BindClientRcv();

@@ -27,27 +27,39 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxMana);
 }
 
+// 注册GAS属性集
+void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribute& Data)
+{
+	this->RegistrationParam(Health, Data.Health);
+	this->RegistrationParam(MaxHealth, Data.MaxHealth);
+	this->RegistrationParam(Mana, Data.Mana);
+	this->RegistrationParam(MaxMana, Data.MaxMana);
+}
+
 void UMMOARPGAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Health, OldValue);
-
 }
 
 void UMMOARPGAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxHealth, OldValue);
-
 }
 
 void UMMOARPGAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Mana, OldValue);
-
 }
 
 void UMMOARPGAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxMana, OldValue);
+}
 
+// 仅工具方法.
+void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData)
+{
+	InAttributeData.SetBaseValue(InNewAttributeData.BaseValue);
+	InAttributeData.SetCurrentValue(InNewAttributeData.CurrentValue);
 }
 

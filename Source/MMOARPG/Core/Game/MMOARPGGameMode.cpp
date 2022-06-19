@@ -14,6 +14,7 @@
 #include "Protocol/GameProtocol.h"
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
+#include <MMOARPGType.h>
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -82,6 +83,12 @@ void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
 void AMMOARPGGameMode::LoginCharacterUpdateKneadingRequest(int32 InUserID)
 {
 	SEND_DATA(SP_UpdateLoginCharacterInfoRequests, InUserID);// 向DS发送一个刷新登录人物请求.
+}
+
+/** 向CS服务器发送 gas人物属性集请求 */
+void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot)
+{
+	SEND_DATA(SP_GetCharacterDataRequests, InUserID, InCharacterID);
 }
 
 void AMMOARPGGameMode::BindClientRcv()
@@ -173,21 +180,21 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 			FString CharacterJsonString;
 			SIMPLE_PROTOCOLS_RECEIVE(SP_GetCharacterDataResponses, UserID, CharacterJsonString);
 
-// 			if (UserID != INDEX_NONE) {
-// 				MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(GetWorld(), [&](AMMOARPGPlayerController* InController)->MethodUnit::EServerCallType {
-// 					if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
-// 						if (InPlayerCharacter->GetUserID() == UserID) {
-// 							FMMOARPGCharacterAttribute CharacterAttribute;
-// 							NetDataAnalysis::StringToMMOARPGCharacterAttribute(CharacterJsonString, CharacterAttribute);
-// 
-// 							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
-// 
-// 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
-// 						}
-// 					}
-// 					return MethodUnit::EServerCallType::INPROGRESS;
-// 					});
-// 			}
+			if (UserID != INDEX_NONE) {
+				MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(GetWorld(), [&](AMMOARPGPlayerController* InController)->MethodUnit::EServerCallType {
+					if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
+						if (InPlayerCharacter->GetUserID() == UserID) {
+							// 从JSON里解析出玩家属性集.
+							FMMOARPGCharacterAttribute CharacterAttribute;
+							NetDataAnalysis::StringToMMOARPGCharacterAttribute(CharacterJsonString, CharacterAttribute);
+							// 把最新GAS属性集刷新到人里.
+							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
+							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
+						}
+					}
+					return MethodUnit::EServerCallType::INPROGRESS;
+					});
+			}
 
 			break;
 		}

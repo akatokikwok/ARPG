@@ -141,3 +141,11 @@ struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 {
 	return GetFightComponent()->GetSimpleComboInfo();
 }
+
+// 广播 刷新最新的人物GAS属性集.
+void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
+{
+	if (AttributeSet != nullptr) {
+		AttributeSet->RegistrationProperties(CharacterAttribute);
+	}
+}

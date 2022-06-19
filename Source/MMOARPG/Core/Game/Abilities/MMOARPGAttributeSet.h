@@ -41,6 +41,8 @@ public:
 	// 覆写 同步变量需要重写的方法.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	// 注册GAS属性集
+	virtual void RegistrationProperties(const FMMOARPGCharacterAttribute& Data);
 protected:
 	UFUNCTION()
 		virtual void OnRep_Health(const FGameplayAttributeData& OldValue);
@@ -53,4 +55,8 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue);
+
+protected:
+	// 工具方法:
+	void RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData);
 };
