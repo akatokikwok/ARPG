@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include <ThreadManage.h>
 #include "../MMOARPGGameMode.h"
+#include "../MMOARPGPlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMMOARPGCharacter
@@ -100,13 +101,11 @@ void AMMOARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetLocalRole() == ENetRole::ROLE_Authority) {
-		GThread::Get()->GetCoroutines().BindLambda(0.2f, [&]() ->void {
-			if (GetWorld()) {
-				if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
-					MMOARPGGameMode->GetCharacterDataRequests(UserID, ID);// 向CS服务器发送 gas人物属性集请求 
-				}
-			}});
+	/** 仅在客户端主机上执行执行的逻辑. */
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+		GThread::Get()->GetCoroutines().BindLambda(0.1f, [&]() ->void {
+			GetCharacterDataRequests();// 在客户端向CS发送属性集request
+			});
 	}
 }
 
@@ -419,6 +418,18 @@ void AMMOARPGCharacter::CharacterStopJumping()
 {
 	StopJumping();// 基类的.
 
+}
+
+// RPC在服务器, 由客户端向CS发送属性集请求.
+void AMMOARPGCharacter::GetCharacterDataRequests_Implementation()
+{
+	if (GetWorld()) {
+		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			if (AMMOARPGPlayerState* InPS = GetPlayerState<AMMOARPGPlayerState>()) {
+				MMOARPGGameMode->GetCharacterDataRequests(UserID, ID, InPS->GetCA().SlotPosition);// 向CS服务器发送 gas人物属性集请求 
+			}
+		}
+	}
 }
 
 // RPC在服务器, 左mouse按下后续

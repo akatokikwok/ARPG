@@ -107,6 +107,10 @@ protected:
 	void CharacterStopJumping();
 
 public:/// 技能相关
+	
+	// RPC在服务器, 由客户端向CS发送属性集请求.
+	UFUNCTION(Server, Reliable)
+		void GetCharacterDataRequests();
 
 	// RPC在服务器, 左mouse按下后续
 	UFUNCTION(Server, Reliable)
