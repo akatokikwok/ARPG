@@ -66,6 +66,9 @@ void AMMOARPGPlayerCharacter::CallUpdateKneadingBobyOnClient_Implementation(cons
 		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
 			InPlayerState->GetCA() = InCA;
 		}
+
+		/** 刷新容貌的时候, 这是第一次向CS请求人物属性集 */
+		GetCharacterDataRequests();
 	}
 }
 
