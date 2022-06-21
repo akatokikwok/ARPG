@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <ThreadManage.h>
+#include "../MMOARPGGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMMOARPGCharacter
@@ -97,8 +99,15 @@ AMMOARPGCharacter::AMMOARPGCharacter()
 void AMMOARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
-	// 	InitKneadingLocation(GetMesh()->GetComponentLocation());
+
+	if (GetLocalRole() == ENetRole::ROLE_Authority) {
+		GThread::Get()->GetCoroutines().BindLambda(0.2f, [&]() ->void {
+			if (GetWorld()) {
+				if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+					MMOARPGGameMode->GetCharacterDataRequests(UserID, ID);// 向CS服务器发送 gas人物属性集请求 
+				}
+			}});
+	}
 }
 
 // void AMMOARPGCharacter::UpdateKneadingBoby()
@@ -183,7 +192,7 @@ void AMMOARPGCharacter::MoveRight(float Value)
 
 		GetClimbingComponent()->ClimbingMoveRightAxis(Value);
 	}
-	else if ((Controller != nullptr) && (Value != 0.0f)) {		
+	else if ((Controller != nullptr) && (Value != 0.0f)) {
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -256,9 +265,9 @@ void AMMOARPGCharacter::SwitchFight()
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
-// 	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
+	// 	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
 
-	//if ((Controller != nullptr) && (Value != 0.0f)) {
+		//if ((Controller != nullptr) && (Value != 0.0f)) {
 	if (Controller != nullptr) {
 
 		// 按姿态重新划分逻辑.
@@ -284,7 +293,7 @@ void AMMOARPGCharacter::MoveForward(float Value)
 }
 
 void AMMOARPGCharacter::ActionSwitching_Implementation()
-{	
+{
 	// 发指令给服务器; 在服务器上做MulticastFly()里的一些具体逻辑.
 	MulticastActionSwitching();
 
@@ -441,7 +450,7 @@ void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
 }
 
 // 按键后冲刺.
-void AMMOARPGCharacter::Sprint_Implementation() 
+void AMMOARPGCharacter::Sprint_Implementation()
 {
 	GetFightComponent()->SprintSkill();
 }

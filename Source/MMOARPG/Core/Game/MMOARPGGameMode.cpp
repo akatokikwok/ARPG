@@ -86,7 +86,7 @@ void AMMOARPGGameMode::LoginCharacterUpdateKneadingRequest(int32 InUserID)
 }
 
 /** 向CS服务器发送 gas人物属性集请求 */
-void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot)
+void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacterID/*, int32 MMOARPGSlot*/)
 {
 	SEND_DATA(SP_GetCharacterDataRequests, InUserID, InCharacterID);
 }

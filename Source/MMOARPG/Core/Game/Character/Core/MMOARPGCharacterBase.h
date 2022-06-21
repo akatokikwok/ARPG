@@ -140,7 +140,7 @@ protected:
 	UPROPERTY()
 		ECharacterActionState LastActionState;
 
-	// 游玩人物专属ID.
+	// 游玩人物专属ID.哪个角色?
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 		int32 ID;
 	// 用户ID.用户去配置的ID.
