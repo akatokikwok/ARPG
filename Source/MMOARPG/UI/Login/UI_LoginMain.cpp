@@ -25,6 +25,7 @@ void UUI_LoginMain::NativeConstruct()
 
 	// 为登录界面设置持有者.
 	UI_Login->SetParents(this);
+	UI_Register->SetParents(this);
 
 	UUI_MainBase::LinkServer();// 链接至服务器并循环创建绑定.
 
