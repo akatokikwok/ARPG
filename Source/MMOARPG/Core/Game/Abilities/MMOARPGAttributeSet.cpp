@@ -1,4 +1,7 @@
 ﻿#include "MMOARPGAttributeSet.h"
+#include "GameplayTagContainer.h"
+#include "GameplayEffectExtension.h"
+#include "../Character/Core/MMOARPGCharacterBase.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	: Health(100.f)
@@ -13,6 +16,33 @@ UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+	// 解算出Tag容器.
+	const FGameplayTagContainer& SourceTagContainer = *(Data.EffectSpec.CapturedSourceTags.GetAggregatedTags());
+	// 解算出buff作用目标人物.
+	AMMOARPGCharacterBase* Target = 
+		Data.Target.AbilityActorInfo.IsValid() ? Cast<AMMOARPGCharacterBase>(Data.Target.AbilityActorInfo->AvatarActor) : nullptr;
+
+	float Magnitude = 0.f;
+	if (Data.EvaluatedData.ModifierOp == EGameplayModOp::Type::Additive) {
+		Magnitude = Data.EvaluatedData.Magnitude;
+	}
+
+	// 若是属性: Health
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
+		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));// 设定血
+		// 通知目标人去操作血量
+		if (Target != nullptr) {
+			Target->HandleHealth(SourceTagContainer, Magnitude);
+		}
+	}
+	// 若是属性: Mana
+	else if (Data.EvaluatedData.Attribute == GetManaAttribute()) {
+		SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+		// 通知目标人去操作蓝量
+		if (Target != nullptr) {
+			Target->HandleMana(SourceTagContainer, Magnitude);
+		}
+	}
 
 }
 

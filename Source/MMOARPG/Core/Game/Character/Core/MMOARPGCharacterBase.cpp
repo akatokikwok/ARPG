@@ -149,3 +149,15 @@ void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOAR
 		AttributeSet->RegistrationProperties(CharacterAttribute);
 	}
 }
+
+// 处理人的血量; 虚方法
+void AMMOARPGCharacterBase::HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+
+}
+
+// 处理人的蓝量; 虚方法
+void AMMOARPGCharacterBase::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+
+}

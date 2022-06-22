@@ -129,7 +129,11 @@ public:/// 技能相关
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
-
+	
+	// 处理人的血量; 虚方法
+	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
+	// 处理人的蓝量; 虚方法
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 /// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.
