@@ -16,7 +16,7 @@ void UAnimNotify_AnimSignal::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
 	Super::Notify(MeshComp, Animation);
 	// 检测人是不是携带了Combat UInterface,携带了就执行信号,
-	if (ISimpleCombatInterface* InSimpleCombatInterface = Cast<ISimpleCombatInterface>(MeshComp->GetOuter())) {
+	if (ISimpleComboInterface* InSimpleCombatInterface = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
 		InSimpleCombatInterface->AnimSignal(SignalValue);
 	}
 }

@@ -11,7 +11,7 @@ class ACharacter;
  * 用来模拟衰减力的
  * 继承自引擎类UAnimNotifyState
  */
-UCLASS()
+UCLASS(meta = (DisplayName = "AddForce"))
 class SIMPLECOMBAT_API UAnimNotifyState_AddForce : public UAnimNotifyState
 {
 	GENERATED_BODY()

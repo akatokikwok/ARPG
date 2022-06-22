@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <ThreadManage.h>
+#include "../MMOARPGGameMode.h"
+#include "../MMOARPGPlayerState.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMMOARPGCharacter
@@ -17,6 +20,13 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AMMOARPGCharacter::MouseLeftClick);
+	PlayerInputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AMMOARPGCharacter::MouseRightClick);
+	PlayerInputComponent->BindAction("MouseClick", IE_Released, this, &AMMOARPGCharacter::MouseLeftClickReleased);
+	PlayerInputComponent->BindAction("MouseRightClick", IE_Released, this, &AMMOARPGCharacter::MouseRightClickReleased);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMMOARPGCharacter::Sprint);// 冲刺
+
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMMOARPGCharacter::CharacterJump);// 跳
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMMOARPGCharacter::CharacterStopJumping);// 跳, 释放.
@@ -90,8 +100,13 @@ AMMOARPGCharacter::AMMOARPGCharacter()
 void AMMOARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
-	// 	InitKneadingLocation(GetMesh()->GetComponentLocation());
+
+	/** 仅在客户端主机上执行执行的逻辑. */
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+		GThread::Get()->GetCoroutines().BindLambda(0.04f, [&]() ->void {
+			GetCharacterDataRequests();// 在客户端向CS发送属性集request
+			});
+	}
 }
 
 // void AMMOARPGCharacter::UpdateKneadingBoby()
@@ -176,7 +191,7 @@ void AMMOARPGCharacter::MoveRight(float Value)
 
 		GetClimbingComponent()->ClimbingMoveRightAxis(Value);
 	}
-	else if ((Controller != nullptr) && (Value != 0.0f)) {		
+	else if ((Controller != nullptr) && (Value != 0.0f)) {
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -249,9 +264,9 @@ void AMMOARPGCharacter::SwitchFight()
 
 void AMMOARPGCharacter::MoveForward(float Value)
 {
-// 	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
+	// 	ActionState = ECharacterActionState::CLIMB_STATE;// 测试用代码.
 
-	//if ((Controller != nullptr) && (Value != 0.0f)) {
+		//if ((Controller != nullptr) && (Value != 0.0f)) {
 	if (Controller != nullptr) {
 
 		// 按姿态重新划分逻辑.
@@ -277,7 +292,7 @@ void AMMOARPGCharacter::MoveForward(float Value)
 }
 
 void AMMOARPGCharacter::ActionSwitching_Implementation()
-{	
+{
 	// 发指令给服务器; 在服务器上做MulticastFly()里的一些具体逻辑.
 	MulticastActionSwitching();
 
@@ -288,8 +303,9 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 	/* 在服务器上做这些逻辑,做完后再广播, 通知到客户端. 使用NetMulticast宏. */
 
 	if (UCharacterMovementComponent* CharacterMovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent())) {
-		if (CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Walking ||
-			CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Flying) {
+		if ((CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Walking || CharacterMovementComponent->MovementMode == EMovementMode::MOVE_Flying)
+			&& ActionState != ECharacterActionState::FIGHT_STATE) // 后面优化,战斗姿态中禁用飞行.
+		{
 			ResetActionState(ECharacterActionState::FLIGHT_STATE);// 强制刷为飞行姿态,若已飞行则切回normal
 			GetFlyComponent()->ResetFly();// 手动使用一套用于飞行姿态下的组件设置.
 		}
@@ -308,6 +324,9 @@ void AMMOARPGCharacter::MulticastActionSwitching_Implementation()
 				FVector Dir = -GetActorForwardVector();
 				GetClimbingComponent()->LaunchCharacter(Dir * 1000.f);
 			}
+		}
+		else if (ActionState == ECharacterActionState::FIGHT_STATE) {
+
 		}
 	}
 }
@@ -401,12 +420,58 @@ void AMMOARPGCharacter::CharacterStopJumping()
 
 }
 
-// 执行平砍
-void AMMOARPGCharacter::NormalAttack(int32 Index)
+// RPC在服务器, 由客户端向CS发送属性集请求.
+void AMMOARPGCharacter::GetCharacterDataRequests_Implementation()
 {
-	if (AbilitySystemComponent != nullptr) {
-		if (FGameplayAbilitySpecHandle* Handle = Skills.Find(TEXT("NormalAttack"))) {
-			AbilitySystemComponent->TryActivateAbility(*Handle);
+	if (GetWorld()) {
+		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			if (AMMOARPGPlayerState* InPS = GetPlayerState<AMMOARPGPlayerState>()) {
+				MMOARPGGameMode->GetCharacterDataRequests(UserID, ID, InPS->GetCA().SlotPosition);// 向CS服务器发送 gas人物属性集请求 
+			}
 		}
+	}
+}
+
+// RPC在服务器, 左mouse按下后续
+void AMMOARPGCharacter::MouseLeftClick_Implementation()
+{
+	if (ActionState == ECharacterActionState::FIGHT_STATE) {// 仅在战斗姿态里.
+		// 广播COMBO触发器Press()至其他客户端.
+		GetFightComponent()->Press();
+	}
+}
+
+// RPC在服务器, 右mouse按下后续
+void AMMOARPGCharacter::MouseRightClick_Implementation()
+{
+	GetFightComponent()->DodgeSkill();
+}
+
+// RPC在服务器, 左mouse松开后续
+void AMMOARPGCharacter::MouseLeftClickReleased_Implementation()
+{
+	// 广播COMBO触发器Release()至其他客户端.
+	GetFightComponent()->Released();
+}
+
+// RPC在服务器, 右mouse松开后续
+void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
+{
+
+}
+
+// 按键后冲刺.
+void AMMOARPGCharacter::Sprint_Implementation()
+{
+	GetFightComponent()->SprintSkill();
+}
+
+/** 覆盖CombatInterface接口, 如若信号值设定2,则复位触发器黑盒. */
+void AMMOARPGCharacter::AnimSignal(int32 InSignal)
+{
+	Super::AnimSignal(InSignal);
+	/* 如果在蓝图蒙太奇里配的这个AnimNotify-AnimSignal型的Notify的信号值被配成2.f, 则让连招触发器黑盒重置. */
+	if (InSignal == 2) {
+		GetFightComponent()->Reset();
 	}
 }

@@ -13,6 +13,9 @@
 #include "../../../Component/FightComponent.h"
 #include "AbilitySystemInterface.h"
 #include "../../Abilities/MMOARPGAbilitySystemComponent.h"
+#include "SimpleComboType.h"
+#include "../../Abilities/MMOARPGAttributeSet.h"
+#include <MMOARPGType.h>
 #include "MMOARPGCharacterBase.generated.h"
 
 
@@ -21,7 +24,7 @@
  */
 UCLASS()
 class MMOARPG_API AMMOARPGCharacterBase : 
-	public ACharacter, public ISimpleCombatInterface, public IAbilitySystemInterface
+	public ACharacter, public ISimpleComboInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 private:
@@ -44,13 +47,18 @@ private:
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
 	
-	/** 战斗系统组件. */
+	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
 
 	/** MMOARPG ASC组件. */
  	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
  		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+
+	/** GAS属性集指针. */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UMMOARPGAttributeSet> AttributeSet;
+
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -58,13 +66,19 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
+	
 	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
 		void K2_AnimSignal(int32 InSignal);
+	
+	// // 放平砍技能.
+	void NormalAttack(const FName& InKey);
+	// 覆盖ISimpleComboInterface::ComboAttack
+	// 本质上执行战斗组件放出平砍GA.
+	virtual void ComboAttack(const FName& InKey) override;
+public:
 	// 拿取人物姿态.
 	FORCEINLINE ECharacterActionState GetActionState() { return ActionState; }
 	// 拿取蒙太奇DT里的 行数据.
@@ -89,6 +103,7 @@ public:
 
 	/** 攀爬跳姿势的切换具体蒙太奇动画. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
+
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -108,10 +123,12 @@ protected:
 	virtual void Landed(const FHitResult& Hit) override;
 
 public:/// 技能相关
+	// 覆盖基类; 获取连招检测器.
+	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
 
-	// 添加技能
-	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
-
+	// 广播 刷新最新的人物GAS属性集.
+	UFUNCTION(NetMulticast, Reliable)
+		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:
@@ -123,7 +140,7 @@ protected:
 	UPROPERTY()
 		ECharacterActionState LastActionState;
 
-	// 游玩人物专属ID.
+	// 游玩人物专属ID.哪个角色?
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 		int32 ID;
 	// 用户ID.用户去配置的ID.
@@ -132,7 +149,4 @@ protected:
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
-
-	// 能力或者技能缓存池.
-	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 };

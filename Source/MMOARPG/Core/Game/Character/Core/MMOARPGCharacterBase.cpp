@@ -19,11 +19,13 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	FlyComponent = CreateDefaultSubobject<UFlyComponent>(TEXT("FlightComponent"));
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>(TEXT("SwimmingComponent"));
 	ClimbingComponent = CreateDefaultSubobject<UClimbingComponent>(TEXT("ClimbingComponent"));
+	ClimbingComponent->SetIsReplicated(true);
 	FightComponent = CreateDefaultSubobject<UFightComponent>(TEXT("FightComponent"));
+	FightComponent->SetIsReplicated(true);
 	AbilitySystemComponent = CreateDefaultSubobject<UMMOARPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-
 	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
 
+	AttributeSet = CreateDefaultSubobject<UMMOARPGAttributeSet>(TEXT("AttributeSet"));
 }
 
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
@@ -43,13 +45,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
 				this->AnimTable = InAnimRowData;
 			}
-
-			// 添加固有技能. 从DT蓝图资源里解算出的技能
-			if (FCharacterSkillTable* InSkillTable = InGS->GetCharacterSkillTable(GetID())) {
-				Skills.Add(TEXT("NormalAttack"), AddAbility(InSkillTable->NormalAttack));
-			}
 		}
-
 		if (!GetWorld()->IsServer()) {// 服务器没必要执行IK.
 			if (GetMesh()) {
 				if (UMMOARPGAnimInstanceBase* InMMOARPGAnimInstanceBase = Cast<UMMOARPGAnimInstanceBase>(GetMesh()->GetAnimInstance())) {
@@ -58,7 +54,10 @@ void AMMOARPGCharacterBase::BeginPlay()
 			}
 		}
 
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);// 把ASC注册进去.
+		/* 在人内部 给ASC注册GAS属性集.*/
+		TArray<UAttributeSet*> AttributeSets;
+		AttributeSets.Add(AttributeSet);
+		AbilitySystemComponent->SetSpawnedAttributes(AttributeSets);
 	}
 }
 
@@ -126,12 +125,27 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 
 }
 
-// 添加技能
-FGameplayAbilitySpecHandle AMMOARPGCharacterBase::AddAbility(TSubclassOf<UGameplayAbility> InNewAbility)
+// 放平砍技能.
+void AMMOARPGCharacterBase::NormalAttack(const FName& InKey)
 {
-	if (IsValid(InNewAbility) && AbilitySystemComponent != nullptr) {
-		return AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(InNewAbility));
-	}
+	GetFightComponent()->Attack_TriggerGA(InKey);
+}
 
-	return FGameplayAbilitySpecHandle();
+// 覆盖ISimpleComboInterface::ComboAttack; 本质上执行战斗组件放出平砍GA.
+void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
+{
+	this->NormalAttack(InKey);
+}
+
+struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
+{
+	return GetFightComponent()->GetSimpleComboInfo();
+}
+
+// 广播 刷新最新的人物GAS属性集.
+void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
+{
+	if (AttributeSet != nullptr) {
+		AttributeSet->RegistrationProperties(CharacterAttribute);
+	}
 }
