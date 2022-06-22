@@ -33,6 +33,11 @@ public:
 		FGameplayAttributeData MaxMana;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxMana)
 
+	// 属性: 伤害
+	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_Damage)
+		FGameplayAttributeData Damage;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Damage)
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 覆写AttributeSet的PostGameplayEffectExecute接口.
@@ -55,6 +60,9 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_Damage(const FGameplayAttributeData& OldValue);
 
 protected:
 	// 工具方法:

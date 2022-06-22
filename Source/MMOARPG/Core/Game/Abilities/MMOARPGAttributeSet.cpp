@@ -16,6 +16,10 @@ UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	FGameplayEffectContextHandle Context = Data.EffectSpec.GetContext();// Buff上下文.
+	UAbilitySystemComponent* SourceAbilitySystemComponent = Context.GetOriginalInstigatorAbilitySystemComponent();// 源ASC.
+
 	// 解算出Tag容器.
 	const FGameplayTagContainer& SourceTagContainer = *(Data.EffectSpec.CapturedSourceTags.GetAggregatedTags());
 	// 解算出buff作用目标人物.
@@ -27,7 +31,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		Magnitude = Data.EvaluatedData.Magnitude;
 	}
 
-	// 若是属性: Health
+	/* 关于属性: 血条*/
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));// 设定血
 		// 通知目标人去操作血量
@@ -35,12 +39,44 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 			Target->HandleHealth(SourceTagContainer, Magnitude);
 		}
 	}
-	// 若是属性: Mana
+	/* 关于属性: 蓝条*/
 	else if (Data.EvaluatedData.Attribute == GetManaAttribute()) {
-		SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+		SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));// 设定蓝
 		// 通知目标人去操作蓝量
 		if (Target != nullptr) {
 			Target->HandleMana(SourceTagContainer, Magnitude);
+		}
+	}
+	/* 若是属性: 伤害*/
+	else if (Data.EvaluatedData.Attribute == GetDamageAttribute()) {
+		const float TmpDamage = GetDamage();// 记录一下当前临时伤害值.
+		SetDamage(0.f);// 清零.
+
+		const float OldHealth = GetHealth();// 记录被攻击前的血量.
+		SetHealth(FMath::Clamp(OldHealth - TmpDamage, 0.f, GetMaxHealth()));// 设定受击后的残余血量
+		
+		if (Target != nullptr) {
+			// 借助源ASC拿取 源Actor和源Controller 并转化为适用于人形态的.
+			AActor* SourceActor = SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
+			AController* SourceController = SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
+			if (SourceController == nullptr && SourceActor != nullptr) {
+				if (APawn* InPawn = Cast<APawn>(SourceActor)) {
+					SourceController = InPawn->GetController();
+				}
+			}
+
+			// 判定施法者到底是 MMOARPG人物形态还是一个源actor形态
+			AMMOARPGCharacterBase* SourceCharacter = nullptr;
+			if (SourceController) {
+				SourceCharacter = Cast<AMMOARPGCharacterBase>(SourceController->GetPawn());
+			}
+			else {
+				SourceCharacter = Cast<AMMOARPGCharacterBase>(SourceActor);
+			}
+
+			// 命令目标去操作伤害和血量处理.
+			Target->HandleDamage(TmpDamage, SourceTagContainer, SourceCharacter, SourceActor);
+			Target->HandleHealth(SourceTagContainer, -TmpDamage);
 		}
 	}
 
@@ -84,6 +120,11 @@ void UMMOARPGAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldValue)
 void UMMOARPGAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxMana, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_Damage(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Damage, OldValue);
 }
 
 // 仅工具方法.

@@ -161,3 +161,9 @@ void AMMOARPGCharacterBase::HandleMana(const struct FGameplayTagContainer& InTag
 {
 
 }
+
+// 处理人的伤害值; 虚方法
+void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ const struct FGameplayTagContainer& DamageTags,/* 标签 */ AMMOARPGCharacterBase* InstigatorPawn,/* 施法者 */ AActor* DamageCauser/* 源ASC内的源actor */)
+{
+
+}

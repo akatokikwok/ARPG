@@ -134,6 +134,14 @@ public:/// 技能相关
 	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的蓝量; 虚方法
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
+	// 处理人的伤害值; 虚方法
+	virtual void HandleDamage(
+		float DamageAmount,// 伤害值
+		const struct FGameplayTagContainer& DamageTags,// 标签
+		AMMOARPGCharacterBase* InstigatorPawn,// 施法者
+		AActor* DamageCauser// 源ASC内的源actor
+	);
+
 /// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.
