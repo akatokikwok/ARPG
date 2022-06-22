@@ -1,7 +1,7 @@
 ﻿/**
  * 此文件用以存储一些常用的关于4个服务器直接收发协议的 头文件与宏还有宏方法.
  */
-
+#pragma once
 #include "Core/Common/MMOARPGGameInstance.h"
 #include "SimpleProtocolsDefinition.h"
 
