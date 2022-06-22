@@ -16,6 +16,16 @@ void UUI_GameMain::NativeConstruct()
 		Robot.GetGateRobot().StartDelegate.BindUObject(InPlayer, &AMMOARPGPlayerCharacter::FlushKneadingRequest);// 网关机器人的代理绑定1个人物刷新人物样貌的回调.
 	}
 
+	// 让指定的用户号存档切换
+	if (GameCount == 0) {
+		Robot.InitUser(1, 3);// 手动写死测试, 1号用户3号存档
+		GameCount++;
+	}
+	else if (GameCount == 1) {
+		Robot.InitUser(13, 3);// 手动写死测试, 13号用户3号存档
+		GameCount++;
+	}
+
 	Robot.InitGate("127.0.0.1", 11222);// 11222是MMOARPGGateServer的ini里配置.
 #endif
 

@@ -21,6 +21,12 @@ void FMMOARPGRobot::Tick(float DeltaTime)
 	DSRobot.Tick(DeltaTime);
 }
 
+void FMMOARPGRobot::InitUser(int32 InUserID, int32 InSlotPos)
+{
+	GateRobot.UserID = InUserID;
+	GateRobot.SlotID = InSlotPos;
+}
+
 void FMMOARPGRobot::RunRobot()
 {
 // 	GateRobot.Run_LoginToDSServerRequests();

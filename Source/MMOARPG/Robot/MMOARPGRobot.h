@@ -14,6 +14,9 @@ public:
 	void InitDS(const FString& Host, const int32 Port);
 	void Tick(float DeltaTime);
 
+	// 注册子类网管机器人的用户号和槽位号
+	void InitUser(int32 InUserID, int32 InSlotPos);
+
 	void RunRobot();
 	FMMOARPGGateRobot& GetGateRobot() { return GateRobot; }
 private:

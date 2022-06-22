@@ -7,6 +7,11 @@
 
 #define UE_MMOARPG_DEBUG_DS 1 // 用于开关调试功能的宏. 1开启0关闭. 打包的时候要设置成0. 在DS下测试数据要设置为1.
 
+#if UE_MMOARPG_DEBUG_DS
+static uint32 GameCount = 0;// 用于给机器人切换用户号用.
+#endif
+
+
 /** 包装一个发送协议的宏. */
 #if PLATFORM_WINDOWS
 
