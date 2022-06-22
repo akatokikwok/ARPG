@@ -2,9 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "../Core/UI_MainBase.h"
+#include "SimpleNetChannelType.h"
+#include "MMOARPGType.h"
 #include "UI_LoginMain.generated.h"
 
 class UTextBlock;
+class UUI_Register;
 
 /**
  * 一切登录功能的主面板.
@@ -22,6 +25,9 @@ private:
 	UPROPERTY(meta = (BindWidget))
 		UUI_Login* UI_Login;
 
+	// 注册用户面板.
+	UPROPERTY(meta = (BindWidget))
+		UUI_Register* UI_Register;
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -37,5 +43,7 @@ public:
 	void SignIn(/*const*/ FString& InAccount, /*const*/ FString& InPassword);
 	/**  注册账户的真正入口逻辑.*/
 	void Register();
+	// 
+	void Register(FString InRegisterInfo);
 
 };

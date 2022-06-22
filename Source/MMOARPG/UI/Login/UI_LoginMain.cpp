@@ -12,7 +12,10 @@
 #include "SimpleProtocolsDefinition.h"
 #include "../../MMOARPGMacroType.h"
 #include "MMOARPGType.h"
+#include "UI_Register.h"
 #include "Kismet/GameplayStatics.h"
+
+#define LOCTEXT_NAMESPACE "UUI_LoginMain"
 
 void UUI_LoginMain::NativeConstruct()
 {
@@ -22,6 +25,7 @@ void UUI_LoginMain::NativeConstruct()
 
 	// 为登录界面设置持有者.
 	UI_Login->SetParents(this);
+	UI_Register->SetParents(this);
 
 	UUI_MainBase::LinkServer();// 链接至服务器并循环创建绑定.
 
@@ -54,6 +58,8 @@ void UUI_LoginMain::NativeDestruct()
 void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
 	switch (ProtocolNumber) {
+
+		/** 登录响应. */
 		case SP_LoginResponses:
 		{
 			FString StringTmp;// 接受协议后有值的Json String.
@@ -118,6 +124,39 @@ void UUI_LoginMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 
 			break;
 		}
+
+		/** 注册响应. */
+		case SP_RegisterResponses:
+		{
+			ERegistrationType Type = ERegistrationType::SERVER_BUG_WRONG;
+
+			//拿到客户端发送的账号
+			SIMPLE_PROTOCOLS_RECEIVE(SP_RegisterResponses, Type);
+
+			switch (Type) {
+				case ACCOUNT_AND_EMAIL_REPETITION_ERROR:
+				{
+					PrintLog(LOCTEXT("ACCOUNT_AND_EMAIL_REPETITION_ERROR", "Duplicate account or email."));
+
+					//协程
+					GThread::Get()->GetCoroutines().BindLambda(0.5f, [&]() {
+						Register();
+						});
+
+					break;
+				}
+				case PLAYER_REGISTRATION_SUCCESS:
+					PrintLog(LOCTEXT("REGISTRATION_SUCCESS", "Registration was successful."));
+					break;
+				case SERVER_BUG_WRONG:
+					PrintLog(LOCTEXT("SERVER_BUG_WRONG", "Server unknown error."));
+					break;
+				default:
+					break;
+			}
+		}
+
+		/**  */
 	}
 }
 
@@ -130,7 +169,13 @@ void UUI_LoginMain::SignIn(FString& InAccount, FString& InPassword)
 
 void UUI_LoginMain::Register()
 {
+	UI_Register->RegisterIn();
+}
 
+//
+void UUI_LoginMain::Register(FString InRegisterInfo)
+{
+	SEND_DATA(SP_RegisterRequests, InRegisterInfo);
 }
 
 void UUI_LoginMain::LinkServerInfo(ESimpleNetErrorType InErrorType, const FString& InMsg)
@@ -140,3 +185,5 @@ void UUI_LoginMain::LinkServerInfo(ESimpleNetErrorType InErrorType, const FStrin
 		UI_LinkWidget->SetVisibility(ESlateVisibility::Collapsed);// 隐藏此Widget.
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
