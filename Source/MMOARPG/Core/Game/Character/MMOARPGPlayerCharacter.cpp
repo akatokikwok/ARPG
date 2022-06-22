@@ -75,22 +75,22 @@ void AMMOARPGPlayerCharacter::CallUpdateKneadingBobyOnClient_Implementation(cons
 void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 {
 	if (UMMOARPGGameInstance* InGameInstance = GetWorld()->GetGameInstance<UMMOARPGGameInstance>()) {
-	#if UE_MMOARPG_DEBUG_DS
+#if UE_MMOARPG_DEBUG_DS
 		// RPC在DS - GM, 发送刷新容貌的请求.
 
 		// 让指定的用户号存档切换
-		if (GameCount == 2) {
+		if (GameCount == 0) {
 			CallServerUpdateKneading(1);// 刷新1号用户
 			GameCount++;
 		}
-		else if (GameCount == 3) {
-			CallServerUpdateKneading(13);// 刷新13号用户
+		else if (GameCount == 1) {
+			CallServerUpdateKneading(3);// 刷新3号用户
 			GameCount = 0;
 		}
-	#else
+#else
 		// RPC在DS - GM, 发送刷新容貌的请求.
 		CallServerUpdateKneading(InGameInstance->GetUserData().ID);
-	#endif		
+#endif		
 	}
 }
 

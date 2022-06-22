@@ -22,7 +22,7 @@ void UUI_GameMain::NativeConstruct()
 		GameCount++;
 	}
 	else if (GameCount == 1) {
-		Robot.InitUser(13, 3);// 手动写死测试, 13号用户3号存档
+		Robot.InitUser(3, 3);// 手动写死测试, 3号用户3号存档
 		GameCount++;
 	}
 
@@ -39,6 +39,7 @@ void UUI_GameMain::NativeDestruct()
 {
 	Super::NativeDestruct();
 
+	GameCount = 0;
 }
 
 void UUI_GameMain::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
