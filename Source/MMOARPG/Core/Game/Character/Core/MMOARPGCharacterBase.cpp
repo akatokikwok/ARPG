@@ -3,6 +3,7 @@
 #include "../../MMOARPGGameState.h"
 #include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
+#include "SimpleDrawTextFunctionLibrary.h"
 
 
 // Sets default values
@@ -165,5 +166,20 @@ void AMMOARPGCharacterBase::HandleMana(const struct FGameplayTagContainer& InTag
 // 处理人的伤害值; 虚方法
 void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ const struct FGameplayTagContainer& DamageTags,/* 标签 */ AMMOARPGCharacterBase* InstigatorPawn,/* 施法者 */ AActor* DamageCauser/* 源ASC内的源actor */)
 {
+	// 生成飘动在人头部上侧的字体.它会自动销毁.
+	FVector InNewLocation = GetActorLocation();
+	InNewLocation.Z += 140.f;
+	
+	// 执行2遍是因为为了让挨打的和开打的2个客户端都可以看见伤害值.
+	InstigatorPawn->SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
+	SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
+}
 
+// RPC至客户端, 让客户端播放伤害字体.
+void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageAmount, const FVector& InLocation, float InRate)
+{
+	USimpleDrawTextFunctionLibrary::SpawnDrawText(
+		GetWorld(),
+		InLocation,
+		FString::Printf(TEXT("- %.2lf"), InDamageAmount), FColor::Red, InRate);
 }

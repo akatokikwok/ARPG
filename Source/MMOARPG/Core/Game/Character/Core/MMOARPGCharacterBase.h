@@ -141,6 +141,10 @@ public:/// 技能相关
 		AMMOARPGCharacterBase* InstigatorPawn,// 施法者
 		AActor* DamageCauser// 源ASC内的源actor
 	);
+protected:
+	// RPC至客户端, 让客户端播放伤害字体.
+	UFUNCTION(Client, Reliable)
+		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:

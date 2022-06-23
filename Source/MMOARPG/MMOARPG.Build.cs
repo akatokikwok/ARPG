@@ -26,6 +26,7 @@ public class MMOARPG : ModuleRules
             "GameplayTasks",
 			"GameplayTags",
             "DataRegistry",
+			"SimpleDrawText",
         });
 	}
 }
