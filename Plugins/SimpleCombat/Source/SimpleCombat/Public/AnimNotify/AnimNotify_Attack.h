@@ -38,6 +38,10 @@ public:
 	// 要生成什么物体?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		TSubclassOf<AHitCollision> HitObjectClass;// 要生成什么物体?
+	
+	// 受击ID.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		int32 HitID;// 受击ID..
 
 	// 碰撞体再补上一段偏移位置.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
@@ -58,6 +62,7 @@ public:
 	// 群伤还是单体伤害.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		bool bSingleTarget;// 群伤还是单体伤害.
+
 public:
 	// 是否是盒子hitbox;
 	UPROPERTY(BlueprintReadOnly)

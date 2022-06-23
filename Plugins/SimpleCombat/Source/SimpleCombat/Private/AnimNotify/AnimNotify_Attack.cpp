@@ -63,6 +63,8 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 				}
 			}
+
+			HitCollision->SetHitID(HitID);// 给socket上的这个碰撞物写入一个受击ID.
 		}
 	}
 }

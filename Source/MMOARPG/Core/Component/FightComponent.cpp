@@ -37,6 +37,10 @@ void UFightComponent::BeginPlay()
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 			// 往Skills整个池子里写入注册 冲刺2
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+			// 往池子里写入 受击能力
+			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Hit"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
+			// 往池子里写入 死亡能力
+			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Die"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
 
 			// 仅允许服务器注册ASC的持有对象(即人物基类.).
 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
@@ -98,6 +102,24 @@ void UFightComponent::Sprint2Skill_Implementation()
 	Attack_TriggerGA(TEXT("Player.Skill.Sprint2"));
 }
 
+// 放受击技能
+void UFightComponent::Hit()
+{
+	if (AbilitySystemComponent.IsValid()) {
+		AbilitySystemComponent->TryActivateAbilitiesByTag(
+			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit"))));
+	}
+}
+
+// 放死亡 技能
+void UFightComponent::Die()
+{
+	if (AbilitySystemComponent.IsValid()) {
+		AbilitySystemComponent->TryActivateAbilitiesByTag(
+			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die"))));
+	}
+}
+
 // 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.
 void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType /*= EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK*/)
 {
@@ -120,12 +142,20 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 				}
 				return nullptr;
 			};
-			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
-				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
-					Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));
+
+			/* 按技能形式来源切分, 分无状态的 和 真正技能形式的*/
+			if (GAType != EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE) {
+				// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+				if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
+					if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
+						Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));
+					}
 				}
 			}
+			else {
+				
+			}
+			
 		}
 	}
 }

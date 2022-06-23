@@ -104,6 +104,9 @@ public:
 	/** 攀爬跳姿势的切换具体蒙太奇动画. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
 
+	// 检查人物是否死亡.
+	bool IsDie();
+
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -141,6 +144,18 @@ public:/// 技能相关
 		AMMOARPGCharacterBase* InstigatorPawn,// 施法者
 		AActor* DamageCauser// 源ASC内的源actor
 	);
+
+	// 写入战斗组件里的受击ID
+	void SetHitID(int32 InNewID);
+	// 读取战斗组件里的受击ID
+	const int32 GetHitID() const;
+
+	// 执行受击
+	virtual void PlayHit();
+	
+	// 执行死亡
+	virtual void PlayDie();
+
 protected:
 	// RPC至客户端, 让客户端播放伤害字体.
 	UFUNCTION(Client, Reliable)
