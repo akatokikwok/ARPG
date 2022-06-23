@@ -12,6 +12,7 @@
 // 攻击形式来源枚举.
 enum EMMOARPGGameplayAbilityType
 {
+	GAMEPLAYABILITY_NONE,// 无学术意义上的技能, 例如死亡, 挨打
 	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
 	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
 };
@@ -75,6 +76,14 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
+	// 放受击 技能
+	UFUNCTION( BlueprintCallable)
+		void Hit();
+
+	// 放死亡 技能
+	UFUNCTION(BlueprintCallable)
+		void Die();
+
 		/// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC
@@ -91,6 +100,9 @@ protected:
 	// 能力或者技能缓存池.
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 
-private:
-	FName KeyNameUsedIter = FName();
+public:
+	// 受击ID
+	UPROPERTY()
+		int32 HitID;// 受击ID
+
 };

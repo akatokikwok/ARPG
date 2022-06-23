@@ -5,6 +5,7 @@
 
 class FMMOARPGGateRobot
 {
+	friend class FMMOARPGRobot;
 public:
 	FMMOARPGGateRobot();
 	virtual ~FMMOARPGGateRobot();
@@ -22,4 +23,6 @@ public:
 	FSimpleDelegate StartDelegate;// 代理: 当登录到DS后. (在UI构造时候绑定 人身上RPC的刷新相貌请求.)
 private:
 	FSimpleNetManage* GateClient;// 模拟网关的客户端.
+	int32 UserID;// 用户号.
+	int32 SlotID;// 人物槽位号.
 };

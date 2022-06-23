@@ -4,6 +4,7 @@
 #include "ComboSkillHitCollision.generated.h"
 
 /**
+ * 一切hitbox的基类.
  * 生成的碰撞actor,用于普攻攻击时候检测.
  */
 UCLASS(BlueprintType, Blueprintable)
@@ -32,4 +33,20 @@ public:
 
 	// 设置 具备形状comp 的相对位置.
 	void SetHitDamageRelativePosition(const FVector& InNewPostion);
+
+	// 操作启用或禁用hitbox碰撞.
+	void Collision(bool bTurnOnCollision);
+
+	// 写入受击ID
+	void SetHitID(int32 InNewHit) { HitID = InNewHit; }
+	// 拿取受击ID
+	const int32 GetHitID() const { return HitID; }
+protected:
+	// 受击ID.
+	UPROPERTY()
+		int32 HitID;// 受击ID.
+	
+	////
+	//UPROPERTY()
+	//	TArray<FName> Buffs;
 };

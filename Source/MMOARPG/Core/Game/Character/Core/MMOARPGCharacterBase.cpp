@@ -3,6 +3,7 @@
 #include "../../MMOARPGGameState.h"
 #include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
+#include "SimpleDrawTextFunctionLibrary.h"
 
 
 // Sets default values
@@ -91,6 +92,15 @@ void AMMOARPGCharacterBase::ResetActionState(ECharacterActionState InNewActionSt
 	}
 }
 
+// 检查人物是否死亡.
+bool AMMOARPGCharacterBase::IsDie()
+{
+	if (AttributeSet) {
+		return AttributeSet->GetHealth() <= 0.f;// 查询属性集内部 health字段情况.
+	}
+	return true;// 否则默认其死亡
+}
+
 // 同步变量需要重写的方法.
 void AMMOARPGCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -148,4 +158,61 @@ void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOAR
 	if (AttributeSet != nullptr) {
 		AttributeSet->RegistrationProperties(CharacterAttribute);
 	}
+}
+
+// 处理人的血量; 虚方法
+void AMMOARPGCharacterBase::HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+
+}
+
+// 处理人的蓝量; 虚方法
+void AMMOARPGCharacterBase::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+
+}
+
+// 处理人的伤害值; 虚方法
+void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ const struct FGameplayTagContainer& DamageTags,/* 标签 */ AMMOARPGCharacterBase* InstigatorPawn,/* 施法者 */ AActor* DamageCauser/* 源ASC内的源actor */)
+{
+	// 生成飘动在人头部上侧的字体.它会自动销毁.
+	FVector InNewLocation = GetActorLocation();
+	InNewLocation.Z += 140.f;
+	
+	// 执行2遍是因为为了让挨打的和开打的2个客户端都可以看见伤害值.
+	InstigatorPawn->SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
+	SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
+}
+
+// 写入战斗组件里的受击ID
+void AMMOARPGCharacterBase::SetHitID(int32 InNewID)
+{
+	FightComponent->HitID = InNewID;
+}
+
+// 读取战斗组件里的受击ID
+const int32 AMMOARPGCharacterBase::GetHitID() const
+{
+	return FightComponent->HitID;
+}
+
+// 执行受击
+void AMMOARPGCharacterBase::PlayHit()
+{
+	GetFightComponent()->Hit();
+}
+
+// 执行死亡
+void AMMOARPGCharacterBase::PlayDie()
+{
+	GetFightComponent()->Die();
+}
+
+// RPC至客户端, 让客户端播放伤害字体.
+void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageAmount, const FVector& InLocation, float InRate)
+{
+	USimpleDrawTextFunctionLibrary::SpawnDrawText(
+		GetWorld(),
+		InLocation,
+		FString::Printf(TEXT("- %.2lf"), InDamageAmount), FColor::Red, InRate);
 }

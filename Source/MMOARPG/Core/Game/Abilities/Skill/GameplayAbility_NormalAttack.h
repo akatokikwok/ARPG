@@ -8,6 +8,7 @@
 
 /**
  * GA:普攻
+ * 继承自GA_Skill
  */
 UCLASS()
 class MMOARPG_API UGameplayAbility_NormalAttack : public UGameplayAbility_Skill

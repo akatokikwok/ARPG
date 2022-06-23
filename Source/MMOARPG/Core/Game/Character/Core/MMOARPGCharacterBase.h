@@ -104,6 +104,9 @@ public:
 	/** 攀爬跳姿势的切换具体蒙太奇动画. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
 
+	// 检查人物是否死亡.
+	bool IsDie();
+
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -129,6 +132,34 @@ public:/// 技能相关
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
+	
+	// 处理人的血量; 虚方法
+	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
+	// 处理人的蓝量; 虚方法
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
+	// 处理人的伤害值; 虚方法
+	virtual void HandleDamage(
+		float DamageAmount,// 伤害值
+		const struct FGameplayTagContainer& DamageTags,// 标签
+		AMMOARPGCharacterBase* InstigatorPawn,// 施法者
+		AActor* DamageCauser// 源ASC内的源actor
+	);
+
+	// 写入战斗组件里的受击ID
+	void SetHitID(int32 InNewID);
+	// 读取战斗组件里的受击ID
+	const int32 GetHitID() const;
+
+	// 执行受击
+	virtual void PlayHit();
+	
+	// 执行死亡
+	virtual void PlayDie();
+
+protected:
+	// RPC至客户端, 让客户端播放伤害字体.
+	UFUNCTION(Client, Reliable)
+		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:

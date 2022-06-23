@@ -17,6 +17,8 @@ void AHitCollision::BeginPlay()
 	Super::BeginPlay();
 
 	if (UPrimitiveComponent* InHitComponent = GetHitDamage()) {
+		
+		Collision(false);// 默认先禁用碰撞.
 		InHitComponent->SetHiddenInGame(false);
 		InHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AHitCollision::HandleDamage);// 与场景物体相撞接触的时候绑定回调.
 	}
@@ -45,5 +47,18 @@ void AHitCollision::SetHitDamageRelativePosition(const FVector& InNewPostion)
 {
 	if (UPrimitiveComponent* InHitComponent = GetHitDamage()) {
 		InHitComponent->SetRelativeLocation(InNewPostion);
+	}
+}
+
+// 操作启用或禁用hitbox碰撞.
+void AHitCollision::Collision(bool bTurnOnCollision)
+{
+	if (UPrimitiveComponent* InHitComponent = GetHitDamage()) {
+		if (bTurnOnCollision) {
+			InHitComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else {
+			InHitComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
 	}
 }
