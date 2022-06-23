@@ -4,6 +4,7 @@
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "MMOARPGGameState.h"
 #include "MMOARPGPlayerState.h"
+#include "../../MMOARPGGameMethod.h"
 
 AMMOARPGPlayerController::AMMOARPGPlayerController()
 {
@@ -47,6 +48,43 @@ void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacter
 					InPawn->Destroy(true);// 设为TRUE表示强制网络删除.
  				}
 
+			}
+		}
+	}
+}
+
+// RPC在服务器, 写入目标人物或者小怪.
+void AMMOARPGPlayerController::ResetTargetOnServer_Implementation(AMMOARPGCharacterBase* InNewTarget)
+{
+	Target = InNewTarget;
+}
+
+void AMMOARPGPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+void AMMOARPGPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	/// 检索半径范围内最近的敌对目标.
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {/* 仅在主机客户端上*/
+		float MaxNewRange = 520.f;
+		// 找寻520米内最近的敌对目标并在服务器上将其写入
+		if (!Target.IsValid()) {
+			Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), MaxNewRange);
+			if (Target.IsValid()) {
+				ResetTargetOnServer(Target.Get());
+			}
+		}
+		// 意外情况,敌人太远,或者敌人死亡,就清空敌对目标并在服务器上也写入一次.
+		else {
+			float Distance = FVector::Dist(Target->GetActorLocation(), GetPawn()->GetActorLocation());
+			if (Distance > MaxNewRange || Target->IsDie()) {
+				Target = NULL;
+				ResetTargetOnServer(NULL);
 			}
 		}
 	}
