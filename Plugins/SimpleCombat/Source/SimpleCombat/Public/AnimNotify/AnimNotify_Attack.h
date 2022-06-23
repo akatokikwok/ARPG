@@ -39,9 +39,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		TSubclassOf<AHitCollision> HitObjectClass;// 要生成什么物体?
 	
-	// 受击ID.
+	// 被你攻击的受击者beHit蒙太奇里的指定受击ID.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
-		int32 HitID;// 受击ID..
+		int32 HitID;// 被你攻击的受击者beHit蒙太奇里的指定受击ID..
+
+	// 是否生成并渲染hitbox; 如果为true 代表仅服务器生成 如果为false 则在双端生成
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		bool bSpawnCollisionOnServer;// 是否生成并渲染hitbox; 如果为true 代表仅服务器生成 如果为false 则在双端生成..
 
 	// 碰撞体再补上一段偏移位置.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

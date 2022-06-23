@@ -39,8 +39,8 @@ void UFightComponent::BeginPlay()
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 			// 往池子里写入 受击能力
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Hit"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
-			// 往池子里写入 死亡能力
-			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Die"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
+// 			// 往池子里写入 死亡能力
+// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Die"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
 
 			// 仅允许服务器注册ASC的持有对象(即人物基类.).
 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
@@ -120,7 +120,7 @@ void UFightComponent::Die()
 	}
 }
 
-// 往Skills池子里写入 从DTRow里查出来的指定GA的形式攻击.
+/** 往Skills大池子里注册写入  指定Tag的技能. */
 void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType /*= EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK*/)
 {
 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
@@ -129,6 +129,11 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 			// 从DTR里拿表中的TMAP作为数据源.
 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
 				switch (InGAType) {
+					case GAMEPLAYABILITY_NONE:
+					{
+						return InSkillTable_row->FindLimbs(InKey_GAName);
+						break;
+					}
 					case GAMEPLAYABILITY_SKILLATTACK:
 					{
 						return InSkillTable_row->FindSkillAttack(InKey_GAName);
@@ -143,19 +148,20 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 				return nullptr;
 			};
 
-			/* 按技能形式来源切分, 分无状态的 和 真正技能形式的*/
-			if (GAType != EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE) {
-				// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-				if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
-					if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
-						Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));
+			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
+				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
+
+					/* 按技能形式来源切分, 分无状态的 和 真正技能形式的*/
+					if (GAType != EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE) {
+						Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 给大池子注册一队pair
+					}
+					else {/* 肢体行为的能力(如受击, 死亡, 嘲讽)*/
+						AddAbility(*InGameplayAbility);// 直接give技能, 不需要往大池子里注册.
 					}
 				}
 			}
-			else {
-				
-			}
-			
+			//
 		}
 	}
 }

@@ -21,6 +21,7 @@ public:
 public:
 	TSubclassOf<UGameplayAbility>* FindComboAttack(const FName& InKey);// 用Key获取缓存池:combo形式
 	TSubclassOf<UGameplayAbility>* FindSkillAttack(const FName& InKey);// 用Key获取缓存池:skill形式
+	TSubclassOf<UGameplayAbility>* FindLimbs(const FName& InKey);// 用Key获取缓存池:肢体行为
 
 public:
 	// ID号, 存在于负责技能的DTRow.
@@ -34,4 +35,8 @@ public:
 	// 技能形式的攻击 缓存池, 存在于负责技能的DTRow;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
 		TArray<TSubclassOf<UGameplayAbility>> SkillAttack;// 攻击缓存池:技能形式, 存在于负责技能的DTRow;
+
+	// 和肢体行为相关的一些能力; 例如受击, 死亡, 嘲讽 打招呼
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterLimbs")
+		TArray<TSubclassOf<UGameplayAbility>> Limbs;// 肢体行为缓存池; 
 };

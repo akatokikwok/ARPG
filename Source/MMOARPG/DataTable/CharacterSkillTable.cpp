@@ -21,3 +21,10 @@ TSubclassOf<UGameplayAbility>* FCharacterSkillTable::FindSkillAttack(const FName
 		return InGameplayAbility.GetDefaultObject()->AbilityTags == FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InKey));
 		});
 }
+
+TSubclassOf<UGameplayAbility>* FCharacterSkillTable::FindLimbs(const FName& InKey)
+{
+	return Limbs.FindByPredicate([&](TSubclassOf<UGameplayAbility> InGameplayAbility) ->bool {
+		return InGameplayAbility.GetDefaultObject()->AbilityTags == FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InKey));
+		});
+}
