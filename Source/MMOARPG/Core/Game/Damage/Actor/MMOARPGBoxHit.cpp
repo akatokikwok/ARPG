@@ -51,6 +51,10 @@ void AMMOARPGBoxHit::HandleDamage(
 				InTarget->PlayDie();
 			}
 			else {
+				// 让挨打的人面朝向 施法者.
+				FRotator TargetRot = (-EventData.Instigator->GetActorForwardVector()).ToOrientationRotator();
+				InTarget->SetActorRotation(TargetRot);
+
 				// 先去注册人物内部受击ID
 				InTarget->SetHitID(AHitCollision::GetHitID());
 				// 再执行人物挨打受击.
