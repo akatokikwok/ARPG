@@ -76,9 +76,18 @@ void AMMOARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 }
 
+// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 {
 	K2_AnimSignal(InSignal);
+
+	// 手动配置一下7和8,播任一一种死亡seq anim.
+	if (InSignal == 7) {
+		DieIndex = 0;
+	}
+	else if (InSignal == 8) {
+		DieIndex = 1;
+	}
 }
 
 void AMMOARPGCharacterBase::ResetActionState(ECharacterActionState InNewActionState)

@@ -49,6 +49,11 @@
 		{
 			"Name": "GameplayAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "SimpleDrawText",
+			"Enabled": true,
+			"MarketplaceURL": "https://renzhai.net/150.html"
 		}
 	]
 }

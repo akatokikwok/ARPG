@@ -67,7 +67,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
+	// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
@@ -99,6 +99,8 @@ public:
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
 	// 拿取GAS属性集.
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
+	// 拿取死亡动画序列号.
+	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
 
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);
@@ -179,6 +181,10 @@ protected:
 	// 用户ID.用户去配置的ID.
 	UPROPERTY()
 		int32 UserID;
+
+	// 死亡动画序列号.
+	UPROPERTY()
+		int32 DieIndex;
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
