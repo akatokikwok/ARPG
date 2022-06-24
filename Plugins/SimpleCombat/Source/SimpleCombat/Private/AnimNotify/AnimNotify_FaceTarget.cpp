@@ -19,16 +19,16 @@ void UAnimNotify_FaceTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	Super::Notify(MeshComp, Animation);
 
 	if (ISimpleComboInterface* InSimpleCombatInterface = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
-		if (AActor* InTarget = InSimpleCombatInterface->GetTarget()) {
-			if (AActor* InThis = Cast<AActor>(MeshComp->GetOuter())) {
-				FRotator FaceRot = FRotationMatrix::MakeFromX(InTarget->GetActorLocation() - InThis->GetActorLocation()).Rotator();
+		if (AActor* InTarget = InSimpleCombatInterface->GetTarget()) {// 先拿敌对目标.
+			if (AActor* InThis = Cast<AActor>(MeshComp->GetOuter())) {// 再拿自己.
 
+				FRotator FaceRot = FRotationMatrix::MakeFromX(InTarget->GetActorLocation() - InThis->GetActorLocation()).Rotator();// 施法者重转向受击者的弧度
+				
 				auto ResetValue = [](bool bReset, double& InAix) {
 					if (!bReset) {
 						InAix = 0.f;
 					}
 				};
-
 				ResetValue(bYaw, FaceRot.Yaw);
 				ResetValue(bRoll, FaceRot.Roll);
 				ResetValue(bPitch, FaceRot.Pitch);

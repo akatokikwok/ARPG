@@ -132,6 +132,9 @@ public:/// 技能相关
 	/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
 	virtual void AnimSignal(int32 InSignal) override;
 
+	// 覆写GetTarget接口. 读取敌对目标人物或者怪物
+	virtual AActor* GetTarget() override;
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

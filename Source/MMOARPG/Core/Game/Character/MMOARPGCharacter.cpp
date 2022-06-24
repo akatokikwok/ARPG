@@ -11,6 +11,7 @@
 #include <ThreadManage.h>
 #include "../MMOARPGGameMode.h"
 #include "../MMOARPGPlayerState.h"
+#include "../MMOARPGPlayerController.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMMOARPGCharacter
@@ -474,4 +475,14 @@ void AMMOARPGCharacter::AnimSignal(int32 InSignal)
 	if (InSignal == 2) {
 		GetFightComponent()->Reset();
 	}
+}
+
+// 覆写GetTarget接口. 读取敌对目标人物或者怪物
+AActor* AMMOARPGCharacter::GetTarget()
+{
+	// 使用AMMOARPGPlayerController里的读取敌对目标
+	if (AMMOARPGPlayerController* InPlayerController = Cast<AMMOARPGPlayerController>(GetController())) {
+		return InPlayerController->GetTarget();
+	}
+	return nullptr;
 }
