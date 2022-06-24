@@ -33,6 +33,11 @@ void UUI_PartnerInfo::ShowSelected(bool bShow)
 	ClickedCheckBox->SetCheckedState(bShow == true ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
 }
 
+void UUI_PartnerInfo::SetCharacterName(const FText& NewName)
+{
+	CharacterName->SetText(NewName);
+}
+
 void UUI_PartnerInfo::OnClickedCharacter(bool bClicked)
 {
 	/** 把敲击的人物框设定为选中状态. */

@@ -97,6 +97,8 @@ public:
 	FORCEINLINE UFightComponent* GetFightComponent() { return FightComponent; }
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
+	// 拿取GAS属性集.
+	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 
 	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
 	void ResetActionState(ECharacterActionState InNewActionState);

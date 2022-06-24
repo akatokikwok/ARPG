@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../../Core/UI_MainBase.h"
+#include "../Character/UI_CharacterHealthState.h"
 #include "UI_PartnerInfo.generated.h"
 
 class UCheckBox;
@@ -14,7 +15,7 @@ class UProgressBar;
  * 
  */
 UCLASS()
-class MMOARPG_API UUI_PartnerInfo : public UUI_Base
+class MMOARPG_API UUI_PartnerInfo : public UUI_CharacterHealthState
 {
 	GENERATED_BODY()
 private:
@@ -29,11 +30,11 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CharacterName;
 
-	UPROPERTY(meta = (BindWidget))
-	UProgressBar* HealthBar;
-
-	UPROPERTY(meta = (BindWidget))
-	UProgressBar* ManaBar;
+// 	UPROPERTY(meta = (BindWidget))
+// 	UProgressBar* HealthBar;
+// 
+// 	UPROPERTY(meta = (BindWidget))
+// 	UProgressBar* ManaBar;
 
 public:
 	UUI_PartnerInfo(const FObjectInitializer& ObjectInitializer);
@@ -46,6 +47,9 @@ public:
 	int32 GetCharacterID() { return CharacterID; }
 	// 设定本CheckBox是否处于选中外观.
 	void ShowSelected(bool bShow);
+
+	// 设定人物名字
+	void SetCharacterName(const FText& NewName);
 protected:
 	// 设置人物信息控件的ID号.
 	void SetCharacterID(int32 InCharacterID) { CharacterID = InCharacterID; }
