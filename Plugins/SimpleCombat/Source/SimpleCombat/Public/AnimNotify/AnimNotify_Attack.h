@@ -59,9 +59,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		FName InSocketName;// 绑在哪个骨骼socket上.
 
-	// 是否允许将Box绑定在角色身上开火点上.
+	// 是否允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
-		bool bBind;// 是否允许将Box绑定在角色身上开火点上.
+		bool bBind;// 是否允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上..
 
 	// 群伤还是单体伤害.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

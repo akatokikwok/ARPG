@@ -5,7 +5,8 @@
 #include "MMOARPGBoxHit.generated.h"
 
 /**
- * BoxHit类,模拟伤害或者射击子弹
+ * BoxHit类,模拟撞击盒子hitbox伤害或者射击子弹
+ * 项目里真正使用到的hitbox
  */
 UCLASS(BlueprintType, Blueprintable)
 class AMMOARPGBoxHit : public AHitBoxCollision
