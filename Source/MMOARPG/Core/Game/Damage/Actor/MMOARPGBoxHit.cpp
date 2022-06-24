@@ -42,13 +42,18 @@ void AMMOARPGBoxHit::HandleDamage(
 				EventData.Instigator = GetInstigator();// 施法者
 				EventData.Target = OtherActor;// 攻击目标,打到谁了
 
-				/** 接收到伤害时候,会把伤害信息用此API把伤害事件与Tag传出去,传至GA::基类里的AbilityTask_PMAWDamage里 */
-				/** 在数据上 专门处理受击, 击伤 */
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-					GetInstigator(),
-					FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")),
-					EventData
-				);
+				// 处理任意一个buff, 给所有与刀刃接触到的有效敌人对象（带有GameplayAbilityComponent）添加GATag.
+				for (auto& Tmp : AHitCollision::Buffs) {
+					/** 接收到伤害时候,会把伤害信息用此API把伤害事件与Tag传出去,传至GA::基类里的AbilityTask_PMAWDamage里 */
+					/** 在数据上 专门处理受击, 击伤 */
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+						GetInstigator(),
+						/*FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")),*/
+						FGameplayTag::RequestGameplayTag(Tmp),
+						EventData
+					);
+				}
+				
 				// 查询死亡, 单一执行死亡或者受击挨打.
 				if (InTarget->IsDie()) {
 					InTarget->PlayDie();

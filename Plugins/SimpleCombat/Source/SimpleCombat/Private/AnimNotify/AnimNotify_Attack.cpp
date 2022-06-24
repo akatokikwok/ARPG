@@ -56,6 +56,8 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 					// 优先注册受击ID(在蓝图蒙太奇动画里手动赋值).
 					HitCollision->SetHitID(HitID);// 给socket上的这个碰撞物写入一个受击ID.
+					// 为hitbox写入一组buff名字.
+					HitCollision->SetBuffs(Buffs);
 					// 注册受击ID完了之后再启用碰撞.
 					HitCollision->Collision(true);
 

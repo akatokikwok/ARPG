@@ -4,8 +4,8 @@
 #include "../Character/Core/MMOARPGCharacterBase.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
-	: Health(100.f)
-	, MaxHealth(100.f)
+	: Health(200.f)
+	, MaxHealth(200.f)
 	, Mana(0.f)
 	, MaxMana(0.f)
 {
