@@ -34,7 +34,7 @@ AMMOARPGCharacterBase* AMMOARPGAIControllerBase::GetTarget()
 AMMOARPGCharacterBase* AMMOARPGAIControllerBase::FindTarget()
 {
 
-	return nullptr;
+	return MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), 2048);
 }
 
 // 让自身执行攻击
