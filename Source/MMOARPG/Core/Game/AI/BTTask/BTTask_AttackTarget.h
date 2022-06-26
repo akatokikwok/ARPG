@@ -31,6 +31,7 @@ public:
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
 
 public:
+	// 攻击目标.
 	UPROPERTY(EditAnywhere, Category = Blackboard)
-		struct FBlackboardKeySelector Blackboard_Actor;// 黑板.
+		struct FBlackboardKeySelector Blackboard_Actor;
 };

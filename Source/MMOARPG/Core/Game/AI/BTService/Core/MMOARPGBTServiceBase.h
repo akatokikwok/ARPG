@@ -30,15 +30,16 @@ public:
 
 /// 黑板资产的各个field.
 public:
+	// 敌人.
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 		struct FBlackboardKeySelector BlackBoardKey_Target;
-
+	// 敌人与自己的距离.
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 		struct FBlackboardKeySelector BlackBoardKey_Distance;
-
+	// 敌人位置.
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 		struct FBlackboardKeySelector BlackBoardKey_Location;
-
+	// 自身死亡情况.
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 		struct FBlackboardKeySelector BlackBoardKey_Death;
 };

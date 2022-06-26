@@ -9,6 +9,15 @@ EBTNodeResult::Type UBTTask_AttackTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
+	if (UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent()) {
+		if (AMMOARPGAIControllerBase* AIConrollerBase = Cast<AMMOARPGAIControllerBase>(OwnerComp.GetOwner())) {// 拿到AIC
+			if (AMMOARPGCharacterBase* InTarget = Cast<AMMOARPGCharacterBase>(MyBlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
+
+				AIConrollerBase->Attack(InTarget);// 让AIC去控制自身执行攻击
+				return EBTNodeResult::Succeeded;
+			}
+		}
+	}
 	return EBTNodeResult::Failed;
 }
 
