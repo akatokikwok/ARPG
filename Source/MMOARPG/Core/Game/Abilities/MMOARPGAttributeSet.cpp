@@ -2,9 +2,11 @@
 #include "GameplayTagContainer.h"
 #include "GameplayEffectExtension.h"
 #include "../Character/Core/MMOARPGCharacterBase.h"
+#include "../../../DataTable/CharacterAttributeTable.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
-	: Health(200.f)
+	: Level(1)
+	, Health(200.f)
 	, MaxHealth(200.f)
 	, Mana(0.f)
 	, MaxMana(0.f)
@@ -96,10 +98,21 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 // 注册GAS属性集
 void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribute& Data)
 {
+	RegistrationParam(Level, Data.Level);
 	this->RegistrationParam(Health, Data.Health);
 	this->RegistrationParam(MaxHealth, Data.MaxHealth);
 	this->RegistrationParam(Mana, Data.Mana);
 	this->RegistrationParam(MaxMana, Data.MaxMana);
+	RegistrationParam(PhysicsAttack, Data.PhysicsAttack);
+	RegistrationParam(MagicAttack, Data.MagicAttack);
+	RegistrationParam(PhysicsDefense, Data.PhysicsDefense);
+	RegistrationParam(MagicDefense, Data.MagicDefense);
+	RegistrationParam(AttackRange, Data.AttackRange);
+}
+
+void UMMOARPGAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Level, OldValue);
 }
 
 void UMMOARPGAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
@@ -125,6 +138,31 @@ void UMMOARPGAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue)
 void UMMOARPGAttributeSet::OnRep_Damage(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Damage, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_PhysicsAttack(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, PhysicsAttack, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_MagicAttack(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MagicAttack, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_PhysicsDefense(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, PhysicsDefense, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_MagicDefense(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MagicDefense, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, AttackRange, OldValue);
 }
 
 // 仅工具方法.
