@@ -99,15 +99,30 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribute& Data)
 {
 	RegistrationParam(Level, Data.Level);
-	this->RegistrationParam(Health, Data.Health);
-	this->RegistrationParam(MaxHealth, Data.MaxHealth);
-	this->RegistrationParam(Mana, Data.Mana);
-	this->RegistrationParam(MaxMana, Data.MaxMana);
+	RegistrationParam(Health, Data.Health);
+	RegistrationParam(MaxHealth, Data.MaxHealth);
+	RegistrationParam(Mana, Data.Mana);
+	RegistrationParam(MaxMana, Data.MaxMana);
 	RegistrationParam(PhysicsAttack, Data.PhysicsAttack);
 	RegistrationParam(MagicAttack, Data.MagicAttack);
 	RegistrationParam(PhysicsDefense, Data.PhysicsDefense);
 	RegistrationParam(MagicDefense, Data.MagicDefense);
 	RegistrationParam(AttackRange, Data.AttackRange);
+}
+
+// 注册DTR_ 生命体属性表.
+void UMMOARPGAttributeSet::RegistrationProperties(const FCharacterAttributeTable* Data)
+{
+	RegistrationParam(Level, 1);
+	RegistrationParam(Health, Data->Health);
+	RegistrationParam(MaxHealth, Data->Health);
+	RegistrationParam(Mana, Data->Mana);
+	RegistrationParam(MaxMana, Data->Mana);
+	RegistrationParam(PhysicsAttack, Data->PhysicsAttack);
+	RegistrationParam(MagicAttack, Data->MagicAttack);
+	RegistrationParam(PhysicsDefense, Data->PhysicsDefense);
+	RegistrationParam(MagicDefense, Data->MagicDefense);
+	RegistrationParam(AttackRange, Data->AttackRange);
 }
 
 void UMMOARPGAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
@@ -170,5 +185,12 @@ void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttribute
 {
 	InAttributeData.SetBaseValue(InNewAttributeData.BaseValue);
 	InAttributeData.SetCurrentValue(InNewAttributeData.CurrentValue);
+}
+
+// 工具方法
+void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const float InValue)
+{
+	InAttributeData.SetBaseValue(InValue);
+	InAttributeData.SetCurrentValue(InValue);
 }
 

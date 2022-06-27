@@ -5,6 +5,7 @@
 #include "Net/UnrealNetwork.h"
 #include "MMOARPGType.h"
 #include "MMOARPGAttributeSet.generated.h"
+struct FCharacterAttributeTable;
 
 /**
  * MMO项目属性集
@@ -80,6 +81,9 @@ public:
 
 	// 注册GAS属性集
 	virtual void RegistrationProperties(const FMMOARPGCharacterAttribute& Data);
+
+	// 注册DTR_ 生命体属性表.
+	virtual void RegistrationProperties(const FCharacterAttributeTable* Data);
 protected:
 	UFUNCTION()
 		virtual void OnRep_Level(const FGameplayAttributeData& OldValue);
@@ -116,4 +120,6 @@ protected:
 protected:
 	// 工具方法:
 	void RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData);
+	// 工具方法.
+	void RegistrationParam(FGameplayAttributeData& InAttributeData, const float InValue);
 };

@@ -11,6 +11,8 @@ FCharacterAttributeTable::FCharacterAttributeTable()
 	, PhysicsDefense(20.f)
 	, AttackRange(200.f)
 {
+	// 任意生命体都具备以下的技能与行为.
+
 	ComboAttackTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit")));
