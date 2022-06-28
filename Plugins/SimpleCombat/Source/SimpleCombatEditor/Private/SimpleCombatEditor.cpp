@@ -69,16 +69,82 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 		{
 			// Lambda--智能生成枚举函数
 			auto SpawnEnumFunctionCode = [&](int32 Index, int32 StartPos)->int32 {
-				int32 TagsPos = StartPos;
+				TMap<FName, uint32> TagsMap;// GameTag标签缓存池, 一根标签对应一个十六进制值.
+				int32 TagsPos = StartPos;// 记录位置.(行号)
 				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), Index);// 规定本行的枚举名字.
 				TagCodes.Add(TEXT("/*Enumerations can be generated dynamically from gameplaytag*/"));// 写一行注释
-				TagCodes.Add(FString::Printf(TEXT("enum class %s :uint32"), *EnumName));// 写一行类似于 enum class EGamePlayTags114 : uint32
+				TagCodes.Add(FString::Printf(TEXT("enum class %s :uint32"), *EnumName));// 写一行类似于 enum class EGamePlayTags0 : uint32
+				
+				TagCodes.Add(TEXT("{"));
+				for (int32 i = StartPos; i < Tags.Num(); i++) {
+					if (i < (StartPos + 32)) {
+						// 未超过32位限制
+						
+						// 类似 Player.Attack.ComboLinkage 规定转化为  Player_Attack_ComboLinkage
+						FString InTags = Tags[i];
+						InTags.ReplaceInline(TEXT("."), TEXT("_"));
+						int32 InNewValue_Hex = 1 << i;
+						TagCodes.Add(FString::Printf(TEXT("%s = %x"), *InTags, InNewValue_Hex));// %x是十六进制. 这样造成递增移位, 2 4 8 16
+						TagsPos++;// 一旦偏移就需要 增加位置.
+
+						TagsMap.Add(*InTags, InNewValue_Hex);// 标签缓存池里注册一对pair <技能标签名, 十六进制值>
+					}
+					else {
+						// 超过32限制就中断,让它再进一次.
+						break;
+					}
+				}
+				TagCodes.Add(TEXT("}"));
+				TagCodes.Add(TEXT(""));// 空一行
+
+				/* part 1*/
+				TagCodes.Add(TEXT("/*Convert GamplayTag tag to enumeration*/"));// 写一行注释 /* 开始拼函数了.*/
+				TagCodes.Add(FString::Printf(TEXT("%s %s NameTo%s(const FName &InName)"), *EnumName, *APIString, *EnumName));
+				TagCodes.Add(TEXT("{"));
+				for (auto& Tmp : TagsMap) {/* 扫描<GameTag, HEX>缓存池*/
+					
+					FString EnumValue = Tmp.Key.ToString();
+					EnumValue.ReplaceInline(TEXT("."), TEXT("_"));// Player.Attack.ComboLinkage 规定转化为  Player_Attack_ComboLinkage
+
+					TagCodes.Add(FString::Printf(TEXT("	if (InName == TEXT(\"%s\")) {"), *Tmp.Key.ToString()));
+					TagCodes.Add(FString::Printf(TEXT("		 return %s::%s;"), *EnumName, *EnumValue));// 拼接出类似于	return EGamePlayTags0::Player_Attack_ComboLinkage
+					TagCodes.Add(TEXT("	} else"));
+				}
+				TagCodes.Last().RemoveFromEnd(TEXT("else"));// 移除最后一个没必要的else
+				TagCodes.Add(TEXT(""));
+				TagCodes.Add(FString::Printf(TEXT("  return (%s)0;"), *EnumName));// 函数有默认返回值.
+				TagCodes.Add(TEXT("}"));
+				TagCodes.Add(TEXT(""));
+
+				/* part 2*/
+				TagCodes.Add(TEXT("/*Convert enumeration to gameplaytag.*/"));
+				TagCodes.Add(FString::Printf(TEXT("FString %s %sToName(const %s& InTag)"), *APIString, *EnumName, *EnumName));// FString MMOARPG_API EGameplayTags0ToName(const EGameplayTags0& InTag)
+				TagCodes.Add(TEXT("{"));
+				TagCodes.Add(TEXT("	switch(InTag)"));
+				TagCodes.Add(TEXT("	{"));
+				for (auto& Tmp : TagsMap) {
+					FString EnumValue = Tmp.Key.ToString();
+					EnumValue.ReplaceInline(TEXT("."), TEXT("_"));
+
+					TagCodes.Add(FString::Printf(TEXT("		case %s::%s:"), *EnumName, *EnumValue));
+					TagCodes.Add(FString::Printf(TEXT("		 return TEXT(\"%s\");"), *Tmp.Key.ToString()));
+					TagCodes.Add(TEXT(""));
+				}
+				TagCodes.Last().RemoveFromEnd(TEXT(""));
+				TagCodes.Add(TEXT("	}"));
+				TagCodes.Add(TEXT(""));
+				TagCodes.Add(TEXT("	return FString();"));
+				TagCodes.Add(TEXT("}"));
+
+				/* part 3*/
 
 				return TagsPos;// 返回当前位置(行号)
 			};
+			// End; Lambda--智能生成枚举.
+			//////////////////////////////////////////////////////////////////////////
 
 			/* 为了内存对齐, 让枚举对齐, 比如72行, 按32对齐, 则要补足余数, 制作为3个枚举而非2个枚举*/
-			float InValue = (float)Tags.Num() / 64.f;
+			float InValue = (float)Tags.Num() / 32.f;
 			int32 InTotal = FMath::CeilToInt(InValue);
 			/* 开始位置记录. */
 			int32 TagsPos = 0;
@@ -98,7 +164,8 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 			}
 		}
 
-		FFileHelper::SaveStringArrayToFile(TagCodes, *TagsProjectFileName);// 把字符串数据写入这个.h
+		/* IV: 把字符串数据写入这个.h */
+		FFileHelper::SaveStringArrayToFile(TagCodes, *TagsProjectFileName);
 	}
 
 
