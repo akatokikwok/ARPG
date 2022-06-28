@@ -58,10 +58,12 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 		/* II: 拼接字符串或文件名行为 */
 		//
 		FString CPPName = FApp::GetProjectName() + FString(TEXT("TagList"));// 欲构造的文件名字 == 项目名字 拼接 "TagList"
-		// MMOARPGTagList.h 的名字构造方法, 放在Source/MMOARPG/MMOARPGTagList.h
-		FString TagsProjectFileName = FPaths::GameSourceDir() / FApp::GetProjectName() / CPPName + TEXT(".h");
+		// MMOARPGTagList.h 的名字构造方法, 放在Engine/Plugins/MMOARPGCommon/Source/MMOARPGCommon/Public里
+		FString TagsProjectFileName = FPaths::EnginePluginsDir() / TEXT("MMOARPGCommon/Source/MMOARPGCommon/Public") / CPPName + TEXT(".h");
+// 		FString TagsProjectFileName = FPaths::GameSourceDir() / FApp::GetProjectName() / CPPName + TEXT(".h");
 		// 拼出MMOARPG_API
-		FString APIString = FString::Printf(TEXT("%s_API"), FApp::GetProjectName()).ToUpper();
+		FString APIString = TEXT("");
+// 		FString APIString = FString::Printf(TEXT("%s_API"), FApp::GetProjectName()).ToUpper();
 
 		/* III: 构建TagList.h里的所有代码内容. */
 		/// 真正的一页文件被哪些代码填充.
@@ -193,7 +195,8 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 			TagCodes.Add(TEXT("#pragma once"));
 			TagCodes.Add(TEXT("#include \"CoreMinimal.h\""));
 			TagCodes.Add(TEXT(""));
-			TagCodes.Add(TEXT("//The file used to reflect gameplay tags is used. 此页文件是被反射生成而非人为编写"));
+			TagCodes.Add(TEXT("// The file used to reflect gameplay tags is used. 此页文件是被反射生成而非人为编写"));
+			TagCodes.Add(TEXT("// 此文件禁止被多个文件include,否则会造成链接错误."));
 			TagCodes.Add(TEXT(""));
 
 			/* part 0: 扫描并生成各个枚举 */

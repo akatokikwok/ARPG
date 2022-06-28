@@ -15,6 +15,8 @@
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
 #include <MMOARPGType.h>
+#include "MMOARPGTagList.h"// 这个是引擎插件里的
+// #include "../../MMOARPGTagList.h"// 这个是项目里的
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -184,9 +186,23 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 				MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(GetWorld(), [&](AMMOARPGPlayerController* InController)->MethodUnit::EServerCallType {
 					if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
 						if (InPlayerCharacter->GetUserID() == UserID) {
-							// 从JSON里解析出玩家属性集.
-							FMMOARPGCharacterAttribute CharacterAttribute;
+							FMMOARPGCharacterAttribute CharacterAttribute;// 构造1个人物属性集
+							
+							// Lambda--将一组字符串解析为GTag集
+							auto ToGamePlayTags = [&](TArray<FName>& InNames) {
+								TArray<FName> OutNames;
+								AnalysisArrayNameToGamePlayTags(InNames, OutNames);
+								InNames = OutNames;
+							};
+							
+							// 从JSON源里解析出字符串.
 							NetDataAnalysis::StringToMMOARPGCharacterAttribute(CharacterJsonString, CharacterAttribute);
+
+							// 技能信息的原位转换(从string 转成 gtag形式)
+							ToGamePlayTags(CharacterAttribute.ComboAttack);
+							ToGamePlayTags(CharacterAttribute.Skill);
+							ToGamePlayTags(CharacterAttribute.Limbs);
+
 							// 把最新GAS属性集刷新到人里.
 							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
