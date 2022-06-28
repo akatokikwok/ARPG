@@ -41,7 +41,7 @@ const FVector2D Icon20x20(20.0f, 20.0f);
 TSharedRef< FSlateStyleSet > FSimpleCombatEditorStyle::Create()
 {
 	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("SimpleCombatEditorStyle"));
-	Style->SetContentRoot(IPluginManager::Get().FindPlugin("SimpleCombatEditor")->GetBaseDir() / TEXT("Resources"));
+	Style->SetContentRoot(IPluginManager::Get().FindPlugin("SimpleCombat")->GetBaseDir() / TEXT("Resources"));
 
 	Style->Set("SimpleCombatEditor.PluginAction", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
 	return Style;
