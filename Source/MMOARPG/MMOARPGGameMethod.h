@@ -4,6 +4,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
+ #include "MMOARPGTagList.h"// 测试此由SimpleCombatEditor module而反射生成的头文件是否通过编译.
 class AMMOARPGCharacterBase;
 
 namespace MMOARPGGameMethod

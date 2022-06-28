@@ -84,7 +84,7 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 						FString InTags = Tags[i];
 						InTags.ReplaceInline(TEXT("."), TEXT("_"));
 						int32 InNewValue_Hex = 1 << i;
-						TagCodes.Add(FString::Printf(TEXT("%s = %x"), *InTags, InNewValue_Hex));// %x是十六进制. 这样造成递增移位, 2 4 8 16
+						TagCodes.Add(FString::Printf(TEXT("    %s = %x,"), *InTags, InNewValue_Hex));// %x是十六进制. 这样造成递增移位, 2 4 8 16
 						TagsPos++;// 一旦偏移就需要 增加位置.
 
 						TagsMap.Add(*InTags, InNewValue_Hex);// 标签缓存池里注册一对pair <技能标签名, 十六进制值>
@@ -94,7 +94,7 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 						break;
 					}
 				}
-				TagCodes.Add(TEXT("}"));
+				TagCodes.Add(TEXT("};"));
 				TagCodes.Add(TEXT(""));// 空一行
 
 				/* part 1*/
@@ -135,9 +135,47 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 				TagCodes.Add(TEXT(""));
 				TagCodes.Add(TEXT("	return FString();"));
 				TagCodes.Add(TEXT("}"));
+				TagCodes.Add(TEXT(""));
 
 				/* part 3*/
+				TagCodes.Add(TEXT("/*Convert a composite enumeration to the corresponding label.*/"));
+				TagCodes.Add(FString::Printf(TEXT("void %s NameTo%ss(const FName &InName,TArray<FName> &OutName)"), *APIString, *EnumName, *EnumName));
+				TagCodes.Add(TEXT("{"));
+				TagCodes.Add(TEXT("	int32 Tags = FCString::Atoi(*InName.ToString());"));
+				for (auto& Tmp : TagsMap) {
+					FString EnumValue = Tmp.Key.ToString();
+					EnumValue.ReplaceInline(TEXT("."), TEXT("_"));
+					TagCodes.Add(FString::Printf(TEXT("	if(Tags & (int32)%s::%s)"), *EnumName, *EnumValue));
+					TagCodes.Add(TEXT("	{"));
+					TagCodes.Add(FString::Printf(TEXT("		OutName.AddUnique(TEXT(\"%s\"));"), *Tmp.Key.ToString()));
+					TagCodes.Add(TEXT("	}"));
+				}
+				TagCodes.Add(TEXT("}"));
+				TagCodes.Add(TEXT(""));
 
+				/* part 4*/
+				TagCodes.Add(TEXT("/*Convert multiple enumerations into one label for storage.*/"));
+				TagCodes.Add(FString::Printf(TEXT("FName %s %ssToName(const TArray<FName> &InName)"), *APIString, *EnumName));
+				TagCodes.Add(TEXT("{"));
+				TagCodes.Add(TEXT(" int32 Tags = 0;"));
+				TagCodes.Add(TEXT("	for(auto &Tmp : InName)"));
+				TagCodes.Add(TEXT("	{"));
+				for (auto& Tmp : TagsMap) {
+					FString EnumValue = Tmp.Key.ToString();
+					EnumValue.ReplaceInline(TEXT("."), TEXT("_"));
+				
+					TagCodes.Add(FString::Printf(TEXT("		if(Tmp == FName(TEXT(\"%s\")))"), *Tmp.Key.ToString()));
+					TagCodes.Add(TEXT("		{"));
+					TagCodes.Add(FString::Printf(TEXT("			Tags |= (int32)%s::%s;"), *EnumName, *EnumValue));
+					TagCodes.Add(TEXT("		} else"));
+				}
+				TagCodes.Last().RemoveFromEnd(TEXT("else"));
+				TagCodes.Add(TEXT("	}"));
+				TagCodes.Add(TEXT(""));
+				TagCodes.Add(TEXT("	return *FString::Printf(TEXT(\"%llu\"),Tags);"));// 给一个默认返回值.
+				TagCodes.Add(TEXT("}"));
+
+				/* part 5*/
 				return TagsPos;// 返回当前位置(行号)
 			};
 			// End; Lambda--智能生成枚举.
@@ -145,7 +183,7 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 
 			/* 为了内存对齐, 让枚举对齐, 比如72行, 按32对齐, 则要补足余数, 制作为3个枚举而非2个枚举*/
 			float InValue = (float)Tags.Num() / 32.f;
-			int32 InTotal = FMath::CeilToInt(InValue);
+			int32 InTotal = FMath::CeilToInt(InValue);// 枚举总数.
 			/* 开始位置记录. */
 			int32 TagsPos = 0;
 
@@ -158,10 +196,41 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 			TagCodes.Add(TEXT("//The file used to reflect gameplay tags is used. 此页文件是被反射生成而非人为编写"));
 			TagCodes.Add(TEXT(""));
 
-			/* 扫描并生成各个枚举 */
+			/* part 0: 扫描并生成各个枚举 */
 			for (int32 i = 0; i < InTotal; ++i) {
 				TagsPos = SpawnEnumFunctionCode(i/*第几个枚举*/, TagsPos/* 开始行数*/);
 			}
+			TagCodes.Add(TEXT(""));
+
+			/* part 1*/
+			TagCodes.Add(TEXT("//////////////////////////Main/////////////////////////////"));
+			TagCodes.Add(TEXT("/*Convert the server's sequence to a label.*/"));
+			TagCodes.Add(FString::Printf(TEXT("void %s AnalysisArrayNameToGamePlayTags(const TArray<FName> &InNames,TArray<FName> &OutNames)"), *APIString));
+			TagCodes.Add(TEXT("{"));
+			for (int32 i = 0; i < InTotal; i++) {
+				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), i);
+
+				TagCodes.Add(FString::Printf(TEXT("	for(auto &Tmp : InNames)")));
+				TagCodes.Add(TEXT("	{"));
+				TagCodes.Add(FString::Printf(TEXT("		NameTo%ss(Tmp,OutNames);"), *EnumName));
+				TagCodes.Add(TEXT("	}"));
+			}
+			TagCodes.Add(TEXT("}"));
+			TagCodes.Add(TEXT(""));
+
+			/* part 2.*/
+			TagCodes.Add(TEXT("/*Convert multiple tags to a sequence stored by the server.*/"));
+			TagCodes.Add(FString::Printf(TEXT("void %s AnalysisGamePlayTagsToArrayName(const TArray<FName> &InNames,TArray<FName> &OutNames)"), *APIString));
+			TagCodes.Add(TEXT("{"));
+			for (int32 i = 0; i < InTotal; i++) {
+				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), i);
+				TagCodes.Add(FString::Printf(TEXT("	FName TagName = %ssToName(InNames);"), *EnumName));
+				TagCodes.Add(TEXT("	if(TagName != NAME_None)"));
+				TagCodes.Add(TEXT("	{"));
+				TagCodes.Add(TEXT("		OutNames.AddUnique(TagName);"));
+				TagCodes.Add(TEXT("	}"));
+			}
+			TagCodes.Add(TEXT("}"));
 		}
 
 		/* IV: 把字符串数据写入这个.h */
