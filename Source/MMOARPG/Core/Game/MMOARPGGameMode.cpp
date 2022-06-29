@@ -175,7 +175,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 			break;
 		}
 
-		//
+		/** 接收来自服务器的 获取属性集(人物的各项属性,血蓝技能连招肢体动作)响应. */
 		case SP_GetCharacterDataResponses:
 		{
 			int32 UserID = INDEX_NONE;

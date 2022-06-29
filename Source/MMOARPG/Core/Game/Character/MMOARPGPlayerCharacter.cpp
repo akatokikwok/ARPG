@@ -88,9 +88,13 @@ void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 		
 		if (GameCount == 0) {
 			CallServerUpdateKneading(1);
-			++GameCount;
+			GameCount += 2;
 		}
 		else if (GameCount == 1) {
+			CallServerUpdateKneading(1);
+			++GameCount;
+		}
+		else if (GameCount == 2) {
 			CallServerUpdateKneading(3);
 			GameCount = 0;
 		}
