@@ -7,16 +7,9 @@
 #include "../Game/Abilities/MMOARPGAbilitySystemComponent.h"
 #include "SimpleComboType.h"
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
+#include "../../MMOARPGGameType.h"
 #include "FightComponent.generated.h"
 
-// 攻击形式来源枚举.
-enum EMMOARPGGameplayAbilityType
-{
-	GAMEPLAYABILITY_NONE,// 
-	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
-	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
-	GAMEPLAYABILITY_LIMBS,// 肢体动作的技能或能力状态;  例如死亡, 挨打
-};
 
 /**
  * 战斗组件.继承自MotionComp
@@ -87,7 +80,7 @@ public:
 
 public:
 	// 注册各部分技能(按形式来源)
-	void RegisterGameplayAbility(const TArray<FName>& InGANames/*技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
+	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
 
 	// 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);

@@ -22,7 +22,18 @@ void UFightComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 初始化 持有本组件的人物基类.
+	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
+	
+	if (MMOARPGCharacterBase.IsValid()) {
+		// 初始化 人里的ASC.	
+		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
 
+		// 仅允许服务器注册ASC的持有对象(即人物基类.).
+		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
+			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
+		}
+	}
 // 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
 // 	if (MMOARPGCharacterBase.IsValid()) {
 // 		// 初始化ASC.
@@ -215,24 +226,22 @@ void UFightComponent::Reset_Implementation()
 // 注册各部分技能(按形式来源)
 void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EMMOARPGGameplayAbilityType InGASrcEnum)
 {
-	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
-	if (MMOARPGCharacterBase.IsValid()) {
-		// 初始化ASC.
-		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
+	// 核验 基类人和ASC
+	if (MMOARPGCharacterBase.IsValid() && AbilitySystemComponent.IsValid()) {
 // 		 const FName InKey = TEXT("Player.Attack.ComboLinkage");
 
 		/* 仅运行在服务器的逻辑. */
 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
+			// 往Skill池子里写入 从DTRow里查出来的一组	GA
 			for (auto& Tmp : InGANames) {
-				AddMMOARPGGameplayAbility_ToSkillpool(Tmp, InGASrcEnum); // 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
+				AddMMOARPGGameplayAbility_ToSkillpool(Tmp, InGASrcEnum); 
 			}
-			// 仅允许服务器注册ASC的持有对象(即人物基类.).
-			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 
-			// 广播 "用一组GA注册连招黑盒"
-			RegisterComboAttackMulticast(InGANames);
+			// 仅在combo来源形式下 广播 "用一组GA注册连招黑盒"
+			if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
+				RegisterComboAttackMulticast(InGANames);
+			}
 		}
-
 // 		if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
 // 			// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
 // 			this->RegisterComboAttack(ComboAttackCheck, InKey);

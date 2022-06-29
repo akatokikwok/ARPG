@@ -3,6 +3,15 @@
 #include "CoreMinimal.h"
 #include "MMOARPGGameType.generated.h"
 
+// 攻击形式来源枚举.
+enum EMMOARPGGameplayAbilityType
+{
+	GAMEPLAYABILITY_NONE,// 
+	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
+	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
+	GAMEPLAYABILITY_LIMBS,// 肢体动作的技能或能力状态;  例如死亡, 挨打
+};
+
 /* 人物行为姿态.*/
 UENUM(BlueprintType)
 enum class ECharacterActionState : uint8
