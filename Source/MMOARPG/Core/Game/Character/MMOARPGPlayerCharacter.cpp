@@ -26,7 +26,7 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitKneadingLocation(GetMesh()->GetComponentLocation());
+	InitKneadingLocation(GetMesh()->GetRelativeLocation());
 
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {// 满足是本机玩家.
 
@@ -65,16 +65,18 @@ void AMMOARPGPlayerCharacter::CallServerUpdateKneading_Implementation(int32 InUs
 /** RPC在客户端, 执行刷新容貌. */
 void AMMOARPGPlayerCharacter::CallUpdateKneadingBobyOnClient_Implementation(const FMMOARPGCharacterAppearance& InCA)
 {
-	UpdateKneadingBoby(InCA);// 客户端上刷新人物样貌.
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
+		UpdateKneadingBoby(InCA);// 客户端上刷新人物样貌.
 
-	// 在本机玩家(实际上是客户端) 上 刷新PS里的最新CA.
-	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
 		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
-			InPlayerState->GetCA() = InCA;
+			InPlayerState->GetCA() = InCA;// 在PS内存一份.
 		}
 
-		/** 刷新容貌的时候, 这是第一次向CS请求人物属性集 */
-		GetCharacterDataRequests();
+		// 只在本机玩家客户端 上 刷新PS里的最新CA.
+		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+			/** 刷新容貌的时候, 这是第一次向CS请求人物属性集 */
+			GetCharacterDataRequests();
+		}
 	}
 }
 

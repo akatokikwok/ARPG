@@ -28,8 +28,8 @@ public:
 	// 刷新人物的外貌身材.可用于DS-GM上/客户端亦可.
 	virtual	void UpdateKneadingBoby() override;
 
-	// RPC, 在客户端 执行刷新登录人物样貌.
-	UFUNCTION(Client, reliable)
+	// 广播 执行刷新登录人物样貌.
+	UFUNCTION(NetMulticast, reliable)
 		void CallUpdateKneadingBobyOnClient(const FMMOARPGCharacterAppearance& InCA);
 
 	// 绑定用的回调, 刷新操作人物相貌请求.
