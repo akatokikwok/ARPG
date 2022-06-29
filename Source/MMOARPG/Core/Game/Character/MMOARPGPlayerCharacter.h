@@ -18,7 +18,7 @@ class MMOARPG_API AMMOARPGPlayerCharacter : public AMMOARPGCharacter, public IKn
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// RPC,在DS端的GM 执行发送刷新登录人物样貌请求.
 	UFUNCTION(server, reliable)
 		void CallServerUpdateKneading(int32 InUserID);
