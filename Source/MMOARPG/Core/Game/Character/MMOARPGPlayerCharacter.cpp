@@ -85,19 +85,14 @@ void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 		// RPC在DS - GM, 发送刷新容貌的请求.
 
 		// 让指定的用户号存档切换
-		switch (GameCount) {
-			case 0:
-			{
-				CallServerUpdateKneading(1);// 1号用户容貌刷新
-				++GameCount;
-				break;
-			}
-			case 1:
-			{
-				CallServerUpdateKneading(3);// 3号用户容貌刷新
-				GameCount = 0;
-				break;
-			}
+		
+		if (GameCount == 0) {
+			CallServerUpdateKneading(1);
+			++GameCount;
+		}
+		else if (GameCount == 1) {
+			CallServerUpdateKneading(3);
+			GameCount = 0;
 		}
 
 #else
