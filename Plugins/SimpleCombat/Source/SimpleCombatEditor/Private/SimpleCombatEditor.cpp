@@ -1,4 +1,7 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
+/**
+ * 这张文件可以用来反射出 MMOARPGTagList.h
+ */
 
 #include "SimpleCombatEditor.h"
 #include "SimpleCombatEditorStyle.h"
@@ -75,7 +78,7 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 				int32 TagsPos = StartPos;// 记录位置.(行号)
 				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), Index);// 规定本行的枚举名字.
 				TagCodes.Add(TEXT("/*Enumerations can be generated dynamically from gameplaytag*/"));// 写一行注释
-				TagCodes.Add(FString::Printf(TEXT("enum class %s :uint32"), *EnumName));// 写一行类似于 enum class EGamePlayTags0 : uint32
+				TagCodes.Add(FString::Printf(TEXT("enum class %s : uint32"), *EnumName));// 写一行类似于 enum class EGamePlayTags0 : uint32
 				
 				TagCodes.Add(TEXT("{"));
 				for (int32 i = StartPos; i < Tags.Num(); i++) {
@@ -89,7 +92,7 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 						TagCodes.Add(FString::Printf(TEXT("    %s = %x,"), *InTags, InNewValue_Hex));// %x是十六进制. 这样造成递增移位, 2 4 8 16
 						TagsPos++;// 一旦偏移就需要 增加位置.
 
-						TagsMap.Add(*InTags, InNewValue_Hex);// 标签缓存池里注册一对pair <技能标签名, 十六进制值>
+						TagsMap.Add(*Tags[i], InNewValue_Hex);// 标签缓存池里注册一对pair <技能标签名, 十六进制值>
 					}
 					else {
 						// 超过32限制就中断,让它再进一次.
