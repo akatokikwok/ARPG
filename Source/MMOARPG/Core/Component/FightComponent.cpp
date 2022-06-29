@@ -35,8 +35,8 @@ void UFightComponent::BeginPlay()
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Dodge"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 			// 往Skills整个池子里写入注册 冲刺
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-			// 往Skills整个池子里写入注册 冲刺2
-			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+// 			// 往Skills整个池子里写入注册 冲刺2
+// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 			// 往池子里写入 受击能力
 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Hit"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
  			// 往池子里写入 死亡能力
@@ -97,10 +97,10 @@ void UFightComponent::SprintSkill_Implementation()
 	Attack_TriggerGA(TEXT("Player.Skill.Sprint"));
 }
 
-void UFightComponent::Sprint2Skill_Implementation()
-{
-	Attack_TriggerGA(TEXT("Player.Skill.Sprint2"));
-}
+// void UFightComponent::Sprint2Skill_Implementation()
+// {
+// 	Attack_TriggerGA(TEXT("Player.Skill.Sprint2"));
+// }
 
 // 放受击技能
 void UFightComponent::Hit()
