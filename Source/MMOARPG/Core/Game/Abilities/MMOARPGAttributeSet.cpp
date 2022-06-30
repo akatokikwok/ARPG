@@ -95,7 +95,7 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxMana);
 }
 
-// 注册GAS属性集
+// 用服务器端的GAS属性集 注册本AS类里各字段.
 void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribute& Data)
 {
 	RegistrationParam(Level, Data.Level);
@@ -110,7 +110,7 @@ void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribu
 	RegistrationParam(AttackRange, Data.AttackRange);
 }
 
-// 注册DTR_ 生命体属性表.
+// 用DTR_属性 注册本AS类里各字段.
 void UMMOARPGAttributeSet::RegistrationProperties(const FCharacterAttributeTable* Data)
 {
 	RegistrationParam(Level, 1);

@@ -82,7 +82,7 @@ public:
 	// 注册各部分技能(按形式来源)
 	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
 
-	// 用一组GA去注册1个连招黑盒
+	// "单机版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
 	// 广播 "用一组GA注册连招黑盒"

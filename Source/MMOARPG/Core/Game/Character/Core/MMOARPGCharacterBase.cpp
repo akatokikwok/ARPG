@@ -90,6 +90,22 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	}
 }
 
+// 用1行DTR属性 注册更新AttributeSet指针数据
+void AMMOARPGCharacterBase::UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute)
+{
+	if (AttributeSet) {
+		AttributeSet->RegistrationProperties(InDTRowAttribute);
+	}
+}
+
+// 用1个GAS属性集 注册更新AttributeSet指针数据
+void AMMOARPGCharacterBase::UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute)
+{
+	if (AttributeSet) {
+		AttributeSet->RegistrationProperties(*InGASAttribute);
+	}
+}
+
 void AMMOARPGCharacterBase::ResetActionState(ECharacterActionState InNewActionState)
 {
 	//客户端
@@ -164,9 +180,7 @@ struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 // 广播 刷新最新的人物GAS属性集.
 void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
 {
-	if (AttributeSet != nullptr) {
-		AttributeSet->RegistrationProperties(CharacterAttribute);
-	}
+	UpdateAttribute(&CharacterAttribute);
 }
 
 // 处理人的血量; 虚方法
@@ -232,4 +246,20 @@ void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageA
 		GetWorld(),
 		InLocation,
 		FString::Printf(TEXT("- %.2lf"), InDamageAmount), FColor::Red, InRate);
+}
+
+// "单机非广播版" 用一组GA去注册1个连招黑盒
+void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
+{
+	if (FightComponent) {
+		FightComponent->RegisterComboAttack(InGANames);
+	}
+}
+
+// 广播 "用一组GA注册连招黑盒"
+void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+{
+	if (FightComponent) {
+		FightComponent->RegisterComboAttackMulticast(InGANames);
+	}
 }

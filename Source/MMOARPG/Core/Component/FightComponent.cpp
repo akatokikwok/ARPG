@@ -237,15 +237,11 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 				AddMMOARPGGameplayAbility_ToSkillpool(Tmp, InGASrcEnum); 
 			}
 
-			// 仅在combo来源形式下 广播 "用一组GA注册连招黑盒"
-			if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
-				RegisterComboAttackMulticast(InGANames);
-			}
+// 			// 仅在combo来源形式下 广播 "用一组GA注册连招黑盒"
+// 			if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
+// 				RegisterComboAttackMulticast(InGANames);
+// 			}
 		}
-// 		if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
-// 			// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
-// 			this->RegisterComboAttack(ComboAttackCheck, InKey);
-// 		}
 	}
 }
 

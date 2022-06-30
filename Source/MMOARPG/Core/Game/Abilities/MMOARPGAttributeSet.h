@@ -79,10 +79,10 @@ public:
 	// 覆写 同步变量需要重写的方法.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	// 注册GAS属性集
+	// 用服务器端的GAS属性集 注册本AS类里各字段.
 	virtual void RegistrationProperties(const FMMOARPGCharacterAttribute& Data);
 
-	// 注册DTR_ 生命体属性表.
+	// 用DTR_属性 注册本AS类里各字段.
 	virtual void RegistrationProperties(const FCharacterAttributeTable* Data);
 protected:
 	UFUNCTION()

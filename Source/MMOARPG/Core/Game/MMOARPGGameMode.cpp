@@ -211,6 +211,10 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
 
+							// 广播行为.
+							// 还需要注册一下 连招黑盒
+							InPlayerCharacter->RegisterComboAttackMulticast(CharacterAttribute.ComboAttack);
+
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}
 					}

@@ -13,7 +13,7 @@ AMMOARPGAISpawnPoint::AMMOARPGAISpawnPoint()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	bNetLoadOnClient = false;
+	bNetLoadOnClient = false;// 强迫命令刷怪器只在服务器存在, 客户端不存在
 }
 
 void AMMOARPGAISpawnPoint::BeginPlay()
@@ -63,7 +63,7 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 	if (GetWorld()) {
 		if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 			// 让GS读DTRow里的 属性集
-			if (FCharacterAttributeTable* InAttributeTable = InGameState->GetCharacterAttributeTable(InCharacterID)) {
+// 			if (FCharacterAttributeTable* InAttributeTable = InGameState->GetCharacterAttributeTable(InCharacterID)) {
 				// 让GS读DTRow里的 角色样式
 				if (FCharacterStyleTable* InCharacterTable_Style = InGameState->GetCharacterStyleTable(InCharacterID)) {
 					TArray<FVector> Locations;// 所有怪的位置(如果有多个怪).
@@ -80,6 +80,7 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 					}
 
 					// 扫描每个怪的预定生成位置, 并构建出怪.
+					// 生成怪之后强烈不推荐直接同步数据,因为有时间差.需要另一套设计
 					for (auto& Location : Locations) {
 						if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->SpawnActor<AMMOARPGCharacterBase>(
 							InCharacterTable_Style->MMOARPGCharacterClass,
@@ -90,7 +91,7 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 						}
 					}
 				}
-			}
+// 			}
 		}
 	}
 }

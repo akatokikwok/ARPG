@@ -50,7 +50,7 @@ private:
 	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
-
+		
 	/** MMOARPG ASC组件. */
  	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
  		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
@@ -129,6 +129,10 @@ protected:
 	// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
 	virtual void Landed(const FHitResult& Hit) override;
 
+	// RPC至客户端, 让客户端播放伤害字体.
+	UFUNCTION(Client, Reliable)
+		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
+
 public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
 	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
@@ -137,6 +141,13 @@ public:/// 技能相关
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
 	
+
+	// 用1行DTR属性 注册更新AttributeSet指针数据
+	void UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute);
+
+	// 用1个GAS属性集 注册更新AttributeSet指针数据
+	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
+
 	// 处理人的血量; 虚方法
 	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的蓝量; 虚方法
@@ -163,10 +174,11 @@ public:/// 技能相关
 	// 使用战斗组件里的 注册各部分技能(按形式来源)
 	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
 
-protected:
-	// RPC至客户端, 让客户端播放伤害字体.
-	UFUNCTION(Client, Reliable)
-		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
+	// "单机非广播版" 用一组GA去注册1个连招黑盒
+	void RegisterComboAttack(const TArray<FName>& InGANames);
+
+	// 广播 "用一组GA注册连招黑盒"
+	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:
