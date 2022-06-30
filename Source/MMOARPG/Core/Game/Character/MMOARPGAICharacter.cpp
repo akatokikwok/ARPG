@@ -12,7 +12,7 @@ void AMMOARPGAICharacter::BeginPlay()
 				// Lambda--把一组GTag转成FName型
 				auto ToGamePlayNameTags = [&](const TArray<FGameplayTag>& InTags, TArray<FName>& OutNames) ->void {
 					for (auto& Tmp : InTags) {
-						OutNames.Add(Tmp.GetTagName());
+						OutNames.Add(Tmp.GetTagName());// !!!这里不可以用tostring(), 要用专门的API拿取FName型; 以此确保GTag的Index是标准正确的
 					}
 				};
 
