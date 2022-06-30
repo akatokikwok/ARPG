@@ -6,6 +6,7 @@
 #include "../../DataTable/CharacterAnimTable.h"
 #include "../../DataTable/CharacterStyleTable.h"
 #include "../../DataTable/CharacterSkillTable.h"
+#include "../../DataTable/CharacterAttributeTable.h"
 #include "MMOARPGGameState.generated.h"
 
 /**
@@ -26,6 +27,9 @@ public:
 
 	FCharacterSkillTable* GetCharacterSkillTable(int32 InSkillTableID);// 从DT里读指定ID的 技能
 	TArray<FCharacterSkillTable*>* GetCharacterSkillTables();// 把多行技能 写入技能DT.
+
+	FCharacterAttributeTable* GetCharacterAttributeTable(int32 InCharacterTableID);// 从属性集DT里读出指定角色号的 属性集
+	TArray<FCharacterAttributeTable*>* GetCharacterAttributeTables();// 把多行属性集 写入 属性集DT
 
 protected:/// 一些关于DT读写行数据的通用模板.
 
@@ -62,12 +66,18 @@ protected:
 	// 管理多行数据的动画 的DataTable.
 	UPROPERTY()
 		UDataTable* CharacterAnimTablePtr;
+
 	// 管理多行角色样式 的DataTable.
 	UPROPERTY()
 		UDataTable* CharacterStyleTablePtr;
 
 	// 管理多行技能 的DataTable.
-	UDataTable* CharacterSkillTablePtr;
+	UPROPERTY()
+		UDataTable* CharacterSkillTablePtr;
+
+	// 管理生命体各属性集的 属性表.
+	UPROPERTY()
+		UDataTable* CharacterAttributeTablePtr;
 
 	// 动画蒙太奇 DTRow集合.
 	TArray<FCharacterAnimTable*> CharacterAnimTables;
@@ -75,4 +85,7 @@ protected:
 	TArray<FCharacterStyleTable*> CharacterStyleTables;
 	// 技能 DTRow集合.
 	TArray<FCharacterSkillTable*> CharacterSkillTables;
+	// 属性集(血,蓝 等) DTRow集合.
+	TArray<FCharacterAttributeTable*> CharacterAttributeTables;
+
 };

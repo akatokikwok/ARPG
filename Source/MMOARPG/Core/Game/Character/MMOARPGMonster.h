@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/MMOARPGCharacterBase.h"
+#include "MMOARPGAICharacter.h"
 #include "MMOARPGMonster.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MMOARPG_API AMMOARPGMonster : public AMMOARPGCharacterBase
+class MMOARPG_API AMMOARPGMonster : public AMMOARPGAICharacter
 {
 	GENERATED_BODY()
 	

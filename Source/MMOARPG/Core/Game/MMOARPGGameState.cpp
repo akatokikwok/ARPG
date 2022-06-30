@@ -15,6 +15,10 @@ AMMOARPGGameState::AMMOARPGGameState()
 	// 同上, 加载角色样式DT 蓝图资源.
 	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterSkillTable(TEXT("/Game/DataTable/CharacterSkillTable"));
 	CharacterSkillTablePtr = CharacterSkillTable.Object;
+
+	// 同上, 加载属性集DT 蓝图资源.
+	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterAttributeTable(TEXT("/Game/DataTable/CharacterAttributeTable"));
+	CharacterAttributeTablePtr = CharacterAttributeTable.Object;
 }
 
 FCharacterAnimTable* AMMOARPGGameState::GetCharacterAnimTable(int32 InAnimTableID)
@@ -47,4 +51,14 @@ FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(int32 InSkillTab
 TArray<FCharacterSkillTable*>* AMMOARPGGameState::GetCharacterSkillTables()
 {
 	return GetTables_write(CharacterSkillTablePtr, CharacterSkillTables, TEXT("SkillTable"));
+}
+
+FCharacterAttributeTable* AMMOARPGGameState::GetCharacterAttributeTable(int32 InCharacterTableID)
+{
+	return GetTable_read(InCharacterTableID, CharacterAttributeTablePtr, CharacterAttributeTables, TEXT("CharacterAttributeTable"));
+}
+
+TArray<FCharacterAttributeTable*>* AMMOARPGGameState::GetCharacterAttributeTables()
+{
+	return GetTables_write(CharacterAttributeTablePtr, CharacterAttributeTables, TEXT("CharacterAttribute"));
 }
