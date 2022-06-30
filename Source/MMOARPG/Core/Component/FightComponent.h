@@ -7,15 +7,9 @@
 #include "../Game/Abilities/MMOARPGAbilitySystemComponent.h"
 #include "SimpleComboType.h"
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
+#include "../../MMOARPGGameType.h"
 #include "FightComponent.generated.h"
 
-// 攻击形式来源枚举.
-enum EMMOARPGGameplayAbilityType
-{
-	GAMEPLAYABILITY_NONE,// 无学术意义上的技能, 例如死亡, 挨打
-	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
-	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
-};
 
 /**
  * 战斗组件.继承自MotionComp
@@ -84,6 +78,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Die();
 
+public:
+	// 注册各部分技能(按形式来源)
+	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
+
+	// 用一组GA去注册1个连招黑盒
+	void RegisterComboAttack(const TArray<FName>& InGANames);
+
+	// 广播 "用一组GA注册连招黑盒"
+	UFUNCTION(NetMulticast, Reliable)
+		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+
 		/// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC
@@ -97,7 +102,7 @@ private:
 	UPROPERTY()
 		FSimpleComboCheck ComboAttackCheck;
 protected:
-	// 能力或者技能缓存池.
+	// GA缓存池, 1个技能名对1个技能句柄
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 
 public:

@@ -203,8 +203,14 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							ToGamePlayTags(CharacterAttribute.Skill);
 							ToGamePlayTags(CharacterAttribute.Limbs);
 
-							// 把最新GAS属性集刷新到人里.
+							// 给人更新属性集
 							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
+
+							// 给人更新技能(按形式来源,一共三种,分别是combo连招, Skill能力, limb肢体行为)
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.ComboAttack, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
+
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}
 					}

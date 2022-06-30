@@ -160,6 +160,9 @@ public:/// 技能相关
 	// 执行死亡
 	virtual void PlayDie();
 
+	// 使用战斗组件里的 注册各部分技能(按形式来源)
+	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
+
 protected:
 	// RPC至客户端, 让客户端播放伤害字体.
 	UFUNCTION(Client, Reliable)

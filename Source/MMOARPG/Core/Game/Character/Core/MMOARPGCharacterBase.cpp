@@ -217,6 +217,14 @@ void AMMOARPGCharacterBase::PlayDie()
 	GetFightComponent()->Die();
 }
 
+// 使用战斗组件里的 注册各部分技能(按形式来源)
+void AMMOARPGCharacterBase::RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/)
+{
+	if (FightComponent != nullptr) {
+		FightComponent->RegisterGameplayAbility(InGANames, InGASrcEnum);
+	}
+}
+
 // RPC至客户端, 让客户端播放伤害字体.
 void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageAmount, const FVector& InLocation, float InRate)
 {
