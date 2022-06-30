@@ -33,8 +33,17 @@ AMMOARPGCharacterBase* AMMOARPGAIControllerBase::GetTarget()
 // AIC控制自己去 搜寻敌人.
 AMMOARPGCharacterBase* AMMOARPGAIControllerBase::FindTarget()
 {
+	if (AMMOARPGCharacterBase* InPawn = Cast<AMMOARPGCharacterBase>(GetPawn())) {
+		TArray<ECharacterType> IgnoreTypes;
+		// 不把怪物型和BOSS型识别为敌人,阻止同类怪打同类怪
+		if (InPawn->GetCharacterType() == ECharacterType::CHARACTER_MONSTER || InPawn->GetCharacterType() == ECharacterType::CHARACTER_BOSS) {
+			IgnoreTypes.Add(ECharacterType::CHARACTER_MONSTER);
+			IgnoreTypes.Add(ECharacterType::CHARACTER_BOSS);
+		}
+		return MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), IgnoreTypes, 1024);
+	}
 
-	return MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), 2048);
+	return nullptr;
 }
 
 // 让自身执行攻击

@@ -74,7 +74,8 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 		float MaxNewRange = 520.f;
 		// 找寻520米内最近的敌对目标并在服务器上将其写入
 		if (!Target.IsValid()) {
-			Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), MaxNewRange);
+			TArray<ECharacterType> IgnoreTypes;
+			Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), IgnoreTypes, MaxNewRange);
 			if (Target.IsValid()) {
 				ResetTargetOnServer(Target.Get());
 			}

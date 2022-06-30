@@ -7,13 +7,23 @@ namespace MMOARPGGameMethod
 	/**
 	 * 查找半径内最近的敌对目标.
 	 */
-	AMMOARPGCharacterBase* FindTarget(AMMOARPGCharacterBase* InThis, float InRange)
+	AMMOARPGCharacterBase* FindTarget(AMMOARPGCharacterBase* InThis, const TArray<ECharacterType>& InIgnoreType, float InRange)
 	{
+		// Lambda-- 检查敌人的身份类型是不是指定的忽略身份类型
+		auto IsExistIgnoreType = [&](AMMOARPGCharacterBase* InNewTarget)->bool {
+			for (auto& Tmp : InIgnoreType) {
+				if (InNewTarget->GetCharacterType() == Tmp) {
+					return true;
+				}
+			}
+			return false;
+		};
+
 		AMMOARPGCharacterBase* Target = NULL;
 		if (InThis && !InThis->IsDie() && InThis->GetWorld()) {
 			for (TActorIterator<AMMOARPGCharacterBase> It(InThis->GetWorld(), AMMOARPGCharacterBase::StaticClass()); It; ++It) {
 				if (AMMOARPGCharacterBase* NewTarget = *It) {
-					if (!NewTarget->IsDie() && InThis != NewTarget) {// 敌对目标不能是自己而且敌对目标必须存活
+					if (!NewTarget->IsDie() && InThis != NewTarget && !IsExistIgnoreType(NewTarget)) {// 敌对目标不能是自己而且敌对目标必须存活
 
 						float Distance = FVector::Dist(NewTarget->GetActorLocation(), InThis->GetActorLocation());
 						if (Distance <= InRange) {
