@@ -172,6 +172,12 @@ void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
 	this->NormalAttack(InKey);
 }
 
+// 拿取当前人物身份类型(用以敌我识别)
+ECharacterType AMMOARPGCharacterBase::GetCharacterType()
+{
+	return MMOARPGGameMethod::GetCharacterType(GetID());
+}
+
 struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 {
 	return GetFightComponent()->GetSimpleComboInfo();

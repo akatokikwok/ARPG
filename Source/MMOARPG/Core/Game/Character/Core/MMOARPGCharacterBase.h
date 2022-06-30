@@ -15,7 +15,8 @@
 #include "../../Abilities/MMOARPGAbilitySystemComponent.h"
 #include "SimpleComboType.h"
 #include "../../Abilities/MMOARPGAttributeSet.h"
-#include <MMOARPGType.h>
+#include "MMOARPGType.h"
+#include "../../../../MMOARPGGameMethod.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
@@ -72,12 +73,25 @@ public:
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
 		void K2_AnimSignal(int32 InSignal);
-	
+
+	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
+	void ResetActionState(ECharacterActionState InNewActionState);
+
+	/** 攀爬跳姿势的切换具体蒙太奇动画. */
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
+
+	// 检查人物是否死亡.
+	bool IsDie();
+
 	// // 放平砍技能.
 	void NormalAttack(const FName& InKey);
+
 	// 覆盖ISimpleComboInterface::ComboAttack
 	// 本质上执行战斗组件放出平砍GA.
 	virtual void ComboAttack(const FName& InKey) override;
+
+	// 拿取当前人物身份类型(用以敌我识别)
+	ECharacterType GetCharacterType();
 public:
 	// 拿取人物姿态.
 	FORCEINLINE ECharacterActionState GetActionState() { return ActionState; }
@@ -101,15 +115,6 @@ public:
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 	// 拿取死亡动画序列号.
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
-
-	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
-	void ResetActionState(ECharacterActionState InNewActionState);
-
-	/** 攀爬跳姿势的切换具体蒙太奇动画. */
-	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
-
-	// 检查人物是否死亡.
-	bool IsDie();
 
 protected:
 	// 同步变量需要重写的方法.

@@ -24,6 +24,10 @@ void AMMOARPGAICharacter::BeginPlay()
 
 				// II. 更新技能
 				if (GetWorld()->IsServer()) {
+					// 2.0 在服务器上强制给小怪一个默认的控制器.
+					if (!GetController()) {
+						APawn::SpawnDefaultController();
+					}
 
 					// 2.1 把DT里的GTag转FName型.
 					TArray<FName> Skill_names;
