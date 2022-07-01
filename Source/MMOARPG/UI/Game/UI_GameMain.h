@@ -10,9 +10,11 @@
 #include "../../Robot/MMOARPGRobot.h"
 #endif// UE_MMOARPG_DEBUG_DS
 
+#include "Character/UI_CharacterHealthState.h"
 #include "UI_GameMain.generated.h"
 
 class UUI_Print;
+class UUI_CharacterHealthState;
 /**
  * 类似于LoginMain, HallMain
  * 切换到Game,之后会激活这个类.
@@ -21,6 +23,10 @@ UCLASS()
 class MMOARPG_API UUI_GameMain : public UUI_MainBase
 {
 	GENERATED_BODY()
+private:
+	UPROPERTY(meta = (BindWidget))
+		UUI_CharacterHealthState* MainCharacterHealthState;
+
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

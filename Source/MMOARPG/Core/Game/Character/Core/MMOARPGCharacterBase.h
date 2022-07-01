@@ -15,7 +15,8 @@
 #include "../../Abilities/MMOARPGAbilitySystemComponent.h"
 #include "SimpleComboType.h"
 #include "../../Abilities/MMOARPGAttributeSet.h"
-#include <MMOARPGType.h>
+#include "MMOARPGType.h"
+#include "../../../../MMOARPGGameMethod.h"
 #include "MMOARPGCharacterBase.generated.h"
 
 
@@ -50,7 +51,7 @@ private:
 	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
-
+		
 	/** MMOARPG ASC组件. */
  	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
  		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
@@ -67,17 +68,33 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	// C++版.重载自 ISimpleCombatInterface::AnimSignal.
+	// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, DisplayName = "AnimSignal_BPVersion", Category = "Anim Event")
 		void K2_AnimSignal(int32 InSignal);
-	
+
+	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
+	void ResetActionState(ECharacterActionState InNewActionState);
+
+	/** 攀爬跳姿势的切换具体蒙太奇动画. */
+	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
+
+	// 检查人物是否死亡.
+	bool IsDie();
+
 	// // 放平砍技能.
 	void NormalAttack(const FName& InKey);
+
 	// 覆盖ISimpleComboInterface::ComboAttack
 	// 本质上执行战斗组件放出平砍GA.
 	virtual void ComboAttack(const FName& InKey) override;
+
+	// 拿取当前人物身份类型(用以敌我识别)
+	ECharacterType GetCharacterType();
+
+	// 移除死亡后遗体
+	void RemoveDeadBody(float InTime = 4.f);
 public:
 	// 拿取人物姿态.
 	FORCEINLINE ECharacterActionState GetActionState() { return ActionState; }
@@ -97,15 +114,10 @@ public:
 	FORCEINLINE UFightComponent* GetFightComponent() { return FightComponent; }
 	// 拿附属的相机,虚接口.
 	FORCEINLINE virtual class UCameraComponent* GetFollowCamera() const { return nullptr; }
-
-	// 强制刷新到指定姿态. 若和新姿态相同则还原为normal.
-	void ResetActionState(ECharacterActionState InNewActionState);
-
-	/** 攀爬跳姿势的切换具体蒙太奇动画. */
-	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) {};
-
-	// 检查人物是否死亡.
-	bool IsDie();
+	// 拿取GAS属性集.
+	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
+	// 拿取死亡动画序列号.
+	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
 
 protected:
 	// 同步变量需要重写的方法.
@@ -125,6 +137,10 @@ protected:
 	// 重写基类; 落地(可能是飞行落地,或者是攀岩坠落落地)
 	virtual void Landed(const FHitResult& Hit) override;
 
+	// RPC至客户端, 让客户端播放伤害字体.
+	UFUNCTION(Client, Reliable)
+		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
+
 public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
 	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
@@ -133,6 +149,13 @@ public:/// 技能相关
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
 	
+
+	// 用1行DTR属性 注册更新AttributeSet指针数据
+	void UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute);
+
+	// 用1个GAS属性集 注册更新AttributeSet指针数据
+	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
+
 	// 处理人的血量; 虚方法
 	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的蓝量; 虚方法
@@ -156,10 +179,14 @@ public:/// 技能相关
 	// 执行死亡
 	virtual void PlayDie();
 
-protected:
-	// RPC至客户端, 让客户端播放伤害字体.
-	UFUNCTION(Client, Reliable)
-		virtual void SpawnDrawTextInClient(float InDamageAmount, const FVector& InLocation, float InRate);
+	// 使用战斗组件里的 注册各部分技能(按形式来源)
+	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
+
+	// "单机非广播版" 用一组GA去注册1个连招黑盒
+	void RegisterComboAttack(const TArray<FName>& InGANames);
+
+	// 广播 "用一组GA注册连招黑盒"
+	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:
@@ -177,6 +204,10 @@ protected:
 	// 用户ID.用户去配置的ID.
 	UPROPERTY()
 		int32 UserID;
+
+	// 死亡动画序列号.
+	UPROPERTY()
+		int32 DieIndex;
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;

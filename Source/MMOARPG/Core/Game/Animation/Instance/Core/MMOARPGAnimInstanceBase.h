@@ -34,6 +34,9 @@ public:
 	// 是否死亡.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		bool bDeath;
+	// 播死亡后仰天暴毙姿势的哪一个 Animseq.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		int32 DieIndex;
 	// 人的速率.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		float Speed;

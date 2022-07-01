@@ -26,10 +26,10 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitKneadingLocation(GetMesh()->GetComponentLocation());
+	InitKneadingLocation(GetMesh()->GetRelativeLocation());
 
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {// 满足是本机玩家.
-		
+
 		/// 反复确保只要生成人物就实时拿到PS-CA.
 		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
 			UpdateKneadingBoby(InPlayerState->GetCA());// 第二次第三次进来之后要求实时刷新到最新PS里的CA.
@@ -42,6 +42,12 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 	else if (GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {// 满足是模拟玩家.
 
 	}
+}
+
+void AMMOARPGPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GameCount = 0;
+	Super::EndPlay(EndPlayReason);
 }
 
 /** RPC在DS-GM, 发送刷新容貌的请求. */
@@ -59,16 +65,18 @@ void AMMOARPGPlayerCharacter::CallServerUpdateKneading_Implementation(int32 InUs
 /** RPC在客户端, 执行刷新容貌. */
 void AMMOARPGPlayerCharacter::CallUpdateKneadingBobyOnClient_Implementation(const FMMOARPGCharacterAppearance& InCA)
 {
-	UpdateKneadingBoby(InCA);// 客户端上刷新人物样貌.
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
+		UpdateKneadingBoby(InCA);// 客户端上刷新人物样貌.
 
-	// 在本机玩家(实际上是客户端) 上 刷新PS里的最新CA.
-	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
 		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
-			InPlayerState->GetCA() = InCA;
+			InPlayerState->GetCA() = InCA;// 在PS内存一份.
 		}
 
-		/** 刷新容貌的时候, 这是第一次向CS请求人物属性集 */
-		GetCharacterDataRequests();
+		// 只在本机玩家客户端 上 刷新PS里的最新CA.
+		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+			/** 刷新容貌的时候, 这是第一次向CS请求人物属性集 */
+			GetCharacterDataRequests();
+		}
 	}
 }
 
@@ -79,18 +87,24 @@ void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 		// RPC在DS - GM, 发送刷新容貌的请求.
 
 		// 让指定的用户号存档切换
+		
 		if (GameCount == 0) {
-			CallServerUpdateKneading(1);// 刷新1号用户
-			GameCount++;
+			CallServerUpdateKneading(1);
+			GameCount += 2;
 		}
 		else if (GameCount == 1) {
-			CallServerUpdateKneading(3);// 刷新3号用户
+			CallServerUpdateKneading(1);
+			++GameCount;
+		}
+		else if (GameCount == 2) {
+			CallServerUpdateKneading(3);
 			GameCount = 0;
 		}
+
 #else
 		// RPC在DS - GM, 发送刷新容貌的请求.
-		CallServerUpdateKneading(InGameInstance->GetUserData().ID);
-#endif		
+		CallServerUpdateKneading(InGameInstance->GetUserData().ID);	
+#endif
 	}
 }
 

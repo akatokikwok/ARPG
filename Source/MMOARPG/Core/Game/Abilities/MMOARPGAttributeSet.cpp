@@ -2,10 +2,12 @@
 #include "GameplayTagContainer.h"
 #include "GameplayEffectExtension.h"
 #include "../Character/Core/MMOARPGCharacterBase.h"
+#include "../../../DataTable/CharacterAttributeTable.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
-	: Health(100.f)
-	, MaxHealth(100.f)
+	: Level(1)
+	, Health(200.f)
+	, MaxHealth(200.f)
 	, Mana(0.f)
 	, MaxMana(0.f)
 {
@@ -93,13 +95,39 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxMana);
 }
 
-// 注册GAS属性集
+// 用服务器端的GAS属性集 注册本AS类里各字段.
 void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribute& Data)
 {
-	this->RegistrationParam(Health, Data.Health);
-	this->RegistrationParam(MaxHealth, Data.MaxHealth);
-	this->RegistrationParam(Mana, Data.Mana);
-	this->RegistrationParam(MaxMana, Data.MaxMana);
+	RegistrationParam(Level, Data.Level);
+	RegistrationParam(Health, Data.Health);
+	RegistrationParam(MaxHealth, Data.MaxHealth);
+	RegistrationParam(Mana, Data.Mana);
+	RegistrationParam(MaxMana, Data.MaxMana);
+	RegistrationParam(PhysicsAttack, Data.PhysicsAttack);
+	RegistrationParam(MagicAttack, Data.MagicAttack);
+	RegistrationParam(PhysicsDefense, Data.PhysicsDefense);
+	RegistrationParam(MagicDefense, Data.MagicDefense);
+	RegistrationParam(AttackRange, Data.AttackRange);
+}
+
+// 用DTR_属性 注册本AS类里各字段.
+void UMMOARPGAttributeSet::RegistrationProperties(const FCharacterAttributeTable* Data)
+{
+	RegistrationParam(Level, 1);
+	RegistrationParam(Health, Data->Health);
+	RegistrationParam(MaxHealth, Data->Health);
+	RegistrationParam(Mana, Data->Mana);
+	RegistrationParam(MaxMana, Data->Mana);
+	RegistrationParam(PhysicsAttack, Data->PhysicsAttack);
+	RegistrationParam(MagicAttack, Data->MagicAttack);
+	RegistrationParam(PhysicsDefense, Data->PhysicsDefense);
+	RegistrationParam(MagicDefense, Data->MagicDefense);
+	RegistrationParam(AttackRange, Data->AttackRange);
+}
+
+void UMMOARPGAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Level, OldValue);
 }
 
 void UMMOARPGAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
@@ -127,10 +155,42 @@ void UMMOARPGAttributeSet::OnRep_Damage(const FGameplayAttributeData& OldValue)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, Damage, OldValue);
 }
 
+void UMMOARPGAttributeSet::OnRep_PhysicsAttack(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, PhysicsAttack, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_MagicAttack(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MagicAttack, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_PhysicsDefense(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, PhysicsDefense, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_MagicDefense(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MagicDefense, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, AttackRange, OldValue);
+}
+
 // 仅工具方法.
 void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData)
 {
 	InAttributeData.SetBaseValue(InNewAttributeData.BaseValue);
 	InAttributeData.SetCurrentValue(InNewAttributeData.CurrentValue);
+}
+
+// 工具方法
+void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const float InValue)
+{
+	InAttributeData.SetBaseValue(InValue);
+	InAttributeData.SetCurrentValue(InValue);
 }
 

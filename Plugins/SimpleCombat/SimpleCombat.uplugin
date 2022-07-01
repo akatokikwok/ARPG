@@ -19,6 +19,11 @@
 			"Name": "SimpleCombat",
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen"
+		},
+		{
+			"Name": "SimpleCombatEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

@@ -22,5 +22,5 @@ public:
 		int32 ID;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterStyle")
-		TSubclassOf<AMMOARPGCharacterBase> MMOARPGCharacterClass;
+		TSubclassOf<AMMOARPGCharacterBase> MMOARPGCharacterClass;// 哪种类型的生命体?
 };

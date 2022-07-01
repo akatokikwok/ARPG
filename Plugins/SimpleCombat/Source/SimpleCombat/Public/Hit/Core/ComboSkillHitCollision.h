@@ -41,12 +41,15 @@ public:
 	void SetHitID(int32 InNewHit) { HitID = InNewHit; }
 	// 拿取受击ID
 	const int32 GetHitID() const { return HitID; }
+	// 设定一组buff名字
+	void SetBuffs(const TArray<FName>& InBuffs) { Buffs = InBuffs; }
+
 protected:
 	// 受击ID.
 	UPROPERTY()
 		int32 HitID;// 受击ID.
 	
-	////
-	//UPROPERTY()
-	//	TArray<FName> Buffs;
+	// 由技能施加的一组buff名称.
+	UPROPERTY()
+		TArray<FName> Buffs;
 };

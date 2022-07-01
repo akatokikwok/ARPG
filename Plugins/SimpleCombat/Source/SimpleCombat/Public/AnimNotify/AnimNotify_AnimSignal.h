@@ -26,6 +26,7 @@ public:
 	 * 信号值,可以被设为不同的浮点数,挂载在AnimSeq或者蒙太奇上的Notify槽位追踪里
 	 * 0.f, 1.f 设定为装卸武器
 	 * 2.f 设定为复位Combo触发器.
+	 * 7 和 8 设定为播 死亡蒙太奇的哪个section.
 	 * 
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify")

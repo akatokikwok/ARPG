@@ -42,6 +42,10 @@ public:
 	// 被你攻击的受击者beHit蒙太奇里的指定受击ID.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		int32 HitID;// 被你攻击的受击者beHit蒙太奇里的指定受击ID..
+	
+	// 技能带来的一组buff名称
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		TArray<FName> Buffs;
 
 	// 是否生成并渲染hitbox; 如果为true 代表仅服务器生成 如果为false 则在双端生成
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
@@ -59,9 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		FName InSocketName;// 绑在哪个骨骼socket上.
 
-	// 是否允许将Box绑定在角色身上开火点上.
+	// 是否允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
-		bool bBind;// 是否允许将Box绑定在角色身上开火点上.
+		bool bBind;// 是否允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上..
 
 	// 群伤还是单体伤害.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

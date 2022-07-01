@@ -48,9 +48,16 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 			if (!bSpawnCollisionOnServer || InSimpleCombatCharacter->GetWorld()->IsServer()) {
 				/** 生成一个碰撞物hitbox, 大概位于刀尖上的socket上 */
 				if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActor<AHitCollision>(HitObjectClass, ComponentLocation, ComponentRotation, ActorSpawnParameters)) {
+					
+					// 若允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上..
+					if (bBind == true) {
+						HitCollision->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+					}
 
 					// 优先注册受击ID(在蓝图蒙太奇动画里手动赋值).
 					HitCollision->SetHitID(HitID);// 给socket上的这个碰撞物写入一个受击ID.
+					// 为hitbox写入一组buff名字.
+					HitCollision->SetBuffs(Buffs);
 					// 注册受击ID完了之后再启用碰撞.
 					HitCollision->Collision(true);
 

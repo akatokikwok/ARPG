@@ -5,6 +5,8 @@
 #include "../../Core/Game/Character/MMOARPGPlayerCharacter.h"
 #endif
 
+#include "../../Core/Game/Abilities/MMOARPGAttributeSet.h"
+
 #define LOCTEXT_NAMESPACE "UI_GameMain"
 
 void UUI_GameMain::NativeConstruct()
@@ -45,10 +47,24 @@ void UUI_GameMain::NativeDestruct()
 void UUI_GameMain::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	/* 机器人Tick. */
 #if UE_MMOARPG_DEBUG_DS
 	Robot.Tick(InDeltaTime);
 #endif// UE_MMOARPG_DEBUG_DS
 
+
+	// 客户端看到UI应用属性集变化的效果
+	if (MainCharacterHealthState && GetWorld() && GetWorld()->GetFirstPlayerController()) {
+		if (AMMOARPGCharacterBase* InPawn = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {// 确保玩家是受controller管理的.
+			if (UMMOARPGAttributeSet* InAttribute = InPawn->GetAttribute()) {// 再拿到人的属性集
+				MainCharacterHealthState->SetHealth(InAttribute->GetHealth() / InAttribute->GetMaxHealth());
+				MainCharacterHealthState->SetHealthValue(InAttribute->GetMaxHealth(), InAttribute->GetHealth());
+				MainCharacterHealthState->SetMana(InAttribute->GetMana() / InAttribute->GetMaxMana());
+				MainCharacterHealthState->SetManaValue(InAttribute->GetMaxMana(), InAttribute->GetMana());
+			}
+		}
+	}
 }
 
 void UUI_GameMain::LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg)

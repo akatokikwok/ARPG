@@ -4,6 +4,7 @@
 #include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
 #include "SimpleDrawTextFunctionLibrary.h"
+#include "ThreadManage.h"
 
 
 // Sets default values
@@ -76,9 +77,34 @@ void AMMOARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 }
 
+// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 {
 	K2_AnimSignal(InSignal);
+
+	// 手动配置一下7和8,播任一一种死亡seq anim.
+	if (InSignal == 7) {
+		DieIndex = 0;
+	}
+	else if (InSignal == 8) {
+		DieIndex = 1;
+	}
+}
+
+// 用1行DTR属性 注册更新AttributeSet指针数据
+void AMMOARPGCharacterBase::UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute)
+{
+	if (AttributeSet) {
+		AttributeSet->RegistrationProperties(InDTRowAttribute);
+	}
+}
+
+// 用1个GAS属性集 注册更新AttributeSet指针数据
+void AMMOARPGCharacterBase::UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute)
+{
+	if (AttributeSet) {
+		AttributeSet->RegistrationProperties(*InGASAttribute);
+	}
 }
 
 void AMMOARPGCharacterBase::ResetActionState(ECharacterActionState InNewActionState)
@@ -147,6 +173,20 @@ void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
 	this->NormalAttack(InKey);
 }
 
+// 拿取当前人物身份类型(用以敌我识别)
+ECharacterType AMMOARPGCharacterBase::GetCharacterType()
+{
+	return MMOARPGGameMethod::GetCharacterType(GetID());
+}
+
+// 移除死亡后遗体
+void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
+{
+	GThread::Get()->GetCoroutines().BindLambda(InTime, [&]() {
+		Destroy();
+		});
+}
+
 struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 {
 	return GetFightComponent()->GetSimpleComboInfo();
@@ -155,9 +195,7 @@ struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 // 广播 刷新最新的人物GAS属性集.
 void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
 {
-	if (AttributeSet != nullptr) {
-		AttributeSet->RegistrationProperties(CharacterAttribute);
-	}
+	UpdateAttribute(&CharacterAttribute);
 }
 
 // 处理人的血量; 虚方法
@@ -208,6 +246,14 @@ void AMMOARPGCharacterBase::PlayDie()
 	GetFightComponent()->Die();
 }
 
+// 使用战斗组件里的 注册各部分技能(按形式来源)
+void AMMOARPGCharacterBase::RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/)
+{
+	if (FightComponent != nullptr) {
+		FightComponent->RegisterGameplayAbility(InGANames, InGASrcEnum);
+	}
+}
+
 // RPC至客户端, 让客户端播放伤害字体.
 void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageAmount, const FVector& InLocation, float InRate)
 {
@@ -215,4 +261,20 @@ void AMMOARPGCharacterBase::SpawnDrawTextInClient_Implementation(float InDamageA
 		GetWorld(),
 		InLocation,
 		FString::Printf(TEXT("- %.2lf"), InDamageAmount), FColor::Red, InRate);
+}
+
+// "单机非广播版" 用一组GA去注册1个连招黑盒
+void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
+{
+	if (FightComponent) {
+		FightComponent->RegisterComboAttack(InGANames);
+	}
+}
+
+// 广播 "用一组GA注册连招黑盒"
+void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+{
+	if (FightComponent) {
+		FightComponent->RegisterComboAttackMulticast(InGANames);
+	}
 }

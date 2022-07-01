@@ -3,6 +3,27 @@
 #include "CoreMinimal.h"
 #include "MMOARPGGameType.generated.h"
 
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	CHARACTER_NONE				 UMETA(DisplayName = "None"),			//1 主角
+	CHARACTER_PLAYER_MAIN		 UMETA(DisplayName = "Lead"),			//1 主角
+	CHARACTER_PARTNER			 UMETA(DisplayName = "Partner"),		//2 ~ 4096 //配角
+	CHARACTER_NPC_RESIDENT		 UMETA(DisplayName = "Resident"),		//4097 ~ 8119 //居民
+	CHARACTER_NPC_GUARDIAN		 UMETA(DisplayName = "Guardian"),		//8120 ~ 16423 //守卫者
+	CHARACTER_MONSTER			 UMETA(DisplayName = "Monster"),		//16424~30000	//小怪
+	CHARACTER_BOSS				 UMETA(DisplayName = "Boss"),			//30001			//Boss
+};
+
+// 攻击形式来源枚举.
+enum EMMOARPGGameplayAbilityType
+{
+	GAMEPLAYABILITY_NONE,// 
+	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
+	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
+	GAMEPLAYABILITY_LIMBS,// 肢体动作的技能或能力状态;  例如死亡, 挨打
+};
+
 /* 人物行为姿态.*/
 UENUM(BlueprintType)
 enum class ECharacterActionState : uint8
