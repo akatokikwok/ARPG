@@ -12,6 +12,8 @@ class MMOARPG_API AMMOARPGAICharacter : public AMMOARPGCharacterBase
 {
 	GENERATED_BODY()
 protected:
+	// 
 	virtual void BeginPlay() override;
-
+	// 覆写基类执行死亡效果.(仅在AI死后移除遗体)
+	virtual void PlayDie() override;
 };

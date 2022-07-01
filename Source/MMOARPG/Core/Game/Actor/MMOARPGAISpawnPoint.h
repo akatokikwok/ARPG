@@ -14,6 +14,7 @@ class MMOARPG_API AMMOARPGAISpawnPoint : public ATargetPoint
 {
 	GENERATED_BODY()
 private:
+	// 监听这几只怪的生命情况的池子
 	UPROPERTY()
 		TArray<AMMOARPGCharacterBase*> ListeningObjectPool;
 public:
@@ -24,6 +25,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "AISpawn")
 		int32 Lv;
 
+	// 怪死亡后重生费时.
 	UPROPERTY(EditAnywhere, Category = "AISpawn")
 		float RebirthTime;
 	

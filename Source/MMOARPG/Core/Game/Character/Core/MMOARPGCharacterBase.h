@@ -92,6 +92,9 @@ public:
 
 	// 拿取当前人物身份类型(用以敌我识别)
 	ECharacterType GetCharacterType();
+
+	// 移除死亡后遗体
+	void RemoveDeadBody(float InTime = 4.f);
 public:
 	// 拿取人物姿态.
 	FORCEINLINE ECharacterActionState GetActionState() { return ActionState; }

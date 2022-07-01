@@ -35,25 +35,26 @@ void AMMOARPGAISpawnPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-// 	if (ListeningObjectPool.IsEmpty()) {
-// 		CurrentRebirthTime -= DeltaTime;
-// 		if (CurrentRebirthTime <= 0.f) {
-// 			SpawnAICharacter(CharacterID, Lv);
-// 			CurrentRebirthTime = RebirthTime;
-// 		}
-// 	}
-// 	else {
-// 		TArray<AMMOARPGCharacterBase*> RemoveObject;
-// 		for (auto& Tmp : ListeningObjectPool) {
-// 			if (Tmp->IsDie()) {
-// 				RemoveObject.Add(Tmp);
-// 			}
-// 		}
-// 
-// 		for (auto& Tmp : RemoveObject) {
-// 			ListeningObjectPool.Remove(Tmp);
-// 		}
-// 	}
+	/* 监听池子为空就开始扣除重生时间并主动生成怪物. */
+	if (ListeningObjectPool.IsEmpty()) {
+		CurrentRebirthTime -= DeltaTime;
+		if (CurrentRebirthTime <= 0.f) {
+			SpawnAICharacter(CharacterID, Lv);
+			CurrentRebirthTime = RebirthTime;
+		}
+	}
+	/* 把已死亡的从监听池子里剔除掉. */
+	else {
+		TArray<AMMOARPGCharacterBase*> RemoveObject;
+		for (auto& Tmp : ListeningObjectPool) {
+			if (Tmp->IsDie()) {
+				RemoveObject.Add(Tmp);
+			}
+		}
+		for (auto& Tmp : RemoveObject) {
+			ListeningObjectPool.Remove(Tmp);
+		}
+	}
 }
 ////////////////////////////////////////////////////////////////////////// protected:
 
@@ -79,7 +80,7 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 						Locations.Add(GetActorLocation());
 					}
 
-					// 扫描每个怪的预定生成位置, 并构建出怪.
+					// 扫描每个怪的预定生成位置, 并构建出怪; 同时注册进存活池子.
 					// 生成怪之后强烈不推荐直接同步数据,因为有时间差.需要另一套设计
 					for (auto& Location : Locations) {
 						if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->SpawnActor<AMMOARPGCharacterBase>(
@@ -87,7 +88,7 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 							Location,
 							FRotator::ZeroRotator)) {
 
-
+							ListeningObjectPool.Add(InCharacterBase);// 同时注册进存活池子.
 						}
 					}
 				}

@@ -47,3 +47,13 @@ void AMMOARPGAICharacter::BeginPlay()
 		}
 	}
 }
+
+// 覆写基类执行死亡效果.(仅在AI死后移除遗体)
+void AMMOARPGAICharacter::PlayDie()
+{
+	Super::PlayDie();
+
+	if (GetWorld() && GetWorld()->IsServer()) {
+		RemoveDeadBody(5.f);
+	}
+}

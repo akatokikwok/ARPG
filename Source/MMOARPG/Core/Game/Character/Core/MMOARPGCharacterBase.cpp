@@ -4,6 +4,7 @@
 #include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
 #include "SimpleDrawTextFunctionLibrary.h"
+#include "ThreadManage.h"
 
 
 // Sets default values
@@ -176,6 +177,14 @@ void AMMOARPGCharacterBase::ComboAttack(const FName& InKey)
 ECharacterType AMMOARPGCharacterBase::GetCharacterType()
 {
 	return MMOARPGGameMethod::GetCharacterType(GetID());
+}
+
+// 移除死亡后遗体
+void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
+{
+	GThread::Get()->GetCoroutines().BindLambda(InTime, [&]() {
+		Destroy();
+		});
 }
 
 struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
