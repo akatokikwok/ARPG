@@ -28,4 +28,6 @@ public:
 	virtual void Attack(AMMOARPGCharacterBase* InTarget);
 	// 让AIC去控制自身执行攻击(按标签)
 	virtual void Attack(const FName& InTag);
+	// 设定黑板里小怪出生位置
+	void SetOriginalLocation(const FVector& InNewLocation);
 };

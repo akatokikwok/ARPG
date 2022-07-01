@@ -10,6 +10,13 @@ void AMMOARPGAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GThread::Get()->GetCoroutines().BindLambda(0.5f, [&]()->void {
+		// 小怪出生就设定一下黑板里出生位置
+		if (GetPawn()) {
+			SetOriginalLocation(GetPawn()->GetActorLocation());
+		}
+		});
+
 }
 
 // 设定黑板组件里的敌人.
@@ -59,5 +66,12 @@ void AMMOARPGAIControllerBase::Attack(const FName& InTag)
 {
 	if (AMMOARPGCharacterBase* OwnerCharacter = Cast<AMMOARPGCharacterBase>(GetPawn())) {
 		OwnerCharacter->NormalAttack(InTag);
+	}
+}
+
+void AMMOARPGAIControllerBase::SetOriginalLocation(const FVector& InNewLocation)
+{
+	if (GetBlackboardComponent()) {
+		GetBlackboardComponent()->SetValueAsVector(TEXT("OriginalLocation"), InNewLocation);
 	}
 }

@@ -33,10 +33,16 @@ void UMMOARPGBTServiceBase::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 					/* 尝试获取一次黑板里的target字段能否转成人形态的object; */ 
 					AMMOARPGCharacterBase* InTarget = Cast<AMMOARPGCharacterBase>(MyBlackBoard->GetValueAsObject(BlackBoardKey_Target.SelectedKeyName));
 					if (InTarget) {
-						
+						// 距离判断,合理就索敌, 超出就返回刷怪出生点.
 						float Distance = FVector::Dist(InTarget->GetActorLocation(), OwnerCharacter->GetActorLocation());
-						MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, Distance);// 设定黑板里距离为 "敌人到AIC控制的自身 的距离"
-						MyBlackBoard->SetValueAsVector(BlackBoardKey_Location.SelectedKeyName, InTarget->GetActorLocation());// 设定黑板里敌人位置为 "目标敌人位置"
+						if (Distance <= 1280.f) {
+							MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, Distance);// 设定黑板里距离为 "敌人到AIC控制的自身 的距离"
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_Location.SelectedKeyName, InTarget->GetActorLocation());// 设定黑板里敌人位置为 "目标敌人位置"
+						}
+						else {
+							MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, nullptr);
+						}
+						
 					}
 					/* 黑板里不存在这样的charbase. */
 					else {

@@ -21,14 +21,18 @@ namespace MMOARPGGameMethod
 
 		AMMOARPGCharacterBase* Target = NULL;
 		if (InThis && !InThis->IsDie() && InThis->GetWorld()) {
+			float LastInRange = InRange;// 记录一次最新的给定半径.
 			for (TActorIterator<AMMOARPGCharacterBase> It(InThis->GetWorld(), AMMOARPGCharacterBase::StaticClass()); It; ++It) {
 				if (AMMOARPGCharacterBase* NewTarget = *It) {
 					if (!NewTarget->IsDie() && InThis != NewTarget && !IsExistIgnoreType(NewTarget)) {// 敌对目标不能是自己而且敌对目标必须存活
-
+						
 						float Distance = FVector::Dist(NewTarget->GetActorLocation(), InThis->GetActorLocation());
 						if (Distance <= InRange) {
-							InRange = Distance;
-							Target = NewTarget;
+							if (Distance <= LastInRange) {
+								InRange = Distance;
+								Target = NewTarget;
+							}
+							
 						}
 					}
 				}
