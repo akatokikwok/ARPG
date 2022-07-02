@@ -40,7 +40,7 @@ void UFlyComponent::BeginPlay()
 		bLand.Fun.BindLambda([&]() ->void {
 			if (MMOARPGCharacterBase.IsValid()) {
 				// 这一步保护一下,若落地仍是飞行姿态则强制切换为normal状态.
-				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::FLIGHT_STATE);
+				MMOARPGCharacterBase->ResetActionState(ECharacterActionState::NORMAL_STATE);
 				// 还原一套慢飞姿态或站立姿态下的组件设置.
 				ResetFly();
 			}});
@@ -176,6 +176,7 @@ void UFlyComponent::Reset()
 	// 修正落地后人物pitch轴向是倾斜的.
 	FRotator NewRot = MMOARPGCharacterBase->GetActorRotation();
 	NewRot.Pitch = 0.0f;
+	NewRot.Roll = 0.f;
 	MMOARPGCharacterBase->SetActorRotation(NewRot);
 }
 

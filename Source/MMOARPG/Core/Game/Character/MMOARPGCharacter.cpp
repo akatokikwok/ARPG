@@ -352,6 +352,12 @@ void AMMOARPGCharacter::MulticastFast_Implementation()
 
 void AMMOARPGCharacter::FastReleased_Implementation()
 {
+	/* 广播 停止加速*/
+	MulticastFastReleased();
+}
+
+void AMMOARPGCharacter::MulticastFastReleased_Implementation()
+{
 	if (ActionState == ECharacterActionState::SWIMMING_STATE) {
 		GetSwimmingComponent()->ResetFastSwiming();
 	}

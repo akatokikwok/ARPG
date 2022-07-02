@@ -73,6 +73,9 @@ protected:
 	/* 松开急速执行某运动动作. */
 	UFUNCTION(Server, Reliable)
 		void FastReleased();
+	/* 广播 停止加速*/
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFastReleased();
 
 	/* 空中左翻滚.*/
 	UFUNCTION(Server, Reliable)

@@ -65,12 +65,15 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-		TraceClimbingState(DeltaTime);// 命令其射线检测.
-		bJump.Tick(DeltaTime);// Tick 跳爬动作
-		bWallClimbing.Tick(DeltaTime);// Tick翻墙.
-		bTurn.Tick(DeltaTime);
+		if (CharacterMovementComponent->MovementMode != EMovementMode::MOVE_Flying) {
+			TraceClimbingState(DeltaTime);// 命令其射线检测.
+			
+			bJump.Tick(DeltaTime);// Tick 跳爬动作
+			bWallClimbing.Tick(DeltaTime);// Tick翻墙.
+			bTurn.Tick(DeltaTime);
 
-		AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
+			AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
+		}
 	}
 }
 
@@ -368,7 +371,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 						ClimbingState = EClimbingState::CLIMBING_NONE;
 						ReleaseClimbing();
 					}
-// 					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
+					// 					GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, *FString::SanitizeFloat(CosAngle));
 				}
 			}
 
