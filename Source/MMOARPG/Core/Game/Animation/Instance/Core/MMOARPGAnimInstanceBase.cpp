@@ -37,7 +37,7 @@ void UMMOARPGAnimInstanceBase::NativeUpdateAnimation(float Deltaseconds)
 
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			/* 仅在攀岩模式下. */
-			if (InCharacterMovementComponent->MovementMode != EMovementMode::MOVE_Custom) {
+			if (InCharacterMovementComponent->MovementMode != EMovementMode::MOVE_Custom) {// 必须是非攀岩模式下才允许IK
 				if (bFootIK && FookIKID != INDEX_NONE) {
 					TArray<float> OffsetArray;
 
