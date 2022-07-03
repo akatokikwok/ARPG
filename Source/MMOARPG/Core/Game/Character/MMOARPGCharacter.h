@@ -109,8 +109,16 @@ protected:
 	/** 用于攀爬系统的 跳爬释放 */
 	void CharacterStopJumping();
 
-public:/// 技能相关
+	/** RPC服务器 "执行攀岩跳的效果". */
+	UFUNCTION(Server, Reliable)
+		void CharacterJumpToServer();
 	
+	/** 广播 "攀岩跳" */
+	UFUNCTION( NetMulticast, Reliable)
+		void MulticastCharacterJump();
+
+/// 技能相关
+public:
 	// RPC在服务器, 由客户端向CS发送属性集请求.
 	UFUNCTION(Server, Reliable)
 		void GetCharacterDataRequests();
