@@ -74,7 +74,17 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 			AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
 		}
+
+		UpdateMovement(DeltaTime);// 仅在服务器上为人注入输入方向和输入值.
 	}
+}
+
+// 覆写组件同步 -GetLifetimeReplicatedProps.
+void UClimbingComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	// 仅同步给模拟玩家, 字段"InputVector"
+	DOREPLIFETIME_CONDITION(UClimbingComponent, InputVector, COND_SimulatedOnly);
 }
 
 /**
@@ -122,7 +132,13 @@ void UClimbingComponent::ClimbingForwardAxis(float InValue)
 		// get forward vector
 		/// 改成按Z轴取前向向量,来模拟攀岩.
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Z);// 改成按Z轴取前向向量,来模拟攀岩.
+		
+		/* 客户端模拟一次键输输入*/
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
+
+		/* 服务器也模拟一次键鼠输入*/
+		InputVector = Direction * InValue;
+		SetInputVector(InValue, Direction, true);
 	}
 }
 
@@ -139,7 +155,8 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);// Y是人物横向轴移动.X是前向轴移动,Z是垂直轴移动.
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
-
+		
+		SetInputVector(InValue, Direction, false);
 	}
 }
 
@@ -193,6 +210,34 @@ void UClimbingComponent::LaunchCharacter(const FVector& LaunchVelocity)
 void UClimbingComponent::DropClimbingState()
 {
 	ClimbingState = EClimbingState::CLIMBING_DROP;
+}
+
+// RPC至服务器, "根据bRight启用来注册横向或竖向轴的参数"
+void UClimbingComponent::SetInputVector_Implementation(float InValue, const FVector& InDirection, bool bRight)
+{
+	if (bRight) {
+		RightInput.Direction = InDirection;
+		RightInput.Value = InValue;
+	}
+	else {
+		ForwardInput.Direction = InDirection;
+		ForwardInput.Value = InValue;
+	}
+}
+
+// 仅在服务器上为人注入输入方向和输入值.
+void UClimbingComponent::UpdateMovement(float DeltaTime)
+{
+	if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
+		//if (RightInput.Value != 0.f)
+		{
+			MMOARPGCharacterBase->AddMovementInput(RightInput.Direction, RightInput.Value);
+		}
+		//	else if(ForwardInput.Value != 0.f)
+		{
+			MMOARPGCharacterBase->AddMovementInput(ForwardInput.Direction, ForwardInput.Value);
+		}
+	}
 }
 
 /** 监测攀岩的具体射线检测逻辑. */

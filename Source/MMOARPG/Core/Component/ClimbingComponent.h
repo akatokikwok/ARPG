@@ -21,10 +21,25 @@ UCLASS()
 class MMOARPG_API UClimbingComponent : public UMotionComponent
 {
 	GENERATED_BODY()
+
+	/** 结构体: 管理攀爬系统输入 */
+	struct FClimbingInput
+	{
+		FClimbingInput()
+			: Value(0)
+			, Direction(FVector::ZeroVector)
+		{}
+
+		float Value;
+		FVector Direction;
+	};
 public:
 	UClimbingComponent();
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
 public:
 	/**
 	 * 仿照自 UCharacterMovementComponent::PhysCustom.
@@ -35,10 +50,10 @@ public:
 
 	// 接收具体运动方向的键盘输入(前向轴移动).
 	void ClimbingForwardAxis(float InValue);
-	
+
 	// 接收具体运动方向的键盘输入(横向轴移动)
 	void ClimbingMoveRightAxis(float InValue);
-	
+
 	// 重设一套用于爬跳的 按键逻辑.
 	void ResetJump();
 
@@ -46,7 +61,7 @@ public:
 	void Climbing();
 	// 释放攀爬.
 	void ReleaseClimbing();
-	
+
 	// 还原攀爬系统为爬墙状态.
 	void ResetClimbingState();
 
@@ -64,6 +79,13 @@ public:
 
 	// 拿取攀岩拐弯类型
 	EClimbingTurnState GetTurnState() { return TurnState; }
+
+	// RPC至服务器, "根据bRight启用来注册横向或竖向轴的参数"
+	UFUNCTION(Server, Reliable)
+		void SetInputVector(float InValue, const FVector& InDirection, bool bRight);
+
+	// 仅在服务器上为人注入输入方向和输入值.
+	void UpdateMovement(float DeltaTime);
 private:
 	/** 监测攀岩的具体射线检测逻辑. */
 	void TraceClimbingState(float DeltaTime);
@@ -73,7 +95,7 @@ private:
 
 	// 微调优化翻墙后的人物位置.
 	void AdjustmentClimbing(bool bStart = true);
-	
+
 	// 调节坠落给的蹬腿反力方向
 	void AdjustmentPendingLaunchVelocity(float DeltaTime);
 
@@ -112,4 +134,11 @@ private:
 	// 是否渲染检测射线(当翻越矮墙时候).
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
 		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineTypeWhenStepWall;
+
+private:
+	FClimbingInput RightInput;
+	FClimbingInput ForwardInput;
+
+	UPROPERTY(Replicated);
+		FVector InputVector;
 };
