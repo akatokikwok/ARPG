@@ -250,17 +250,19 @@ void AMMOARPGCharacter::OnRep_ActionStateChanged()
 
 void AMMOARPGCharacter::SwitchFight()
 {
-	ResetActionState(ECharacterActionState::FIGHT_STATE);// 强制刷新到战斗姿态. 若和新姿态相同则还原为normal.
+	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Walking) {
+		ResetActionState(ECharacterActionState::FIGHT_STATE);// 强制刷新到战斗姿态. 若和新姿态相同则还原为normal.
 
-	// 本地本机本客户端先执行一次动画逻辑.
-	// 本机客户端动作会第一时间优先执行.
-	FightChanged();
+		// 本地本机本客户端先执行一次动画逻辑.
+		// 本机客户端动作会第一时间优先执行.
+		FightChanged();
 
-	// 客户端发送命令通知一下DS刷新ActionState; 除本机外的其他客户端或模拟对象收到后会执行OnRep_ActionStateChanged.
-	AMMOARPGCharacterBase::SwitchActionStateOnServer(ActionState);
+		// 客户端发送命令通知一下DS刷新ActionState; 除本机外的其他客户端或模拟对象收到后会执行OnRep_ActionStateChanged.
+		AMMOARPGCharacterBase::SwitchActionStateOnServer(ActionState);
 
-	// 刷新最后姿态
-	LastActionState = ActionState;
+		// 刷新最后姿态
+		LastActionState = ActionState;
+	}
 }
 
 void AMMOARPGCharacter::MoveForward(float Value)

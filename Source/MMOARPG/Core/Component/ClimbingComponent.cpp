@@ -65,7 +65,8 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		CapsuleComponent.IsValid() &&
 		CameraComponent.IsValid()) {
 
-		if (CharacterMovementComponent->MovementMode != EMovementMode::MOVE_Flying) {
+		if (CharacterMovementComponent->MovementMode != EMovementMode::MOVE_Flying &&
+			MMOARPGCharacterBase->GetActionState() != ECharacterActionState::FIGHT_STATE) {// 战斗姿势里也停止射线检测
 			TraceClimbingState(DeltaTime);// 命令其射线检测.
 
 			bJump.Tick(DeltaTime);// Tick 跳爬动作
