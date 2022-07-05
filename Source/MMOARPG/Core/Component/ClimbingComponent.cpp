@@ -621,7 +621,12 @@ EClimbingMontageState UClimbingComponent::CalculationClimbingJumpState()
 
 	// 速度的Pitch,Yaw都存入了1个2D向量.
 	// 一定要使用GetLastInputVector() 即使用按键的方向而非运动组件速度的方向.
-	FVector2D Axis(CharacterMovementComponent->GetLastInputVector().Y, CharacterMovementComponent->GetLastInputVector().Z);
+// 	FVector2D Axis(CharacterMovementComponent->GetLastInputVector().Y, CharacterMovementComponent->GetLastInputVector().Z);
+
+	// 需要转为相对的本地坐标; 一定要使用GetLastInputVector() 即使用按键的方向而非运动组件速度的方向.
+	FVector NewInputVector = MMOARPGCharacterBase->GetTransform().InverseTransformPosition(CharacterMovementComponent->GetLastInputVector() + MMOARPGCharacterBase->GetActorLocation());
+	//-----------------------------
+	FVector2D Axis(NewInputVector.Y, NewInputVector.Z);
 
 	/// 区分左右
 	FVector2D XAxis(1.f, 0.f);
