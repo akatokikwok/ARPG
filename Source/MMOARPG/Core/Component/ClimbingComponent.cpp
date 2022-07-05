@@ -424,6 +424,15 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 			else if (ClimbingState != EClimbingState::CLIMBING_TOGROUND && ClimbingState != EClimbingState::CLIMBING_DROP) {
 				ClimbingState = EClimbingState::CLIMBING_CLIMBING;// 切位爬高墙枚举.
 				Climbing();// 启用攀岩.
+
+				/** 非常贴近墙面的时候按脚离地面高度 来启用是否切换跳爬 */
+				if (HitGroundResult.bBlockingHit == false) {
+					bJumpToClimbing = true;// 启用跳攀吸附
+				}
+				else {
+					bWalkToClimbing = true;// 启用步行转攀岩
+				}
+				//
 			}
 		}
 
@@ -433,19 +442,7 @@ void UClimbingComponent::TraceClimbingState(float DeltaTime)
 				ClimbingState = EClimbingState::CLIMBING_NONE;
 			}
 		}
-
-		/** 非常贴近墙面的时候按脚离地面高度 来启用是否切换跳爬 */
-		if (HitGroundResult.bBlockingHit == false) {
-			if (bJumpToClimbing) {
-				bJumpToClimbing = false;// 浮空且已在跳爬才视为关闭跳爬.
-			}
-			else {
-				bJumpToClimbing = true;// 浮空且不在跳爬中才视为启用跳爬.
-			}
-		}
-		else {
-			bJumpToClimbing = false;// 落地之后重置跳爬
-		}
+		//
 	}
 	else if (HitChestResult.bBlockingHit && !HitHeadResult.bBlockingHit) {/* 只命中胸, 头没命中则视为翻越*/
 		/** 爬顶 */

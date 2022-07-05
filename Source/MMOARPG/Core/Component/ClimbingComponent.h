@@ -126,9 +126,6 @@ public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 		EClimbingState ClimbingState;
-	// 是否跳爬吸附.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-		bool bJumpToClimbing;
 	// 人的位置到矮墙顶渐变差值速度.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimAttrubute")
 		float ClimbToWallTopVInterlerpSpeed = 27.0f;
@@ -148,6 +145,7 @@ private:
 	EClimbingTurnState TurnState;
 	// 是否激活攀岩-墙角拐弯
 	FResetBool bTurn;
+
 	// 是否渲染检测射线.
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
 		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineType;
@@ -155,6 +153,15 @@ private:
 	// 是否渲染检测射线(当翻越矮墙时候).
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute", meta = (AllowPrivateAcces = "true"))
 		TEnumAsByte<EDrawDebugTrace::Type> mTraceLineTypeWhenStepWall;
+
+public:
+	// 是否跳爬吸附.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bJumpToClimbing;
+
+	// 是否步行转攀岩
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bWalkToClimbing;
 
 private:
 	FClimbingInput RightInput;

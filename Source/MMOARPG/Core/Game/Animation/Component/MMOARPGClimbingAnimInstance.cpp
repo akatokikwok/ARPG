@@ -72,7 +72,16 @@ void UMMOARPGClimbingAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 			}
 			InCharacterBase->GetClimbingComponent()->ResetClimbingState();
 		}
-			
+		//
+		else if (bJumpToClimbing) {
+			InCharacterBase->GetClimbingComponent()->bJumpToClimbing = false;
+			InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_FROMAIR_RM);
+		}
+		//
+		else if (InCharacterBase->GetClimbingComponent()->bWalkToClimbing) {
+			InCharacterBase->GetClimbingComponent()->bWalkToClimbing = false;
+			InCharacterBase->ClimbingMontageChanged(EClimbingMontageState::CLIMBING_TURN_CORNER_FROMGROUND_RM);
+		}
 	}
 }
 
