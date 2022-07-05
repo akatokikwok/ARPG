@@ -74,9 +74,11 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			bTurn.Tick(DeltaTime);
 
 			AdjustmentPendingLaunchVelocity(DeltaTime);// 调节坠落给的蹬腿反力方向
-		}
 
-		UpdateMovement(DeltaTime);// 仅在服务器上为人注入输入方向和输入值.
+			if (ClimbingState != EClimbingState::CLIMBING_NONE) {
+				UpdateMovement(DeltaTime);// 仅在服务器上为人注入输入方向和输入值.
+			}
+		}
 	}
 }
 
@@ -552,6 +554,12 @@ void UClimbingComponent::SetClimbingState(EMovementMode InMode, ECharacterAction
 	ActorRotation.Pitch = 0.0f;
 	MMOARPGCharacterBase->SetActorRotation(ActorRotation);// 需要人物朝向pitch也清除掉,以防止落下的时候人物是歪斜的.
 	bJumpToClimbing = false;
+
+	// 前向轴和横向轴清零.
+	RightInput.Direction = FVector::ZAxisVector;
+	RightInput.Value = 0.f;
+	ForwardInput.Direction = FVector::ZAxisVector;
+	ForwardInput.Value = 0.f;
 }
 
 // 微调优化翻墙后的人物位置.
