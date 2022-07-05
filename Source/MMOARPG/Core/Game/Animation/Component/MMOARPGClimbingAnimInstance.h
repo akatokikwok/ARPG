@@ -22,8 +22,6 @@ public:
 private:
 	// 爬跳的具体逻辑.
 	void ClimpJump();
-	// 解算出合适的攀岩跳枚举.
-	EClimbingMontageState CalculationClimbingJumpState();
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 攀爬状态枚举.

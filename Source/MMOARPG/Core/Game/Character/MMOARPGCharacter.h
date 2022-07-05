@@ -110,12 +110,12 @@ protected:
 	void CharacterStopJumping();
 
 	/** RPC服务器 "执行攀岩跳的效果". */
-	UFUNCTION(Server, Reliable)
-		void CharacterJumpToServer();
+// 	UFUNCTION(Server, Reliable)
+// 		void CharacterJumpToServer();
 	
 	/** 广播 "攀岩跳" */
-	UFUNCTION( NetMulticast, Reliable)
-		void MulticastCharacterJump();
+// 	UFUNCTION( NetMulticast, Reliable)
+// 		void MulticastCharacterJump();
 
 /// 技能相关
 public:

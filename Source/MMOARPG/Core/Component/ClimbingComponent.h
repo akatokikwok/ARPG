@@ -21,6 +21,8 @@ UCLASS()
 class MMOARPG_API UClimbingComponent : public UMotionComponent
 {
 	GENERATED_BODY()
+private:
+	friend class AMMOARPGCharacter;
 
 	/** 结构体: 管理攀爬系统输入 */
 	struct FClimbingInput
@@ -80,6 +82,9 @@ public:
 	// 拿取攀岩拐弯类型
 	EClimbingTurnState GetTurnState() { return TurnState; }
 
+	// 拿取攀岩跳蒙太奇姿势
+	EClimbingMontageState GetClimbingMontageState() { return ClimbingMontageState; }
+
 	// RPC至服务器, "根据bRight启用来注册横向或竖向轴的参数"
 	UFUNCTION(Server, Reliable)
 		void SetInputVector(float InValue, const FVector& InDirection, bool bRight);
@@ -101,6 +106,22 @@ private:
 
 	/** 任意射线检测的封装接口 */
 	float Scanning(FHitResult& HitResult, TFunction<void(FVector&, FVector&)> TraceLocation);
+
+	// 解算出合适的攀岩跳枚举.
+	EClimbingMontageState CalculationClimbingJumpState();
+
+private:
+	// 广播诸客户端 "复位攀岩跳开关并注册给定蒙太奇"
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastJump(EClimbingMontageState InClimbingMontageState);
+	
+	// RPC服务器 "MulticastJump"
+	UFUNCTION(Server, Reliable)
+		void JumpToServer(EClimbingMontageState InClimbingMontageState);
+
+	// Jump大逻辑
+	void Jump();
+
 public:
 	// 攀爬状态枚举.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
@@ -140,5 +161,8 @@ private:
 	FClimbingInput ForwardInput;
 
 	UPROPERTY(Replicated);
-		FVector InputVector;
+	FVector InputVector;
+
+private:
+	EClimbingMontageState ClimbingMontageState;
 };

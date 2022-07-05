@@ -67,7 +67,7 @@ void UClimbingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 		if (CharacterMovementComponent->MovementMode != EMovementMode::MOVE_Flying) {
 			TraceClimbingState(DeltaTime);// 命令其射线检测.
-			
+
 			bJump.Tick(DeltaTime);// Tick 跳爬动作
 			bWallClimbing.Tick(DeltaTime);// Tick翻墙.
 			bTurn.Tick(DeltaTime);
@@ -132,7 +132,7 @@ void UClimbingComponent::ClimbingForwardAxis(float InValue)
 		// get forward vector
 		/// 改成按Z轴取前向向量,来模拟攀岩.
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Z);// 改成按Z轴取前向向量,来模拟攀岩.
-		
+
 		/* 客户端模拟一次键输输入*/
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
 
@@ -155,7 +155,7 @@ void UClimbingComponent::ClimbingMoveRightAxis(float InValue)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);// Y是人物横向轴移动.X是前向轴移动,Z是垂直轴移动.
 		MMOARPGCharacterBase->AddMovementInput(Direction, InValue);
-		
+
 		SetInputVector(InValue, Direction, false);
 	}
 }
@@ -611,4 +611,78 @@ float UClimbingComponent::Scanning(FHitResult& HitResult, TFunction<void(FVector
 	}
 
 	return ChestDistance;
+}
+
+// 解算出合适的攀岩跳枚举.
+EClimbingMontageState UClimbingComponent::CalculationClimbingJumpState()
+{
+	// 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(TryGetPawnOwner())) {
+	// 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
+
+	// 速度的Pitch,Yaw都存入了1个2D向量.
+	// 一定要使用GetLastInputVector() 即使用按键的方向而非运动组件速度的方向.
+	FVector2D Axis(CharacterMovementComponent->GetLastInputVector().Y, CharacterMovementComponent->GetLastInputVector().Z);
+
+	/// 区分左右
+	FVector2D XAxis(1.f, 0.f);
+	Axis.Normalize();
+	float CosValue = FVector2D::DotProduct(Axis, XAxis);
+	float XAxisCosAngle = (180.f) / PI * FMath::Acos(CosValue);// 判定横轴, 这个角度是0到180,静止不动的时候为90,向右为0,向左为180
+
+	/// 区分上下
+	FVector2D YAxis(0.f, 1.f);
+	CosValue = FVector2D::DotProduct(Axis, YAxis);
+	float YAxisCosAngle = (180.f) / PI * FMath::Acos(CosValue);// 判定竖轴, 这个角度是0到180,静止不动的时候为90,往上为0,往下为180
+	bool bUPAxis = FMath::IsWithinInclusive(YAxisCosAngle, 0.f, 90.f);
+
+	/// 依据横轴度数和 上下半轴为依据, 执行具体蒙太奇类型.
+	if (FMath::IsWithinInclusive(XAxisCosAngle, 22.5f, 67.5f) && bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_UR_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 112.5f, 157.5f) && !bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_DL_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 112.5f, 157.5f) && bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_UL_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 22.5f, 67.5f) && !bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_DR_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 67.5f, 112.5f) && bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_U_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 67.5f, 112.5f) && !bUPAxis) {
+		return EClimbingMontageState::CLIMBING_DASH_D_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 157.5f, 180.f)) {
+		return EClimbingMontageState::CLIMBING_DASH_L_RM;
+	}
+	else if (FMath::IsWithinInclusive(XAxisCosAngle, 0.f, 22.5f)) {
+		return EClimbingMontageState::CLIMBING_DASH_R_RM;
+	}
+	// 		}
+	// 	}
+
+	return EClimbingMontageState::CLIMBING_DASH_MAX;
+}
+
+// 广播诸客户端 "复位攀岩跳开关并注册给定蒙太奇"
+void UClimbingComponent::MulticastJump_Implementation(EClimbingMontageState InClimbingMontageState)
+{
+	// 0.刷新复位 攀岩跳
+	ResetJump();
+	// 1.注册攀岩跳蒙太奇姿势.
+	ClimbingMontageState = InClimbingMontageState;
+}
+
+// RPC服务器 "MulticastJump"
+void UClimbingComponent::JumpToServer_Implementation(EClimbingMontageState InClimbingMontageState)
+{
+	MulticastJump(InClimbingMontageState);
+}
+
+// Jump大逻辑
+void UClimbingComponent::Jump()
+{
+	JumpToServer(CalculationClimbingJumpState());
 }

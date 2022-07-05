@@ -56,7 +56,7 @@ protected:
 
 	UPROPERTY()
 		TWeakObjectPtr<UCameraComponent> CameraComponent;
-
+	/* 有一个人物的移动组件.*/
 	UPROPERTY()
 		TWeakObjectPtr<UCharacterMovementComponent> CharacterMovementComponent;
 	/* 上一帧人物转向.*/

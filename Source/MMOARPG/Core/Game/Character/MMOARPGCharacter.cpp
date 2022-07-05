@@ -421,22 +421,22 @@ void AMMOARPGCharacter::CharacterJump()
 {
 	Jump();// 基类的.
 
-	CharacterJumpToServer();// RPC服务器 "执行跳的效果".
+	if (ActionState == ECharacterActionState::CLIMB_STATE) {
+		GetClimbingComponent()->Jump();// 执行攀岩组件里的 "大跳逻辑"
+	}
 }
 
 // RPC服务器 "执行攀岩跳的效果".
-void AMMOARPGCharacter::CharacterJumpToServer_Implementation()
-{
-	MulticastCharacterJump();
-}
+// void AMMOARPGCharacter::CharacterJumpToServer_Implementation()
+// {
+// 	MulticastCharacterJump();
+// }
 
 // 广播 "攀岩跳"
-void AMMOARPGCharacter::MulticastCharacterJump_Implementation()
-{
-	if (ActionState == ECharacterActionState::CLIMB_STATE) {
-		GetClimbingComponent()->ResetJump();
-	}
-}
+// void AMMOARPGCharacter::MulticastCharacterJump_Implementation()
+// {
+// 
+// }
 
 // RPC在服务器, 由客户端向CS发送属性集请求.
 void AMMOARPGCharacter::GetCharacterDataRequests_Implementation()
