@@ -13,10 +13,11 @@ AHallPlayerController::AHallPlayerController()
 void AHallPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	SimpleBrowse.Register(this, nullptr);// 为浏览器注册controller和目标.
-	SimpleZoom.Register(GetPawn(), 400.f);
-	SimplePanelMove.Register(this, GetPawn(), 100.0f);
-
+	if (GetPawn()) {
+		SimpleBrowse.Register(this, nullptr);// 为浏览器注册controller和目标.
+		SimpleZoom.Register(GetPawn(), 400.f);
+		SimplePanelMove.Register(this, GetPawn(), 100.0f);
+	}
 }
 
 void AHallPlayerController::Tick(float DeltaTime)

@@ -54,7 +54,7 @@ void ACharacterStage::BeginPlay()
 	}
 
 	// 手动设定LOC, LOC影响舞台人物拉腿之后的站立高度.
-	InitKneadingLocation(GetMesh()->GetComponentLocation());
+	InitKneadingLocation(GetMesh()->GetRelativeLocation());
 }
 
 // Called every frame
