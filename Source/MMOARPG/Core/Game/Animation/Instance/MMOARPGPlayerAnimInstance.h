@@ -7,23 +7,29 @@
 #include "MMOARPGPlayerAnimInstance.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MMOARPG_API UMMOARPGPlayerAnimInstance : public UMMOARPGCharacterAnimInstance
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-	float LegSize;
+		float LegSize;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-	float WaistSize;
+		float WaistSize;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-	float ArmSize;
+		float ArmSize;
 
- public:
- 	virtual void NativeUpdateAnimation(float Deltaseconds) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		float HeadSize;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		float ChestSize;
+
+public:
+	virtual void NativeUpdateAnimation(float Deltaseconds) override;
 };

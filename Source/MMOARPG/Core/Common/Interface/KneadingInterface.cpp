@@ -7,6 +7,8 @@ IKneadingInterface::IKneadingInterface()
 	: LegSize(0.f)
 	, WaistSize(0.f)
 	, ArmSize(0.f)
+	, HeadSize(0.f)
+	, ChestSize(0.f)
 {
 
 }
@@ -27,6 +29,16 @@ void IKneadingInterface::SetArmSize(float InArmSize)
 	ArmSize = InArmSize;
 }
 
+void IKneadingInterface::SetHeadSize(float InHeadSize)
+{
+	HeadSize = InHeadSize;
+}
+
+void IKneadingInterface::SetChestSize(float InChestSize)
+{
+	ChestSize = InChestSize;
+}
+
 float IKneadingInterface::GetLegSize()
 {
 	return LegSize;
@@ -38,6 +50,16 @@ float IKneadingInterface::GetWaistSize()
 float IKneadingInterface::GetArmSize()
 {
 	return ArmSize;
+}
+
+float IKneadingInterface::GetHeadSize()
+{
+	return HeadSize;
+}
+
+float IKneadingInterface::GetChestSize()
+{
+	return ChestSize;
 }
 
 void IKneadingInterface::SetMeshPostion(USceneComponent* InMesh)

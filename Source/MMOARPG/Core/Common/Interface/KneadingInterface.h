@@ -41,6 +41,14 @@ public:
 		virtual	void SetArmSize(float InArmSize);
 	//
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
+		virtual	void SetHeadSize(float InHeadSize);
+	//
+	UFUNCTION(BlueprintCallable, Category = "Kneading")
+		virtual	void SetChestSize(float InChestSize);
+	
+	
+	//
+	UFUNCTION(BlueprintCallable, Category = "Kneading")
 		virtual	float GetLegSize();
 	//
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
@@ -48,6 +56,12 @@ public:
 	//
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
 		virtual	float GetArmSize();
+	//
+	UFUNCTION(BlueprintCallable, Category = "Kneading")
+		virtual	float GetHeadSize();
+	//
+	UFUNCTION(BlueprintCallable, Category = "Kneading")
+		virtual	float GetChestSize();
 	//
 	UFUNCTION(BlueprintCallable, Category = "Kneading")
 		virtual void SetMeshPostion(USceneComponent* InMesh);
@@ -59,6 +73,8 @@ protected:
 	float LegSize;
 	float WaistSize;
 	float ArmSize;
+	float HeadSize;
+	float ChestSize;
 
 	FVector Location;
 };

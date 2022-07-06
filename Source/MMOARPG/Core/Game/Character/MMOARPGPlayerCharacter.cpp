@@ -12,7 +12,8 @@ void AMMOARPGPlayerCharacter::UpdateKneadingBoby(const FMMOARPGCharacterAppearan
 	SetLegSize(InCA.LegSize);
 	SetWaistSize(InCA.WaistSize);
 	SetArmSize(InCA.ArmSize);
-
+	SetHeadSize(InCA.HeadSize);
+	SetChestSize(InCA.ChestSize);
 	//需要Mesh也要和我们的骨骼一致变化
 	SetMeshPostion(GetMesh());
 }

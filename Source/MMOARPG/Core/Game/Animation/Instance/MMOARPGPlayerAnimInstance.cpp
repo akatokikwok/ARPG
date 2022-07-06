@@ -23,5 +23,7 @@ void UMMOARPGPlayerAnimInstance::NativeUpdateAnimation(float Deltaseconds)
 		LegSize = InCharacterBase->GetLegSize();
 		WaistSize = InCharacterBase->GetWaistSize();
 		ArmSize = InCharacterBase->GetArmSize();
+		HeadSize = InCharacterBase->GetHeadSize();
+		ChestSize = InCharacterBase->GetChestSize();
 	}
 }

@@ -35,6 +35,12 @@ private:
 		void ArmValueChanged(float InVal);
 	//
 	UFUNCTION()
+		void HeadValueChanged(float InVal);
+	//
+	UFUNCTION()
+		void ChestValueChanged(float InVal);
+	//
+	UFUNCTION()
 		void SelectModelingType(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 private:
@@ -58,4 +64,19 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* ArmValueText;
+
+	UPROPERTY(meta = (BindWidget))
+		USlider* HeadSlider;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* HeadValueText;
+
+	UPROPERTY(meta = (BindWidget))
+		USlider* ChestSlider;
+
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ChestValueText;
+
+public:
+	virtual void InitKneadFace(const FMMOARPGCharacterAppearance* InACData) override;
 };
