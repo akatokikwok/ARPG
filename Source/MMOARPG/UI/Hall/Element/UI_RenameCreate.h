@@ -44,4 +44,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 		UEditableTextBox* EditableName;
+public:
+	//
+	void SetEditableName(const FText& InName);
+	//
+	int32 GetSlotPosition() { return SlotPosition; }
 };

@@ -13,6 +13,13 @@
 
 #define LOCTEXT_NAMESPACE "UUI_HallMain"// 用于本地化.
 
+UUI_HallMain::UUI_HallMain(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, CAType(ECAType::CA_CREATE)
+{
+
+}
+
 void UUI_HallMain::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -106,11 +113,25 @@ void UUI_HallMain::CheckRename(FString& InCharacterName)
 void UUI_HallMain::CreateCharacter(const FMMOARPGCharacterAppearance& InCA)
 {
 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
-		// 指定CA压缩成Json.
 		FString CAJson;
-		NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
+		if (CAType == ECAType::CA_EDITOR) {
+			if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
+				if (FMMOARPGCharacterAppearance* InNewCA = InState->GetCharacterCA(UI_RenameCreate->GetSlotPosition())) {
+					InNewCA->Date = InCA.Date;
+					InNewCA->Name = InCA.Name;
 
-		SEND_DATA(SP_CreateCharacterRequests, InGameInstance->GetUserData().ID, CAJson);
+					NetDataAnalysis::CharacterAppearancesToString(*InNewCA, CAJson);
+				}
+			}
+
+			SEND_DATA(SP_EditorCharacterRequests, InGameInstance->GetUserData().ID, CAJson);
+		}
+		else {
+			NetDataAnalysis::CharacterAppearancesToString(InCA, CAJson);
+			SEND_DATA(SP_CreateCharacterRequests, InGameInstance->GetUserData().ID, CAJson);
+		}
+
+		UI_EditorCharacter->SetIsEnabled(true);
 	}
 }
 
@@ -288,6 +309,26 @@ void UUI_HallMain::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 			}
 		}
 
+		/** 二次编辑角色 */
+		case SP_EditorCharacterResponses:
+		{
+			FSimpleAddrInfo AddrInfo;
+			bool bUpdateSucceeded = false;
+
+			SIMPLE_PROTOCOLS_RECEIVE(SP_EditorCharacterResponses, bUpdateSucceeded);
+
+			if (bUpdateSucceeded) {
+				PrintLog(LOCTEXT("EDITORCHARACTERRESPONSES_SUCCESSFULLY", "Edit character succeeded."));
+			}
+			else {
+				PrintLog(LOCTEXT("EDITORCHARACTERRESPONSES_ERROR", "Edit character Error."));
+			}
+
+			//淡出
+// 			PlayRenameOut();
+			ResetCharacterCreatePanel(false);
+		}
+
 		/** 登录DS服务器. */
 		case SP_LoginToDSServerResponses :
 		{
@@ -347,6 +388,48 @@ void UUI_HallMain::HallMainIn()
 void UUI_HallMain::HallMainOut()
 {
 	PlayWidgetAnim(TEXT("HallMainOut"));
+}
+
+void UUI_HallMain::EditCharacter(int32 InSlot)
+{
+	PlayRenameIn();
+	SetSlotPosition(InSlot);
+
+	if (UUI_KneadFace* InKneadFace = UI_CharacterCreatePanel->CreateKneadFace()) {
+		if (AHallPlayerState* InState = GetPlayerState<AHallPlayerState>()) {
+			if (FMMOARPGCharacterAppearance* InCA = InState->GetCharacterCA(InSlot)) {
+				InKneadFace->InitKneadFace(InCA);
+				StartACData = *InCA;
+
+				ResetEidtorType();
+				UI_EditorCharacter->SetIsEnabled(false);
+
+				//设置名称
+				UI_RenameCreate->SetEditableName(FText::FromString(InCA->Name));
+			}
+		}
+	}
+}
+
+void UUI_HallMain::ResetEidtorType()
+{
+	CAType = ECAType::CA_EDITOR;
+}
+
+void UUI_HallMain::ResetCreateType()
+{
+	CAType = ECAType::CA_CREATE;
+}
+
+void UUI_HallMain::ResetCharacterAppearance(FMMOARPGCharacterAppearance* InCA)
+{
+	if (CAType == ECAType::CA_EDITOR) {
+		if (InCA) {
+			*InCA = StartACData;
+		}
+	}
+
+	UI_EditorCharacter->SetIsEnabled(true);
 }
 
 #undef LOCTEXT_NAMESPACE// 用于本地化.

@@ -24,7 +24,7 @@ public:
 	virtual void NativeDestruct() override;
 
 	// 负责 当点击加号后创建 捏脸信息的逻辑.
-	void CreateKneadFace();
+	UUI_KneadFace* CreateKneadFace();
 	/** 创建所有加号.(角色数据来源是PS) */
 	void CreateCharacterButtons();
 

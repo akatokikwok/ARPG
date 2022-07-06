@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "../../../Core/UI_Base.h"
+#include "Core/UI_KneadFaceBase.h"
 #include "UI_CharacterModeling.generated.h"
 
 class UComboBoxString;
@@ -9,7 +9,7 @@ class USlider;
 class UTextBlock;
 
 UCLASS()
-class MMOARPG_API UUI_CharacterModeling : public UUI_Base
+class MMOARPG_API UUI_CharacterModeling : public UUI_KneadFaceBase
 {
 	GENERATED_BODY()
 public:

@@ -14,6 +14,16 @@ UCLASS()
 class MMOARPG_API UUI_HallMain : public UUI_MainBase
 {
 	GENERATED_BODY()
+public:
+	//
+	UUI_HallMain(const FObjectInitializer& ObjectInitializer);
+
+	//
+	enum ECAType
+	{
+		CA_EDITOR,
+		CA_CREATE,
+	};
 private:
 	// 负责创建角色的面板.
 	UPROPERTY(meta = (BindWidget))
@@ -71,10 +81,22 @@ public:
 	// 移除舞台角色.
 	void DestroyCharacter();
 
+	//
+	void ResetCharacterAppearance(FMMOARPGCharacterAppearance* InCA);
 protected:
 	// 播放主界面淡入动画.
 	void HallMainIn();
 	// 播放主界面淡出动画.
 	void HallMainOut();
 
+public:
+	//
+	void EditCharacter(int32 InSlot);
+	//
+	void ResetEidtorType();
+	//
+	void ResetCreateType();
+private:
+	FMMOARPGCharacterAppearance StartACData;
+	ECAType CAType;
 };

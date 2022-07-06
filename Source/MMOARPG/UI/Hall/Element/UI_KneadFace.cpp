@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI_KneadFace.h"
+#include "KneadFace/Core/UI_KneadFaceBase.h"
 
 void UUI_KneadFace::NativeConstruct()
 {
@@ -43,4 +44,13 @@ void UUI_KneadFace::OnClickedTalent(bool bClicked)
 	Talent->SetCheckedState(ECheckBoxState::Checked);
 
 	FacePanel->SetActiveWidgetIndex(2);// 手动设定切换器渲染2号控件,也就是Talent(蓝图中赋值).
+}
+
+void UUI_KneadFace::InitKneadFace(const FMMOARPGCharacterAppearance* InACData)
+{
+	for (int32 i = 0; i < FacePanel->GetNumWidgets(); i++) {
+		if (UUI_KneadFaceBase* InKFB = Cast<UUI_KneadFaceBase>(FacePanel->GetWidgetAtIndex(i))) {
+			InKFB->InitKneadFace(InACData);
+		}
+	}
 }

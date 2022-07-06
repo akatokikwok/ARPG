@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "../../../Core/UI_Base.h"
+#include "Core/UI_KneadFaceBase.h"
 #include "UI_CharacterAppearance.generated.h"
 
 class UComboBoxString;
 class UWrapBox;
 
 UCLASS()
-class MMOARPG_API UUI_CharacterAppearance : public UUI_Base
+class MMOARPG_API UUI_CharacterAppearance : public UUI_KneadFaceBase
 {
 	GENERATED_BODY()
 public:

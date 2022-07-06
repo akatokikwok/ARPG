@@ -33,7 +33,9 @@ void UUI_EditorCharacter::SetCharacterName(const FText& InName)
 
 void UUI_EditorCharacter::EditCharacter()
 {
-
+	if (UUI_HallMain* InHallMain = GetParents<UUI_HallMain>()) {
+		InHallMain->EditCharacter(SlotID);
+	}
 }
 
 void UUI_EditorCharacter::DeleteCharacter()

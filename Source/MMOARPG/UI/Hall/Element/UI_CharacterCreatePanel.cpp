@@ -20,7 +20,7 @@ void UUI_CharacterCreatePanel::NativeDestruct()
 }
 
 /**  负责 当点击加号后创建 捏脸信息的逻辑.*/
-void UUI_CharacterCreatePanel::CreateKneadFace()
+UUI_KneadFace* UUI_CharacterCreatePanel::CreateKneadFace()
 {
 	// 1.先把滑动块里所有元素清掉.
 	List->ClearChildren();
@@ -29,9 +29,11 @@ void UUI_CharacterCreatePanel::CreateKneadFace()
 		if (UUI_KneadFace* InUIKnead = CreateWidget<UUI_KneadFace>(GetWorld(), UI_KneadFaceClass)) {
 			if (UScrollBoxSlot* InScrollSlot = Cast<UScrollBoxSlot>(List->AddChild(InUIKnead))) {
 				InScrollSlot->SetPadding(10.0f);// 设置被添加进的元素的间距为10.0f;
+				return InUIKnead;
 			}
 		}
 	}
+	return nullptr;
 }
 
 /** 创建所有带数据的加号外观.(角色数据来源是PS) */

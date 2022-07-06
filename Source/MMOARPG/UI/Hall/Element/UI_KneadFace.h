@@ -6,6 +6,7 @@
 #include "../../../UI/Core/UI_Base.h"
 #include "Components/CheckBox.h"
 #include "Components/WidgetSwitcher.h"
+#include "MMOARPGType.h"
 #include "UI_KneadFace.generated.h"
 
 /**
@@ -42,4 +43,7 @@ private:
  
  	UPROPERTY(meta = (BindWidget))
  		UWidgetSwitcher* FacePanel;
+public:
+	//
+	void InitKneadFace(const FMMOARPGCharacterAppearance* InACData);
 };

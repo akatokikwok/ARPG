@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "../../../Core/UI_Base.h"
+#include "Core/UI_KneadFaceBase.h"
 #include "UI_SkinColorButton.generated.h"
 
 class UButton;
 class UImage;
 
 UCLASS()
-class MMOARPG_API UUI_SkinColorButton : public UUI_Base
+class MMOARPG_API UUI_SkinColorButton : public UUI_KneadFaceBase
 {
 	GENERATED_BODY()
 public:
