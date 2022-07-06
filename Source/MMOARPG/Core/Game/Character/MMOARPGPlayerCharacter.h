@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// RPC,在DS端的GM 执行发送刷新登录人物样貌请求.
-	UFUNCTION(server, reliable)
+	UFUNCTION(server, Reliable)
 		void CallServerUpdateKneading(int32 InUserID);
 public:
 	// 刷新人物的外貌身材.可用于DS-GM上/客户端亦可.
@@ -29,7 +29,7 @@ public:
 	virtual	void UpdateKneadingBoby() override;
 
 	// 广播 执行刷新登录人物样貌.
-	UFUNCTION(NetMulticast, reliable)
+	UFUNCTION(NetMulticast, Reliable)
 		void CallUpdateKneadingBobyOnClient(const FMMOARPGCharacterAppearance& InCA);
 
 	// 绑定用的回调, 刷新操作人物相貌请求.

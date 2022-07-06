@@ -31,14 +31,18 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {// 满足是本机玩家.
 
-		/// 反复确保只要生成人物就实时拿到PS-CA.
-		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
-			UpdateKneadingBoby(InPlayerState->GetCA());// 第二次第三次进来之后要求实时刷新到最新PS里的CA.
+		GThread::Get()->GetCoroutines().BindLambda(1.5f, [&]() ->void {
+		
+			/// 反复确保只要生成人物就实时拿到PS-CA.
+			if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
+				UpdateKneadingBoby(InPlayerState->GetCA());// 第二次第三次进来之后要求实时刷新到最新PS里的CA.
+			}
+		#if !UE_MMOARPG_DEBUG_DS // 仅当未开启调试才走 刷新人物样貌.
+			FlushKneadingRequest();
+		#endif
+		
 		}
-	#if !UE_MMOARPG_DEBUG_DS // 仅当未开启调试才走 刷新人物样貌.
-		FlushKneadingRequest();
-	#endif
-
+		);
 	}
 	else if (GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {// 满足是模拟玩家.
 

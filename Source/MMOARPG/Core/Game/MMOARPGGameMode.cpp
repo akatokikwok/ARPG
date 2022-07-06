@@ -84,7 +84,7 @@ void AMMOARPGGameMode::PostLogin(APlayerController* NewPlayer)
 
 void AMMOARPGGameMode::LoginCharacterUpdateKneadingRequest(int32 InUserID)
 {
-	SEND_DATA(SP_UpdateLoginCharacterInfoRequests, InUserID);// 向DS发送一个刷新登录人物请求.
+	SEND_DATA(SP_UpdateLoginCharacterInfoRequests, InUserID);// 向CS发送一个刷新登录人物请求.
 }
 
 /** 向CS服务器发送 gas人物属性集请求 */
