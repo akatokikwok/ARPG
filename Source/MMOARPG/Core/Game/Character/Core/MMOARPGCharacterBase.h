@@ -18,7 +18,8 @@
 #include "MMOARPGType.h"
 #include "../../../../MMOARPGGameMethod.h"
 #include "MMOARPGCharacterBase.generated.h"
-
+class UWidgetComponent;
+class UWidget;
 
 /**
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
@@ -60,6 +61,9 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UMMOARPGAttributeSet> AttributeSet;
 
+	/** 1个widget组件 */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UWidgetComponent> Widget;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
@@ -118,6 +122,8 @@ public:
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 	// 拿取死亡动画序列号.
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
+	// 拿取Widget组件里真正的UMG(仅在客户端).
+	UWidget* GetWidget();
 
 protected:
 	// 同步变量需要重写的方法.

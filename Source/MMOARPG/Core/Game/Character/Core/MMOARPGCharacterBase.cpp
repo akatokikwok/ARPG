@@ -5,7 +5,9 @@
 #include "Net/UnrealNetwork.h"
 #include "SimpleDrawTextFunctionLibrary.h"
 #include "ThreadManage.h"
-
+#include "Components/WidgetComponent.h"
+#include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
+#include "../../../Common/MMOARPGGameInstance.h"
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -28,6 +30,8 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
 
 	AttributeSet = CreateDefaultSubobject<UMMOARPGAttributeSet>(TEXT("AttributeSet"));
+
+	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 }
 
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
@@ -60,6 +64,28 @@ void AMMOARPGCharacterBase::BeginPlay()
 		TArray<UAttributeSet*> AttributeSets;
 		AttributeSets.Add(AttributeSet);
 		AbilitySystemComponent->SetSpawnedAttributes(AttributeSets);
+
+		/* 关于血条umg里 姓名注入的逻辑.*/
+		if (GetLocalRole() != ENetRole::ROLE_Authority) {
+			if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+				// 非敌对势力下: 血条UMG姓名设定为 用户的姓名.
+				if (GetCharacterType() < ECharacterType::CHARACTER_NPC_RESIDENT) {
+					if (UMMOARPGGameInstance* InGameInstance = Cast<UMMOARPGGameInstance>(GetWorld()->GetGameInstance())) {
+						InWidget->SetCharacterName(FText::FromString(InGameInstance->GetUserData().Name));
+					}
+				}
+				// 敌对势力下: 设定为DT里找到的姓名.
+				else {
+					if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+						if (FCharacterStyleTable* InStyleTable = InGameState->GetCharacterStyleTable(GetID())) {
+							//  拿到DTR_游戏人物后, 把姓名注入血条UMG
+							InWidget->SetCharacterName(InStyleTable->CharacterName);
+						}
+					}
+				}
+			}
+		}
+		//
 	}
 }
 
@@ -68,6 +94,17 @@ void AMMOARPGCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GetLocalRole() != ENetRole::ROLE_Authority) {
+		// 如若转成悬浮人物血条UMG.
+		if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+			// 属性是来自服务器同步过来的属性集
+			if (AttributeSet != nullptr) {
+				InWidget->SetLv(AttributeSet->GetLevel());
+				InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
+			}
+
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -187,6 +224,15 @@ void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
 		});
 }
 
+// 拿取Widget组件里真正的UMG(仅在客户端).
+UWidget* AMMOARPGCharacterBase::GetWidget()
+{
+	if (Widget) {
+		return Cast<UWidget>(Widget->GetUserWidgetObject());// 从widget组件里使用此接口获取真正的UMG
+	}
+	return nullptr;
+}
+
 struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 {
 	return GetFightComponent()->GetSimpleComboInfo();
@@ -216,7 +262,7 @@ void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ cons
 	// 生成飘动在人头部上侧的字体.它会自动销毁.
 	FVector InNewLocation = GetActorLocation();
 	InNewLocation.Z += 140.f;
-	
+
 	// 执行2遍是因为为了让挨打的和开打的2个客户端都可以看见伤害值.
 	InstigatorPawn->SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
 	SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
