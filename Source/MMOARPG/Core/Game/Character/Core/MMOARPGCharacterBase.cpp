@@ -127,29 +127,32 @@ void AMMOARPGCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsDie()) {
-		HideWidget();
-	}
-	else {
-		//
-		if (GetLocalRole() != ENetRole::ROLE_Authority) {
-			// 如若转成悬浮人物血条UMG.
-			if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
-				// 属性是来自服务器同步过来的属性集
-				if (AttributeSet != nullptr) {
-					if (LastHealth != AttributeSet->GetHealth()) {
-						// 显示血条UMG(并同时设定了血量显隐计时器寿命)
-						ShowWidget();// 当本帧的血量产生变动才会显示UMG; 
+	if (GetLocalRole() != ENetRole::ROLE_Authority) {
+
+		if (IsDie()) {
+			HideWidget();
+		}
+		else {
+			// 再细分一下非主机客户端(即只剩下模拟玩家)的逻辑.
+			if (GetLocalRole() != ENetRole::ROLE_AutonomousProxy) {
+				// 如若转成悬浮人物血条UMG.
+				if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+					// 属性是来自服务器同步过来的属性集
+					if (AttributeSet != nullptr) {
+						if (LastHealth != AttributeSet->GetHealth()) {
+							// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+							ShowWidget();// 当本帧的血量产生变动才会显示UMG; 
+						}
+
+						InWidget->SetLv(AttributeSet->GetLevel());
+						InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
+
+						LastHealth = AttributeSet->GetHealth();// 记录最新本帧的血量.
 					}
-
-					InWidget->SetLv(AttributeSet->GetLevel());
-					InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
-
-					LastHealth = AttributeSet->GetHealth();// 记录最新本帧的血量.
 				}
+				// Tick血条UMG计时器.
+				bResetWidget.Tick(DeltaTime);
 			}
-			// Tick血条UMG计时器.
-			bResetWidget.Tick(DeltaTime);
 		}
 	}
 }
