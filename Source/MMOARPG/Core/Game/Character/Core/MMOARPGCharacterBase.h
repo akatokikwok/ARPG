@@ -67,6 +67,7 @@ private:
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -124,7 +125,10 @@ public:
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
 	// 拿取Widget组件里真正的UMG(仅在客户端).
 	UWidget* GetWidget();
-
+	// 隐藏血条UMG
+	void HideWidget();
+	// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+	void ShowWidget();
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -217,4 +221,10 @@ protected:
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
+
+	// 血量
+	float LastHealth;
+
+	// 计时: 复位血条UI
+	FResetBool bResetWidget;
 };

@@ -15,6 +15,7 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	, LastActionState(ECharacterActionState::NORMAL_STATE)
 	, ID(INDEX_NONE)
 	, UserID(INDEX_NONE)
+	, LastHealth(0.f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -32,6 +33,32 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	AttributeSet = CreateDefaultSubobject<UMMOARPGAttributeSet>(TEXT("AttributeSet"));
 
 	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	Widget->SetupAttachment(RootComponent);
+	Widget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// 	HideWidget();// 默认隐藏血量UMG
+
+	// 复位血条UI血量计时结束的那一刻 绑定一个代理效果:
+	bResetWidget.Fun.BindLambda([&]() {
+		HideWidget();
+		});
+}
+
+void AMMOARPGCharacterBase::HideWidget()
+{
+	if (UWidget* InWidget = GetWidget()) {
+		InWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+void AMMOARPGCharacterBase::ShowWidget()
+{
+	if (UWidget* InWidget = GetWidget()) {
+		bResetWidget = 4.f;// 计时器寿命设定4秒
+		bResetWidget = true;// 计时器设定启用.
+		InWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
@@ -81,11 +108,17 @@ void AMMOARPGCharacterBase::BeginPlay()
 							//  拿到DTR_游戏人物后, 把姓名注入血条UMG
 							InWidget->SetCharacterName(InStyleTable->CharacterName);
 						}
+
+						// 复位血量.
+						if (FCharacterAttributeTable* InAttributeTable = InGameState->GetCharacterAttributeTable(GetID())) {
+							LastHealth = InAttributeTable->Health;
+						}
 					}
 				}
 			}
 		}
 		//
+		HideWidget();// 默认隐藏血量UMG
 	}
 }
 
@@ -94,15 +127,29 @@ void AMMOARPGCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetLocalRole() != ENetRole::ROLE_Authority) {
-		// 如若转成悬浮人物血条UMG.
-		if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
-			// 属性是来自服务器同步过来的属性集
-			if (AttributeSet != nullptr) {
-				InWidget->SetLv(AttributeSet->GetLevel());
-				InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
-			}
+	if (IsDie()) {
+		HideWidget();
+	}
+	else {
+		//
+		if (GetLocalRole() != ENetRole::ROLE_Authority) {
+			// 如若转成悬浮人物血条UMG.
+			if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+				// 属性是来自服务器同步过来的属性集
+				if (AttributeSet != nullptr) {
+					if (LastHealth != AttributeSet->GetHealth()) {
+						// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+						ShowWidget();// 当本帧的血量产生变动才会显示UMG; 
+					}
 
+					InWidget->SetLv(AttributeSet->GetLevel());
+					InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
+
+					LastHealth = AttributeSet->GetHealth();// 记录最新本帧的血量.
+				}
+			}
+			// Tick血条UMG计时器.
+			bResetWidget.Tick(DeltaTime);
 		}
 	}
 }
