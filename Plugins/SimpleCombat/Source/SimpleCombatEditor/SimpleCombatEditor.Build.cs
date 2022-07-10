@@ -36,8 +36,8 @@ public class SimpleCombatEditor : ModuleRules
 			{
 				"Projects",
 				"InputCore",
-				"EditorFramework",
-				"UnrealEd",
+// 				"EditorFramework",
+// 				"UnrealEd",
 				"ToolMenus",
 				"CoreUObject",
 				"Engine",
