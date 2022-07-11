@@ -51,7 +51,10 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 
 void AMMOARPGPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+#if UE_MMOARPG_DEBUG_DS
 	GameCount = 0;
+#endif
+
 	Super::EndPlay(EndPlayReason);
 }
 
