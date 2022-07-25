@@ -100,9 +100,15 @@ void AMMOARPGGameMode::IdentityReplicationRequests()
 	uint32 Port = 0;
 	// 获取IP
 	FSimpleNetManage::GetLocalIPAndPort(IP, Port);
-	{
-	
+	if (GetWorld() && GetWorld()->GetNetDriver()) {
+		// 借助驱动拿到本地的IP
+		if (TSharedPtr<const FInternetAddr> BindAddr = GetWorld()->GetNetDriver()->GetLocalAddr()) {
+			FString PortString = FString::FromInt(BindAddr->GetPort());
+			PortString.RemoveFromStart(TEXT("1"));
+			Port = FCString::Atoi(*PortString);// 最终端口从17777修正为7777.
+		}
 	}
+	UE_LOG(LogTemp, Log, TEXT("IdentityReplicationRequests IP = %s, Port = %i."), *IP, Port);
 	SEND_DATA(SP_IdentityReplicationRequests, IP, Port);
 }
 
@@ -157,10 +163,10 @@ void AMMOARPGGameMode::LinkServer()
 
 		#if UE_MMOARPG_DEBUG_DS
 			// 若属于测试功能, 11231是中心服务器端口.
-			// 即暂用 链接到本机的中心服务器.
+			// 即暂用 链接到本机的中心服务器(即192.168.2.30那台机器).
 			InGameInstance->LinkServer(TEXT("127.0.0.1"), 11231);//作为测试
 		#else
-			// 若属于线上.
+			// 若属于线上(即那台阿里云ECS机器).
 			InGameInstance->LinkServer();//直接走配置，注意要配置
 		#endif // UE_MMOARPG_DEBUG_DS
 
