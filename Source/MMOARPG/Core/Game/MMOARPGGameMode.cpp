@@ -202,7 +202,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 									NetDataAnalysis::StringToCharacterAppearances(CAJsonString, InPlayerState->GetCA());
 									// DS上刷新外貌 与 RPC客户端刷新容貌.
 									InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());
-									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
+// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
 								}
 								return MethodUnit::EServerCallType::PROGRESS_COMPLETE;// 所有步骤完成后就断开不再遍历.
 							}

@@ -39,7 +39,7 @@ void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacter
 					//判断是主要玩家角色, 而非其他类型的野怪或者随从.
 					if (AMMOARPGPlayerCharacter* InPlayerCharacter = Cast<AMMOARPGPlayerCharacter>(InNewCharacter)) {
 						InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());// 刷新容貌
-						InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());// RPC客户端刷新容貌.
+// 						InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());// RPC客户端刷新容貌.
 					}
 
 					APawn* InPawn = GetPawn();// 在改控制之前, 先拿取旧人物.

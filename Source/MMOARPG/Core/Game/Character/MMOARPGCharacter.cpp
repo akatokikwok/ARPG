@@ -104,9 +104,11 @@ void AMMOARPGCharacter::BeginPlay()
 
 	/** 仅在客户端主机上执行执行的逻辑. */
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
-		GThread::Get()->GetCoroutines().BindLambda(0.04f, [&]() ->void {
-			GetCharacterDataRequests();// 在客户端向CS发送属性集request
-			});
+		// 这部分逻辑放弃,改用PlayerState里的Tick检测人物运行阶段.
+
+// 		GThread::Get()->GetCoroutines().BindLambda(0.04f, [&]() ->void {
+// 			GetCharacterDataRequests();// 在客户端向CS发送属性集request
+// 			});
 	}
 }
 
