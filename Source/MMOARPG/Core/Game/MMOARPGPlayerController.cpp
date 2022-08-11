@@ -72,7 +72,7 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {/* 仅在主机客户端上*/
 		if (GetPawn() != nullptr) {
 
-			float MaxNewRange = 520.f;
+			float MaxNewRange = 820.f;
 			// 找寻520米内最近的敌对目标并在服务器上将其写入
 			if (!Target.IsValid()) {
 				TArray<ECharacterType> IgnoreTypes;

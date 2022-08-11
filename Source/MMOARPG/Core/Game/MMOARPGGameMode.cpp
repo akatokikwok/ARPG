@@ -254,7 +254,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 
 							// 广播行为.
 							// 还需要注册一下 连招黑盒
-							InPlayerCharacter->RegisterComboAttackMulticast(CharacterAttribute.ComboAttack);
+							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}

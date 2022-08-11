@@ -368,12 +368,12 @@ void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
 }
 
 // 广播 "用一组GA注册连招黑盒"
-void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
-{
-	if (FightComponent) {
-		FightComponent->RegisterComboAttackMulticast(InGANames);
-	}
-}
+// void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+// {
+// 	if (FightComponent) {
+// 		FightComponent->RegisterComboAttackMulticast(InGANames);
+// 	}
+// }
 
 void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
 {

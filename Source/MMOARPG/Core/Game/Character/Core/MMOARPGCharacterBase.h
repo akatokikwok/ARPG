@@ -195,8 +195,8 @@ public:/// 技能相关
 	// "单机非广播版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
-	// 广播 "用一组GA注册连招黑盒"
-	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+// 	// 广播 "用一组GA注册连招黑盒"
+// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
 /// 关联GAS播蒙太奇的 公有方法
 public:
