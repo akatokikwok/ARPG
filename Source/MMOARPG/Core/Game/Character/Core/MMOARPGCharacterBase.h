@@ -198,6 +198,16 @@ public:/// 技能相关
 	// 广播 "用一组GA注册连招黑盒"
 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
+/// 关联GAS播蒙太奇的 公有方法
+public:
+	// 播放蒙太奇动画(服务端)
+	UFUNCTION(Server, Reliable)
+		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
+	
+	// 播放蒙太奇动画(被广播客户端)
+	UFUNCTION(NetMulticast, Reliable)
+		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
+
 /// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物动作状态.

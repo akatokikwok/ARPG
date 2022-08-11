@@ -36,7 +36,7 @@ void AMMOARPGBoxHit::HandleDamage(
 		if (AMMOARPGCharacterBase* InPawnSelf = Cast<AMMOARPGCharacterBase>(GetInstigator())) {/* 施法者得存在.*/
 
 			if (AMMOARPGCharacterBase* InTarget = Cast<AMMOARPGCharacterBase>(OtherActor)) {// 只承认只接收与人形态的生物hitbox关联.
-				if (InTarget->GetCharacterType() != InPawnSelf->GetCharacterType() || 0) {/* 防止同类人打同类人. 0代表卡PVP开关. */
+				if (InTarget->GetCharacterType() != InPawnSelf->GetCharacterType() || 1) {/* 防止同类人打同类人. 0代表卡PVP开关. */
 
 					if (!InTarget->IsDie()) {/* 防止敌人死亡后还能被用户攻击.*/
 						/* 组1个游玩事件参数. */

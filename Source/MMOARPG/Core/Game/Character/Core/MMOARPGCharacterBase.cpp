@@ -374,3 +374,26 @@ void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& In
 		FightComponent->RegisterComboAttackMulticast(InGANames);
 	}
 }
+
+void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+{
+	if (InNewAnimMontage) {
+		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InStartSectionName);
+	}
+}
+
+void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+{
+	float Duration = -1.f;
+	if (GetMesh() && InNewAnimMontage) {
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance()) {
+			Duration = AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, 0.f);
+			if (Duration > 0.f) {
+				// Start at a given Section.
+				if (InStartSectionName != NAME_None) {
+					AnimInstance->Montage_JumpToSection(InStartSectionName, InNewAnimMontage);
+				}
+			}
+		}
+	}
+}
