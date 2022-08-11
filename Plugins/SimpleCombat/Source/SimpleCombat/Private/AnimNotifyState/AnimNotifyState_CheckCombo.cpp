@@ -8,9 +8,12 @@
 void UAnimNotifyState_CheckCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
-	if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
-		InCharacter->GetSimpleComboInfo()->bShortPress = false;
-		InCharacter->GetSimpleComboInfo()->UpdateComboIndex();// 递增更新招式段号.
+	/** 仅在服务器上执行连招计数. */
+	if (MeshComp->GetWorld() && MeshComp->GetWorld()->IsServer()) {
+		if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
+			InCharacter->GetSimpleComboInfo()->bShortPress = false;
+			InCharacter->GetSimpleComboInfo()->UpdateComboIndex();// 递增更新招式段号.
+		}
 	}
 }
 
@@ -24,10 +27,13 @@ void UAnimNotifyState_CheckCombo::NotifyTick(USkeletalMeshComponent* MeshComp, U
 void UAnimNotifyState_CheckCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
-	// 无论短按还是长按,只要有一个成功就认可
-	if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
-		if (InCharacter->GetSimpleComboInfo()->bLongPress || InCharacter->GetSimpleComboInfo()->bShortPress) {
-			InCharacter->ComboAttack(ComboKey_GAName);
+	/** 仅在服务器上执行连招计数. */
+	if (MeshComp->GetWorld() && MeshComp->GetWorld()->IsServer()) {
+		// 无论短按还是长按,只要有一个成功就认可
+		if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
+			if (InCharacter->GetSimpleComboInfo()->bLongPress || InCharacter->GetSimpleComboInfo()->bShortPress) {
+				InCharacter->ComboAttack(ComboKey_GAName);
+			}
 		}
 	}
 }
