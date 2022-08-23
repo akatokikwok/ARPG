@@ -99,13 +99,13 @@ void UFightComponent::Attack_TriggerGA(const FName& InKey)
 }
 
 // 放闪避技能.
-void UFightComponent::DodgeSkill_Implementation()
+void UFightComponent::DodgeSkill/*_Implementation*/()
 {
 	Attack_TriggerGA(TEXT("Player.Skill.Dodge"));
 }
 
 // 放冲刺技能. 广播至其他客户端
-void UFightComponent::SprintSkill_Implementation()
+void UFightComponent::SprintSkill/*_Implementation*/()
 {
 	Attack_TriggerGA(TEXT("Player.Skill.Sprint"));
 }

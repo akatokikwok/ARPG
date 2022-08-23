@@ -466,7 +466,9 @@ void AMMOARPGCharacter::MouseLeftClick_Implementation()
 // RPC在服务器, 右mouse按下后续
 void AMMOARPGCharacter::MouseRightClick_Implementation()
 {
-	GetFightComponent()->DodgeSkill();
+	if (ActionState == ECharacterActionState::FIGHT_STATE || ActionState == ECharacterActionState::NORMAL_STATE) {
+		GetFightComponent()->DodgeSkill();
+	}
 }
 
 // RPC在服务器, 左mouse松开后续
@@ -485,7 +487,9 @@ void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
 // 按键后冲刺.
 void AMMOARPGCharacter::Sprint_Implementation()
 {
-	GetFightComponent()->SprintSkill();
+	if (ActionState == ECharacterActionState::FIGHT_STATE) {
+		GetFightComponent()->SprintSkill();
+	}
 }
 
 /** 覆盖CombatInterface接口, 如若信号值设定2,则复位触发器黑盒. */

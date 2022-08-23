@@ -59,16 +59,16 @@ public:
 		void Reset();
 
 	// 放闪避技能. 广播至其他客户端
-	UFUNCTION(NetMulticast, Reliable)
+	//UFUNCTION(NetMulticast, Reliable)
 		void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
 	// 放冲刺技能. 广播至其他客户端
-	UFUNCTION(NetMulticast, Reliable)
+	//UFUNCTION(NetMulticast, Reliable)
 		void SprintSkill();// 放冲刺技能; 广播至其他客户端
 
-// 	// 放冲刺2技能. 广播至其他客户端
-// 	UFUNCTION(NetMulticast, Reliable)
-// 		void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
+ 	// 放冲刺2技能. 广播至其他客户端
+ 	//UFUNCTION(NetMulticast, Reliable)
+ 		//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
 	// 放受击 技能
 	UFUNCTION( BlueprintCallable)
