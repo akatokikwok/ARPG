@@ -55,7 +55,7 @@ void AMMOARPGCharacterBase::HideWidget()
 void AMMOARPGCharacterBase::ShowWidget()
 {
 	if (UWidget* InWidget = GetWidget()) {
-		bResetWidget = 4.f;// 计时器寿命设定4秒
+		bResetWidget = 15.f;// 计时器寿命设定15秒
 		bResetWidget = true;// 计时器设定启用.
 		InWidget->SetVisibility(ESlateVisibility::Visible);
 	}
