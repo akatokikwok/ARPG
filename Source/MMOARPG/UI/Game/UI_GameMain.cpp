@@ -1,11 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "UI_GameMain.h"
 #include "ThreadManage.h"
+#include "Character/UI_CharacterHealthState.h"
+#include "../../Core/Game/Abilities/MMOARPGAttributeSet.h"
+#include "Components/ProgressBar.h"
+#include "../../Core/Game/Character/Core/MMOARPGCharacterBase.h"
+
 #if UE_MMOARPG_DEBUG_DS
 #include "../../Core/Game/Character/MMOARPGPlayerCharacter.h"
 #endif
-
-#include "../../Core/Game/Abilities/MMOARPGAttributeSet.h"
 
 #define LOCTEXT_NAMESPACE "UI_GameMain"
 
@@ -40,8 +43,9 @@ void UUI_GameMain::NativeConstruct()
 void UUI_GameMain::NativeDestruct()
 {
 	Super::NativeDestruct();
-
+#if UE_MMOARPG_DEBUG_DS
 	GameCount = 0;
+#endif
 }
 
 void UUI_GameMain::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

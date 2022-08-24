@@ -99,13 +99,13 @@ void UFightComponent::Attack_TriggerGA(const FName& InKey)
 }
 
 // 放闪避技能.
-void UFightComponent::DodgeSkill_Implementation()
+void UFightComponent::DodgeSkill/*_Implementation*/()
 {
 	Attack_TriggerGA(TEXT("Player.Skill.Dodge"));
 }
 
 // 放冲刺技能. 广播至其他客户端
-void UFightComponent::SprintSkill_Implementation()
+void UFightComponent::SprintSkill/*_Implementation*/()
 {
 	Attack_TriggerGA(TEXT("Player.Skill.Sprint"));
 }
@@ -206,19 +206,19 @@ void UFightComponent::AddComboAttack(const FName& InKey)
 }
 
 // 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
-void UFightComponent::Press_Implementation()
+void UFightComponent::Press()
 {
 	ComboAttackCheck.Press();
 }
 
 // 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
-void UFightComponent::Released_Implementation()
+void UFightComponent::Released()
 {
 	ComboAttackCheck.Released();
 }
 
 // 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
-void UFightComponent::Reset_Implementation()
+void UFightComponent::Reset()
 {
 	ComboAttackCheck.Reset();
 }
@@ -267,7 +267,7 @@ void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 }
 
 // 广播 "用一组GA注册连招黑盒"
-void UFightComponent::RegisterComboAttackMulticast_Implementation(const TArray<FName>& InGANames)
-{
-	RegisterComboAttack(InGANames);
-}
+// void UFightComponent::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+// {
+// 	RegisterComboAttack(InGANames);
+// }

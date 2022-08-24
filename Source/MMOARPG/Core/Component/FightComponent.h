@@ -49,26 +49,26 @@ public:
 	FSimpleComboCheck* GetSimpleComboInfo() { return &ComboAttackCheck; }
 
 	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
-	UFUNCTION(NetMulticast, Reliable)
+	/*UFUNCTION(NetMulticast, Reliable)*/
 		void Press();
 	// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
-	UFUNCTION(NetMulticast, Reliable)
+	/*UFUNCTION(NetMulticast, Reliable)*/
 		void Released();
 	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
-	UFUNCTION(NetMulticast, Reliable)
+	/*UFUNCTION(NetMulticast, Reliable)*/
 		void Reset();
 
 	// 放闪避技能. 广播至其他客户端
-	UFUNCTION(NetMulticast, Reliable)
+	//UFUNCTION(NetMulticast, Reliable)
 		void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
 	// 放冲刺技能. 广播至其他客户端
-	UFUNCTION(NetMulticast, Reliable)
+	//UFUNCTION(NetMulticast, Reliable)
 		void SprintSkill();// 放冲刺技能; 广播至其他客户端
 
-// 	// 放冲刺2技能. 广播至其他客户端
-// 	UFUNCTION(NetMulticast, Reliable)
-// 		void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
+ 	// 放冲刺2技能. 广播至其他客户端
+ 	//UFUNCTION(NetMulticast, Reliable)
+ 		//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
 	// 放受击 技能
 	UFUNCTION( BlueprintCallable)
@@ -86,8 +86,8 @@ public:
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
 	// 广播 "用一组GA注册连招黑盒"
-	UFUNCTION(NetMulticast, Reliable)
-		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+	/*UFUNCTION(NetMulticast, Reliable)*/
+// 		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
 		/// //////////////////////////////////////////////////////////////////////////
 private:

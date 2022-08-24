@@ -17,7 +17,7 @@ void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacter
 	if (!GetPawn()) {
 		return;
 	}
-	
+
 	// 异常检测2.
 	if (AMMOARPGCharacterBase* MMOARPGBase = GetPawn<AMMOARPGCharacterBase>())// 先转成Base
 	{
@@ -33,20 +33,19 @@ void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacter
 			if (AMMOARPGCharacter* InNewCharacter = GetWorld()->SpawnActor<AMMOARPGCharacter>(// 生成1个新角色.
 				InStyleTable_row->MMOARPGCharacterClass,
 				GetPawn()->GetActorLocation(),
-				GetPawn()->GetActorRotation())) 
-			{
+				GetPawn()->GetActorRotation())) {
 
- 				if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
+				if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
 					//判断是主要玩家角色, 而非其他类型的野怪或者随从.
- 					if (AMMOARPGPlayerCharacter* InPlayerCharacter = Cast<AMMOARPGPlayerCharacter>(InNewCharacter)) {
- 						InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());// 刷新容貌
- 						InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());// RPC客户端刷新容貌.
- 					}
+					if (AMMOARPGPlayerCharacter* InPlayerCharacter = Cast<AMMOARPGPlayerCharacter>(InNewCharacter)) {
+						InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());// 刷新容貌
+// 						InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());// RPC客户端刷新容貌.
+					}
 
 					APawn* InPawn = GetPawn();// 在改控制之前, 先拿取旧人物.
 					OnPossess(InNewCharacter);// 改为控制替换用的角色.
 					InPawn->Destroy(true);// 设为TRUE表示强制网络删除.
- 				}
+				}
 
 			}
 		}
@@ -70,22 +69,32 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/// 检索半径范围内最近的敌对目标.
-	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {/* 仅在主机客户端上*/
-		float MaxNewRange = 520.f;
-		// 找寻520米内最近的敌对目标并在服务器上将其写入
-		if (!Target.IsValid()) {
-			TArray<ECharacterType> IgnoreTypes;
-			Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), IgnoreTypes, MaxNewRange);
-			if (Target.IsValid()) {
-				ResetTargetOnServer(Target.Get());
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || 
+		GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
+		if (GetPawn() != nullptr) {
+
+			float MaxNewRange = 820.f;
+			// 找寻520米内最近的敌对目标并在服务器上将其写入
+			if (!Target.IsValid()) {
+				TArray<ECharacterType> IgnoreTypes;
+				Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), IgnoreTypes, MaxNewRange);
+				if (Target.IsValid()) {
+					/* 仅在主机端执行写入目标*/
+					if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+						ResetTargetOnServer(Target.Get());
+					}
+				}
 			}
-		}
-		// 意外情况,敌人太远,或者敌人死亡,就清空敌对目标并在服务器上也写入一次.
-		else {
-			float Distance = FVector::Dist(Target->GetActorLocation(), GetPawn()->GetActorLocation());
-			if (Distance > MaxNewRange || Target->IsDie()) {
-				Target = NULL;
-				ResetTargetOnServer(NULL);
+			// 意外情况,敌人太远,或者敌人死亡,就清空敌对目标并在服务器上也写入一次.
+			else {
+				float Distance = FVector::Dist(Target->GetActorLocation(), GetPawn()->GetActorLocation());
+				if (Distance > MaxNewRange || Target->IsDie()) {
+					Target = NULL;
+					/* 仅在主机端执行写入目标*/
+					if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+						ResetTargetOnServer(nullptr);
+					}
+				}
 			}
 		}
 	}

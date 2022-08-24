@@ -104,9 +104,11 @@ void AMMOARPGCharacter::BeginPlay()
 
 	/** 仅在客户端主机上执行执行的逻辑. */
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
-		GThread::Get()->GetCoroutines().BindLambda(0.04f, [&]() ->void {
-			GetCharacterDataRequests();// 在客户端向CS发送属性集request
-			});
+		// 这部分逻辑放弃,改用PlayerState里的Tick检测人物运行阶段.
+
+// 		GThread::Get()->GetCoroutines().BindLambda(0.04f, [&]() ->void {
+// 			GetCharacterDataRequests();// 在客户端向CS发送属性集request
+// 			});
 	}
 }
 
@@ -464,7 +466,9 @@ void AMMOARPGCharacter::MouseLeftClick_Implementation()
 // RPC在服务器, 右mouse按下后续
 void AMMOARPGCharacter::MouseRightClick_Implementation()
 {
-	GetFightComponent()->DodgeSkill();
+	if (ActionState == ECharacterActionState::FIGHT_STATE || ActionState == ECharacterActionState::NORMAL_STATE) {
+		GetFightComponent()->DodgeSkill();
+	}
 }
 
 // RPC在服务器, 左mouse松开后续
@@ -483,7 +487,9 @@ void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
 // 按键后冲刺.
 void AMMOARPGCharacter::Sprint_Implementation()
 {
-	GetFightComponent()->SprintSkill();
+	if (ActionState == ECharacterActionState::FIGHT_STATE) {
+		GetFightComponent()->SprintSkill();
+	}
 }
 
 /** 覆盖CombatInterface接口, 如若信号值设定2,则复位触发器黑盒. */

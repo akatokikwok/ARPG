@@ -3,6 +3,19 @@
 #include "CoreMinimal.h"
 #include "MMOARPGGameType.generated.h"
 
+/**
+ * 游戏各阶段状态枚举.
+ */
+enum EMMOARPGGameStatusType
+{
+	MMOARPG_PINCH_REQUEST_STATUS = 1,  // 捏脸注册
+	MMOARPG_DATA_ACQUISITION_PHASE = 2,// 数据请求注册
+	MMOARPG_IN_GAME = 4,			   // 游戏阶段
+};
+
+/**
+ * 敌我阵营划分枚举.
+ */
 UENUM(BlueprintType)
 enum class ECharacterType : uint8
 {

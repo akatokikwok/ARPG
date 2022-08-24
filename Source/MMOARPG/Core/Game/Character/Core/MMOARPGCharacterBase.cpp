@@ -5,7 +5,9 @@
 #include "Net/UnrealNetwork.h"
 #include "SimpleDrawTextFunctionLibrary.h"
 #include "ThreadManage.h"
-
+#include "Components/WidgetComponent.h"
+#include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
+#include "../../../Common/MMOARPGGameInstance.h"
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -13,6 +15,7 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	, LastActionState(ECharacterActionState::NORMAL_STATE)
 	, ID(INDEX_NONE)
 	, UserID(INDEX_NONE)
+	, LastHealth(0.f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,6 +31,34 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	AbilitySystemComponent->SetIsReplicated(true);// 开启本ASC同步.
 
 	AttributeSet = CreateDefaultSubobject<UMMOARPGAttributeSet>(TEXT("AttributeSet"));
+
+	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	Widget->SetupAttachment(RootComponent);
+	Widget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// 	HideWidget();// 默认隐藏血量UMG
+
+	// 复位血条UI血量计时结束的那一刻 绑定一个代理效果:
+	bResetWidget.Fun.BindLambda([&]() {
+		HideWidget();
+		});
+}
+
+void AMMOARPGCharacterBase::HideWidget()
+{
+	if (UWidget* InWidget = GetWidget()) {
+		InWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+void AMMOARPGCharacterBase::ShowWidget()
+{
+	if (UWidget* InWidget = GetWidget()) {
+		bResetWidget = 15.f;// 计时器寿命设定15秒
+		bResetWidget = true;// 计时器设定启用.
+		InWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
@@ -60,6 +91,34 @@ void AMMOARPGCharacterBase::BeginPlay()
 		TArray<UAttributeSet*> AttributeSets;
 		AttributeSets.Add(AttributeSet);
 		AbilitySystemComponent->SetSpawnedAttributes(AttributeSets);
+
+		/* 关于血条umg里 姓名注入的逻辑.*/
+		if (GetLocalRole() != ENetRole::ROLE_Authority) {
+			if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+				// 非敌对势力下: 血条UMG姓名设定为 用户的姓名.
+				if (GetCharacterType() < ECharacterType::CHARACTER_NPC_RESIDENT) {
+					if (UMMOARPGGameInstance* InGameInstance = Cast<UMMOARPGGameInstance>(GetWorld()->GetGameInstance())) {
+						InWidget->SetCharacterName(FText::FromString(InGameInstance->GetUserData().Name));
+					}
+				}
+				// 敌对势力下: 设定为DT里找到的姓名.
+				else {
+					if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+						if (FCharacterStyleTable* InStyleTable = InGameState->GetCharacterStyleTable(GetID())) {
+							//  拿到DTR_游戏人物后, 把姓名注入血条UMG
+							InWidget->SetCharacterName(InStyleTable->CharacterName);
+						}
+
+						// 复位血量.
+						if (FCharacterAttributeTable* InAttributeTable = InGameState->GetCharacterAttributeTable(GetID())) {
+							LastHealth = InAttributeTable->Health;
+						}
+					}
+				}
+			}
+		}
+		//
+		HideWidget();// 默认隐藏血量UMG
 	}
 }
 
@@ -68,6 +127,34 @@ void AMMOARPGCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GetLocalRole() != ENetRole::ROLE_Authority) {
+
+		if (IsDie()) {
+			HideWidget();
+		}
+		else {
+			// 再细分一下非主机客户端(即只剩下模拟玩家)的逻辑.
+			if (GetLocalRole() != ENetRole::ROLE_AutonomousProxy) {
+				// 如若转成悬浮人物血条UMG.
+				if (UUI_CharacterHealthWidget* InWidget = Cast<UUI_CharacterHealthWidget>(this->GetWidget())) {
+					// 属性是来自服务器同步过来的属性集
+					if (AttributeSet != nullptr) {
+						if (LastHealth != AttributeSet->GetHealth()) {
+							// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+							ShowWidget();// 当本帧的血量产生变动才会显示UMG; 
+						}
+
+						InWidget->SetLv(AttributeSet->GetLevel());
+						InWidget->SetHealth(AttributeSet->GetHealth() / AttributeSet->GetMaxHealth());
+
+						LastHealth = AttributeSet->GetHealth();// 记录最新本帧的血量.
+					}
+				}
+				// Tick血条UMG计时器.
+				bResetWidget.Tick(DeltaTime);
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -187,6 +274,15 @@ void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
 		});
 }
 
+// 拿取Widget组件里真正的UMG(仅在客户端).
+UWidget* AMMOARPGCharacterBase::GetWidget()
+{
+	if (Widget) {
+		return Cast<UWidget>(Widget->GetUserWidgetObject());// 从widget组件里使用此接口获取真正的UMG
+	}
+	return nullptr;
+}
+
 struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
 {
 	return GetFightComponent()->GetSimpleComboInfo();
@@ -216,7 +312,7 @@ void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ cons
 	// 生成飘动在人头部上侧的字体.它会自动销毁.
 	FVector InNewLocation = GetActorLocation();
 	InNewLocation.Z += 140.f;
-	
+
 	// 执行2遍是因为为了让挨打的和开打的2个客户端都可以看见伤害值.
 	InstigatorPawn->SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
 	SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
@@ -272,9 +368,32 @@ void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
 }
 
 // 广播 "用一组GA注册连招黑盒"
-void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+// void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
+// {
+// 	if (FightComponent) {
+// 		FightComponent->RegisterComboAttackMulticast(InGANames);
+// 	}
+// }
+
+void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
 {
-	if (FightComponent) {
-		FightComponent->RegisterComboAttackMulticast(InGANames);
+	if (InNewAnimMontage) {
+		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InStartSectionName);
+	}
+}
+
+void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+{
+	float Duration = -1.f;
+	if (GetMesh() && InNewAnimMontage) {
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance()) {
+			Duration = AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, 0.f);
+			if (Duration > 0.f) {
+				// Start at a given Section.
+				if (InStartSectionName != NAME_None) {
+					AnimInstance->Montage_JumpToSection(InStartSectionName, InNewAnimMontage);
+				}
+			}
+		}
 	}
 }

@@ -18,7 +18,8 @@
 #include "MMOARPGType.h"
 #include "../../../../MMOARPGGameMethod.h"
 #include "MMOARPGCharacterBase.generated.h"
-
+class UWidgetComponent;
+class UWidget;
 
 /**
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
@@ -60,9 +61,13 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UMMOARPGAttributeSet> AttributeSet;
 
+	/** 1个widget组件 */
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UWidgetComponent> Widget;
 public:
 	// Sets default values for this character's properties
 	AMMOARPGCharacterBase();
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -118,7 +123,12 @@ public:
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 	// 拿取死亡动画序列号.
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
-
+	// 拿取Widget组件里真正的UMG(仅在客户端).
+	UWidget* GetWidget();
+	// 隐藏血条UMG
+	void HideWidget();
+	// 显示血条UMG(并同时设定了血量显隐计时器寿命)
+	void ShowWidget();
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -185,8 +195,18 @@ public:/// 技能相关
 	// "单机非广播版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
-	// 广播 "用一组GA注册连招黑盒"
-	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+// 	// 广播 "用一组GA注册连招黑盒"
+// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+
+/// 关联GAS播蒙太奇的 公有方法
+public:
+	// 播放蒙太奇动画(服务端)
+	UFUNCTION(Server, Reliable)
+		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
+	
+	// 播放蒙太奇动画(被广播客户端)
+	UFUNCTION(NetMulticast, Reliable)
+		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
 /// //////////////////////////////////////////////////////////////////////////
 protected:
@@ -211,4 +231,10 @@ protected:
 
 	// 关联动画蒙太奇DT的某 行数据.
 	FCharacterAnimTable* AnimTable;
+
+	// 血量
+	float LastHealth;
+
+	// 计时: 复位血条UI
+	FResetBool bResetWidget;
 };

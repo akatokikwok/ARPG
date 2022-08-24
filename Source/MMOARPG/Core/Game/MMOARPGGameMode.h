@@ -30,6 +30,10 @@ public:
 
 	/** 向CS服务器发送 gas人物属性集请求 */
 	void GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot);
+
+protected:
+	//	向CS发送身份覆写请求.
+	void IdentityReplicationRequests();
 private:
 	//
 	void BindClientRcv();

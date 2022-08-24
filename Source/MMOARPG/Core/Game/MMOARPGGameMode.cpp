@@ -14,6 +14,7 @@
 #include "Protocol/GameProtocol.h"
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
+#include "Protocol/ServerProtocol.h"
 #include <MMOARPGType.h>
 #include "MMOARPGTagList.h"// 这个是引擎插件里的
 // #include "../../MMOARPGTagList.h"// 这个是项目里的
@@ -93,6 +94,24 @@ void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacte
 	SEND_DATA(SP_GetCharacterDataRequests, InUserID, InCharacterID, MMOARPGSlot);
 }
 
+void AMMOARPGGameMode::IdentityReplicationRequests()
+{
+	FString IP;
+	uint32 Port = 0;
+	// 获取IP
+	FSimpleNetManage::GetLocalIPAndPort(IP, Port);
+	if (GetWorld() && GetWorld()->GetNetDriver()) {
+		// 借助驱动拿到本地的IP
+		if (TSharedPtr<const FInternetAddr> BindAddr = GetWorld()->GetNetDriver()->GetLocalAddr()) {
+			FString PortString = FString::FromInt(BindAddr->GetPort());
+			PortString.RemoveFromStart(TEXT("1"));
+			Port = FCString::Atoi(*PortString);// 最终端口从17777修正为7777.
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("IdentityReplicationRequests IP = %s, Port = %i."), *IP, Port);
+	SEND_DATA(SP_IdentityReplicationRequests, IP, Port);
+}
+
 void AMMOARPGGameMode::BindClientRcv()
 {
 	if (UMMOARPGGameInstance* InGameInstance = GetGameInstance<UMMOARPGGameInstance>()) {
@@ -113,7 +132,25 @@ void AMMOARPGGameMode::BindClientRcv()
 
 void AMMOARPGGameMode::LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg)
 {
-
+	switch (InType) {
+		case NET_NONE:
+			break;
+		case TIME_OUT:
+			break;
+		case INIT_FAIL:
+			break;
+		case INIT_SUCCESS:
+			break;
+		case HAND_SHAKE_SUCCESS:
+		{
+			IdentityReplicationRequests();//身份覆写请求 到中心服务器
+			break;
+		}
+		case HAND_SHAKE_FAIL:
+			break;
+		case INVALID_VALIDATION:
+			break;
+	}
 }
 
 void AMMOARPGGameMode::LinkServer()
@@ -124,11 +161,14 @@ void AMMOARPGGameMode::LinkServer()
 		if (InGameInstance->GetClient()) {
 			InGameInstance->GetClient()->NetManageMsgDelegate.BindUObject(this, &AMMOARPGGameMode::LinkServerInfo);
 
-			//InGameInstance->LinkServer();
-			//
-			// 作为测试,11231是中心服务器端口.
-			// 即暂用 链接到本机的中心服务器.
-			InGameInstance->LinkServer(TEXT("127.0.0.1"), 11231);
+		#if UE_MMOARPG_DEBUG_DS
+			// 若属于测试功能, 11231是中心服务器端口.
+			// 即暂用 链接到本机的中心服务器(即192.168.2.30那台机器).
+			InGameInstance->LinkServer(TEXT("127.0.0.1"), 11231);//作为测试
+		#else
+			// 若属于线上(即那台阿里云ECS机器).
+			InGameInstance->LinkServer();//直接走配置，注意要配置
+		#endif // UE_MMOARPG_DEBUG_DS
 
 			BindClientRcv();
 		}
@@ -162,7 +202,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 									NetDataAnalysis::StringToCharacterAppearances(CAJsonString, InPlayerState->GetCA());
 									// DS上刷新外貌 与 RPC客户端刷新容貌.
 									InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());
-									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
+// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
 								}
 								return MethodUnit::EServerCallType::PROGRESS_COMPLETE;// 所有步骤完成后就断开不再遍历.
 							}
@@ -187,14 +227,14 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 					if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
 						if (InPlayerCharacter->GetUserID() == UserID) {
 							FMMOARPGCharacterAttribute CharacterAttribute;// 构造1个人物属性集
-							
+
 							// Lambda--将一组字符串从_下划线拼接形式转化为一组FName.
 							auto ToGamePlayTags = [&](TArray<FName>& InNames) {
 								TArray<FName> OutNames;
 								AnalysisArrayNameToGamePlayTags(InNames, OutNames);
 								InNames = OutNames;
 							};
-							
+
 							// 从JSON源里解析出字符串.
 							NetDataAnalysis::StringToMMOARPGCharacterAttribute(CharacterJsonString, CharacterAttribute);
 
@@ -214,7 +254,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 
 							// 广播行为.
 							// 还需要注册一下 连招黑盒
-							InPlayerCharacter->RegisterComboAttackMulticast(CharacterAttribute.ComboAttack);
+							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}
@@ -223,6 +263,20 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 					});
 			}
 
+			break;
+		}
+
+		/** 来自CS的身份覆写响应. */
+		case SP_IdentityReplicationResponses:
+		{
+			bool bIdentityReplication = false;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_GetCharacterDataResponses, bIdentityReplication);
+			if (bIdentityReplication) {
+				UE_LOG(LogTemp, Log, TEXT("Exclusive server identity registration succeeded."));
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Exclusive server identity registration failed."));
+			}
 			break;
 		}
 	}
