@@ -69,7 +69,8 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/// 检索半径范围内最近的敌对目标.
-	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {/* 仅在主机客户端上*/
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || 
+		GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
 		if (GetPawn() != nullptr) {
 
 			float MaxNewRange = 820.f;
@@ -78,7 +79,10 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 				TArray<ECharacterType> IgnoreTypes;
 				Target = MMOARPGGameMethod::FindTarget(Cast<AMMOARPGCharacterBase>(GetPawn()), IgnoreTypes, MaxNewRange);
 				if (Target.IsValid()) {
-					ResetTargetOnServer(Target.Get());
+					/* 仅在主机端执行写入目标*/
+					if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+						ResetTargetOnServer(Target.Get());
+					}
 				}
 			}
 			// 意外情况,敌人太远,或者敌人死亡,就清空敌对目标并在服务器上也写入一次.
@@ -86,7 +90,10 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 				float Distance = FVector::Dist(Target->GetActorLocation(), GetPawn()->GetActorLocation());
 				if (Distance > MaxNewRange || Target->IsDie()) {
 					Target = NULL;
-					ResetTargetOnServer(NULL);
+					/* 仅在主机端执行写入目标*/
+					if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+						ResetTargetOnServer(nullptr);
+					}
 				}
 			}
 		}
