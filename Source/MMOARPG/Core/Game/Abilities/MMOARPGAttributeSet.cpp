@@ -10,6 +10,14 @@ UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	, MaxHealth(200.f)
 	, Mana(0.f)
 	, MaxMana(0.f)
+	, Damage(0.f)
+	, PhysicsAttack(51.f)
+	, MagicAttack(0.f)
+	, MagicDefense(0.f)
+	, PhysicsDefense(20.f)
+	, AttackRange(200.f)
+	, EmpiricalValue(0.f)
+	, MaxEmpiricalValue(100.f)
 {
 
 }
@@ -89,10 +97,18 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	// 使用 DOREPLIFETIME宏来同步这些字段.
 	DOREPLIFETIME(UMMOARPGAttributeSet, Health);
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxHealth);
 	DOREPLIFETIME(UMMOARPGAttributeSet, Mana);
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxMana);
+	DOREPLIFETIME(UMMOARPGAttributeSet, PhysicsAttack);
+	DOREPLIFETIME(UMMOARPGAttributeSet, MagicAttack);
+	DOREPLIFETIME(UMMOARPGAttributeSet, MagicDefense);
+	DOREPLIFETIME(UMMOARPGAttributeSet, AttackRange);
+	DOREPLIFETIME(UMMOARPGAttributeSet, PhysicsDefense);
+	DOREPLIFETIME(UMMOARPGAttributeSet, EmpiricalValue);
+	DOREPLIFETIME(UMMOARPGAttributeSet, MaxEmpiricalValue);
 }
 
 // 用服务器端的GAS属性集 注册本AS类里各字段.
@@ -108,6 +124,8 @@ void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribu
 	RegistrationParam(PhysicsDefense, Data.PhysicsDefense);
 	RegistrationParam(MagicDefense, Data.MagicDefense);
 	RegistrationParam(AttackRange, Data.AttackRange);
+	RegistrationParam(EmpiricalValue, Data.EmpiricalValue);
+	RegistrationParam(MaxEmpiricalValue, Data.MaxEmpiricalValue);
 }
 
 // 用DTR_属性 注册本AS类里各字段.
@@ -123,6 +141,7 @@ void UMMOARPGAttributeSet::RegistrationProperties(const FCharacterAttributeTable
 	RegistrationParam(PhysicsDefense, Data->PhysicsDefense);
 	RegistrationParam(MagicDefense, Data->MagicDefense);
 	RegistrationParam(AttackRange, Data->AttackRange);
+	RegistrationParam(MaxEmpiricalValue, Data->MaxEmpiricalValue);
 }
 
 void UMMOARPGAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
@@ -178,6 +197,16 @@ void UMMOARPGAttributeSet::OnRep_MagicDefense(const FGameplayAttributeData& OldV
 void UMMOARPGAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, AttackRange, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_EmpiricalValue(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, EmpiricalValue, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_MaxEmpiricalValue(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxEmpiricalValue, OldValue);
 }
 
 // 仅工具方法.

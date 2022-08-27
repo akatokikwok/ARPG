@@ -22,54 +22,64 @@ public:
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Level)
 
 	// 属性同步; 属性在服务器发生变化时，对应的客户端自动调用OnRep函数.
-	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Health)
 		FGameplayAttributeData Health;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Health)
 
 	//
-	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_MaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxHealth)
 		FGameplayAttributeData MaxHealth;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxHealth)
 
 	//
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_Mana)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Mana)
 		FGameplayAttributeData Mana;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Mana)
 
 	//
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_MaxMana)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxMana)
 		FGameplayAttributeData MaxMana;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxMana)
 
 	// 属性: 伤害
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_Damage)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Damage)
 		FGameplayAttributeData Damage;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Damage)
 
 	// 物理杀伤值
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_PhysicsAttack)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_PhysicsAttack)
 		FGameplayAttributeData PhysicsAttack;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, PhysicsAttack)
 
 	// 魔法杀伤值
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_MagicAttack)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MagicAttack)
 		FGameplayAttributeData MagicAttack;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MagicAttack)
 
 	// 护甲
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_PhysicsDefense)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_PhysicsDefense)
 		FGameplayAttributeData PhysicsDefense;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, PhysicsDefense)
 
 	// 魔抗
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_MagicDefense)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MagicDefense)
 		FGameplayAttributeData MagicDefense;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MagicDefense)
 
 	// 攻击范围
-	UPROPERTY(BlueprintReadOnly, Category = "Mana", ReplicatedUsing = OnRep_AttackRange)
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_AttackRange)
 		FGameplayAttributeData AttackRange;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, AttackRange)
+
+	// 经验值
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_EmpiricalValue)
+		FGameplayAttributeData EmpiricalValue;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, EmpiricalValue)
+
+	// 最大经验值
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxEmpiricalValue)
+		FGameplayAttributeData MaxEmpiricalValue;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxEmpiricalValue)
 
 /// //////////////////////////////////////////////////////////////////////////
 public:
@@ -117,6 +127,12 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_AttackRange(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_EmpiricalValue(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+		virtual void OnRep_MaxEmpiricalValue(const FGameplayAttributeData& OldValue);
 protected:
 	// 工具方法:
 	void RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData);

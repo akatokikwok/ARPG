@@ -10,6 +10,7 @@ FCharacterAttributeTable::FCharacterAttributeTable()
 	, MagicDefense(0.f)
 	, PhysicsDefense(20.f)
 	, AttackRange(200.f)
+	, MaxEmpiricalValue(100.f)
 {
 	// 任意生命体都具备以下的技能与行为.
 

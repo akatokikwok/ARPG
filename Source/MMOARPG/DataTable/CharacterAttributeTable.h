@@ -43,6 +43,9 @@ public:
 		float AttackRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float MaxEmpiricalValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> SkillTags;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
