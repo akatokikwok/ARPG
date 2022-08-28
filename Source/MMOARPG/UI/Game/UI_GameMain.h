@@ -12,9 +12,10 @@
 
 #include "Character/UI_CharacterHealthState.h"
 #include "UI_GameMain.generated.h"
-
 class UUI_Print;
 class UUI_CharacterHealthState;
+class UProgressBar;
+
 /**
  * 类似于LoginMain, HallMain
  * 切换到Game,之后会激活这个类.
@@ -26,7 +27,10 @@ class MMOARPG_API UUI_GameMain : public UUI_MainBase
 private:
 	UPROPERTY(meta = (BindWidget))
 		UUI_CharacterHealthState* MainCharacterHealthState;
-
+	
+	// 经验进度条,
+	UPROPERTY(meta = (BindWidget))
+		UProgressBar* EXPBar;
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

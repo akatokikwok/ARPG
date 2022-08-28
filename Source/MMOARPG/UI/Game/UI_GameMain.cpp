@@ -61,11 +61,15 @@ void UUI_GameMain::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	// 客户端看到UI应用属性集变化的效果
 	if (MainCharacterHealthState && GetWorld() && GetWorld()->GetFirstPlayerController()) {
 		if (AMMOARPGCharacterBase* InPawn = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {// 确保玩家是受controller管理的.
-			if (UMMOARPGAttributeSet* InAttribute = InPawn->GetAttribute()) {// 再拿到人的属性集
+			if (UMMOARPGAttributeSet* InAttribute = InPawn->GetAttribute()) {
+				// 血条 蓝条 UI上显示.
 				MainCharacterHealthState->SetHealth(InAttribute->GetHealth() / InAttribute->GetMaxHealth());
 				MainCharacterHealthState->SetHealthValue(InAttribute->GetMaxHealth(), InAttribute->GetHealth());
 				MainCharacterHealthState->SetMana(InAttribute->GetMana() / InAttribute->GetMaxMana());
 				MainCharacterHealthState->SetManaValue(InAttribute->GetMaxMana(), InAttribute->GetMana());
+
+				// 经验值显示 
+				EXPBar->SetPercent(InAttribute->GetEmpiricalValue() / InAttribute->GetMaxEmpiricalValue());
 			}
 		}
 	}
