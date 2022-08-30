@@ -46,7 +46,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));// 设定血
 		// 通知目标人去操作血量
 		if (Target != nullptr) {
-			Target->HandleHealth(SourceTagContainer, Magnitude);
+			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, Magnitude);
 		}
 	}
 	/* 关于属性: 蓝条*/
@@ -86,7 +86,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 			// 命令目标去操作伤害和血量处理.
 			Target->HandleDamage(TmpDamage, SourceTagContainer, SourceCharacter, SourceActor);
-			Target->HandleHealth(SourceTagContainer, -TmpDamage);
+			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage);
 		}
 	}
 
