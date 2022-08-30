@@ -61,6 +61,38 @@ void AMMOARPGCharacterBase::ShowWidget()
 	}
 }
 
+float AMMOARPGCharacterBase::GetCharacterLevel()
+{
+	return AttributeSet->GetLevel();
+}
+
+float AMMOARPGCharacterBase::GetCharacterHealth()
+{
+	if (AttributeSet) {
+		return AttributeSet->GetHealth();
+	}
+
+	return 0.f;
+}
+
+float AMMOARPGCharacterBase::GetCharacterMana()
+{
+	if (AttributeSet) {
+		return AttributeSet->GetMana();
+	}
+
+	return 0.f;
+}
+
+float AMMOARPGCharacterBase::GetCharacterExp()
+{
+	if (AttributeSet) {
+		return AttributeSet->GetEmpiricalValue();
+	}
+
+	return 0.f;
+}
+
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
@@ -295,15 +327,19 @@ void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOAR
 }
 
 // 处理人的血量; 虚方法
-void AMMOARPGCharacterBase::HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue)
+void AMMOARPGCharacterBase::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-
+	if (FightComponent != nullptr) {
+		FightComponent->HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
+	}
 }
 
 // 处理人的蓝量; 虚方法
 void AMMOARPGCharacterBase::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-
+	if (FightComponent != nullptr) {
+		FightComponent->HandleMana(InTags, InNewValue);
+	}
 }
 
 // 处理人的伤害值; 虚方法
@@ -396,4 +432,21 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 			}
 		}
 	}
+}
+
+// 授予击杀本人物的奖励Buff
+void AMMOARPGCharacterBase::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun)
+{
+	if (FightComponent) {
+		FightComponent->RewardEffect(InNewLevel, InNewRewardBuff, InFun);
+	}
+}
+
+// 判断是否满足升人物等级条件.
+bool AMMOARPGCharacterBase::IsUpdateLevel()
+{
+	if (AttributeSet) {
+		return AttributeSet->GetEmpiricalValue() >= AttributeSet->GetMaxEmpiricalValue();
+	}
+	return false;
 }

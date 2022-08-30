@@ -89,7 +89,17 @@ public:
 	/*UFUNCTION(NetMulticast, Reliable)*/
 // 		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
-		/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 当血量变化时候处理
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
+
+	// 当蓝量变化时候处理
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
+
+	// 击杀授予的奖励buff结算.
+	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewReward, TFunction<void()> InFun_AppendLogic);
+
+/// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC

@@ -123,12 +123,28 @@ public:
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 	// 拿取死亡动画序列号.
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
+	// 拿取击杀本人物后的升经验奖励(在蓝图里配置好的)
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetUpgradeRewardEffect() { return UpgradeRewardEffect; }
+	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
+
 	// 拿取Widget组件里真正的UMG(仅在客户端).
 	UWidget* GetWidget();
 	// 隐藏血条UMG
 	void HideWidget();
 	// 显示血条UMG(并同时设定了血量显隐计时器寿命)
 	void ShowWidget();
+
+public:
+	// 获取属性集等级
+	virtual float GetCharacterLevel();
+	// 获取属性集血量
+	virtual float GetCharacterHealth();
+	// 获取属性集蓝量
+	virtual float GetCharacterMana();
+	// 获取属性集经验值
+	virtual float GetCharacterExp();
+
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -167,7 +183,7 @@ public:/// 技能相关
 	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
 
 	// 处理人的血量; 虚方法
-	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的蓝量; 虚方法
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的伤害值; 虚方法
@@ -208,7 +224,23 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
+public:
+	// 授予击杀本人物的奖励Buff
+	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
+
+	// 判断是否满足升人物等级条件.
+	bool IsUpdateLevel();
+
 /// //////////////////////////////////////////////////////////////////////////
+protected:
+	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TSubclassOf<UGameplayEffect> DeathRewardEffect;
+
+	// 人物若被击杀后, 对手获得的升级经验值奖励Buff.
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TSubclassOf<UGameplayEffect> UpgradeRewardEffect;
+
 protected:
 	// 人物动作状态.
 	UPROPERTY(ReplicatedUsing = OnRep_ActionStateChanged)
