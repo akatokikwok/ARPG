@@ -49,6 +49,7 @@ void FSimpleCombatEditorModule::ShutdownModule()
 }
 
 /** 标签组是否启用对齐模式, 可由项目状态决定启用或禁用. */
+/* 正式开发技能标签的时候强烈建议设置为非对齐, 允许插入和替换*/
 bool bTagsAlignment = true;
 
 /** 对标签组的顺序编排,输出一组新的标签组 */
