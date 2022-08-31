@@ -283,12 +283,7 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 				MMOARPGCharacterBase->GetDeathRewardEffect(),
 				[&]() ->void {
 					// 施法者是否满足了升等级条件. 满足则给一份新的递归式的buff奖励, 种类是 "施法者提升经验值buff".
-					if (InstigatorPawn->IsUpdateLevel()) {
-						InstigatorPawn->RewardEffect(InstigatorPawn->GetCharacterLevel() + 1, // 升一级
-							InstigatorPawn->GetUpgradeRewardEffect(), // 提升经验条buff
-							[]() ->void {} // 无追加逻辑.
-						);
-					}
+					this->UpdateLevel(InstigatorPawn);
 				}
 			);
 
@@ -328,4 +323,15 @@ void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect
 
 	// 执行传进来的附加逻辑段.
 	InFun_AppendLogic();
+}
+
+/* 升等级逻辑; 静态方法; 指明一个要执行升等级的对象. */
+void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
+{
+	if (InUpgradeLevelPawn->IsUpdateLevel()) {
+		InUpgradeLevelPawn->RewardEffect(InUpgradeLevelPawn->GetCharacterLevel() + 1, // 升一级
+			InUpgradeLevelPawn->GetUpgradeRewardEffect(), // 提升经验条buff
+			[&]() ->void { UpdateLevel(InUpgradeLevelPawn); } // 嵌套递归式升级.
+		);
+	}
 }

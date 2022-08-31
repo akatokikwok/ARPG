@@ -70,6 +70,9 @@ void UUI_GameMain::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 				// 经验值显示 
 				EXPBar->SetPercent(InAttribute->GetEmpiricalValue() / InAttribute->GetMaxEmpiricalValue());
+
+				// 实时等级显示
+				MainCharacterHealthState->SetLv(InAttribute->GetLevel());
 			}
 		}
 	}

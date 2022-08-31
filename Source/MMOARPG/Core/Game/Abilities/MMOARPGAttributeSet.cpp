@@ -22,7 +22,7 @@ UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 
 }
 
-// 覆写AttributeSet的PostGameplayEffectExecute接口.
+// 覆写接口: PostGameplayEffectExecute.(属性被修改之后)
 void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -105,6 +105,36 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage);
 		}
 	}
+	/* 若是经验值.*/
+	else if (Data.EvaluatedData.Attribute == GetEmpiricalValueAttribute()) {
+		float NewEmpiricalValue = Magnitude + GetEmpiricalValue() + 100.f;// 额外再加100
+		SetEmpiricalValue(NewEmpiricalValue);
+	}
+	/* 血上限. */
+	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute()) {
+		SetHealth(GetMaxHealth());
+	}
+	/* 蓝上限. */
+	else if (Data.EvaluatedData.Attribute == GetMaxManaAttribute()) {
+		SetMana(GetMaxMana());
+	}
+}
+
+// 覆写接口: PreGameplayEffectExecute(属性未被修改之前)
+bool UMMOARPGAttributeSet::PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data)
+{
+	Super::PreGameplayEffectExecute(Data);
+
+	/* 处理最大经验值.*/
+	if (Data.EvaluatedData.Attribute == GetMaxEmpiricalValueAttribute()) {
+		float NewEmpiricalValue = GetEmpiricalValue();
+		if (NewEmpiricalValue > GetMaxEmpiricalValue()) {
+			NewEmpiricalValue -= GetMaxEmpiricalValue();
+			SetEmpiricalValue(NewEmpiricalValue);
+		}
+	}
+
+	return true;
 }
 
 // 覆写 同步变量需要重写的方法.
@@ -113,6 +143,7 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// 使用 DOREPLIFETIME宏来同步这些字段.
+	DOREPLIFETIME(UMMOARPGAttributeSet, Level);
 	DOREPLIFETIME(UMMOARPGAttributeSet, Health);
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxHealth);
 	DOREPLIFETIME(UMMOARPGAttributeSet, Mana);

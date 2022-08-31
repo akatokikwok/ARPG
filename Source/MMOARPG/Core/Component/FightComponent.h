@@ -99,6 +99,8 @@ public:
 	// 击杀授予的奖励buff结算.
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewReward, TFunction<void()> InFun_AppendLogic);
 
+	// 升等级逻辑; 指明一个要执行升等级的对象.
+	static void UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn);
 /// //////////////////////////////////////////////////////////////////////////
 private:
 	/**来自人物基类的ASC

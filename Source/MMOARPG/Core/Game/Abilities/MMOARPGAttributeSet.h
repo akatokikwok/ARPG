@@ -83,8 +83,11 @@ public:
 
 /// //////////////////////////////////////////////////////////////////////////
 public:
-	// 覆写AttributeSet的PostGameplayEffectExecute接口.
+	// 覆写接口: PostGameplayEffectExecute.(属性被修改之后)
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	
+	// 覆写接口: PreGameplayEffectExecute.(属性未被修改之前)
+	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 
 	// 覆写 同步变量需要重写的方法.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
