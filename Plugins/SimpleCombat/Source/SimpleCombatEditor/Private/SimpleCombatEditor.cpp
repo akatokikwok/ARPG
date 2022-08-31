@@ -48,15 +48,120 @@ void FSimpleCombatEditorModule::ShutdownModule()
 	FSimpleCombatEditorCommands::Unregister();
 }
 
+/** 标签组是否启用对齐模式, 可由项目状态决定启用或禁用. */
+bool bTagsAlignment = true;
+
+/** 对标签组的顺序编排,输出一组新的标签组 */
+void SequentialArrangement(const TArray<FString>& InTags, TArray<FString>& OutTags)
+{
+	// 检测指定的路径文件 "GameplayTagsOrder.ini" 是否存在.
+	const FString TagsOrderPaths = FPaths::ProjectConfigDir() / TEXT("GameplayTagsOrder.ini");
+	if (IFileManager::Get().FileExists(*TagsOrderPaths)) {
+		// 指定文件里的标签组.
+		TArray<FString> TmpTags;
+		FFileHelper::LoadFileToStringArray(TmpTags, *TagsOrderPaths);
+
+		/** 文件标签组不为空 */
+		if (TmpTags.Num() != 0) {
+
+			// 找到有差异的标签.
+			TArray<FString> DiffTags;
+			/* 一次大的比对逻辑并记录那些删掉的*/
+			for (auto& meta1 : TmpTags) {
+				// 默认不存在匹配的双方
+				bool bExist = false;
+				// 让入参标签组和文件内标签组执行 比对; 直至找到匹配的双方
+				for (auto& meta2 : InTags) {
+					if (meta1 == meta2) {
+						bExist = true;
+						break;
+					}
+				}
+				// 经历过上一步比对之后,若仍处于不存在状态; 则证明是被删掉了
+				if (!bExist) {
+					DiffTags.Add(meta1);
+				}
+			}
+
+			/* 若开启了对齐模式.*/
+			if (bTagsAlignment) {
+				/* 执行"对齐"; 从文件里移除那些符合条件的元素. */
+				for (auto& Element : DiffTags) {
+					TmpTags.Remove(Element);
+				}
+			}
+			/* 若对齐模式被禁用 */
+			else {
+				for (auto& Element : DiffTags) {
+					int32 Index = INDEX_NONE;
+					if (TmpTags.Find(Element, Index)) {
+						TmpTags[Index] = FString::Printf(TEXT("INDEX_NONE_%i"), Index);
+					}
+				}
+			}
+
+			/** 输出标签组设定为 被加工过了的文件标签组 */
+			OutTags = TmpTags;
+
+			// 空缺
+			TArray<int32> Positions;
+			for (auto& TmpTag : OutTags) {
+				if (TmpTag.Contains(TEXT("INDEX_NONE_"))) {
+					int32 Index = INDEX_NONE;
+					if (OutTags.Find(TmpTag, Index)) {
+						Positions.AddUnique(Index);
+					}
+				}
+			}
+
+			// 填充行为lambda
+			auto Fill = [&](const FString& InTmpTag) ->bool {
+				if (Positions.Num()) {
+					OutTags[Positions.Pop()] = InTmpTag;
+					return true;
+				}
+				return false;
+			};
+
+			/** 在原有的数据基础上再扩展元素. */
+			for (auto& Tmp : InTags) {
+				if (!OutTags.Contains(Tmp)) {
+					// 先尝试添加到空位
+					if (!Fill(Tmp)) {
+						// 再尝试添加到后面
+						OutTags.AddUnique(Tmp);
+					}
+				}
+			}
+		}
+		/** 文件标签组为空 */
+		else {
+			OutTags = InTags;
+		}
+	}
+	// 这条路径下不存在这个文件 则把输出标签组直接设置为输入标签组.
+	else {
+		OutTags = InTags;
+	}
+
+	// 直接存储并输出新的标签组; 文件内容被刷新.
+	FFileHelper::SaveStringArrayToFile(OutTags, *TagsOrderPaths);
+}
+
 void FSimpleCombatEditorModule::PluginButtonClicked()
 {
 	/** 首先拿到UE编辑器的GameplayTags自定义设置 */
 	if (const UGameplayTagsSettings* MutableDefault = GetMutableDefault<UGameplayTagsSettings>()) {
 		// I: 先提出所有的GTag,目前是6个
-		TArray<FString> Tags;
+		TArray<FString> TmpTags;
 		for (auto& Tmp : MutableDefault->GameplayTagList) {
-			Tags.Add(Tmp.Tag.ToString());
+			TmpTags.Add(Tmp.Tag.ToString());
 		}
+
+		/* 重新编排顺序输出一个符合次序的新的标签组. */
+		/* 借此来阻止新添加的标签会占据在老标签前面 造成生成的JSON文件内容出错. */
+		TArray<FString> Tags;
+		SequentialArrangement(TmpTags, Tags);
 
 		/* II: 拼接字符串或文件名行为 */
 		//
