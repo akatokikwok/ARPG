@@ -33,7 +33,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	// 解算出Tag容器.
 	const FGameplayTagContainer& SourceTagContainer = *(Data.EffectSpec.CapturedSourceTags.GetAggregatedTags());
 	// 解算出buff作用目标人物.
-	AMMOARPGCharacterBase* Target = 
+	AMMOARPGCharacterBase* Target =
 		Data.Target.AbilityActorInfo.IsValid() ? Cast<AMMOARPGCharacterBase>(Data.Target.AbilityActorInfo->AvatarActor) : nullptr;
 
 	float Magnitude = 0.f;
@@ -41,11 +41,38 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		Magnitude = Data.EvaluatedData.Magnitude;
 	}
 
+	/* Lambda--负责加工源Char和源Actor.*/
+	auto GetSourceCharacterAndSourceActor_Lambda = [&](AActor*& InSourceActor, AMMOARPGCharacterBase*& InSourceCharacter) {
+		if (Target) {
+			// 借助源ASC拿取 源Actor和源Controller 并转化为适用于人形态的.
+			InSourceActor = SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
+			AController* SourceController = SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
+			if (SourceController == nullptr && InSourceActor != nullptr) {
+				if (APawn* InPawn = Cast<APawn>(InSourceActor)) {
+					SourceController = InPawn->GetController();
+				}
+			}
+
+			// 判定施法者到底是 MMOARPG人物形态还是一个源actor形态
+			if (SourceController) {
+				InSourceCharacter = Cast<AMMOARPGCharacterBase>(SourceController->GetPawn());
+			}
+			else {
+				InSourceCharacter = Cast<AMMOARPGCharacterBase>(InSourceActor);
+			}
+		}
+	};
+
 	/* 关于属性: 血条*/
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));// 设定血
-		// 通知目标人去操作血量
+		
 		if (Target != nullptr) {
+			// 先用lambda加工源Char和源Actor
+			AMMOARPGCharacterBase* SourceCharacter = nullptr;
+			AActor* SourceActor = nullptr;
+			GetSourceCharacterAndSourceActor_Lambda(SourceActor, SourceCharacter);
+			// 操作血量处理.
 			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, Magnitude);
 		}
 	}
@@ -64,32 +91,20 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 		const float OldHealth = GetHealth();// 记录被攻击前的血量.
 		SetHealth(FMath::Clamp(OldHealth - TmpDamage, 0.f, GetMaxHealth()));// 设定受击后的残余血量
-		
-		if (Target != nullptr) {
-			// 借助源ASC拿取 源Actor和源Controller 并转化为适用于人形态的.
-			AActor* SourceActor = SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
-			AController* SourceController = SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
-			if (SourceController == nullptr && SourceActor != nullptr) {
-				if (APawn* InPawn = Cast<APawn>(SourceActor)) {
-					SourceController = InPawn->GetController();
-				}
-			}
 
-			// 判定施法者到底是 MMOARPG人物形态还是一个源actor形态
+		const float OldHealth11 = GetHealth();
+
+		if (Target) {
+			// 先用lambda加工源Char和源Actor
 			AMMOARPGCharacterBase* SourceCharacter = nullptr;
-			if (SourceController) {
-				SourceCharacter = Cast<AMMOARPGCharacterBase>(SourceController->GetPawn());
-			}
-			else {
-				SourceCharacter = Cast<AMMOARPGCharacterBase>(SourceActor);
-			}
+			AActor* SourceActor = nullptr;
+			GetSourceCharacterAndSourceActor_Lambda(SourceActor, SourceCharacter);
 
 			// 命令目标去操作伤害和血量处理.
 			Target->HandleDamage(TmpDamage, SourceTagContainer, SourceCharacter, SourceActor);
 			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage);
 		}
 	}
-
 }
 
 // 覆写 同步变量需要重写的方法.
