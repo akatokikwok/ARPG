@@ -62,8 +62,8 @@ void AMMOARPGBoxHit::HandleDamage(
 									EventData
 								);
 							}
-							static const FName Player_State_Hit_Box_Name(TEXT("Character.State.Hit"));
-							UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetInstigator(), FGameplayTag::RequestGameplayTag(Player_State_Hit_Box_Name), EventData);
+// 							static const FName Player_State_Hit_Box_Name(TEXT("Character.State.Hit"));
+// 							UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetInstigator(), FGameplayTag::RequestGameplayTag(Player_State_Hit_Box_Name), EventData);
 						}
 
 // 						// 查询死亡, 单一执行死亡或者受击挨打.
