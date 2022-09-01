@@ -93,6 +93,14 @@ float AMMOARPGCharacterBase::GetCharacterExp()
 	return 0.f;
 }
 
+
+void AMMOARPGCharacterBase::UpdateLevel(float InLevel)
+{
+	if (FightComponent) {
+		FightComponent->UpdateLevel(InLevel, UpgradeRewardEffect);
+	}
+}
+
 UAbilitySystemComponent* AMMOARPGCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;

@@ -315,23 +315,36 @@ void UFightComponent::HandleMana(const struct FGameplayTagContainer& InTags, flo
 void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun_AppendLogic)
 {
 	if (AbilitySystemComponent.IsValid()) {
-		// 自身应用GE
-		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewRewardBuff->GetDefaultObject()), 
-			InNewLevel, AbilitySystemComponent->MakeEffectContext()
-		);
-	}
+		// 升等级.
+		UpdateLevel(InNewLevel, InNewRewardBuff);
 
-	// 执行传进来的附加逻辑段.
-	InFun_AppendLogic();
+		// 执行传进来的附加逻辑段.
+		InFun_AppendLogic();
+	}
 }
 
-/* 升等级逻辑; 静态方法; 指明一个要执行升等级的对象. */
+// 指明一个Pawn, 为其升等级.
 void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
 {
 	if (InUpgradeLevelPawn->IsUpdateLevel()) {
 		InUpgradeLevelPawn->RewardEffect(InUpgradeLevelPawn->GetCharacterLevel() + 1, // 升一级
 			InUpgradeLevelPawn->GetUpgradeRewardEffect(), // 提升经验条buff
 			[&]() ->void { UpdateLevel(InUpgradeLevelPawn); } // 嵌套递归式升级.
+		);
+	}
+}
+
+// 升自己等级.
+void UFightComponent::UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> InNewReward)
+{
+	if (AbilitySystemComponent.IsValid()) {
+		// 断言警告提示, 若奖励GE未配置则会提醒开发者.
+		checkf(InNewReward, TEXT("这张奖励机制的GE 必须在蓝图中被配置."));
+
+		// 给自身应用 奖励机制GE
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewReward->GetDefaultObject()),
+			InLevel, 
+			AbilitySystemComponent->MakeEffectContext()
 		);
 	}
 }

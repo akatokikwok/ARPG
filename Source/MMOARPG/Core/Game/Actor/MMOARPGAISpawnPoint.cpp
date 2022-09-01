@@ -88,6 +88,9 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 							Location,
 							FRotator::ZeroRotator)) {
 
+							// 让AI角色升等级.
+							InCharacterBase->UpdateLevel(InLV);
+
 							ListeningObjectPool.Add(InCharacterBase);// 同时注册进存活池子.
 						}
 					}

@@ -145,6 +145,8 @@ public:
 	// 获取属性集经验值
 	virtual float GetCharacterExp();
 
+	// 为本人物升级.
+	void UpdateLevel(float InLevel);
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
