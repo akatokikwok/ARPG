@@ -94,6 +94,20 @@ void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacte
 	SEND_DATA(SP_GetCharacterDataRequests, InUserID, InCharacterID, MMOARPGSlot);
 }
 
+/** 更新人物属性请求 */
+void AMMOARPGGameMode::UpdateAttributeRequests(int32 InUserID, int32 InCharacterID, MMOARPGCharacterAttributeType InAttributeType, float InValue)
+{
+	SEND_DATA(SP_UpdateAttributeRequests, InUserID, InCharacterID, InAttributeType, InValue);
+}
+
+/** 升级人物等级请求 */
+void AMMOARPGGameMode::UpdateLevelRequests(int32 InUserID, int32 InCharacterID, const FMMOARPGCharacterAttribute& InCharacterAttribute)
+{
+	FString AttributeString;
+	NetDataAnalysis::MMOARPGCharacterAttributeToString(InCharacterAttribute, AttributeString);
+	SEND_DATA(SP_CharacterUpgradeLevelRequests, InUserID, InCharacterID, AttributeString);
+}
+
 void AMMOARPGGameMode::IdentityReplicationRequests()
 {
 	FString IP;
@@ -280,6 +294,20 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 			else {
 				UE_LOG(LogTemp, Error, TEXT("Exclusive server identity registration failed."));
 			}
+			break;
+		}
+
+		/** 接收到服务器的 人物升等级回复 */
+		case SP_CharacterUpgradeLevelResponses:
+		{
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterUpgradeLevelResponses);
+			break;
+		}
+
+		/** 接收到服务器的 人物刷新各属性点回复 */
+		case SP_UpdateAttributeaResponses:
+		{
+			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateAttributeaResponses);
 			break;
 		}
 	}
