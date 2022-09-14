@@ -105,7 +105,16 @@ public:
 	// 升自己等级.
 	void UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> InNewReward);
 
-/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 从技能缓存池里提出所有技能名字
+	void GetSkillTagsName(TArray<FName>& OutNames);
+
+	// 从连招缓存池里提出所有连招名字
+	void GetComboAttackTagsName(TArray<FName>& OutNames);
+
+	// 从肢体缓存池里提出所有肢体动作名字
+	void GetLimbsTagsName(TArray<FName>& OutNames);
+
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC
@@ -118,9 +127,12 @@ private:
 	UPROPERTY()
 		FSimpleComboCheck ComboAttackCheck;
 protected:
-	// GA缓存池, 1个技能名对1个技能句柄
+	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;
-
+	// 连招缓存池
+	TMap<FName, FGameplayAbilitySpecHandle> ComboAttacks;
+	// 肢体行为缓存池
+	TMap<FName, FGameplayAbilitySpecHandle> Limbs;
 public:
 	// 受击ID
 	UPROPERTY()

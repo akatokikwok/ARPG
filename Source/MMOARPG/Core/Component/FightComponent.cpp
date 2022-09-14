@@ -348,3 +348,21 @@ void UFightComponent::UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> In
 		);
 	}
 }
+
+// 从技能缓存池里提出所有技能名字
+void UFightComponent::GetSkillTagsName(TArray<FName>& OutNames)
+{
+	Skills.GetKeys(OutNames);
+}
+
+// 从连招缓存池里提出所有连招名字
+void UFightComponent::GetComboAttackTagsName(TArray<FName>& OutNames)
+{
+	ComboAttacks.GetKeys(OutNames);
+}
+
+// 从肢体缓存池里提出所有肢体动作名字
+void UFightComponent::GetLimbsTagsName(TArray<FName>& OutNames)
+{
+	Limbs.GetKeys(OutNames);
+}

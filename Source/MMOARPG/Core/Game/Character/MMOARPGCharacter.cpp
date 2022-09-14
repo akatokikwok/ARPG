@@ -1,20 +1,21 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "MMOARPGCharacter.h"
-// #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include <ThreadManage.h>
+#include "../../Component/FlyComponent.h"
+#include "../../Component/SwimmingComponent.h"
+#include "../../Component/ClimbingComponent.h"
+#include "../../Component/FightComponent.h"
+#include "../Abilities/MMOARPGGameplayAbility.h"
+#include "ThreadManage.h"
 #include "../MMOARPGGameMode.h"
 #include "../MMOARPGPlayerState.h"
 #include "../MMOARPGPlayerController.h"
-
-//////////////////////////////////////////////////////////////////////////
-// AMMOARPGCharacter
+#include "MMOARPGTagList.h"
 
 /** 按键绑定. */
 void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -510,4 +511,33 @@ AActor* AMMOARPGCharacter::GetTarget()
 		return InPlayerController->GetTarget();
 	}
 	return nullptr;
+}
+
+void AMMOARPGCharacter::UpdateLevel(float InLevel)
+{
+	Super::UpdateLevel(InLevel);
+	if (GetWorld()) {
+		/** 升级 DS服务器把数据传递到中心服务器 */
+		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			FMMOARPGCharacterAttribute CharacterAttribute;// 待填充的人物属性信息
+			// 1. 处理人物属性字段, 提出AS里的人物所有属性字段,存成MMOAD型
+			GetAttribute()->ToMMOARPGCharacterAttribute(CharacterAttribute);
+
+			// 2. 处理角色技能
+			TArray<FName> SkillTagsName;
+			TArray<FName> ComboAttackTagsName;
+			TArray<FName> LimbsTagsName;
+			// 使用各自的提取方法, 提取3种标签名群组
+			GetSkillTagsName(SkillTagsName);
+			GetComboAttackTagsName(ComboAttackTagsName);
+			GetLimbsTagsName(LimbsTagsName);
+			// 借由服务器方法, 把标签群组 转为位序列
+			AnalysisGamePlayTagsToArrayName(SkillTagsName, CharacterAttribute.Skill);// 将Tag组转换为服务器存储的序列
+			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack);// 将Tag组转换为服务器存储的序列
+			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs);// 将Tag组转换为服务器存储的序列
+
+		// 3. 命令GM升人物等级
+			MMOARPGGameMode->UpdateLevelRequests(UserID, ID, CharacterAttribute);
+		}
+	}
 }

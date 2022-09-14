@@ -112,7 +112,7 @@ protected:
 	/** RPC服务器 "执行攀岩跳的效果". */
 // 	UFUNCTION(Server, Reliable)
 // 		void CharacterJumpToServer();
-	
+
 	/** 广播 "攀岩跳" */
 // 	UFUNCTION( NetMulticast, Reliable)
 // 		void MulticastCharacterJump();
@@ -134,7 +134,7 @@ public:
 		void MouseLeftClickReleased();
 	// RPC在服务器, 右mouse松开后续
 // 	UFUNCTION(Server, Reliable)
-		void MouseRightClickReleased();
+	void MouseRightClickReleased();
 
 	// 按键冲刺, RPC在服务器.
 	UFUNCTION(Server, Reliable)
@@ -145,6 +145,10 @@ public:
 
 	// 覆写GetTarget接口. 读取敌对目标人物或者怪物
 	virtual AActor* GetTarget() override;
+
+public:
+	// 为本人物升级.
+	virtual void UpdateLevel(float InLevel) override;
 
 	/// //////////////////////////////////////////////////////////////////////////
 public:

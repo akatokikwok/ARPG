@@ -458,3 +458,24 @@ bool AMMOARPGCharacterBase::IsUpdateLevel()
 	}
 	return false;
 }
+
+void AMMOARPGCharacterBase::GetSkillTagsName(TArray<FName>& OutNames)
+{
+	if (FightComponent) {
+		FightComponent->GetSkillTagsName(OutNames);
+	}
+}
+
+void AMMOARPGCharacterBase::GetComboAttackTagsName(TArray<FName>& OutNames)
+{
+	if (FightComponent) {
+		FightComponent->GetComboAttackTagsName(OutNames);
+	}
+}
+
+void AMMOARPGCharacterBase::GetLimbsTagsName(TArray<FName>& OutNames)
+{
+	if (FightComponent) {
+		FightComponent->GetLimbsTagsName(OutNames);
+	}
+}

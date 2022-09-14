@@ -255,6 +255,23 @@ void UMMOARPGAttributeSet::OnRep_MaxEmpiricalValue(const FGameplayAttributeData&
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxEmpiricalValue, OldValue);
 }
 
+/**  */
+void UMMOARPGAttributeSet::ToMMOARPGCharacterAttribute(FMMOARPGCharacterAttribute& OutData)
+{
+	RegistrationParam(OutData.Level, Level);
+	RegistrationParam(OutData.Health, Health);
+	RegistrationParam(OutData.MaxHealth, MaxHealth);
+	RegistrationParam(OutData.Mana, Mana);
+	RegistrationParam(OutData.MaxMana, MaxMana);
+	RegistrationParam(OutData.PhysicsAttack, PhysicsAttack);
+	RegistrationParam(OutData.MagicAttack, MagicAttack);
+	RegistrationParam(OutData.PhysicsDefense, PhysicsDefense);
+	RegistrationParam(OutData.MagicDefense, MagicDefense);
+	RegistrationParam(OutData.AttackRange, AttackRange);
+	RegistrationParam(OutData.MaxEmpiricalValue, MaxEmpiricalValue);
+	RegistrationParam(OutData.EmpiricalValue, EmpiricalValue);
+}
+
 // 仅工具方法.
 void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData)
 {
@@ -269,3 +286,9 @@ void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttribute
 	InAttributeData.SetCurrentValue(InValue);
 }
 
+// 用UE内型的AD注册 MMOAD
+void UMMOARPGAttributeSet::RegistrationParam(FMMOARPGAttributeData& InNewAttributeData, const FGameplayAttributeData& InAttributeData)
+{
+	InNewAttributeData.BaseValue = InAttributeData.GetBaseValue();
+	InNewAttributeData.CurrentValue = InAttributeData.GetCurrentValue();
+}

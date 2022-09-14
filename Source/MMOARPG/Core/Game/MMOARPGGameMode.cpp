@@ -1,5 +1,4 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "MMOARPGGameMode.h"
 #include "Character/MMOARPGCharacter.h"
 #include "UObject/ConstructorHelpers.h"
@@ -12,12 +11,11 @@
 #include "ThreadManage.h"
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "Protocol/GameProtocol.h"
+#include "Protocol/ServerProtocol.h"
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
-#include "Protocol/ServerProtocol.h"
-#include <MMOARPGType.h>
-#include "MMOARPGTagList.h"// 这个是引擎插件里的
-// #include "../../MMOARPGTagList.h"// 这个是项目里的
+#include "../../MMOARPGGameType.h"
+#include "MMOARPGTagList.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -271,7 +269,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
 							// 升级
-							InPlayerCharacter->UpdateLevel(CharacterAttribute.Level.CurrentValue);
+							//InPlayerCharacter->UpdateLevel(CharacterAttribute.Level.CurrentValue);
 
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}

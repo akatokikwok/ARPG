@@ -25,7 +25,7 @@ class UWidget;
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
  */
 UCLASS()
-class MMOARPG_API AMMOARPGCharacterBase : 
+class MMOARPG_API AMMOARPGCharacterBase :
 	public ACharacter, public ISimpleComboInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -40,7 +40,7 @@ private:
 	 */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFlyComponent> FlyComponent;
-	
+
 	/** 游泳系统组件. */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<USwimmingComponent> SwimmingComponent;
@@ -48,14 +48,14 @@ private:
 	/** 攀爬系统组件. */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
-	
+
 	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
-		
+
 	/** MMOARPG ASC组件. */
- 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
- 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 
 	/** GAS属性集指针. */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -72,7 +72,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
@@ -146,7 +146,7 @@ public:
 	virtual float GetCharacterExp();
 
 	// 为本人物升级.
-	void UpdateLevel(float InLevel);
+	virtual void UpdateLevel(float InLevel);
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -176,7 +176,7 @@ public:/// 技能相关
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
-	
+
 
 	// 用1行DTR属性 注册更新AttributeSet指针数据
 	void UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute);
@@ -203,7 +203,7 @@ public:/// 技能相关
 
 	// 执行受击
 	virtual void PlayHit();
-	
+
 	// 执行死亡
 	virtual void PlayDie();
 
@@ -213,15 +213,15 @@ public:/// 技能相关
 	// "单机非广播版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
-// 	// 广播 "用一组GA注册连招黑盒"
-// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+	// 	// 广播 "用一组GA注册连招黑盒"
+	// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
-/// 关联GAS播蒙太奇的 公有方法
+	/// 关联GAS播蒙太奇的 公有方法
 public:
 	// 播放蒙太奇动画(服务端)
 	UFUNCTION(Server, Reliable)
 		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
-	
+
 	// 播放蒙太奇动画(被广播客户端)
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
@@ -231,9 +231,17 @@ public:
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
 
 	// 判断是否满足升人物等级条件.
-	bool IsUpdateLevel();
+	virtual bool IsUpdateLevel();
 
-/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 提出所有技能名字并存下来
+	void GetSkillTagsName(TArray<FName>& OutNames);
+	// 提出所有连招名字并存下来
+	void GetComboAttackTagsName(TArray<FName>& OutNames);
+	// 提出所有肢体动作名字并存下来
+	void GetLimbsTagsName(TArray<FName>& OutNames);
+
+	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
