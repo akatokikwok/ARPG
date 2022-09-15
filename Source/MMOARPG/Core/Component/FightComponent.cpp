@@ -86,50 +86,56 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 	return nullptr;
 }
 
-// 按指定名字, 在Skills大池子里查找技能并激活.
-void UFightComponent::Attack_TriggerGA(const FName& InKey)
+// 从连招池子里提1个GA并激活.
+bool UFightComponent::Attack_TriggerGA(const FName& InGAKey)
 {
-	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
-		if (InKey != TEXT("")) {
-			if (FGameplayAbilitySpecHandle* Handle = Skills.Find(InKey)) {
-				AbilitySystemComponent->TryActivateAbility(*Handle);
-			}
+	return TryActivateAbility(InGAKey, ComboAttacks);
+}
+
+// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
+bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap)
+{
+	// 检查弱指针ASC是否被破坏.
+	if (AbilitySystemComponent.IsValid()) {
+		if (const FGameplayAbilitySpecHandle* Handle = InMap.Find(InTagName)) {
+			AbilitySystemComponent->TryActivateAbility(*Handle);
+			return true;
 		}
 	}
+	return false;
 }
 
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	Attack_TriggerGA(TEXT("Player.Skill.Dodge"));
+	if (AbilitySystemComponent.IsValid()) {
+		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
+	}
 }
 
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	Attack_TriggerGA(TEXT("Player.Skill.Sprint"));
-}
-
-// void UFightComponent::Sprint2Skill_Implementation()
-// {
-// 	Attack_TriggerGA(TEXT("Player.Skill.Sprint2"));
-// }
-
-// 放受击技能
-void UFightComponent::Hit()
-{
 	if (AbilitySystemComponent.IsValid()) {
-		AbilitySystemComponent->TryActivateAbilitiesByTag(
-			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit"))));
+		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
 	}
 }
 
-// 放死亡 技能
+// 激活 受击技能
+void UFightComponent::Hit()
+{
+	if (AbilitySystemComponent.IsValid()) {
+		static const FName Player_State_Hit_Name(TEXT("Player.State.Hit"));
+		TryActivateAbility(Player_State_Hit_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Hit的受击GA
+	}
+}
+
+// 激活 死亡技能
 void UFightComponent::Die()
 {
 	if (AbilitySystemComponent.IsValid()) {
-		AbilitySystemComponent->TryActivateAbilitiesByTag(
-			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die"))));
+		static const FName Character_State_Die_Name(TEXT("Player.State.Die"));
+		TryActivateAbility(Character_State_Die_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Die的死亡GA
 	}
 }
 
@@ -164,13 +170,17 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
 			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
 				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
-
-					/* 按技能形式来源切分, 分肢体形式的 和 真正技能形式的*/
-					if (GAType != EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS) {
-						Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 给大池子注册一队pair
-					}
-					else {/* 肢体行为的能力(如受击, 死亡, 嘲讽)*/
-						AddAbility(*InGameplayAbility);// 直接give技能, 不需要往大池子里注册.
+					/* 按技能形式来源切分, 分三类*/
+					switch (GAType) {
+						case GAMEPLAYABILITY_SKILLATTACK:
+							Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为skill池子添加元素
+							break;
+						case GAMEPLAYABILITY_COMBOATTACK:
+							ComboAttacks.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为连招池子添加元素
+							break;
+						case GAMEPLAYABILITY_LIMBS:
+							Limbs.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为肢体池子添加元素
+							break;
 					}
 				}
 			}
@@ -343,7 +353,7 @@ void UFightComponent::UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> In
 
 		// 给自身应用 奖励机制GE
 		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewReward->GetDefaultObject()),
-			InLevel, 
+			InLevel,
 			AbilitySystemComponent->MakeEffectContext()
 		);
 	}

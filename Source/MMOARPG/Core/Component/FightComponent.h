@@ -25,11 +25,13 @@ public:
 	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
 
-	// 按指定名字, 在Skills大池子里查找技能并激活.
+	// 从连招池子里提1个GA并激活.
 	UFUNCTION(BlueprintCallable)
-		void Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
+		bool Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
 
-	
+	// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
+	bool TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap);
+
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
@@ -50,31 +52,31 @@ public:
 
 	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Press();
+	void Press();
 	// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Released();
+	void Released();
 	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Reset();
+	void Reset();
 
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
-		void DodgeSkill();// 放闪避技能; 广播至其他客户端
+	void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
-	// 放冲刺技能. 广播至其他客户端
-	//UFUNCTION(NetMulticast, Reliable)
-		void SprintSkill();// 放冲刺技能; 广播至其他客户端
+// 放冲刺技能. 广播至其他客户端
+//UFUNCTION(NetMulticast, Reliable)
+	void SprintSkill();// 放冲刺技能; 广播至其他客户端
 
- 	// 放冲刺2技能. 广播至其他客户端
- 	//UFUNCTION(NetMulticast, Reliable)
- 		//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
+// 放冲刺2技能. 广播至其他客户端
+//UFUNCTION(NetMulticast, Reliable)
+	//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
-	// 放受击 技能
-	UFUNCTION( BlueprintCallable)
+	// 激活 受击技能
+	UFUNCTION(BlueprintCallable)
 		void Hit();
 
-	// 放死亡 技能
+	// 激活 死亡技能
 	UFUNCTION(BlueprintCallable)
 		void Die();
 
@@ -126,6 +128,12 @@ private:
 	// Combo形式的攻击 触发器
 	UPROPERTY()
 		FSimpleComboCheck ComboAttackCheck;
+
+public:
+	// 受击ID
+	UPROPERTY()
+		int32 HitID;// 受击ID
+
 protected:
 	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;
@@ -133,9 +141,4 @@ protected:
 	TMap<FName, FGameplayAbilitySpecHandle> ComboAttacks;
 	// 肢体行为缓存池
 	TMap<FName, FGameplayAbilitySpecHandle> Limbs;
-public:
-	// 受击ID
-	UPROPERTY()
-		int32 HitID;// 受击ID
-
 };
