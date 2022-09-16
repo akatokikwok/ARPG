@@ -15,10 +15,10 @@ const float MaxDistance = 999999.0f;
 UClimbingComponent::UClimbingComponent()
 	: Super()
 	, ClimbingState(EClimbingState::CLIMBING_NONE)
-	, bJumpToClimbing(false)
 	, ClimbingHeight(0.f)
 	, mTraceLineType(EDrawDebugTrace::None)
 	, mTraceLineTypeWhenStepWall(EDrawDebugTrace::None)
+	, bJumpToClimbing(false)
 {
 
 }
