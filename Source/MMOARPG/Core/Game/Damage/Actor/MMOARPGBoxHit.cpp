@@ -41,7 +41,7 @@ void AMMOARPGBoxHit::HandleDamage(
 					if (!InTarget->IsDie()) {/* 防止敌人死亡后还能被用户攻击.*/
 						
 						/* 仅在服务器上执行.*/
-						if (InTarget->GetWorld()->IsServer() == true) {
+						if (InTarget->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer) == true) {
 							
 							// 不论挨打者是否死亡都需要传递受击ID, 注册目标的受击序号.
 							InTarget->SetHitID(GetHitID());

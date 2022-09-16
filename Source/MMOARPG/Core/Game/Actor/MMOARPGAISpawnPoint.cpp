@@ -20,7 +20,7 @@ void AMMOARPGAISpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetWorld() && GetWorld()->IsServer()) {/* 必须是服务器上的逻辑.*/
+	if (GetWorld() && GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {/* 必须是服务器上的逻辑.*/
 		SpawnAICharacter(CharacterID, Lv);
 	}
 }
