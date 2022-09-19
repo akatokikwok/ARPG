@@ -27,7 +27,7 @@ void UUI_GameMain::NativeConstruct()
 		GameCount++;
 	}
 	else if (GameCount == 1) {
-		Robot.InitUser(3, 3);// 手动写死测试, 3号用户3号存档
+		Robot.InitUser(2, 3);// 手动写死测试, 3号用户3号存档
 		GameCount++;
 	}
 
