@@ -322,11 +322,19 @@ void UFightComponent::HandleMana(const struct FGameplayTagContainer& InTags, flo
 
 }
 
+void UFightComponent::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	
+}
+
 void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun_AppendLogic)
 {
 	if (AbilitySystemComponent.IsValid()) {
-		// 升等级.
-		UpdateLevel(InNewLevel, InNewRewardBuff);
+		// 给自身应用 奖励机制GE
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewRewardBuff->GetDefaultObject()),
+			InNewLevel,
+			AbilitySystemComponent->MakeEffectContext()
+		);
 
 		// 执行传进来的附加逻辑段.
 		InFun_AppendLogic();
@@ -337,10 +345,10 @@ void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect
 void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
 {
 	if (InUpgradeLevelPawn->IsUpdateLevel()) {
-		InUpgradeLevelPawn->RewardEffect(InUpgradeLevelPawn->GetCharacterLevel() + 1, // 升一级
-			InUpgradeLevelPawn->GetUpgradeRewardEffect(), // 提升经验条buff
-			[&]() ->void { UpdateLevel(InUpgradeLevelPawn); } // 嵌套递归式升级.
-		);
+		// 让人升一级
+		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1); 
+		// 递归判定
+		this->UpdateLevel(InUpgradeLevelPawn);
 	}
 }
 

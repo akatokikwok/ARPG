@@ -196,6 +196,9 @@ public:/// 技能相关
 		AActor* DamageCauser// 源ASC内的源actor
 	);
 
+	//  处理人的经验值; 虚方法
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue);
+
 	// 写入战斗组件里的受击ID
 	void SetHitID(int32 InNewID);
 	// 读取战斗组件里的受击ID

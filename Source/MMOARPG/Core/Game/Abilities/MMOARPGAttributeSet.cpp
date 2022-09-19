@@ -109,6 +109,8 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	else if (Data.EvaluatedData.Attribute == GetEmpiricalValueAttribute()) {
 		float NewEmpiricalValue = Magnitude + GetEmpiricalValue() + 100.f;// 额外再加100
 		SetEmpiricalValue(NewEmpiricalValue);
+
+		Target->HandleExp(SourceTagContainer, Magnitude);
 	}
 	/* 血上限. */
 	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute()) {

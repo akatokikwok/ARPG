@@ -98,6 +98,9 @@ public:
 	// 当蓝量变化时候处理
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 
+	// 当经验值变化的时处理
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue);
+
 	// 击杀授予的奖励buff结算.
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewReward, TFunction<void()> InFun_AppendLogic);
 

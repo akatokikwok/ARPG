@@ -233,34 +233,6 @@ void AMMOARPGCharacter::ClimbingMontageChanged(EClimbingMontageState InJumpState
 	}
 }
 
-/** 处理人的血量; 覆写 */
-void AMMOARPGCharacter::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
-{
-	Super::HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
-
-	if (GetWorld()) {
-		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
-			// 使用GM去发给服务器命令, 更新获取人物 "血量"属性字段
-			MMOARPGGameMode->UpdateAttributeRequests(UserID, ID,
-				MMOARPGCharacterAttributeType::ATTRIBUTETYPE_HEALTH,
-				GetCharacterHealth());
-		}
-	}
-}
-
-/** 处理人的蓝量; 覆写 */
-void AMMOARPGCharacter::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
-{
-	if (GetWorld()) {
-		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
-			// 使用GM去发给服务器命令, 更新获取人物 "蓝量"属性字段
-			MMOARPGGameMode->UpdateAttributeRequests(UserID, ID,
-				MMOARPGCharacterAttributeType::ATTRIBUTETYPE_MANA,
-				GetCharacterMana());
-		}
-	}
-}
-
 /** 当字段被DS刷新后,客户端Player做出的反应. */
 void AMMOARPGCharacter::OnRep_ActionStateChanged()
 {
@@ -566,6 +538,46 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 
 		// 3. 命令GM升人物等级
 			MMOARPGGameMode->UpdateLevelRequests(UserID, ID, CharacterAttribute);
+		}
+	}
+}
+
+/** 处理人的血量; 覆写 */
+void AMMOARPGCharacter::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	Super::HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
+
+	if (GetWorld()) {
+		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			// 使用GM去发给服务器命令, 更新获取人物 "血量"属性字段
+			MMOARPGGameMode->UpdateAttributeRequests(UserID, ID,
+				MMOARPGCharacterAttributeType::ATTRIBUTETYPE_HEALTH,
+				GetCharacterHealth());
+		}
+	}
+}
+
+/** 处理人的蓝量; 覆写 */
+void AMMOARPGCharacter::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	if (GetWorld()) {
+		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			// 使用GM去发给服务器命令, 更新获取人物 "蓝量"属性字段
+			MMOARPGGameMode->UpdateAttributeRequests(UserID, ID,
+				MMOARPGCharacterAttributeType::ATTRIBUTETYPE_MANA,
+				GetCharacterMana());
+		}
+	}
+}
+
+// 覆写处理经验值接口
+void AMMOARPGCharacter::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	Super::HandleExp(InTags, InNewValue);
+	if (GetWorld()) {
+		if (AMMOARPGGameMode* InGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			InGameMode->UpdateAttributeRequests(UserID, ID,
+				MMOARPGCharacterAttributeType::ATTRIBUTETYPE_EMPIRICALVALUE, GetCharacterExp());
 		}
 	}
 }

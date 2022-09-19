@@ -362,6 +362,12 @@ void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ cons
 	SpawnDrawTextInClient(DamageAmount, InNewLocation, 0.8f);
 }
 
+// 
+void AMMOARPGCharacterBase::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	
+}
+
 // 写入战斗组件里的受击ID
 void AMMOARPGCharacterBase::SetHitID(int32 InNewID)
 {

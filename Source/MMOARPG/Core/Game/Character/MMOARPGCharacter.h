@@ -29,12 +29,6 @@ public:
 	/** 攀爬跳姿势的切换逻辑. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) override;
 
-public:
-	// 处理人的血量; 覆写
-	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue) override;
-	// 处理人的蓝量; 覆写
-	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue) override;
-
 protected:
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
@@ -156,6 +150,16 @@ public:
 public:
 	// 为本人物升级.
 	virtual void UpdateLevel(float InLevel) override;
+
+public:
+	// 处理人的血量; 覆写
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue) override;
+	
+	// 处理人的蓝量; 覆写
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue) override;
+
+	// 覆写处理经验值接口
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
 	/// //////////////////////////////////////////////////////////////////////////
 public:
