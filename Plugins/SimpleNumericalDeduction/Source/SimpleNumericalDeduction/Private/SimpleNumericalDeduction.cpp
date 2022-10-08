@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SimpleNumericalDeduction.h"
 #include "SimpleNumericalDeductionStyle.h"
@@ -8,6 +8,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
+#include "Widget/SSimpleNumericalDeductionWidget.h"
 
 static const FName SimpleNumericalDeductionTabName("SimpleNumericalDeduction");
 
@@ -54,22 +55,22 @@ void FSimpleNumericalDeductionModule::ShutdownModule()
 
 TSharedRef<SDockTab> FSimpleNumericalDeductionModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	FText WidgetText = FText::Format(
-		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
-		FText::FromString(TEXT("FSimpleNumericalDeductionModule::OnSpawnPluginTab")),
-		FText::FromString(TEXT("SimpleNumericalDeduction.cpp"))
-		);
+// 	FText WidgetText = FText::Format(
+// 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
+// 		FText::FromString(TEXT("FSimpleNumericalDeductionModule::OnSpawnPluginTab")),
+// 		FText::FromString(TEXT("SimpleNumericalDeduction.cpp"))
+// 		);
 
+	/** 在这个标签页内生成一个数值推演控件 */
 	return SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
 			// Put your tab content here!
 			SNew(SBox)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Fill)// 改为水平填充
+			.VAlign(VAlign_Fill)// 改为垂直填充
 			[
-				SNew(STextBlock)
-				.Text(WidgetText)
+				SNew(SSimpleNumericalDeductionWidget)
 			]
 		];
 }
