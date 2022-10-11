@@ -17,6 +17,7 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 		.HeaderContent()// 定义扩展框的"头部"
 		[
 			SNew(SVerticalBox)
+			
 			+ SVerticalBox::Slot()
 			[
 				SNew(SButton)
@@ -25,8 +26,26 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 				.OnClicked(this, &SSDataTableAttributeTable::SpawnNewAttributeCurveTable)
 				.ToolTipText(LOCTEXT("TableName_Tip", "Changes in the curve can be generated."))
 			]
+			+ SVerticalBox::Slot()// 放推演属性元数据下的所有字段,诸如Key, 配置系数, 推演算法
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SSDataTableAttributeTable_AttributeName", "Attribute Name"))
+				]
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SSDataTableAttributeTable_AlgorithmCoefficient", "Coefficient"))
+				]
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SSDataTableAttributeTable_CustomAlgorithm", "ActualCustomAlgorithm"))
+				]
+			]
 		]
-
 		.BodyContent()// 定义扩展框的"body"
 		[
 			SAssignNew(ListVerticalBox, SVerticalBox)
