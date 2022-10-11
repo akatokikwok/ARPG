@@ -6,7 +6,7 @@ class UDataTable;
 class UNumericalAlgorithmExecuteObject;
 
 /**
- *
+ * 推演用的SND对象
  */
 UCLASS(config = SNDObjectSettings)
 class USNDObjectSettings : public UObject
@@ -19,6 +19,10 @@ public:
 	// 推演的基础表
 	UPROPERTY(EditAnywhere, Category = "DeductionSettings", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
 		UDataTable* BaseTable;
+
+	// CSV存储的位置
+	UPROPERTY(config, EditAnywhere, Category = DeductionSettings, meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
+		FDirectoryPath CSVSavePath;
 
 	// 推演的次数
 	UPROPERTY(config, EditAnywhere, Category = "DeductionSettings", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))

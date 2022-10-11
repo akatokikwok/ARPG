@@ -10,6 +10,24 @@
 
 void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 {
+	// 引入加载编辑器模块
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	// 细节面板参数
+	FDetailsViewArgs DetailsViewArgs;
+	{
+		DetailsViewArgs.bAllowMultipleTopLevelObjects = true;// 指明是多个对象
+		DetailsViewArgs.bShowPropertyMatrixButton = false;// 隐藏matrixbutton
+	}
+	// 创建1个细节面板
+	TSharedPtr<class IDetailsView> ConfigPanel = PropertyModule.CreateDetailView(DetailsViewArgs);
+	// 细节面板内塞入推演用的 SNDObject
+	TArray<UObject*> SourceObjects;
+	{
+		SourceObjects.Add(const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>()));
+	}
+	ConfigPanel->SetObjects(SourceObjects);
+
+	/* 具体内容*/
 	ChildSlot
 	[
 		SNew(SScrollBox)
@@ -40,8 +58,13 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::SaveAsCSV)
 					.ToolTipText(LOCTEXT("SND_Save_as_CSVTip", "This function is mainly used for calling gameplay system after exporting deduction results."))
 				]
-
 			]
+			// 垂直框内塞入1个 细节面板
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				ConfigPanel.ToSharedRef()
+			]
+
 		]
 	];
 }
