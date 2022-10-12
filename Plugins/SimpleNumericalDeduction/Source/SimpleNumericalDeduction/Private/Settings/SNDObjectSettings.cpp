@@ -1,6 +1,7 @@
 ﻿#include "Settings/SNDObjectSettings.h"
 
 USNDObjectSettings::USNDObjectSettings()
+	: BaseTable(nullptr)
 {
 	// CSV路径初始化一下(若不存在则创建)
 	CSVSavePath.Path = FPaths::ProjectSavedDir() / TEXT("GameplayAbilitiesCSV");
@@ -8,5 +9,56 @@ USNDObjectSettings::USNDObjectSettings()
 	if (!PlatformFile.DirectoryExists(*CSVSavePath.Path)) {
 		PlatformFile.CreateDirectory(*CSVSavePath.Path);
 	}
+}
+
+/** 解析基础表 */
+bool USNDObjectSettings::AnalysisBaseTable()
+{
+	if (BaseTable) {
+		// 先清空 这份表集
+		AttributeDatas.Empty();
+		// 取出基础表里的rowmap(实际上就是那些attributes); <Name, 内存块(里面含有蓝 血 Lv)>数据结构.
+		TMap<FName, uint8*>& RowMap = const_cast<TMap<FName, uint8*>&>(BaseTable->GetRowMap());
+
+		// 再从基础表里取出 含有那些属性的一个结构
+		if (const UScriptStruct* RowStruct = BaseTable->GetRowStruct()) {
+			// 声明并构建1个白模板, 是1个表;
+			FDeduceAttributeDataTables TmpAttributeDataTables;
+
+			/* 1. 遍历rowstruct; 提出各个名称,存到一个集合里*/
+			//  StructProps是 基础表的rowstruct;
+			TArray<FProperty*> StructProps;
+			for (TFieldIterator<FProperty> It(RowStruct); It; ++It) {
+				FProperty* Prop = *It;
+				check(Prop != nullptr);
+				StructProps.Add(Prop);
+			}
+			// 再往白模板里注册, 注册这一系列的"key字段"
+			for (int32 i = 0; i < StructProps.Num(); i++) {
+				FDeduceAttributeData& InAttributeData = TmpAttributeDataTables.AttributeDatas.AddDefaulted_GetRef();// 先给数组添加一个元素再返回默认引用
+				InAttributeData.Key = *StructProps[i]->GetName();
+			}
+
+			/* 2.关于单个rowmap迭代器<-扫描基础表的rowmap(即基础表内的总数据和); 提取一系列的"Value字段"*/
+			for (auto RowIt = RowMap.CreateConstIterator(); RowIt; ++RowIt) {
+				// 表集里新增一个元素, 即一个单表
+				FDeduceAttributeDataTables& InAttributeData = AttributeDatas.Add_GetRef(TmpAttributeDataTables);
+				// 元素的字段被填充为
+				InAttributeData.TableName = RowIt.Key();
+				// rowmap里单个元素的内存块
+				uint8* RowData = RowIt.Value();
+				
+				/* 再扫描一次 基础表的Rowstruct*/
+				for (int32 PropIdx = 0; PropIdx < StructProps.Num(); PropIdx++) {
+					// 单个具体属性的具体值 由rowmap和rowstruct组合搭配提纯而出; 使用工具API来返回对应偏移的内存块; 单表单属性的具体值被注册好 (来源是来自RowStruct); 
+					InAttributeData.AttributeDatas[PropIdx].Value = 
+						DataTableUtils::GetPropertyValueAsString(StructProps[PropIdx], RowData, EDataTableExportFlags::None);
+
+				}
+			}
+			return true;
+		}
+	}
+	return false;
 }
 

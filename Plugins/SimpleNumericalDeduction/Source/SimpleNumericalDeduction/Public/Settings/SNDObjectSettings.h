@@ -28,11 +28,16 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "DeductionSettings", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
 		int32 DeductionNumber;
 
-	// 被生成的具体属性数据; UPROPERTY(config)表示直接生成的不可被编辑.
+	// 多个表的集合; 存放被生成的具体属性数据; UPROPERTY(config)表示直接生成的不可被编辑.
 	UPROPERTY(config, VisibleAnywhere, Category = "InvisibleData", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
-		TArray<FDeduceAttributeDataTables> AttributeDatas;
+		TArray<FDeduceAttributeDataTables> AttributeDatas;// 总数据, 是一个表群
 
 // 	// 算法模板; UPROPERTY(config)表示直接生成的不可被编辑.
 // 	UPROPERTY(config, EditAnywhere, Category = "AlgorithmExecuteObject", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
 // 		TArray<TSubclassOf<UNumericalAlgorithmExecuteObject>> NumericalAlgorithmExecuteObjects;
+
+public:
+	/** 解析基础表 */
+	bool AnalysisBaseTable();
+
 };

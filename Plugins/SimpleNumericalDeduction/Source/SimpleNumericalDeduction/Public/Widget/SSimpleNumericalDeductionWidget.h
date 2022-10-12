@@ -22,7 +22,10 @@ public:
 	bool IsEnableToCSV()const;
 	// 接口: 储存为CSV
 	FReply SaveAsCSV();
-
+	// 接口: 生成推演
+	FReply GenerateDeduction();
+	// 接口: 是否满足生成推演
+	bool IsGenerateDeduction() const;
 private:
 	TSharedPtr<class SVerticalBox> VerticalList;
 };

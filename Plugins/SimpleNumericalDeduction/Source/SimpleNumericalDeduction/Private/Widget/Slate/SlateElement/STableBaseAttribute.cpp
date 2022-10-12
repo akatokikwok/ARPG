@@ -20,9 +20,21 @@ void SSTableBaseAttribute::Construct(const FArguments& InArgs, FDeduceAttributeD
 
 		+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
 		[
+			SNew(STextBlock)
+			.Text(FText::FromString(InDeduceAttributeDataTable.Value))
+		]
+
+		+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+		[
 			SNew(SSpinBox<float>)
 			.Value(InDeduceAttributeDataTable.Coefficient)// 可配置的系数
 			.OnValueChanged(this, &SSTableBaseAttribute::OnValueChanged)
+		]
+
+		+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(TEXT("Tmp XXXXXX")))
 		]
 	];
 }

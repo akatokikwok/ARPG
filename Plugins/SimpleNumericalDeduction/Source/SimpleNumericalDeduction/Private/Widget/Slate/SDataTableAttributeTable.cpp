@@ -2,6 +2,7 @@
 #include "Widgets/Layout/SExpandableArea.h"
 #include "Settings/SNDObjectSettings.h"
 #include "SimpleNumericalDeduction.h"
+#include "Widget/Slate/SlateElement/STableBaseAttribute.h"
 
 #define LOCTEXT_NAMESPACE "SSDataTableAttributeTable"
 
@@ -37,6 +38,11 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
 				[
 					SNew(STextBlock)
+					.Text(LOCTEXT("SSDataTableAttributeTable_Value", "Value"))
+				]
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+				[
+					SNew(STextBlock)
 					.Text(LOCTEXT("SSDataTableAttributeTable_AlgorithmCoefficient", "Coefficient"))
 				]
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
@@ -51,6 +57,13 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 			SAssignNew(ListVerticalBox, SVerticalBox)
 		]
 	];
+
+	for (auto& Tmp : AttributeDataTablesPtr->AttributeDatas) {
+		ListVerticalBox->AddSlot()
+		[
+			SNew(SSTableBaseAttribute, Tmp)
+		];
+	}
 }
 
 FReply SSDataTableAttributeTable::SpawnNewAttributeCurveTable()

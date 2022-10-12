@@ -11,11 +11,14 @@ struct FDeduceAttributeData
 {
 	GENERATED_USTRUCT_BODY()
 public:
-
+	FDeduceAttributeData();
 public:
 	// 代表LV 蓝量 血量 攻击诸如此类的Key字段.
 	UPROPERTY()
 		FName Key;
+	// 代表各属性具体的值.
+	UPROPERTY()
+		FString Value;
 	// 可配置的系数.
 	UPROPERTY()
 		float Coefficient;

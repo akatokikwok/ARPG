@@ -39,7 +39,7 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 			[
 				/* 垂直框里塞1个水平框.*/
 				SNew(SHorizontalBox)
-				// 先在靠右侧放1个按钮
+				// 先在靠右侧放1个按钮, 它管理Default
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f)
 				[
 					SNew(SButton)
@@ -58,13 +58,26 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::SaveAsCSV)
 					.ToolTipText(LOCTEXT("SND_Save_as_CSVTip", "This function is mainly used for calling gameplay system after exporting deduction results."))
 				]
+				// 塞入一个生成按钮
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
+					[
+						SNew(SButton)
+						.Text(LOCTEXT("Generate_Deduction", "Generate Deduction"))
+						.HAlign(HAlign_Center)
+						.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsGenerateDeduction)
+						.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateDeduction)
+						.ToolTipText(LOCTEXT("Generate_DeductionTip", "Generate deduction data according to the table."))
+					]
 			]
 			// 垂直框内塞入1个 细节面板
 			+ SVerticalBox::Slot().AutoHeight()
 			[
 				ConfigPanel.ToSharedRef()
 			]
-
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SAssignNew(VerticalList, SVerticalBox)
+			]
 		]
 	];
 }
@@ -85,6 +98,37 @@ FReply SSimpleNumericalDeductionWidget::SaveAsCSV()
 {
 
 	return FReply::Handled();
+}
+
+FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
+{
+	if (VerticalList) {
+		if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+			// 准备处理snd对象
+
+			// 仅当SND对象内基础表被解析成功
+			if (SND->AnalysisBaseTable()) {
+				// 扫描SND里总数据, 给每个表都生成1个垂直框(内嵌一个编辑器)
+				for (auto& Tmp : SND->AttributeDatas) {
+					VerticalList->AddSlot()
+					[
+						SNew(SSDataTableAttributeTable, Tmp)
+					];
+				}
+			}
+		}
+	}
+	return FReply::Handled();
+}
+
+bool SSimpleNumericalDeductionWidget::IsGenerateDeduction() const
+{
+	if (const USNDObjectSettings* SND = GetDefault<USNDObjectSettings>()) {
+		if (SND->BaseTable != nullptr) {
+			return true;
+		}
+	}
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE// 终止定义本地化操作
