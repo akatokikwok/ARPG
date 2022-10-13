@@ -31,14 +31,15 @@ void SSTableBaseAttribute::Construct(const FArguments& InArgs, FDeduceAttributeD
 			.OnValueChanged(this, &SSTableBaseAttribute::OnValueChanged)
 		]
 
-		+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Left).Padding(4.f, 2.f, 4.f, 2.f)
+		+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Fill).Padding(4.f, 2.f, 4.f, 2.f)
 		[
-			SNew(STextBlock)
-			.Text(FText::FromString(TEXT("Tmp XXXXXX")))
+			SAssignNew(EditableTextBox, SEditableTextBox)
+			.OnTextCommitted(this, &SSTableBaseAttribute::OnValueCommied)
 		]
 	];
 }
 
+/** 当可配置的系数改变时刷新为新的配置系数; */
 void SSTableBaseAttribute::OnValueChanged(float InNewValue)
 {
 	if (AttributeDataTablesPtr) {
@@ -46,10 +47,11 @@ void SSTableBaseAttribute::OnValueChanged(float InNewValue)
 	}
 }
 
+/** 当某个Editbox被提交内容的时候 */
 void SSTableBaseAttribute::OnValueCommied(const FText& InText, ETextCommit::Type InType)
 {
 	if (AttributeDataTablesPtr) {
-		if (UClass* InClass = StaticLoadClass(UNumericalAlgorithmExecuteObject::StaticClass(), NULL, *InText.ToString())) {
+		if (UClass* InClass = StaticLoadClass(UNumericalAlgorithmExecuteObject::StaticClass(), nullptr, *InText.ToString())) {
 			AttributeDataTablesPtr->BaseAlgorithm = InClass;
 		}
 		else {

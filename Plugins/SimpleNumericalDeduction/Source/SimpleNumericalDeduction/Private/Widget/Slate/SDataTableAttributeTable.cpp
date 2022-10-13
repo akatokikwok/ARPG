@@ -59,7 +59,7 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 	];
 
 	for (auto& Tmp : AttributeDataTablesPtr->AttributeDatas) {
-		ListVerticalBox->AddSlot()
+		ListVerticalBox->AddSlot().AutoHeight()
 		[
 			SNew(SSTableBaseAttribute, Tmp)
 		];

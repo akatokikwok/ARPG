@@ -113,7 +113,7 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 
 				// 扫描SND里总数据, 给每个表都生成1个垂直框(内嵌一个编辑器)
 				for (auto& Tmp : SND->AttributeDatas) {
-					VerticalList->AddSlot()
+					VerticalList->AddSlot().AutoHeight()
 					[
 						SNew(SSDataTableAttributeTable, Tmp)
 					];

@@ -19,9 +19,9 @@ public:
 public:
 	/** 生成人物单属性的关联曲线表 */
 	FReply SpawnSingleAttributeCurveTable();
-	/** 当可配置的系数改变时刷新为新的配置系数;  */
+	/** 当可配置的系数改变时刷新为新的配置系数; */
 	void OnValueChanged(float InNewValue);
-	/**  */
+	/** 当某个Editbox被提交内容的时候 */
 	void OnValueCommied(const FText& InText, ETextCommit::Type InType);
 
 private:
