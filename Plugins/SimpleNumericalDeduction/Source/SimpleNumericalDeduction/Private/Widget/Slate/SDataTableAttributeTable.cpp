@@ -3,6 +3,7 @@
 #include "Settings/SNDObjectSettings.h"
 #include "SimpleNumericalDeduction.h"
 #include "Widget/Slate/SlateElement/STableBaseAttribute.h"
+#include "SimpleNumericalDeductionType.h"
 
 #define LOCTEXT_NAMESPACE "SSDataTableAttributeTable"
 
@@ -58,11 +59,22 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 		]
 	];
 
-	for (auto& Tmp : AttributeDataTablesPtr->AttributeDatas) {
-		ListVerticalBox->AddSlot().AutoHeight()
-		[
-			SNew(SSTableBaseAttribute, Tmp)
-		];
+	if (USNDObjectSettings* InSND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+		for (int32 i = 0; i < AttributeDataTablesPtr->AttributeDatas.Num(); i++) {
+			
+			/* 按算法模板的位置执行匹配 */
+			if (InSND->NumericalAlgorithmExecuteObjects.IsValidIndex(i)) {
+				if (InSND->NumericalAlgorithmExecuteObjects[i]) {
+					AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObjects[i];
+				}
+			}
+
+			/* 生成并渲染子级别控件 */
+			ListVerticalBox->AddSlot().AutoHeight()
+			[
+				SNew(SSTableBaseAttribute, AttributeDataTablesPtr->AttributeDatas[i])
+			];
+		}
 	}
 }
 
