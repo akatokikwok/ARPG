@@ -26,6 +26,11 @@ public:
 	FReply GenerateDeduction();
 	// 接口: 是否满足生成推演
 	bool IsGenerateDeduction() const;
+	// 生成属性表
+	FReply GenerateAttributeTable();
+	// 是否满足生成属性表
+	bool IsGenerateAttributeTable()const;
+
 private:
 	TSharedPtr<class SVerticalBox> VerticalList;
 };

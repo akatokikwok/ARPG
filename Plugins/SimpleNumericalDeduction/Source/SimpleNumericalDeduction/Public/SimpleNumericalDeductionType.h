@@ -4,6 +4,18 @@
 class UNumericalAlgorithmExecuteObject;
 
 /**
+ * 数值算法object会用到的一个参数包结构体.
+ */
+USTRUCT(BlueprintType)
+struct SIMPLENUMERICALDEDUCTION_API FNAEParam
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(BlueprintReadOnly)
+		TMap<FString, FString> AttributeData;
+};
+
+/**
  * 推演属性元数据
  */
 USTRUCT(BlueprintType)

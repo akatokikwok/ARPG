@@ -58,16 +58,26 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::SaveAsCSV)
 					.ToolTipText(LOCTEXT("SND_Save_as_CSVTip", "This function is mainly used for calling gameplay system after exporting deduction results."))
 				]
+				//
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
+				[
+					SNew(SButton)
+					.Text(LOCTEXT("Generate_Attribute_Table", "Generate Attribute Table"))
+					.HAlign(HAlign_Center)
+					.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsGenerateAttributeTable)
+					.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateAttributeTable)
+					.ToolTipText(LOCTEXT("Generate_Attribute_TableTip", "Generate Attribute data according to the table."))
+				]
 				// 塞入一个生成按钮
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
-					[
-						SNew(SButton)
-						.Text(LOCTEXT("Generate_Deduction", "Generate Deduction"))
-						.HAlign(HAlign_Center)
-						.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsGenerateDeduction)
-						.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateDeduction)
-						.ToolTipText(LOCTEXT("Generate_DeductionTip", "Generate deduction data according to the table."))
-					]
+				[
+					SNew(SButton)
+					.Text(LOCTEXT("Generate_Deduction", "Generate Deduction"))
+					.HAlign(HAlign_Center)
+					.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsGenerateDeduction)
+					.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateDeduction)
+					.ToolTipText(LOCTEXT("Generate_DeductionTip", "Generate deduction data according to the table."))
+				]
 			]
 			// 垂直框内塞入1个 细节面板
 			+ SVerticalBox::Slot().AutoHeight()
@@ -102,6 +112,23 @@ FReply SSimpleNumericalDeductionWidget::SaveAsCSV()
 
 FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 {
+	// to do.
+
+	return FReply::Handled();
+}
+
+bool SSimpleNumericalDeductionWidget::IsGenerateDeduction() const
+{
+	if (const USNDObjectSettings* SND = GetDefault<USNDObjectSettings>()) {
+		if (!SND->AttributeDatas.IsEmpty() && SND->DeductionNumber >= 1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+FReply SSimpleNumericalDeductionWidget::GenerateAttributeTable()
+{
 	if (VerticalList) {
 		if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
 			// 准备处理snd对象
@@ -121,16 +148,18 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 			}
 		}
 	}
+
 	return FReply::Handled();
 }
 
-bool SSimpleNumericalDeductionWidget::IsGenerateDeduction() const
+bool SSimpleNumericalDeductionWidget::IsGenerateAttributeTable() const
 {
 	if (const USNDObjectSettings* SND = GetDefault<USNDObjectSettings>()) {
-		if (SND->BaseTable != nullptr) {
+		if (SND->BaseTable) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
