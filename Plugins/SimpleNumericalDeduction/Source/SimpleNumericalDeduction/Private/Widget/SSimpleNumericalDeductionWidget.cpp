@@ -110,9 +110,47 @@ FReply SSimpleNumericalDeductionWidget::SaveAsCSV()
 	return FReply::Handled();
 }
 
+/** 生成推演 */
 FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 {
-	// to do.
+	// 先清除上一次产生的所有推导值
+	ClearDeductionValue();
+
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) { // 拿取SND设置
+		// 声明1个参数包
+		FNAEParam NAEParam;
+
+		/* 储存 由 两层for提出单个具体属性 至参数包的一个字段*/
+		for (auto& MainTmp : SND->AttributeDatas) {
+			for (auto& Tmp : MainTmp.AttributeDatas) {
+				NAEParam.AttributeData.Add(Tmp.Key.ToString(), Tmp.Value);
+			}
+		}
+
+		/* */
+		for (auto& MainTmp : SND->AttributeDatas) {
+			for (auto& Tmp_attri : MainTmp.AttributeDatas) {
+				// 拿到单属性的算法obj
+				if (Tmp_attri.BaseAlgorithm != nullptr) {
+					if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(Tmp_attri.BaseAlgorithm->GetDefaultObject())) {
+						
+						NAEParam.Key = Tmp_attri.Key.ToString();
+						Tmp_attri.DeduceValue.Add(Tmp_attri.Value);// 推导值先默认给一份
+
+						// 推演 单属性
+						for (int32 i = 0; i < SND->DeductionNumber; ++i) {
+							NAEParam.Value = FCString::Atof(*Tmp_attri.DeduceValue.Last());// 用推导浮点集的最新浮点填充参数包
+							NAEParam.Count = i + 2;
+							NAEParam.Coefficient = Tmp_attri.Coefficient;
+							float InValue = InObject->GetAlgorithmValue(NAEParam);
+							// 更新单属性的 "被推导出的浮点"
+							Tmp_attri.DeduceValue.Add(FString::SanitizeFloat(InValue));
+						}
+					}
+				}
+			}
+		}
+	}
 
 	return FReply::Handled();
 }
@@ -161,6 +199,18 @@ bool SSimpleNumericalDeductionWidget::IsGenerateAttributeTable() const
 	}
 
 	return false;
+}
+
+void SSimpleNumericalDeductionWidget::ClearDeductionValue()
+{
+	/* 把所有单属性数据的 推导值置空 */
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {// 加载出SND设置
+		for (auto& MainTmp : SND->AttributeDatas) {
+			for (auto& Tmp : MainTmp.AttributeDatas) {
+				Tmp.DeduceValue.Empty();
+			}
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE// 终止定义本地化操作

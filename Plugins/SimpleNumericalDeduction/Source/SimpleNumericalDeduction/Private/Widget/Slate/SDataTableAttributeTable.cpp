@@ -62,8 +62,14 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 	if (USNDObjectSettings* InSND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
 		for (int32 i = 0; i < AttributeDataTablesPtr->AttributeDatas.Num(); i++) {
 			
-			/* 按算法模板的位置执行匹配 */
-			if (InSND->NumericalAlgorithmExecuteObjects.IsValidIndex(i)) {
+			/* 都用总算法obj填充*/
+			if (InSND->NumericalAlgorithmExecuteObject) {
+				if (InSND->NumericalAlgorithmExecuteObjects[i]) {
+					AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObject;
+				}
+			}
+			/* 按各自的算法模板的位置执行匹配 */
+			else if (InSND->NumericalAlgorithmExecuteObjects.IsValidIndex(i)) {
 				if (InSND->NumericalAlgorithmExecuteObjects[i]) {
 					AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObjects[i];
 				}

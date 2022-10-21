@@ -32,5 +32,9 @@ public:
 	bool IsGenerateAttributeTable()const;
 
 private:
+	// 层层清除 所有推导值.
+	void ClearDeductionValue();
+
+private:
 	TSharedPtr<class SVerticalBox> VerticalList;
 };
