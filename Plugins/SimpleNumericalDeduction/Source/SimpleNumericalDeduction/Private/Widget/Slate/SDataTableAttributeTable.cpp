@@ -62,18 +62,28 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 	if (USNDObjectSettings* InSND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
 		for (int32 i = 0; i < AttributeDataTablesPtr->AttributeDatas.Num(); i++) {
 			
-			/* 都用总算法obj填充*/
+			/* 算法Obj: 都用总算法obj填充*/
 			if (InSND->NumericalAlgorithmExecuteObject) {
-				if (InSND->NumericalAlgorithmExecuteObjects[i]) {
-					AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObject;
-				}
+				AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObject;
 			}
-			/* 按各自的算法模板的位置执行匹配 */
-			else if (InSND->NumericalAlgorithmExecuteObjects.IsValidIndex(i)) {
+			else if (InSND->NumericalAlgorithmExecuteObjects.IsValidIndex(i)) {/* 算法Obj: 按各自的算法模板的位置执行匹配 */
 				if (InSND->NumericalAlgorithmExecuteObjects[i]) {
 					AttributeDataTablesPtr->AttributeDatas[i].BaseAlgorithm = InSND->NumericalAlgorithmExecuteObjects[i];
 				}
 			}
+
+			// 使用共用的总系数
+			if (InSND->Coefficient != 0.f) {
+				AttributeDataTablesPtr->AttributeDatas[i].Coefficient = InSND->Coefficient;
+			}
+			else if (InSND->Coefficients.IsValidIndex(i))//系数: 按各自算法模板的位置进行匹配
+			{
+				if (InSND->Coefficients[i]) {
+					AttributeDataTablesPtr->AttributeDatas[i].Coefficient = InSND->Coefficients[i];
+				}
+			}
+
+
 
 			/* 生成并渲染子级别控件 */
 			ListVerticalBox->AddSlot().AutoHeight()

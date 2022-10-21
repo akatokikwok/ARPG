@@ -40,6 +40,15 @@ public:
  	UPROPERTY(config, EditAnywhere, Category = "AlgorithmExecuteObject", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
  		TArray<TSubclassOf<UNumericalAlgorithmExecuteObject>> NumericalAlgorithmExecuteObjects;// 算法模板
 
+	// 总控制系数
+	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
+		float Coefficient;// 总控制系数
+
+	// 各自的系数
+	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
+		TArray<float> Coefficients;// 各自的系数
+
+
 public:
 	/** 解析基础表 */
 	bool AnalysisBaseTable();

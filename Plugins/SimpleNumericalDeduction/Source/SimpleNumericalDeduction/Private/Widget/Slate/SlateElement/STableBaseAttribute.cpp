@@ -7,6 +7,7 @@
 void SSTableBaseAttribute::Construct(const FArguments& InArgs, FDeduceAttributeData& InDeduceAttributeDataTable)
 {
 	AttributeDataTablesPtr = &InDeduceAttributeDataTable;
+
 	ChildSlot
 	[
 		SNew(SHorizontalBox)
