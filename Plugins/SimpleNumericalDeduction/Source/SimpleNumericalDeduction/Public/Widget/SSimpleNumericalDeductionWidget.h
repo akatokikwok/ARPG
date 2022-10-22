@@ -35,6 +35,9 @@ private:
 	// 层层清除 所有推导值.
 	void ClearDeductionValue();
 
+	// 点击tab页内主面板上 Generate按钮 所生成推演的widget
+	void GenerateDeductionWidget();
+
 private:
 	TSharedPtr<class SVerticalBox> VerticalList;
 };

@@ -52,12 +52,12 @@ public:
 	/** 解析基础表 */
 	bool AnalysisBaseTable();
 	
-	// 保存好主控件上的保存后的slate数据
+	// 保存slate样式上的SND数据至本地磁盘.
 	void SaveObjectConfig();
-	// 读取保存在本地的推演slate数据
+	// 读取保存在本地磁盘的"slate样式上的SND数据"
 	void LoadObjectConfig();
 
 private:
-	// 返回一个路径, 1个指定位置的保存Slate样式路径
+	// 返回一个路径, 1个指定位置的 "slate样式上的SND数据"
 	FString GetDefaultConfigFilename();
 };

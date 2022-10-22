@@ -95,6 +95,9 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 		// 读取 保存在本地路径下的Slate样式设置细节
 		SND->LoadObjectConfig();
 	}
+
+	// 每次渲染本控件的时候亦会生成出上次保存好的推演控件
+	this->GenerateDeductionWidget();
 }
 
 FReply SSimpleNumericalDeductionWidget::SaveAsDefault()
@@ -175,23 +178,10 @@ bool SSimpleNumericalDeductionWidget::IsGenerateDeduction() const
 
 FReply SSimpleNumericalDeductionWidget::GenerateAttributeTable()
 {
-	if (VerticalList) {
-		if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
-			// 准备处理snd对象
-
-			// 仅当SND对象内基础表被解析成功
-			if (SND->AnalysisBaseTable()) {
-				// 先清除所有子项.
-				VerticalList->ClearChildren();
-
-				// 扫描SND里总数据, 给每个表都生成1个垂直框(内嵌一个编辑器)
-				for (auto& Tmp : SND->AttributeDatas) {
-					VerticalList->AddSlot().AutoHeight()
-					[
-						SNew(SSDataTableAttributeTable, Tmp)
-					];
-				}
-			}
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+		// 仅当SND对象内基础表被解析成功
+		if (SND->AnalysisBaseTable()) {
+			this->GenerateDeductionWidget();
 		}
 	}
 
@@ -216,6 +206,24 @@ void SSimpleNumericalDeductionWidget::ClearDeductionValue()
 		for (auto& MainTmp : SND->AttributeDatas) {
 			for (auto& Tmp : MainTmp.AttributeDatas) {
 				Tmp.DeduceValue.Empty();
+			}
+		}
+	}
+}
+
+void SSimpleNumericalDeductionWidget::GenerateDeductionWidget()
+{
+	if (VerticalList) {
+		if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+			// 先清除所有子项.
+			VerticalList->ClearChildren();
+
+			// 扫描SND里总数据, 给每个单属性都生成1个垂直框(内嵌一个编辑器)
+			for (auto& Tmp : SND->AttributeDatas) {
+				VerticalList->AddSlot().AutoHeight()
+				[
+					SNew(SSDataTableAttributeTable, Tmp)
+				];
 			}
 		}
 	}
