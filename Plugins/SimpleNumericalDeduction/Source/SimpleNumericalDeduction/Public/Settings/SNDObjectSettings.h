@@ -48,9 +48,16 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
 		TArray<float> Coefficients;// 各自的系数
 
-
 public:
 	/** 解析基础表 */
 	bool AnalysisBaseTable();
+	
+	// 保存好主控件上的保存后的slate数据
+	void SaveObjectConfig();
+	// 读取保存在本地的推演slate数据
+	void LoadObjectConfig();
 
+private:
+	// 返回一个路径, 1个指定位置的保存Slate样式路径
+	FString GetDefaultConfigFilename();
 };

@@ -62,3 +62,21 @@ bool USNDObjectSettings::AnalysisBaseTable()
 	return false;
 }
 
+void USNDObjectSettings::SaveObjectConfig()
+{
+	// Slate样式数据保存至上面定义的路径
+	SaveConfig(CPF_Config, *(this->GetDefaultConfigFilename()));
+}
+
+void USNDObjectSettings::LoadObjectConfig()
+{
+	LoadConfig(GetClass(), *(this->GetDefaultConfigFilename()));
+}
+
+FString USNDObjectSettings::GetDefaultConfigFilename()
+{
+	// 先定义1个指定位置的保存路径
+	// GetClass()->ClassConfigName这一句 与UCLASS(config = SNDObjectSettings)的命名有关系
+	return FPaths::ProjectConfigDir() / TEXT("Default") + GetClass()->ClassConfigName.ToString() + TEXT(".ini");
+}
+

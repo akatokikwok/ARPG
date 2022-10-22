@@ -90,11 +90,19 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+		// 读取 保存在本地路径下的Slate样式设置细节
+		SND->LoadObjectConfig();
+	}
 }
 
 FReply SSimpleNumericalDeductionWidget::SaveAsDefault()
 {
-
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+		// 保存 Slate样式设置细节 到本地
+		SND->SaveObjectConfig();
+	}
 	return FReply::Handled();
 }
 
