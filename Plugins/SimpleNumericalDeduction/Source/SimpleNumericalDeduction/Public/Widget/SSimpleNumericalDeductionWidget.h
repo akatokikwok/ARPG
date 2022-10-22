@@ -35,8 +35,11 @@ private:
 	// 层层清除 所有推导值.
 	void ClearDeductionValue();
 
-	// 点击tab页内主面板上 Generate按钮 所生成推演的widget
+	// 仅负责渲染 依据SND所生成推演的widget 至主面板下半部分.
 	void GenerateDeductionWidget();
+
+	// 渲染一个弹出提示框(这一步会阻塞线程,必须选择yes或者no才会进行下去).
+	void OpenMessageDialog(const FText& InText);
 
 private:
 	TSharedPtr<class SVerticalBox> VerticalList;

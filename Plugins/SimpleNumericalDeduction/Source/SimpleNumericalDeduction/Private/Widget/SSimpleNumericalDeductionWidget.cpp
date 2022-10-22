@@ -106,6 +106,8 @@ FReply SSimpleNumericalDeductionWidget::SaveAsDefault()
 		// 保存 Slate样式设置细节 到本地
 		SND->SaveObjectConfig();
 	}
+	// 渲染一个弹出提示, 表明你点了Save按钮并成功储存了SND的样式数据.
+	OpenMessageDialog(LOCTEXT("SNDWidget_SaveAsDefault", "Storage SND SLATE Data Successfully."));
 	return FReply::Handled();
 }
 
@@ -118,6 +120,8 @@ bool SSimpleNumericalDeductionWidget::IsEnableToCSV() const
 FReply SSimpleNumericalDeductionWidget::SaveAsCSV()
 {
 
+	// 渲染一个弹出提示, 表明你点了SaveAsCsv按钮并成功储存了SND的样式数据.
+	OpenMessageDialog(LOCTEXT("SNDWidget_SaveAsCSV", "Storage As CSV Successfully."));
 	return FReply::Handled();
 }
 
@@ -163,6 +167,8 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 		}
 	}
 
+	// 渲染一个弹出提示, 表示推演过程成功
+	OpenMessageDialog(LOCTEXT("SNDWidget_GenerateDeduction", "Generate Deduce Progress Successfully."));
 	return FReply::Handled();
 }
 
@@ -185,6 +191,8 @@ FReply SSimpleNumericalDeductionWidget::GenerateAttributeTable()
 		}
 	}
 
+	// 通知成功生成的这个 属性表
+	OpenMessageDialog(LOCTEXT("SNDWidget_GenerateAttributeTable", "Generate Attribute Table Successfully."));
 	return FReply::Handled();
 }
 
@@ -227,6 +235,11 @@ void SSimpleNumericalDeductionWidget::GenerateDeductionWidget()
 			}
 		}
 	}
+}
+
+void SSimpleNumericalDeductionWidget::OpenMessageDialog(const FText& InText)
+{
+	FMessageDialog::Open(EAppMsgType::YesNo, InText);
 }
 
 #undef LOCTEXT_NAMESPACE// 终止定义本地化操作
