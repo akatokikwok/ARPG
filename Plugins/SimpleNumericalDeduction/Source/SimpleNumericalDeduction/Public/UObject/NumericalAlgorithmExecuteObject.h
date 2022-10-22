@@ -12,7 +12,7 @@ class SIMPLENUMERICALDEDUCTION_API UNumericalAlgorithmExecuteObject : public UOb
 {
 	GENERATED_BODY()
 public:
-	/** 使用一个参数包注册算法obj, 产出一个结果浮点 */
+	/** 传进来一个参数包, 依据策划配好的算法来对该参数包推导出一个构想值 */
 	virtual float GetAlgorithmValue(const FNAEParam& InParam);
 
 public:

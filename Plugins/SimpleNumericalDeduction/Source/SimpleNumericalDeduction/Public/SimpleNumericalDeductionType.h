@@ -16,7 +16,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		FString Key;
 
-	// 经过迭代的值
+	// 经过指定算法推导(可能有多次迭代)出来的推导值.
 	UPROPERTY(BlueprintReadOnly)
 		float Value;
 
@@ -24,12 +24,13 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		int32 Count;// 迭代次数
 
-	// 系数
+	// 推导系数
 	UPROPERTY(BlueprintReadOnly)
-		float Coefficient;// 系数
+		float Coefficient;// 推导系数
 	
+	// <单属性(如蓝, 血), 该属性值>
 	UPROPERTY(BlueprintReadOnly)
-		TMap<FString, FString> AttributeData;
+		TMap<FString, FString> AttributeData;// <单属性(如蓝, 血), 该属性值>
 };
 
 /**
@@ -48,9 +49,9 @@ public:
 	UPROPERTY()
 		FName Key;// 单个属性内, 代表LV 蓝量 血量 攻击诸如此类的Key字段.
 
-	// 代表各属性具体的值.
+	// 代表各属性具体的值 (如血量还剩15).
 	UPROPERTY()
-		FString Value;// 代表各属性具体的值.
+		FString Value;// 代表各属性具体的值 (如血量还剩15).
 
 	// 可配置的系数.
 	UPROPERTY()

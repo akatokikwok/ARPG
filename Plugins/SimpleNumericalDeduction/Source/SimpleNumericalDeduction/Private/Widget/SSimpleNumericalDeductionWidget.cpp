@@ -58,7 +58,7 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::SaveAsCSV)
 					.ToolTipText(LOCTEXT("SND_Save_as_CSVTip", "This function is mainly used for calling gameplay system after exporting deduction results."))
 				]
-				//
+				// "根据诸SND设置生成属性表"按钮
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
 				[
 					SNew(SButton)
@@ -68,7 +68,7 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateAttributeTable)
 					.ToolTipText(LOCTEXT("Generate_Attribute_TableTip", "Generate Attribute data according to the table."))
 				]
-				// 塞入一个生成按钮
+				//  "依据算法生成推演"按钮
 				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
 				[
 					SNew(SButton)
