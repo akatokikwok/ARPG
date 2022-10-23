@@ -4,7 +4,8 @@ USNDObjectSettings::USNDObjectSettings()
 	: BaseTable(nullptr)
 {
 	// CSV路径初始化一下(若不存在则创建)
-	CSVSavePath.Path = FPaths::ProjectSavedDir() / TEXT("GameplayAbilitiesCSV");
+	CSVSavePath.Path = TEXT("D:/Project/UEProj/ARPG/Saved/GameplayAbilitiesCSV");// 先给一个写死的路径
+	//CSVSavePath.Path = FPaths::ProjectSavedDir() / TEXT("GameplayAbilitiesCSV");
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 	if (!PlatformFile.DirectoryExists(*CSVSavePath.Path)) {
 		PlatformFile.CreateDirectory(*CSVSavePath.Path);

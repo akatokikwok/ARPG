@@ -113,12 +113,63 @@ FReply SSimpleNumericalDeductionWidget::SaveAsDefault()
 
 bool SSimpleNumericalDeductionWidget::IsEnableToCSV() const
 {
+	if (const USNDObjectSettings* SND = GetDefault<USNDObjectSettings>()) {
+		bool bHasDeduced = false;// 声明 是否执行了"推导行为"
+		for (auto& MainTmp : SND->AttributeDatas) {
+			for (auto& Tmp : MainTmp.AttributeDatas) {
+				// 被推演的浮点个数大于2才能证明 已执行了"推导行为"
+				if (Tmp.DeduceValue.Num() >= 2) {
+					bHasDeduced = true;
+					break;
+				}
+			}
+		}
+		// 路径不为空 && 推导次数不为0 && 推导行为已执行
+		return !SND->CSVSavePath.Path.IsEmpty() && SND->DeductionNumber > 0 && bHasDeduced;
+	}
 
 	return false;
 }
 
 FReply SSimpleNumericalDeductionWidget::SaveAsCSV()
 {
+	if (USNDObjectSettings* SND = const_cast<USNDObjectSettings*>(GetDefault<USNDObjectSettings>())) {
+		// I: 扫描多属性表,针对单个属性表
+		for (auto& MainTmp : SND->AttributeDatas) {
+			// 先定义拼出1个 CSV路径
+			FString CSVFilename = SND->CSVSavePath.Path / MainTmp.TableName.ToString() + TEXT(".csv");
+			// 待加工的CSV数据, 它是一串字符
+			TArray<FString> CSVData;
+
+			// 1.1 构建头部, 类似于 
+			//---,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+			FString& HeadString = CSVData.AddDefaulted_GetRef();
+			HeadString += TEXT("---,");
+			for (int32 i = 0; i < SND->DeductionNumber; i++) {
+				HeadString += FString::FromInt(i + 1) + TEXT(",");
+			}
+			HeadString.RemoveFromEnd(TEXT(","));
+
+			// 1.2 构建内容, 诸如下面
+			// II: 扫描单个属性表, 针对单条属性
+			for (auto& TmpAttri : MainTmp.AttributeDatas) {
+				FString& ContentString = CSVData.AddDefaulted_GetRef();
+				//构建Key
+				ContentString += TmpAttri.Key.ToString() + TEXT(",");
+				//构建一系列尾数的属性值
+				for (auto& DeducedVal : TmpAttri.DeduceValue) {
+					ContentString += DeducedVal + TEXT(",");
+				}
+				ContentString.RemoveFromEnd(TEXT(","));
+				// 最终产出类似于 MaxHealth,5,7,14,20,30,40,60,80,110,150,200,260,340,400,559,654,734,890
+			}
+
+			// III: 把处理好的CSV数据 存储至 CSV路径里.
+			FFileHelper::SaveStringArrayToFile(CSVData, *CSVFilename);
+		}
+		// IV: 借助平台接口, 打开弹出 导出的CSV
+		FPlatformProcess::ExploreFolder(*SND->CSVSavePath.Path);
+	}
 
 	// 渲染一个弹出提示, 表明你点了SaveAsCsv按钮并成功储存了SND的样式数据.
 	OpenMessageDialog(LOCTEXT("SNDWidget_SaveAsCSV", "Storage As CSV Successfully."));
@@ -153,7 +204,7 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 						Tmp_attri.DeduceValue.Add(Tmp_attri.Value);// 推导值先默认给一份
 
 						// 推演 单属性
-						for (int32 i = 0; i < SND->DeductionNumber; ++i) {
+						for (int32 i = 0; i < (SND->DeductionNumber); ++i) {
 							NAEParam.Value = FCString::Atof(*Tmp_attri.DeduceValue.Last());// 用推导浮点集的最新浮点填充参数包
 							NAEParam.Count = i + 2;
 							NAEParam.Coefficient = Tmp_attri.Coefficient;
