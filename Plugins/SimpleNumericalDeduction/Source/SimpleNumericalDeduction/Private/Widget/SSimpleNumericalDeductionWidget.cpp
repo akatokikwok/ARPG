@@ -199,12 +199,15 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 				// 拿到单属性的算法obj
 				if (Tmp_attri.BaseAlgorithm != nullptr) {
 					if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(Tmp_attri.BaseAlgorithm->GetDefaultObject())) {
-						
+						// 归属的单属性记录至参数包
 						NAEParam.Key = Tmp_attri.Key.ToString();
-						Tmp_attri.DeduceValue.Add(Tmp_attri.Value);// 推导值先默认给一份
+						// Tmp_attri.DeduceValue.Add(Tmp_attri.Value);// 推导值先默认给一份
+						// 注意上面那句有隐含bug,由于CSV对逗号敏感,故处理技能Tag的时候携带逗号会诱发bug
+						// 处理单属性的 推导值; 由于技能标签里有逗号, 故推荐用 连接符替换CSV敏感的逗号
+						Tmp_attri.DeduceValue.Add(Tmp_attri.Value.Replace(TEXT(","), TEXT("-")));
 
 						// 推演 单属性
-						for (int32 i = 0; i < (SND->DeductionNumber); ++i) {
+						for (int32 i = 0; i < (SND->DeductionNumber - 1); ++i) {// 注意是SND->DeductionNumber - 1, 原因是有第一列留给了Lv, Hp, ComboAttack这些字段
 							NAEParam.Value = FCString::Atof(*Tmp_attri.DeduceValue.Last());// 用推导浮点集的最新浮点填充参数包
 							NAEParam.Count = i + 2;
 							NAEParam.Coefficient = Tmp_attri.Coefficient;
