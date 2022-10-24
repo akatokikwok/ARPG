@@ -54,7 +54,26 @@ bool USNDObjectSettings::AnalysisBaseTable()
 					// 单个具体属性的具体值 由rowmap和rowstruct组合搭配提纯而出; 使用工具API来返回对应偏移的内存块; 单表单属性的具体值被注册好 (来源是来自RowStruct); 
 					InAttributeData.AttributeDatas[PropIdx].Value = 
 						DataTableUtils::GetPropertyValueAsString(StructProps[PropIdx], RowData, EDataTableExportFlags::None);
-
+					
+					// 类型收集与判定
+					if (StructProps[PropIdx]->IsA(FIntProperty::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FInt8Property::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FInt64Property::StaticClass())) {
+						InAttributeData.AttributeDatas[PropIdx].AttributeDataType = EDeduceAttributeDataType::DEDUCETYPE_INT32;
+					}
+					else if (StructProps[PropIdx]->IsA(FFloatProperty::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FDoubleProperty::StaticClass())) {
+						InAttributeData.AttributeDatas[PropIdx].AttributeDataType = EDeduceAttributeDataType::DEDUCETYPE_FLOAT;
+					}
+					else if (StructProps[PropIdx]->IsA(FStrProperty::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FTextProperty::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FNameProperty::StaticClass()) ||
+						StructProps[PropIdx]->IsA(FArrayProperty::StaticClass())) {
+						InAttributeData.AttributeDatas[PropIdx].AttributeDataType = EDeduceAttributeDataType::DEDUCETYPE_STRING;
+					}
+					else {
+						InAttributeData.AttributeDatas[PropIdx].AttributeDataType = EDeduceAttributeDataType::DEDUCETYPE_FLOAT;
+					}
 				}
 			}
 			return true;

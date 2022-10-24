@@ -4,6 +4,17 @@
 class UNumericalAlgorithmExecuteObject;
 
 /**
+ * 推演数据的类型
+ */
+UENUM(BlueprintType)
+enum class EDeduceAttributeDataType :uint8
+{
+	DEDUCETYPE_INT32  UMETA(DisplayName = "in32"),
+	DEDUCETYPE_FLOAT  UMETA(DisplayName = "float"),
+	DEDUCETYPE_STRING UMETA(DisplayName = "string"),
+};
+
+/**
  * 数值算法object会用到的一个参数包结构体.
  * 表示 "NAE基础属性"
  */
@@ -60,6 +71,10 @@ public:
 	// 承载推导出来的浮点
 	UPROPERTY()
 		TArray<FString> DeduceValue;// 承载推导出来的浮点
+
+	// 推演数值是什么类型?(浮点, 字符)
+	UPROPERTY()
+		EDeduceAttributeDataType AttributeDataType;// 推演数值是什么类型?(浮点, 字符)
 
 	// 推演算法.
 	UPROPERTY()

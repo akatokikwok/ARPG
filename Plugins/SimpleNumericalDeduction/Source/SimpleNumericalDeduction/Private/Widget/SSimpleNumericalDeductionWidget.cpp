@@ -211,9 +211,27 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 							NAEParam.Value = FCString::Atof(*Tmp_attri.DeduceValue.Last());// 用推导浮点集的最新浮点填充参数包
 							NAEParam.Count = i + 2;
 							NAEParam.Coefficient = Tmp_attri.Coefficient;
-							float InValue = InObject->GetAlgorithmValue(NAEParam);
-							// 更新单属性的 "被推导出的浮点"
-							Tmp_attri.DeduceValue.Add(FString::SanitizeFloat(InValue));
+
+							switch (Tmp_attri.AttributeDataType) {
+								case EDeduceAttributeDataType::DEDUCETYPE_INT32:
+								{
+									float InValue = InObject->GetInt32AlgorithmValue(NAEParam);
+									// 更新单属性的 "被推导出的浮点"
+									Tmp_attri.DeduceValue.Add(FString::SanitizeFloat(InValue));
+									break;
+								}
+								case EDeduceAttributeDataType::DEDUCETYPE_FLOAT:
+								{
+									int32 InValue = InObject->GetFloatAlgorithmValue(NAEParam);
+									Tmp_attri.DeduceValue.Add(FString::FromInt(InValue));
+									break;
+								}
+								case EDeduceAttributeDataType::DEDUCETYPE_STRING:
+								{
+									Tmp_attri.DeduceValue.Add(InObject->GetStringAlgorithmValue(NAEParam));
+									break;
+								}
+							}
 						}
 					}
 				}
