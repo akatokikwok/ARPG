@@ -68,7 +68,7 @@ bool USNDObjectSettings::AnalysisBaseTable()
 					else if (StructProps[PropIdx]->IsA(FStrProperty::StaticClass()) ||
 						StructProps[PropIdx]->IsA(FTextProperty::StaticClass()) ||
 						StructProps[PropIdx]->IsA(FNameProperty::StaticClass()) ||
-						StructProps[PropIdx]->IsA(FArrayProperty::StaticClass())) {
+						StructProps[PropIdx]->IsA(FArrayProperty::StaticClass())) {// 如果是Array类型则也强制识别为string
 						InAttributeData.AttributeDatas[PropIdx].AttributeDataType = EDeduceAttributeDataType::DEDUCETYPE_STRING;
 					}
 					else {
