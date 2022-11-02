@@ -35,6 +35,9 @@ void FSimpleNumericalDeductionModule::StartupModule()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(SimpleNumericalDeductionTabName, FOnSpawnTab::CreateRaw(this, &FSimpleNumericalDeductionModule::OnSpawnPluginTab))
 		.SetDisplayName(LOCTEXT("FSimpleNumericalDeductionTabTitle", "SimpleNumericalDeduction"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	/** 这一步 初始化 曲线编辑器table的外观与内容布局 */
+	AttributeCurveTable.InitLayout();
 }
 
 void FSimpleNumericalDeductionModule::ShutdownModule()
@@ -53,8 +56,10 @@ void FSimpleNumericalDeductionModule::ShutdownModule()
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(SimpleNumericalDeductionTabName);
 }
 
+/** 标签页内生成一个数值推演控件 */
 TSharedRef<SDockTab> FSimpleNumericalDeductionModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
+// 注释掉UE原生的内容
 // 	FText WidgetText = FText::Format(
 // 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
 // 		FText::FromString(TEXT("FSimpleNumericalDeductionModule::OnSpawnPluginTab")),
@@ -78,6 +83,18 @@ TSharedRef<SDockTab> FSimpleNumericalDeductionModule::OnSpawnPluginTab(const FSp
 void FSimpleNumericalDeductionModule::PluginButtonClicked()
 {
 	FGlobalTabmanager::Get()->TryInvokeTab(SimpleNumericalDeductionTabName);
+}
+
+/** 生成曲线编辑器table, 用多属性 */
+void FSimpleNumericalDeductionModule::SpawnAttributeCurveTable(FDeduceAttributeDataTables& InDeduceAttributeDataTables)
+{
+	AttributeCurveTable.Construct(InDeduceAttributeDataTables);
+}
+
+/** 生成曲线编辑器table, 用单属性 */
+void FSimpleNumericalDeductionModule::SpawnAttributeCurveTable(FDeduceAttributeData& InDeduceAttributeDataTabl)
+{
+	AttributeCurveTable.Construct(InDeduceAttributeDataTabl);
 }
 
 void FSimpleNumericalDeductionModule::RegisterMenus()

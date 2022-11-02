@@ -17,7 +17,7 @@ public:
 	/** Slate控件的渲染入口都从Construct开始. */
 	void Construct(const FArguments& InArgs, FDeduceAttributeDataTables& InDeduceAttributeDataTables);
 public:
-	/** 生成1个新的曲线表 */
+	/** 生成1个新的曲线编辑器 */
 	FReply SpawnNewAttributeCurveTable();
 	/** 拿取表名给button用 */
 	FText GetTableName() const;
@@ -25,6 +25,6 @@ public:
 private:
 	//
 	TSharedPtr<SVerticalBox> ListVerticalBox;
-	// 承载 "推演属性元数据"的表
+	// 多属性数据; 承载 "推演属性元数据"的表
 	FDeduceAttributeDataTables* AttributeDataTablesPtr;
 };

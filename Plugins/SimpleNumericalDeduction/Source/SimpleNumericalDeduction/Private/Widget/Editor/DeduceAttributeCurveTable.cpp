@@ -33,9 +33,32 @@ FSDeduceAttributeCurveTable::FSDeduceAttributeCurveTable()
 
 void FSDeduceAttributeCurveTable::InitLayout()
 {
+	// 先取消这个身份的注册(理解为关闭旧的)
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(FSimpleEditorDACTable::DeduceAttributeCurveTableID);
 
+	// 注册的时候绑定 生成tab视口callback
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(FSimpleEditorDACTable::DeduceAttributeCurveTableID, FOnSpawnTab::CreateRaw(this, &FSDeduceAttributeCurveTable::SpawnTab_CurveAsset))
+		.SetDisplayName(LOCTEXT("FSimpleEditorDACTableTitle", "DeduceAttributeCurveTable"))
+		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	// 开始布置层级; 属于重载符号的链式编程
+	TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("Simple_DeduceAttributeCurve_Layout")
+	->AddArea // 先添加一块区域
+	(
+		FTabManager::NewArea(640, 800) ->Split// 在已有的区域里再切割一块区域
+		(
+			FTabManager::NewStack() ->AddTab
+			(
+				FSimpleEditorDACTable::DeduceAttributeCurveTableID, ETabState::OpenedTab
+			)
+		)
+	);
+
+	// 把布局塞进窗口
+	FGlobalTabmanager::Get()->RestoreFrom(Layout, TSharedPtr<SWindow>());
 }
 
+// 注册曲线编辑器数据 并启动标签页
 void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeDataTables& InDeduceAttributeDataTables)
 {
 	DeduceAttributeDataTables = &InDeduceAttributeDataTables;
@@ -54,9 +77,17 @@ void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeData& InDeduceAttrib
 	FGlobalTabmanager::Get()->TryInvokeTab(FSimpleEditorDACTable::DeduceAttributeCurveTableID);
 }
 
+
 TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpawnTabArgs& Args)
 {
+	TSharedRef<SDockTab> NewDockTab = 
+		SNew(SDockTab).Icon(FEditorStyle::GetBrush("CurveAssetEditor.Tabs.Properties"))
+		[
+			SNew(SBorder).BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder")).Padding(0.0f)
+			
+		];
 
+	return NewDockTab;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -74,6 +74,9 @@ void SSTableBaseAttribute::OnValueCommied(const FText& InText, ETextCommit::Type
 
 FReply SSTableBaseAttribute::SpawnSingleAttributeCurveTable()
 {
-
+	if (AttributeDataTablesPtr) {
+		FSimpleNumericalDeductionModule& SimpleNumericalDeductionModul = FModuleManager::LoadModuleChecked<FSimpleNumericalDeductionModule>("SimpleNumericalDeduction");
+		SimpleNumericalDeductionModul.SpawnAttributeCurveTable(*AttributeDataTablesPtr);
+	}
 	return FReply::Handled();
 }

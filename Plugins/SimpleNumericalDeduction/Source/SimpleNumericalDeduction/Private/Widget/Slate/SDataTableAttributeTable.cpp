@@ -94,9 +94,15 @@ void SSDataTableAttributeTable::Construct(const FArguments& InArgs, FDeduceAttri
 	}
 }
 
+/** 生成1个新的曲线编辑器 */
 FReply SSDataTableAttributeTable::SpawnNewAttributeCurveTable()
-{
-	
+{	
+	if (AttributeDataTablesPtr) {
+		// 加载出数值推导的模块
+		FSimpleNumericalDeductionModule& SimpleNumericalDeductionModul = FModuleManager::LoadModuleChecked<FSimpleNumericalDeductionModule>("SimpleNumericalDeduction");
+		// 生成曲线编辑器table, 用多属性
+		SimpleNumericalDeductionModul.SpawnAttributeCurveTable(*AttributeDataTablesPtr);
+	}
 	return FReply::Handled();
 }
 

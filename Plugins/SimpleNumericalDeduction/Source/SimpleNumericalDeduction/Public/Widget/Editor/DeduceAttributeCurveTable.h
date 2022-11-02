@@ -13,10 +13,10 @@ public:
 	FSDeduceAttributeCurveTable();
 
 public:
-	/** 在本模块启动必须先调用的函数; 先注册本窗口 */
+	/** 在本模块启动必须先调用的函数; 先注册本窗口纯UI布局 */
 	void InitLayout();
 
-	//
+	// 注册曲线编辑器数据 并启动标签页
 	void Construct(FDeduceAttributeDataTables& InDeduceAttributeDataTables);
 	//
 	void Construct(FDeduceAttributeData& InDeduceAttributeDataTable);
