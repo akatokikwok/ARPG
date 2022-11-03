@@ -68,6 +68,7 @@ void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeDataTables& InDeduce
 	FGlobalTabmanager::Get()->TryInvokeTab(FSimpleEditorDACTable::DeduceAttributeCurveTableID);
 }
 
+// 注册曲线编辑器数据 并启动标签页
 void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeData& InDeduceAttributeDataTable)
 {
 	DeduceAttributeDataTable = &InDeduceAttributeDataTable;
@@ -77,14 +78,31 @@ void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeData& InDeduceAttrib
 	FGlobalTabmanager::Get()->TryInvokeTab(FSimpleEditorDACTable::DeduceAttributeCurveTableID);
 }
 
-
+/** 帮助开发者生成曲线标签页 */
 TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpawnTabArgs& Args)
 {
+	CurveEditor = MakeShared<FCurveEditor>();
+	CurveEditor->GridLineLabelFormatXAttribute = LOCTEXT("GridXLabelFormat", "{0}");
+
+	// 边界裁剪
+	TUniquePtr<ICurveEditorBounds> EditorBounds = MakeUnique<FStaticCurveEditorBounds>();
+	EditorBounds->SetInputBounds(-1.05, 1.05);
+
+	// SCurveEditorTree资源
+	CurveEditorPanel = SNew(SCurveEditorPanel, CurveEditor.ToSharedRef())
+		.TreeContent()
+		[
+			SNew(SCurveEditorTree, CurveEditor)
+		];
+
+	
 	TSharedRef<SDockTab> NewDockTab = 
 		SNew(SDockTab).Icon(FEditorStyle::GetBrush("CurveAssetEditor.Tabs.Properties"))
 		[
 			SNew(SBorder).BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder")).Padding(0.0f)
-			
+			[
+				CurveEditorPanel.ToSharedRef()
+			]
 		];
 
 	return NewDockTab;

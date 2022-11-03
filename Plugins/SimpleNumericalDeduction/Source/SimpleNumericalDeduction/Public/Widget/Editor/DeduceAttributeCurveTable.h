@@ -25,7 +25,9 @@ public:
 	TSharedRef<SDockTab> SpawnTab_CurveAsset(const FSpawnTabArgs& Args);
 
 private:
+	// 一个UE的曲线编辑器
 	TSharedPtr<FCurveEditor> CurveEditor;
+	// 一个UE的曲线编辑器panel
 	TSharedPtr<SCurveEditorPanel> CurveEditorPanel;
 
 	// 多属性
