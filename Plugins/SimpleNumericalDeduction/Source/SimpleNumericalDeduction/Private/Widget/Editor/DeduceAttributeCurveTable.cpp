@@ -25,7 +25,7 @@ const FName FSimpleEditorDACTable::DeduceAttributeCurveTableID = TEXT("SimpleEdi
 //////////////////////////////////////////////////////////////////////////
 
 /**
- * 各列(Label, Select, Pin)
+ * Curve数据模型的各组成部分(如左半屏的Label, Select, 右半屏曲线上的Pin点)
  */
 struct FSimpleEditorColumnNames
 {
@@ -50,7 +50,7 @@ struct FDACAssetEditorTreeItem : public ICurveEditorTreeItem
 public:
 	// 覆写 构建treewidget的虚方法
 	virtual TSharedPtr<SWidget> GenerateCurveEditorTreeWidget(const FName& InColumnName, TWeakPtr<FCurveEditor> InCurveEditor, FCurveEditorTreeItemID InTreeItemID, const TSharedRef<ITableRow>& TableRow) override;
-	// 覆写 创建曲线的model实例(可以让本treeitem去调用并创建出曲线)
+	// 覆写 创建曲线的model实例(可以让本treeitem去调用并创建出曲线); 本质上而言这个方法是一个提取曲线Model名称 Color属性的过程
 	virtual void CreateCurveModels(TArray<TUniquePtr<FCurveModel>>& OutCurveModels) override;
 private:
 	TWeakObjectPtr<UCurveBase> CurveOwner;// 具体的曲线
@@ -74,6 +74,8 @@ FDACAssetEditorTreeItem::FDACAssetEditorTreeItem(TWeakObjectPtr<UCurveBase> InCu
 /** 覆写 构建treewidget的虚方法 */
 TSharedPtr<SWidget> FDACAssetEditorTreeItem::GenerateCurveEditorTreeWidget(const FName& InColumnName, TWeakPtr<FCurveEditor> InCurveEditor, FCurveEditorTreeItemID InTreeItemID, const TSharedRef<ITableRow>& TableRow)
 {
+	/// 这一块分别是左半屏的Label和右半屏Pin点
+
 	// 按列名称种类划分各自的构造逻辑.
 	if (InColumnName == FSimpleEditorColumnNames::Label) {
 		return SNew(SHorizontalBox)
@@ -208,7 +210,6 @@ TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpa
 				}
 			}
 		}
-
 	}
 
 	TSharedRef<SDockTab> NewDockTab = 
