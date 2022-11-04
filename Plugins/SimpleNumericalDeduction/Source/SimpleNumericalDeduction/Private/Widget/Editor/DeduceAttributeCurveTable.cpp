@@ -50,7 +50,7 @@ struct FDACAssetEditorTreeItem : public ICurveEditorTreeItem
 public:
 	// 覆写 构建treewidget的虚方法
 	virtual TSharedPtr<SWidget> GenerateCurveEditorTreeWidget(const FName& InColumnName, TWeakPtr<FCurveEditor> InCurveEditor, FCurveEditorTreeItemID InTreeItemID, const TSharedRef<ITableRow>& TableRow) override;
-	// 覆写 创建曲线的model
+	// 覆写 创建曲线的model实例(可以让本treeitem去调用并创建出曲线)
 	virtual void CreateCurveModels(TArray<TUniquePtr<FCurveModel>>& OutCurveModels) override;
 private:
 	TWeakObjectPtr<UCurveBase> CurveOwner;// 具体的曲线
@@ -180,7 +180,37 @@ TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpa
 			SNew(SCurveEditorTree, CurveEditor)
 		];
 
-	
+	// 把曲线U对象 New一份
+	if (UNumbericalAlgorithmCurveObject* Curve = NewObject<UNumbericalAlgorithmCurveObject>()) {
+		// 组一份富文本曲线info
+		FRichCurveEditInfo EditInfo;
+		EditInfo.CurveName = TEXT("Hello Curve Name");
+		EditInfo.CurveToEdit = new FRichCurve();
+		EditInfo.CurveToEdit->SetDefaultValue(0.f);
+		EditInfo.CurveToEdit->UpdateOrAddKey(0.f, 1.f);
+		EditInfo.CurveToEdit->UpdateOrAddKey(0.1f, 14.f);
+		EditInfo.CurveToEdit->UpdateOrAddKey(2.f, 15.f);
+		// 该曲线info被添加至数组
+		Curve->AddCurves(EditInfo);
+
+		check(CurveEditor.IsValid());
+		// 若曲线对象本身含有富文本数据, 扫描所有的富文本
+		if (Curve->HasRichCurves()) {
+			for (const FRichCurveEditInfo& CurveData : Curve->GetCurves()) {
+				// 1. 画布上生成1个TreeItem并填充初始化
+				TSharedPtr<FDACAssetEditorTreeItem> TreeItem = MakeShared<FDACAssetEditorTreeItem>(Curve, CurveData);
+				FCurveEditorTreeItem* NewItem = CurveEditor->AddTreeItem(FCurveEditorTreeItemID::Invalid());
+				NewItem->SetStrongItem(TreeItem);
+
+				// 2. 使用上一步加工的TreeItem调用其内部曲线
+				for (const FCurveModelID& CurveModel : NewItem->GetOrCreateCurves(CurveEditor.Get())) {
+					CurveEditor->PinCurve(CurveModel);
+				}
+			}
+		}
+
+	}
+
 	TSharedRef<SDockTab> NewDockTab = 
 		SNew(SDockTab).Icon(FEditorStyle::GetBrush("CurveAssetEditor.Tabs.Properties"))
 		[
