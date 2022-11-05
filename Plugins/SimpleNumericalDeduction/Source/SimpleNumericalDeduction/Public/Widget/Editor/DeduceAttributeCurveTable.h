@@ -30,8 +30,8 @@ private:
 	// 一个UE的曲线编辑器panel
 	TSharedPtr<SCurveEditorPanel> CurveEditorPanel;
 
-	// 多属性
+	// 多属性数据源
 	FDeduceAttributeDataTables* DeduceAttributeDataTables;
-	// 单属性
+	// 单属性数据源
 	FDeduceAttributeData* DeduceAttributeDataTable;
 };

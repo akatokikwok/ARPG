@@ -165,6 +165,20 @@ void FSDeduceAttributeCurveTable::Construct(FDeduceAttributeData& InDeduceAttrib
 	FGlobalTabmanager::Get()->TryInvokeTab(FSimpleEditorDACTable::DeduceAttributeCurveTableID);
 }
 
+/** 为单属性的每个推导值关联曲线的富文本信息 */
+void ConstructDeduceAttribute(FRichCurveEditInfo& InCurveEditInfo, FDeduceAttributeData* InDeduceAttributeData)
+{
+	if (InDeduceAttributeData) {
+		InCurveEditInfo.CurveName = InDeduceAttributeData->Key;// 把诸如名字 血 蓝之类的赋过去
+		InCurveEditInfo.CurveToEdit = new FRichCurve();
+		InCurveEditInfo.CurveToEdit->SetDefaultValue(0.f);
+		// 将每条单属性里的推导值 挨个儿与曲线EditInfo关联
+		for (int32 i = 0; i < InDeduceAttributeData->DeduceValue.Num(); i++) {
+			InCurveEditInfo.CurveToEdit->UpdateOrAddKey(i, FCString::Atof(*InDeduceAttributeData->DeduceValue[i]));
+		}
+	}
+}
+
 /** 帮助开发者生成曲线标签页 */
 TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpawnTabArgs& Args)
 {
@@ -181,26 +195,15 @@ TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpa
 		[
 			SNew(SCurveEditorTree, CurveEditor)
 		];
-
-	// 把曲线U对象 New一份
-	if (UNumbericalAlgorithmCurveObject* Curve = NewObject<UNumbericalAlgorithmCurveObject>()) {
-		// 组一份富文本曲线info
-		FRichCurveEditInfo EditInfo;
-		EditInfo.CurveName = TEXT("Hello Curve Name");
-		EditInfo.CurveToEdit = new FRichCurve();
-		EditInfo.CurveToEdit->SetDefaultValue(0.f);
-		EditInfo.CurveToEdit->UpdateOrAddKey(0.f, 1.f);
-		EditInfo.CurveToEdit->UpdateOrAddKey(0.1f, 14.f);
-		EditInfo.CurveToEdit->UpdateOrAddKey(2.f, 15.f);
-		// 该曲线info被添加至数组
-		Curve->AddCurves(EditInfo);
-
+	
+	/// Lambda封装: 处理单属性或者多属性都使用到的 解析到曲线逻辑
+	auto CreateMyCurves = [&](UNumbericalAlgorithmCurveObject* InCurve) ->void {
 		check(CurveEditor.IsValid());
 		// 若曲线对象本身含有富文本数据, 扫描所有的富文本
-		if (Curve->HasRichCurves()) {
-			for (const FRichCurveEditInfo& CurveData : Curve->GetCurves()) {
+		if (InCurve->HasRichCurves()) {
+			for (const FRichCurveEditInfo& CurveData : InCurve->GetCurves()) {
 				// 1. 画布上生成1个TreeItem并填充初始化
-				TSharedPtr<FDACAssetEditorTreeItem> TreeItem = MakeShared<FDACAssetEditorTreeItem>(Curve, CurveData);
+				TSharedPtr<FDACAssetEditorTreeItem> TreeItem = MakeShared<FDACAssetEditorTreeItem>(InCurve, CurveData);
 				FCurveEditorTreeItem* NewItem = CurveEditor->AddTreeItem(FCurveEditorTreeItemID::Invalid());
 				NewItem->SetStrongItem(TreeItem);
 
@@ -209,6 +212,39 @@ TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpa
 					CurveEditor->PinCurve(CurveModel);
 				}
 			}
+		}
+	};
+
+	/// 生成单个曲线--处理单属性数据
+	if (DeduceAttributeDataTable) {
+		// 把曲线U对象 New一份
+		if (UNumbericalAlgorithmCurveObject* Curve = NewObject<UNumbericalAlgorithmCurveObject>()) {
+			{
+				// 组一份富文本曲线info
+				FRichCurveEditInfo EditInfo;
+				// 为单属性的每个推导值关联曲线的富文本信息
+				::ConstructDeduceAttribute(EditInfo, DeduceAttributeDataTable);
+				// 该曲线info被添加至数组
+				Curve->AddCurves(EditInfo);
+
+				// Lambda解析逻辑调用
+				CreateMyCurves(Curve);
+			}
+		}
+	}
+	/// 生成多个曲线--处理多属性数据
+	else if (DeduceAttributeDataTables) {
+		// 把曲线U对象 New一份
+		if (UNumbericalAlgorithmCurveObject* Curve = NewObject<UNumbericalAlgorithmCurveObject>()) {
+			for (auto& Tmp : DeduceAttributeDataTables->AttributeDatas) {
+				// 组一份富文本曲线info
+				FRichCurveEditInfo EditInfo;
+				::ConstructDeduceAttribute(EditInfo, &Tmp);
+				// 该曲线info被添加至数组
+				Curve->AddCurves(EditInfo);
+			}
+			// Lambda解析逻辑调用
+			CreateMyCurves(Curve);
 		}
 	}
 
@@ -223,6 +259,7 @@ TSharedRef<SDockTab> FSDeduceAttributeCurveTable::SpawnTab_CurveAsset(const FSpa
 
 	return NewDockTab;
 }
+
 #pragma endregion 曲线Table编辑器
 
 #undef LOCTEXT_NAMESPACE
