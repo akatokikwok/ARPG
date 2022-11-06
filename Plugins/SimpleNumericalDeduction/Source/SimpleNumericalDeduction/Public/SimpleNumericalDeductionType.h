@@ -25,11 +25,11 @@ struct SIMPLENUMERICALDEDUCTION_API FNAEParam
 public:
 	// 代表现归属于哪个attribute
 	UPROPERTY(BlueprintReadOnly)
-		FString Key;
+		FString Key;// 代表现归属于哪个attribute
 
 	// 经过指定算法推导(可能有多次迭代)出来的推导值.
 	UPROPERTY(BlueprintReadOnly)
-		float Value;
+		float Value;// 经过指定算法推导(可能有多次迭代)出来的推导值.
 
 	// 迭代次数
 	UPROPERTY(BlueprintReadOnly)
