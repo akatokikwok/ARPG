@@ -6,6 +6,7 @@
 #include "Widget/Slate/SDataTableAttributeTable.h"
 #include "UObject/NumericalAlgorithmExecuteObject.h"
 #include "Misc/FileHelper.h"
+#include "SimpleNumericalDeduction.h"
 #define LOCTEXT_NAMESPACE "SimpleNumericalDeductionWidget"// 定义本地化操作
 
 void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
@@ -77,6 +78,16 @@ void SSimpleNumericalDeductionWidget::Construct(const FArguments& InArgs)
 					.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsGenerateDeduction)
 					.OnClicked(this, &SSimpleNumericalDeductionWidget::GenerateDeduction)
 					.ToolTipText(LOCTEXT("Generate_DeductionTip", "Generate deduction data according to the table."))
+				]
+				// "调试" 推演数据按钮
+				+ SHorizontalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).Padding(4.f, 2.f, 4.f, 2.f).AutoWidth()
+				[
+					SNew(SButton)
+					.Text(LOCTEXT("Debug_Deduction_Deduction", "Debug Deduction Data"))
+					.HAlign(HAlign_Center)
+					.IsEnabled(this, &SSimpleNumericalDeductionWidget::IsDebugDeductionData)
+					.OnClicked(this, &SSimpleNumericalDeductionWidget::DebugDeductionData)
+					.ToolTipText(LOCTEXT("Debug_Deduction_DeductionTip", "Debug deduction deduction data according to the table."))
 				]
 			]
 			// 垂直框内塞入1个 细节面板
@@ -277,6 +288,22 @@ bool SSimpleNumericalDeductionWidget::IsGenerateAttributeTable() const
 	}
 
 	return false;
+}
+
+/** 是否满足调试条件 */
+bool SSimpleNumericalDeductionWidget::IsDebugDeductionData() const
+{
+	return this->IsGenerateDeduction();
+}
+
+/** 调试推演数据 */
+FReply SSimpleNumericalDeductionWidget::DebugDeductionData()
+{
+	// 使用主module生成调试表
+	FSimpleNumericalDeductionModule& SimpleNumericalDeductionModul = FModuleManager::LoadModuleChecked<FSimpleNumericalDeductionModule>("SimpleNumericalDeduction");
+	SimpleNumericalDeductionModul.SpawnDebugDeductionTable();
+
+	return FReply::Handled();
 }
 
 void SSimpleNumericalDeductionWidget::ClearDeductionValue()

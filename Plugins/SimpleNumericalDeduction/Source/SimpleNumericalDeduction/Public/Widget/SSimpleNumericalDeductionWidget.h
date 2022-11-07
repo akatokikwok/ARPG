@@ -31,6 +31,12 @@ public:
 	// 是否满足生成属性表
 	bool IsGenerateAttributeTable()const;
 
+	// 是否允许调试 推演数据
+	bool IsDebugDeductionData()const;
+
+	// 调试 推演数据
+	FReply DebugDeductionData();
+
 private:
 	// 层层清除 所有推导值.
 	void ClearDeductionValue();

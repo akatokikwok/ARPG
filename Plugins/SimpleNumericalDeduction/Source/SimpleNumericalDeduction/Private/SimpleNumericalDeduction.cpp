@@ -97,6 +97,12 @@ void FSimpleNumericalDeductionModule::SpawnAttributeCurveTable(FDeduceAttributeD
 	AttributeCurveTable.Construct(InDeduceAttributeDataTabl);
 }
 
+/** 生成调试表 */
+void FSimpleNumericalDeductionModule::SpawnDebugDeductionTable()
+{
+
+}
+
 void FSimpleNumericalDeductionModule::RegisterMenus()
 {
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner

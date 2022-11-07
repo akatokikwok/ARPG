@@ -31,6 +31,10 @@ public:
 	/** 生成曲线编辑器table, 用单属性 */
 	void SpawnAttributeCurveTable(FDeduceAttributeData& InDeduceAttributeDataTabl);
 
+public:
+	// 生成调试表
+	void SpawnDebugDeductionTable();
+
 private:
 	void RegisterMenus();
 
