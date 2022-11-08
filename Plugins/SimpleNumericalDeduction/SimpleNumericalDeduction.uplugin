@@ -19,6 +19,11 @@
 			"Name": "SimpleNumericalDeduction",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "SimpleNumericalDeductionRuntime",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	]
 }
