@@ -4,6 +4,4 @@
 FDeduceAttributeData::FDeduceAttributeData()
 	: Coefficient(0.f)
 	, BaseAlgorithm(UNumericalAlgorithmExecuteObject::StaticClass())
-{
-
-}
+{}

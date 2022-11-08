@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "SimpleNumericalDeductionType.h"
-#include "..\UObject\NumericalAlgorithmExecuteObject.h"
 #include "SNDObjectSettings.generated.h"
 class UDataTable;
+class UNumericalAlgorithmExecuteObject;
 
 /**
  * 推演用的SND对象

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SimpleNumericalDeductionType.h"
 #include "SNDNumericalBalanceDebugSettings.generated.h"
 
 /**

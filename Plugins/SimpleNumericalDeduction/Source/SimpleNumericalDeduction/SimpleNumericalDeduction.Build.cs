@@ -45,7 +45,8 @@ public class SimpleNumericalDeduction : ModuleRules
 				"SlateCore",
 				"PropertyEditor",
 				"CurveEditor",
-				"EditorStyle"
+				"EditorStyle",
+                "SimpleNumericalDeductionRuntime"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

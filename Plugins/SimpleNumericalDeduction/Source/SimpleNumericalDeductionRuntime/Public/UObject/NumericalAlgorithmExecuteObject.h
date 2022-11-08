@@ -8,7 +8,7 @@ struct FNAEParam;
  * 数值推演算法的对象
  */
 UCLASS(BlueprintType, Blueprintable)
-class SIMPLENUMERICALDEDUCTION_API UNumericalAlgorithmExecuteObject : public UObject
+class SIMPLENUMERICALDEDUCTIONRUNTIME_API UNumericalAlgorithmExecuteObject : public UObject
 {
 	GENERATED_BODY()
 public:
