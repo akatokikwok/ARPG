@@ -1,5 +1,6 @@
 ﻿#include "Widget/Editor/DebugAttributeDeduce.h"
 #include "Log/SimpleNumericalDeductionLog.h"
+#include "Widget/Slate/SDebugDataTableAttributeTable.h"
 
 #define LOCTEXT_NAMESPACE "FDebugAttibuteDeduce"
 
@@ -54,6 +55,9 @@ TSharedRef<SDockTab> FDebugAttibuteDeduce::SpawnTab_DebugSettingWidget(const FSp
 	.Icon(FEditorStyle::GetBrush("CurveAssetEditor.Tabs.Properties"))
 	[
 		SNew(SBorder).BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder")).Padding(0.0f)
+		[
+			SNew(SDebugDataTableAttributeTable)// 视口内 生成一个调试日志系统编辑器
+		]
 		
 	];
 	return NewDockTab;
