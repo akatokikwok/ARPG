@@ -38,6 +38,9 @@ void FSimpleNumericalDeductionModule::StartupModule()
 
 	/** 这一步 初始化 曲线编辑器table的外观与内容布局 */
 	AttributeCurveTable.InitLayout();
+
+	/** 初始化 调试推导数据接口的外观内容布局 */
+	DebugAttributeDeduceTable.InitLayout();
 }
 
 void FSimpleNumericalDeductionModule::ShutdownModule()
@@ -100,7 +103,7 @@ void FSimpleNumericalDeductionModule::SpawnAttributeCurveTable(FDeduceAttributeD
 /** 生成调试表 */
 void FSimpleNumericalDeductionModule::SpawnDebugDeductionTable()
 {
-
+	DebugAttributeDeduceTable.Construct();
 }
 
 void FSimpleNumericalDeductionModule::RegisterMenus()

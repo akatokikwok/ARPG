@@ -6,6 +6,7 @@
 #include "Modules/ModuleManager.h"
 #include "Widget/Editor/DeduceAttributeCurveTable.h"
 #include "SimpleNumericalDeductionType.h"
+#include "Widget/Editor/DebugAttributeDeduce.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -46,4 +47,7 @@ private:
 
 	// 属性曲线Table
 	FSDeduceAttributeCurveTable AttributeCurveTable;
+
+	// 调试推演数据用的 视口
+	FDebugAttibuteDeduce DebugAttributeDeduceTable;
 };

@@ -9,7 +9,9 @@ class FDebugAttibuteDeduce
 {
 public:
 	FDebugAttibuteDeduce();
+	// 初始化视口布局
 	void InitLayout();
+	// 构造调试用的视口
 	void Construct();
 
 public:
