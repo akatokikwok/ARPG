@@ -50,7 +50,10 @@ void SDebugDataTableAttributeTable::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot().FillHeight(1.f).Padding(4.f, 2.f, 4.f, 2.f)
 		[
 			SNew(SScrollBox).Orientation(Orient_Vertical)
-			
+			+ SScrollBox::Slot()
+			[
+				SAssignNew(LogWidget, SSimepleNumbericalDeductionLog)// 生成日志控件
+			]
 		]
 
 		/// 底部的button
@@ -81,13 +84,17 @@ void SDebugDataTableAttributeTable::Construct(const FArguments& InArgs)
 
 FReply SDebugDataTableAttributeTable::SaveAsText()
 {
-
+	if (LogWidget.IsValid()) {
+		LogWidget->SaveAsText();
+	}
 	return FReply::Handled();
 }
 
 FReply SDebugDataTableAttributeTable::ClearLog()
 {
-
+	if (LogWidget.IsValid()) {
+		LogWidget->ClearLog();
+	}
 	return FReply::Handled();
 }
 

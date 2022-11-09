@@ -54,6 +54,7 @@ TSharedRef<SDockTab> FDebugAttibuteDeduce::SpawnTab_DebugSettingWidget(const FSp
 	TSharedRef<SDockTab> NewDockTab = SNew(SDockTab)
 	.Icon(FEditorStyle::GetBrush("CurveAssetEditor.Tabs.Properties"))
 	[
+		/** 这一步让视口去关联调试日志编辑器 */
 		SNew(SBorder).BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder")).Padding(0.0f)
 		[
 			SNew(SDebugDataTableAttributeTable)// 视口内 生成一个调试日志系统编辑器

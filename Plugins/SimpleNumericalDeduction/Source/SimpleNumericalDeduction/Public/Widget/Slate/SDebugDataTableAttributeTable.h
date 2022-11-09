@@ -4,6 +4,8 @@
 #include "SimpleNumericalDeductionType.h"
 #include "Widgets/SCompoundWidget.h"
 
+class SSimepleNumbericalDeductionLog;
+
 /**
  * 调试日志编辑器
  */
@@ -23,5 +25,6 @@ private:
 	FReply Generate();
 
 public:
-
+	// 日志控件
+	TSharedPtr<SSimepleNumbericalDeductionLog> LogWidget;
 };
