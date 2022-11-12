@@ -43,6 +43,14 @@ private:
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
 private:
+	/** 注册当前自定义的数据对象  */
+	void RegisterObjectCustomizations() {};
+	/** 注册当前自定义的属性变量对象 */
+	void RegisterPropertyTypeCustomizations();
+	/** 注册单个变量用的方法 */
+	void RegisterCustomPropertyTypeLayout(FName PropertyTypeName, FOnGetPropertyTypeCustomizationInstance PropertyTypeLayoutDelegate);
+
+private:
 	TSharedPtr<class FUICommandList> PluginCommands;
 
 	// 属性曲线Table
@@ -50,4 +58,9 @@ private:
 
 	// 调试推演数据用的 视口
 	FDebugAttibuteDeduce DebugAttributeDeduceTable;
+
+private:
+	// 存放注册变量的一个容器
+	TSet<FName> RegisteredPropertyTypes;
+
 };

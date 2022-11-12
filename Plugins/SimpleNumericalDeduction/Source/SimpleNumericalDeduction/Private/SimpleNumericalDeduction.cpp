@@ -36,11 +36,20 @@ void FSimpleNumericalDeductionModule::StartupModule()
 		.SetDisplayName(LOCTEXT("FSimpleNumericalDeductionTabTitle", "SimpleNumericalDeduction"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 
+	//////////////////////////////////////////////////////////////////////////
+	// 模块启动时候做的一些任务
+
 	/** 这一步 初始化 曲线编辑器table的外观与内容布局 */
 	AttributeCurveTable.InitLayout();
 
 	/** 初始化 调试推导数据接口的外观内容布局 */
 	DebugAttributeDeduceTable.InitLayout();
+
+	/** 自定义 对象 */
+	this->RegisterObjectCustomizations();
+
+	/** 自定义注册各变量属性 */
+	this->RegisterPropertyTypeCustomizations();
 }
 
 void FSimpleNumericalDeductionModule::ShutdownModule()
@@ -57,6 +66,19 @@ void FSimpleNumericalDeductionModule::ShutdownModule()
 	FSimpleNumericalDeductionCommands::Unregister();
 
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(SimpleNumericalDeductionTabName);
+
+	/** 模块结束后管理的一些卸载任务 */
+	if (FModuleManager::Get().IsModuleLoaded("PropertyEditor")) {
+		FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		// I. 扫描存放注册变量的容器TSet
+		for (auto It = RegisteredPropertyTypes.CreateConstIterator(); It; ++It) {
+			if (It->IsValid()) {
+				PropertyEditorModule.UnregisterCustomPropertyTypeLayout(*It);// 卸载那些个注册变量
+			}
+		}
+		// 通知一下自定义模块被改变
+		PropertyEditorModule.NotifyCustomizationModuleChanged();
+	}
 }
 
 /** 标签页内生成一个数值推演控件 */
@@ -81,6 +103,25 @@ TSharedRef<SDockTab> FSimpleNumericalDeductionModule::OnSpawnPluginTab(const FSp
 				SNew(SSimpleNumericalDeductionWidget)
 			]
 		];
+}
+
+/** 注册当前自定义的属性变量对象 */
+void FSimpleNumericalDeductionModule::RegisterPropertyTypeCustomizations()
+{
+	// 注册单个变量, 需要指定名字和代理
+	this->RegisterCustomPropertyTypeLayout("", FOnGetPropertyTypeCustomizationInstance::CreateStatic());
+}
+
+/** 注册单个变量用的方法, 需要指定名字和代理 */
+void FSimpleNumericalDeductionModule::RegisterCustomPropertyTypeLayout(FName PropertyTypeName, FOnGetPropertyTypeCustomizationInstance PropertyTypeLayoutDelegate)
+{
+	check(PropertyTypeName != NAME_None);
+	// 先把本变量存进容器,方便模块结束后管理销毁.
+	RegisteredPropertyTypes.Add(PropertyTypeName);
+	// 因为需要注册变量, 所以导入虚幻的模块PropertyEditor
+	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	// 使用虚幻模块的API把某种数据结构注册起来
+	PropertyModule.RegisterCustomPropertyTypeLayout(PropertyTypeName, PropertyTypeLayoutDelegate);
 }
 
 void FSimpleNumericalDeductionModule::PluginButtonClicked()
