@@ -10,11 +10,6 @@ void SSimepleNumbericalDeductionLog::Construct(const FArguments& InArgs)
 		SAssignNew(BoxList, SVerticalBox)
 	];
 
-	// 仅测试代码
-	AddLog("Hello0");
-	AddLog("Hello1");
-	AddLog("Hello2");
-	AddLog("Hello3");
 }
 
 void SSimepleNumbericalDeductionLog::AddLog(const FString& InContent)
@@ -25,7 +20,7 @@ void SSimepleNumbericalDeductionLog::AddLog(const FString& InContent)
 void SSimepleNumbericalDeductionLog::AddLog(const FText& InContent)
 {
 	if (BoxList.IsValid()) {
-		BoxList->AddSlot()
+		BoxList->AddSlot().Padding(4.f, 2.f, 4.f, 2.f).HAlign(EHorizontalAlignment::HAlign_Left).AutoHeight()
 		[
 			SNew(SAttributeLogBase, InContent)
 		];
@@ -42,6 +37,17 @@ void SSimepleNumbericalDeductionLog::ClearLog()
 void SSimepleNumbericalDeductionLog::SaveAsText()
 {
 
+}
+
+void SSimepleNumbericalDeductionLog::Generate()
+{
+	// 仅测试代码
+	for (size_t i=0; i < 100; ++i) {
+		AddLog("Hello0");
+		AddLog("Hello1");
+		AddLog("Hello2");
+		AddLog("Hello3");
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -30,6 +30,9 @@ public:
 	//
 	void SaveAsText();
 
+	//
+	void Generate();
+
 public:
 	TSharedPtr<SVerticalBox> BoxList;
 };

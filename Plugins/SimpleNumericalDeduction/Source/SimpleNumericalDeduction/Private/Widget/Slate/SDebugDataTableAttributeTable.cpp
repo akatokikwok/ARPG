@@ -30,7 +30,7 @@ void SDebugDataTableAttributeTable::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-		///
+		/// 用来生成一行行日志的按钮 Generate
 		+ SVerticalBox::Slot().HAlign(EHorizontalAlignment::HAlign_Right).AutoHeight().Padding(4.f, 2.f, 4.f, 2.f)
 		[
 			SNew(SButton)
@@ -100,7 +100,9 @@ FReply SDebugDataTableAttributeTable::ClearLog()
 
 FReply SDebugDataTableAttributeTable::Generate()
 {
-
+	if (LogWidget.IsValid()) {
+		LogWidget->Generate();
+	}
 	return FReply::Handled();
 }
 
