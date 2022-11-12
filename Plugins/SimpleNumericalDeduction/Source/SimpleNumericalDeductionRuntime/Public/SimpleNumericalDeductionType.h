@@ -6,8 +6,11 @@ class UNumericalAlgorithmExecuteObject;
 /**
  * 欲被反射的变量数据结构
  */
+USTRUCT(BlueprintType)
 struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FSimpleSelectString
 {
+	GENERATED_USTRUCT_BODY()
+public:
 	FString String;
 };
 
@@ -29,9 +32,9 @@ struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharacterInfo
 {
 	GENERATED_USTRUCT_BODY()
 public:
-	//
+	// 欲被反射的定义变量
 	UPROPERTY(EditAnywhere)
-		FString Key;
+		FSimpleSelectString Key;
 
 	//
 	UPROPERTY(EditAnywhere)

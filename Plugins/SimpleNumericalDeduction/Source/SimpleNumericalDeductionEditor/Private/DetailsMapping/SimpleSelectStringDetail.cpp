@@ -13,8 +13,16 @@
 */
 void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
-// 	Super::CustomizeHeader(PropertyHandle, HeaderRow, CustomizationUtils);
-
+	HeaderRow
+	.NameContent()
+	[
+		PropertyHandle->CreatePropertyNameWidget()// 先用传入字段自身的名字
+	]
+	.ValueContent().MinDesiredWidth(125.0f).MaxDesiredWidth(325.0f)
+	[
+		// 先测试使用一张图片,之后会更改为下拉框的形式
+		SNew(SImage)
+	];
 }
 
 /**
