@@ -13,7 +13,7 @@
 */
 void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
-	// I. 制作1个builder
+	// I. 制作1个builder; 严格意义上此builder即为一堆属性的载体窗口
 	FMenuBuilder CharacterAttributeModeBuilder(true, nullptr);
 	for (size_t i = 0; i < 10; ++i) {
 		FString HelloStr = TEXT("Hello");
@@ -36,7 +36,16 @@ void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> Prop
 	]
 	.ValueContent().MinDesiredWidth(125.0f).MaxDesiredWidth(325.0f)
 	[
-		CharacterAttributeModeBuilder.MakeWidget()
+		SNew(SComboButton)// 存放1个下拉框
+		.ButtonContent()
+		[
+			SNew(STextBlock)
+			.Text(this, &FSimpleSelectStringDetail::SelectText)
+		]
+		.MenuContent()
+		[
+			CharacterAttributeModeBuilder.MakeWidget()// 把CharacterAttributeModeBuilder构建在HeadRow内
+		]
 	];
 }
 
@@ -62,6 +71,12 @@ TSharedRef<IPropertyTypeCustomization> FSimpleSelectStringDetail::MakeInstance()
 void FSimpleSelectStringDetail::HandleCharacterKey(const FString InKey)
 {
 
+}
+
+//
+FText FSimpleSelectStringDetail::SelectText() const
+{
+	return LOCTEXT("xxx", "xxxx");
 }
 
 #undef LOCTEXT_NAMESPACE

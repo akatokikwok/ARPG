@@ -33,6 +33,9 @@ private:
 	// FUIAction会用到的回调方法.
 	void HandleCharacterKey(const FString InKey);
 
+	//
+	FText SelectText() const;
+
 public:
 	//
 	FText MySelectText;
