@@ -4,6 +4,62 @@
 class UNumericalAlgorithmExecuteObject;
 
 /**
+ * 区分玩家对玩家的行为(如造成伤害、治疗)
+ */
+UENUM(BlueprintType)
+enum class EActionCharacterEventType : uint8
+{
+	DAMAGE_EVENT		UMETA(DisplayName = "Damage"),
+	TREATMENT_EVENT		UMETA(DisplayName = "Treatment"),
+};
+
+/**
+ * 调试日志关联到的玩家信息
+ */
+USTRUCT(BlueprintType)
+struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharacterInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	//
+	UPROPERTY(EditAnywhere)
+		FString Key;
+
+	//
+	UPROPERTY(EditAnywhere)
+		bool bIterationCount;
+
+	// 迭代次数; 不勾选bIterationCount 才会显示本迭代次数
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bIterationCount"))
+		int32 Count;
+};
+
+/**
+ *  调试日志关联到的 多个玩家之间的信息
+ */
+USTRUCT(BlueprintType)
+struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharactersInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	// 测试用的 玩家对战算法
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UNumericalAlgorithmExecuteObject> TestAlgorithmObject;
+
+	// 主动
+	UPROPERTY(EditAnywhere)
+		TArray<FDebugCharacterInfo> CharacterActive;
+
+	// 玩家对玩家的行为
+	UPROPERTY(EditAnywhere)
+		EActionCharacterEventType EventType;
+
+	// 被动
+	UPROPERTY(EditAnywhere)
+		TArray<FDebugCharacterInfo> CharacterPassive;
+};
+
+/**
  * 推演数据的类型
  */
 UENUM(BlueprintType)
