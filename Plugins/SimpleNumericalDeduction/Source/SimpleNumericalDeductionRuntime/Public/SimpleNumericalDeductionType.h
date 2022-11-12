@@ -4,6 +4,14 @@
 class UNumericalAlgorithmExecuteObject;
 
 /**
+ * 欲被反射的变量数据结构
+ */
+struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FSimpleSelectString
+{
+	FString String;
+};
+
+/**
  * 区分玩家对玩家的行为(如造成伤害、治疗)
  */
 UENUM(BlueprintType)

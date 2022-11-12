@@ -9,6 +9,7 @@
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
 #include "Widget/SSimpleNumericalDeductionWidget.h"
+#include "DetailsMapping/SimpleSelectStringDetail.h"
 
 static const FName SimpleNumericalDeductionTabName("SimpleNumericalDeduction");
 
@@ -109,7 +110,9 @@ TSharedRef<SDockTab> FSimpleNumericalDeductionModule::OnSpawnPluginTab(const FSp
 void FSimpleNumericalDeductionModule::RegisterPropertyTypeCustomizations()
 {
 	// 注册单个变量, 需要指定名字和代理
-	this->RegisterCustomPropertyTypeLayout("", FOnGetPropertyTypeCustomizationInstance::CreateStatic());
+	// FSimpleSelectString在Type.h里定义好; FSimpleSelectStringDetail则是 "用于面板映射的一个SelectString结构"
+	this->RegisterCustomPropertyTypeLayout("SimpleSelectString", 
+		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FSimpleSelectStringDetail::MakeInstance));
 }
 
 /** 注册单个变量用的方法, 需要指定名字和代理 */
