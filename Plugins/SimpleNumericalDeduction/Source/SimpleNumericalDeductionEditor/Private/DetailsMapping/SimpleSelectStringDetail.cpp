@@ -13,6 +13,22 @@
 */
 void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
+	// I. 制作1个builder
+	FMenuBuilder CharacterAttributeModeBuilder(true, nullptr);
+	for (size_t i = 0; i < 10; ++i) {
+		FString HelloStr = TEXT("Hello");
+		FUIAction CharacterAction(
+			FExecuteAction::CreateSP(this, &FSimpleSelectStringDetail::HandleCharacterKey, HelloStr)
+		);
+
+		CharacterAttributeModeBuilder.AddMenuEntry(LOCTEXT("Hello", "Hello"),
+			LOCTEXT("HelloTip", "HelloTip"),
+			FSlateIcon(),
+			CharacterAction
+		);
+	}
+
+	// II. 把Builder构建在HeadRow内
 	HeaderRow
 	.NameContent()
 	[
@@ -20,8 +36,7 @@ void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> Prop
 	]
 	.ValueContent().MinDesiredWidth(125.0f).MaxDesiredWidth(325.0f)
 	[
-		// 先测试使用一张图片,之后会更改为下拉框的形式
-		SNew(SImage)
+		CharacterAttributeModeBuilder.MakeWidget()
 	];
 }
 
@@ -41,6 +56,12 @@ void FSimpleSelectStringDetail::CustomizeChildren(TSharedRef<IPropertyHandle> Pr
 TSharedRef<IPropertyTypeCustomization> FSimpleSelectStringDetail::MakeInstance()
 {
 	return MakeShareable(new FSimpleSelectStringDetail());
+}
+
+// FUIAction会用到的回调方法.
+void FSimpleSelectStringDetail::HandleCharacterKey(const FString InKey)
+{
+
 }
 
 #undef LOCTEXT_NAMESPACE

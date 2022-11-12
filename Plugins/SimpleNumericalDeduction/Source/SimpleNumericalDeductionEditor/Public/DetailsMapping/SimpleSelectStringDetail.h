@@ -29,6 +29,10 @@ public:
 	/** 获取面板映射实例化 */
 	static TSharedRef<IPropertyTypeCustomization> MakeInstance();
 
+private:
+	// FUIAction会用到的回调方法.
+	void HandleCharacterKey(const FString InKey);
+
 public:
 	//
 	FText MySelectText;
