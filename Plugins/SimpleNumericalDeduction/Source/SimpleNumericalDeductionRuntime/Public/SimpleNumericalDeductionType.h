@@ -11,7 +11,15 @@ struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FSimpleSelectString
 {
 	GENERATED_USTRUCT_BODY()
 public:
-	FString String;
+	FSimpleSelectString();
+
+public:
+	UPROPERTY(EditAnywhere)
+		FString String;
+
+	// 下拉菜单的string
+	UPROPERTY(EditAnywhere)
+		TArray<FString> SelectStrings;
 };
 
 /**
