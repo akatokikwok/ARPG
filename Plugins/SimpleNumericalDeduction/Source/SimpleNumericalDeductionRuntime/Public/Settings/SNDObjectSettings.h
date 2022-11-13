@@ -9,7 +9,7 @@ class UNumericalAlgorithmExecuteObject;
  * 推演用的SND对象
  */
 UCLASS(config = SNDObjectSettings)
-class USNDObjectSettings : public UObject
+class SIMPLENUMERICALDEDUCTIONRUNTIME_API USNDObjectSettings : public UObject
 {
 	GENERATED_BODY()
 public:

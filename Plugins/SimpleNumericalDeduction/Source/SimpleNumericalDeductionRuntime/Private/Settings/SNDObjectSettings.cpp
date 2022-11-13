@@ -1,4 +1,7 @@
 ﻿#include "Settings/SNDObjectSettings.h"
+#include "HAL/PlatformFilemanager.h"
+#include "Engine/DataTable.h"
+#include "DataTableUtils.h"
 
 USNDObjectSettings::USNDObjectSettings()
 	: BaseTable(nullptr)
