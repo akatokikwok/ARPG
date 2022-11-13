@@ -16,6 +16,9 @@ void FSimpleSelectStringDetail::CustomizeHeader(TSharedRef<IPropertyHandle> Prop
 	// I. 制作1个builder; 严格意义上此builder即为一堆属性的载体窗口
 	FMenuBuilder CharacterAttributeModeBuilder(true, nullptr);
 
+	// 0. 拿到Key
+	SelectKey = PropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FSimpleSelectString, SelectString));
+
 	/** 先检测下拉菜单变量的handle; 下拉菜单里关联的SelectStrings是主角、配角、蘑菇怪的表名 */
 	if (TSharedPtr<IPropertyHandle> StringsArrayPropertyHandle = 
 			PropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(FSimpleSelectString, SelectStrings))) {
@@ -89,16 +92,19 @@ TSharedRef<IPropertyTypeCustomization> FSimpleSelectStringDetail::MakeInstance()
 	return MakeShareable(new FSimpleSelectStringDetail());
 }
 
-// FUIAction会用到的回调方法.
+// 点击下拉菜单内表名元素的时候的回调方法,会把表名传入
 void FSimpleSelectStringDetail::HandleCharacterKey(const FString InKey)
 {
-
+	MySelectText = FText::FromString(InKey);
+	if (SelectKey.IsValid()) {
+		SelectKey->SetValueFromFormattedString(InKey);
+	}
 }
 
 //
 FText FSimpleSelectStringDetail::SelectText() const
 {
-	return LOCTEXT("xxx", "xxxx");
+	return MySelectText;
 }
 
 #undef LOCTEXT_NAMESPACE

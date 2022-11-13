@@ -14,8 +14,9 @@ public:
 	FSimpleSelectString();
 
 public:
+	// 需要被写入的Key
 	UPROPERTY(EditAnywhere)
-		FString String;
+		FString SelectString;
 
 	// 下拉菜单的string
 	UPROPERTY(EditAnywhere)

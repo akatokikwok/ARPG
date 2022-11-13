@@ -30,14 +30,14 @@ public:
 	static TSharedRef<IPropertyTypeCustomization> MakeInstance();
 
 private:
-	// FUIAction会用到的回调方法.
+	// 点击下拉菜单内表名元素的时候的回调方法,会把表名传入
 	void HandleCharacterKey(const FString InKey);
 
 	//
 	FText SelectText() const;
 
 public:
-	//
+	// 下拉框内选中的元素名字.(如主角、配角、蘑菇怪)
 	FText MySelectText;
 	
 	//
