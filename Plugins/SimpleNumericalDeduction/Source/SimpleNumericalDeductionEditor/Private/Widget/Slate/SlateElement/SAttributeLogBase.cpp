@@ -1,6 +1,6 @@
 ﻿#include "Widget/Slate/SlateElement/SAttributeLogBase.h"
 
-void SAttributeLogBase::Construct(const FArguments& InArgs, const FText& InText)
+void SAttributeLogBase::Construct(const FArguments& InArgs, const FSimplePreDebugPrintf& InMyLog)
 {
 	ChildSlot
 	[
@@ -8,8 +8,7 @@ void SAttributeLogBase::Construct(const FArguments& InArgs, const FText& InText)
 		+ SHorizontalBox::Slot().AutoWidth()
 		[
 			SNew(STextBlock)
-			.Text(InText)
-			.ColorAndOpacity(FSlateColor(FLinearColor::Blue))
+			
 		]
 // 		+ SHorizontalBox::Slot().AutoWidth()
 // 		[

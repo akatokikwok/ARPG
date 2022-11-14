@@ -4,6 +4,39 @@
 class UNumericalAlgorithmExecuteObject;
 
 /**
+ * 预打印日志行
+ */
+struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FSimplePreDebugPrintf
+{
+	FString CharacterNameActive;
+	FString CharacterNamePassive;
+	FString EventString;
+	FString Value;
+};
+
+/**
+ * 管理预打印日志的类
+ */
+struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugPrintfLogContainer
+{
+public:
+	void Add(
+		const FString& InCharacterNameActive,
+		const FString& InCharacterNamePassive,
+		const FString& InEventString,
+		const FString& InValue);
+
+	void Pop(FSimplePreDebugPrintf& Out);
+
+	bool IsPop();
+
+private:
+	TArray<FSimplePreDebugPrintf> Logs;
+};
+
+// FDebugPrintfLogContainer LogContainer;
+
+/**
  * 欲被反射的变量数据结构
  */
 USTRUCT(BlueprintType)

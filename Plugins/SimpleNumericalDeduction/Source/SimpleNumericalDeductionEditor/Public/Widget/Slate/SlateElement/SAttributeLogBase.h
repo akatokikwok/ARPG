@@ -15,5 +15,6 @@ public:
 	SLATE_END_ARGS()
 
 public:
-	void Construct(const FArguments& InArgs, const FText& InMyLog);
+	// 构造器内需要一个预打印日志行
+	void Construct(const FArguments& InArgs, const FSimplePreDebugPrintf& InMyLog);
 };

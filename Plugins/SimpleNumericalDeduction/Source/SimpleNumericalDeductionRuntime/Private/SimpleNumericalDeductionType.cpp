@@ -16,3 +16,22 @@ FSimpleSelectString::FSimpleSelectString()
 		}
 	}
 }
+
+void FDebugPrintfLogContainer::Add(const FString& InCharacterNameActive, const FString& InCharacterNamePassive, const FString& InEventString, const FString& InValue)
+{
+	FSimplePreDebugPrintf& InLog = Logs.AddDefaulted_GetRef();
+	InLog.CharacterNameActive = InCharacterNameActive;
+	InLog.CharacterNamePassive = InCharacterNamePassive;
+	InLog.EventString = InEventString;
+	InLog.Value = InValue;
+}
+
+void FDebugPrintfLogContainer::Pop(FSimplePreDebugPrintf& Out)
+{
+	Out = Logs.Pop();
+}
+
+bool FDebugPrintfLogContainer::IsPop()
+{
+	return Logs.Num() != 0;
+}
