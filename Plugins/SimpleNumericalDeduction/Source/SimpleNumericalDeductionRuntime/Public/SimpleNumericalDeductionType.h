@@ -47,13 +47,13 @@ public:
 	FSimpleSelectString();
 
 public:
-	// 需要被写入的Key
+	// 需要被写入的Key(表名)
 	UPROPERTY(EditAnywhere)
-		FString SelectString;
+		FString SelectString;// 需要被写入的Key(表名)
 
 	// 下拉菜单的string
 	UPROPERTY(EditAnywhere)
-		TArray<FString> SelectStrings;
+		TArray<FString> SelectStrings;// 下拉菜单的string
 };
 
 /**
