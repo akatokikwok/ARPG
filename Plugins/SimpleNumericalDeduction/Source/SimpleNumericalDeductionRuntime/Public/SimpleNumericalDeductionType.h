@@ -34,7 +34,7 @@ private:
 	TArray<FSimplePreDebugPrintf> Logs;
 };
 
-// FDebugPrintfLogContainer LogContainer;
+// SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugPrintfLogContainer LogContainer;
 
 /**
  * 欲被反射的变量数据结构

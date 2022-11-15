@@ -39,7 +39,7 @@ void SSimepleNumbericalDeductionLog::AddLog(const FSimplePreDebugPrintf& MyLog)
 	if (BoxList.IsValid()) {
 		BoxList->AddSlot().Padding(4.f, 2.f, 4.f, 2.f).HAlign(EHorizontalAlignment::HAlign_Left).AutoHeight()
 		[
-			SNew(SAttributeLogBase, MyLog)
+			SNew(SAttributeLogBase, MyLog)// 槽位里写入1个日志行
 		];
 	}
 }
@@ -59,12 +59,15 @@ void SSimepleNumbericalDeductionLog::SaveAsText()
 void SSimepleNumbericalDeductionLog::Generate()
 {
 // 	// 仅测试代码
-// 	for (size_t i=0; i < 100; ++i) {
-// 		AddLog("Hello0");
-// 		AddLog("Hello1");
-// 		AddLog("Hello2");
-// 		AddLog("Hello3");
-// 	}
+	for (size_t i = 0; i < 100; ++i) {
+		FSimplePreDebugPrintf PrintfLog;
+		PrintfLog.CharacterNameActive = TEXT("小明");
+		PrintfLog.CharacterNamePassive = TEXT("小王");
+		PrintfLog.EventString = TEXT("造成伤害");
+		PrintfLog.Value = TEXT("2000");
+
+		AddLog(PrintfLog);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
