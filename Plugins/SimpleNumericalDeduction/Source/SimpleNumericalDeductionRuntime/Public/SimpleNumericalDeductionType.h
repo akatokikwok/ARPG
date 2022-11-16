@@ -85,6 +85,9 @@ public:
 	// 迭代次数; 不勾选bIterationCount 才会显示本迭代次数
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bIterationCount"))
 		int32 Count;
+
+	UPROPERTY(EditAnywhere)
+		int32 Level;// 玩家等级
 };
 
 /**
@@ -97,7 +100,7 @@ struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharactersInfo
 public:
 	// 测试用的 玩家对战算法
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<UNumericalAlgorithmExecuteObject> TestAlgorithmObject;
+		TSubclassOf<UNumericalAlgorithmExecuteObject> TestAlgorithmObject;// 测试用的 玩家对战算法
 
 	// 主动
 	UPROPERTY(EditAnywhere)

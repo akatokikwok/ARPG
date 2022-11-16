@@ -72,8 +72,8 @@ void SSimepleNumbericalDeductionLog::Generate()
 // 	}
 	
 	if (const USNDObjectSettings* SNDObjectSettings = GetDefault<USNDObjectSettings>()) {
-
-		// 寻找感兴趣的 某张Table下的所有属性数据
+		
+		/** 寻找感兴趣的 某张Table下的所有属性数据 */
 		auto FindData = [&](const FString& InKey) ->const TArray<FDeduceAttributeData>* {
 			for (auto& Tmp : SNDObjectSettings->AttributeDatas) {
 				if (Tmp.TableName.ToString() == InKey) {
@@ -88,19 +88,44 @@ void SSimepleNumbericalDeductionLog::Generate()
 		if (const USNDNumericalBalanceDebugSettings* SNDNumericalBalanceDebugSettings = GetDefault<USNDNumericalBalanceDebugSettings>()) {
 			
 			// 扫描任意玩家间的交互活动
-			for (auto& Tmp : SNDNumericalBalanceDebugSettings->DebugCharactersInfo) {
-				for (auto& TmpActive : Tmp.CharacterActive) {
-					// 扫描单个发起者对接受者的行为
-					for (auto& TmpPassive : Tmp.CharacterPassive) {
+			for (auto& TmpCharsInfo : SNDNumericalBalanceDebugSettings->DebugCharactersInfo) {
+				for (auto& TmpActive : TmpCharsInfo.CharacterActive) {
+					for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {
 						
 						if (true) {
+							if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {// 主动玩家表下的所有属性数据
+								if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
+									
+									/** Lambda: 寻找对应等级下的某条属性数据 */
+									auto GetSpecifyLevelData = [](
+										int32 InLv, /*等级*/
+										const TArray<FDeduceAttributeData>* InDeduceAttributeDatas, /*所有属性集*/
+										const FDebugCharacterInfo& InDebugCharacterInfo, /*关联玩家的日志数据*/
+										TMap<FName, float>& OutLvData) /*被填充的<属性名, 推导值>容器*/
+										->void 
+									{
+										if (!InDebugCharacterInfo.bIterationCount) {// 不勾选bIterationCount 才会显示本迭代次数
+											for (auto& TmpActiveData : *InDeduceAttributeDatas) {
+												if (TmpActiveData.DeduceValue.IsValidIndex(InLv)) {
+													OutLvData.Add(TmpActiveData.Key, FCString::Atof(*TmpActiveData.DeduceValue[InLv - 1]));
+												}
+												else {
+													return;
+												}
+											}
+										}
+									};
 
-							if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {
-								// 拿到主动方的对象数据与承受方的对象数据
-								if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {
 									TMap<FName, float> LvActiveData;
-
+									GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
 									TMap<FName, float> LvPassiveData;
+									GetSpecifyLevelData(TmpPassive.Level, Passive, TmpPassive, LvPassiveData);
+
+									/** 模拟策略 */
+									if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(TmpCharsInfo.TestAlgorithmObject->GetDefaultObject())) {
+									
+									}
+
 								}
 							}
 						}

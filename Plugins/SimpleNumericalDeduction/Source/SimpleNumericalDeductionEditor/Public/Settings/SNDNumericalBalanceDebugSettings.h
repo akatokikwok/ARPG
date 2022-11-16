@@ -19,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		bool bIterationLevel;
 
-	// 调试多个玩家之间相互作用
+	// 各条玩家对玩家的行为日志信息
 	UPROPERTY(EditAnywhere, Category = "NumericalDeductionNumericalBalanceDebug", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
-		TArray<FDebugCharactersInfo> DebugCharactersInfo;
+		TArray<FDebugCharactersInfo> DebugCharactersInfo;// 各条玩家对玩家的行为日志信息
 };
