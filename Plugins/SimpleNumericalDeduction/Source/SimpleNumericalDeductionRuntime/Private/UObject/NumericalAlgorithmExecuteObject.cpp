@@ -14,3 +14,13 @@ FString UNumericalAlgorithmExecuteObject::GetStringAlgorithmValue(const FNAEPara
 {
 	return K2_GetAlgorithmValue_String(InParam);
 }
+
+float UNumericalAlgorithmExecuteObject::GetDamageAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData)
+{
+	return K2_GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
+}
+
+float UNumericalAlgorithmExecuteObject::GetTreatmentAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData)
+{
+	return K2_GetTreatmentAlgorithmValue(InLvActiveData, InLvPassiveData);
+}

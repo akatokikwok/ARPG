@@ -17,6 +17,12 @@ public:
 	virtual int32 GetInt32AlgorithmValue(const FNAEParam& InParam);
 	virtual FString GetStringAlgorithmValue(const FNAEParam& InParam);
 
+	/** 计算主动玩家对被动玩家的伤害值 */
+	virtual float GetDamageAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData);
+
+	/** 计算主动玩家对被动玩家的治疗值 */
+	virtual float GetTreatmentAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData);
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "AlgorithmValue", meta = (DisplayName = "GetFloatAlgorithmValue"))
 		float K2_GetAlgorithmValue_Float(const FNAEParam& InParam);
@@ -29,4 +35,14 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "AlgorithmValue", meta = (DisplayName = "GetStringAlgorithmValue"))
 		FString K2_GetAlgorithmValue_String(const FNAEParam& InParam);
 	FString K2_GetAlgorithmValue_String_Implementation(const FNAEParam& InParam) { return TEXT(""); };
+
+	// 伤害
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "AlgorithmValue", meta = (DisplayName = "GetDamageAlgorithmValue"))
+		float K2_GetDamageAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData);
+	float K2_GetDamageAlgorithmValue_Implementation(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData) { return 0.f; };
+
+	// 治疗
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "AlgorithmValue", meta = (DisplayName = "GetTreatmentAlgorithmValue"))
+		float K2_GetTreatmentAlgorithmValue(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData);
+	float K2_GetTreatmentAlgorithmValue_Implementation(const TMap<FName, float>& InLvActiveData, const TMap<FName, float>& InLvPassiveData) { return 0.f; };
 };

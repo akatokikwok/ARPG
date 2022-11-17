@@ -30,6 +30,7 @@ public class MMOARPG : ModuleRules
 			"SimpleDrawText",
 			"AIModule",
 			"SimpleHotUpdate",
-        });
+			"SimpleNumericalDeductionRuntime"
+		});
 	}
 }
