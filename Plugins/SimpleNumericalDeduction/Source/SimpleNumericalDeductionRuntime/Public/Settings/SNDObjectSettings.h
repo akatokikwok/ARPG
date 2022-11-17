@@ -41,11 +41,11 @@ public:
  		TArray<TSubclassOf<UNumericalAlgorithmExecuteObject>> NumericalAlgorithmExecuteObjects;// 算法模板
 
 	// 总控制系数
-	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
+	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "总控制系数, 设为0则不启用总控制系数"))
 		float Coefficient;// 总控制系数
 
 	// 各自的系数
-	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "This content is version base, which is used for automatic iteration."))
+	UPROPERTY(config, EditAnywhere, Category = "Coefficient", meta = (ToolTip = "当且仅当总控制系数设为0, 才启用各自系数"))
 		TArray<float> Coefficients;// 各自的系数
 
 public:

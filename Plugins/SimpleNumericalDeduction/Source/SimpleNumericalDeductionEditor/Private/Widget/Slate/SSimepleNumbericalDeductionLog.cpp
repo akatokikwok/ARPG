@@ -3,6 +3,7 @@
 #include "Log/SimpleNumericalDeductionLog.h"
 #include "Settings/SNDObjectSettings.h"
 #include "Settings/SNDNumericalBalanceDebugSettings.h"
+#include "UObject/NumericalAlgorithmExecuteObject.h"
 
 #define LOCTEXT_NAMESPACE "SSimepleNumbericalDeductionLog"
 
@@ -116,6 +117,7 @@ void SSimepleNumbericalDeductionLog::Generate()
 										}
 									};
 
+									/** 收集主动玩家与被动玩家的数据*/
 									TMap<FName, float> LvActiveData;
 									GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
 									TMap<FName, float> LvPassiveData;
@@ -123,9 +125,16 @@ void SSimepleNumbericalDeductionLog::Generate()
 
 									/** 模拟策略 */
 									if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(TmpCharsInfo.TestAlgorithmObject->GetDefaultObject())) {
-									
-									}
 
+										/* 测试代码, 测试一下伤害值日志打印*/
+										float InValue = InObject->GetDamageAlgorithmValue(LvActiveData, LvPassiveData);
+										FSimplePreDebugPrintf PrintfLog;
+										PrintfLog.CharacterNameActive = TmpActive.Key.SelectString;
+										PrintfLog.CharacterNamePassive = TmpPassive.Key.SelectString;
+										PrintfLog.EventString = TEXT("--造成伤害--");
+										PrintfLog.Value = FString::SanitizeFloat(InValue);
+										AddLog(PrintfLog);
+									}
 								}
 							}
 						}
