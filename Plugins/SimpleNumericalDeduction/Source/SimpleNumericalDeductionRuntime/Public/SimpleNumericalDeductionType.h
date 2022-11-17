@@ -57,6 +57,17 @@ public:
 };
 
 /**
+ * 描述日志信息关于玩家等级的打印策略
+ */
+UENUM(BlueprintType)
+enum class EIterativeDebugPrintMethod :uint8
+{
+	ONE_TO_MANY_METHOD		UMETA(DisplayName = "1->N"),// 1对多
+	MANY_TO_MANY_METHOD		UMETA(DisplayName = "N->N"),// 同步升级
+	MANY_TO_ONCE_METHOD		UMETA(DisplayName = "N->1"),// 多对1
+};
+
+/**
  * 区分玩家对玩家的行为(如造成伤害、治疗)
  */
 UENUM(BlueprintType)
@@ -80,14 +91,10 @@ public:
 
 	//
 	UPROPERTY(EditAnywhere)
-		bool bIterationCount;
-
-	// 迭代次数; 不勾选bIterationCount 才会显示本迭代次数
-	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bIterationCount"))
-		int32 Count;
+		bool bIterationCount;// 是否允许启用迭代
 
 	UPROPERTY(EditAnywhere)
-		int32 Level;// 玩家等级
+		int32 Level;// 玩家等级, 不勾选bIterationCount 才会显示本迭代次数
 };
 
 /**
