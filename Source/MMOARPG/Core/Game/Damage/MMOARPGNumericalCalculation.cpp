@@ -12,6 +12,6 @@ namespace MMOARPGNumericalCalculation
 		float PhysicsAttackDamage = ActivePhysicsAttack * (100 / (100 + PassivePhysicsDefense));
 		float MagicAttackDamage = ActiveMagicAttack * (100 / (100 + PassiveMagicDefense));
 
-		return PhysicsAttackDamage + MagicAttackDamage + DamageBase;
+		return PhysicsAttackDamage + MagicAttackDamage + DamageBase;// 把基础伤害DamageBase也计入
 	}
 }

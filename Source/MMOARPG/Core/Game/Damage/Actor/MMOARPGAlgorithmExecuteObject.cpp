@@ -76,14 +76,13 @@ float UMMOARPGAlgorithmExecuteObject::GetDamageAlgorithmValue(const TMap<FName, 
 				if (const float* InPassivePhysicsDefense = InLvPassiveData.Find(TEXT("PhysicsDefense"))) {
 
 					if (const float* InDamageBase = InLvPassiveData.Find(TEXT("DamageBase"))) {
+						ActivePhysicsAttack = *InActivePhysicsAttack;
+						ActiveMagicAttack = *InActiveMagicAttack;
+						PassiveMagicDefense = *InPassiveMagicDefense;
+						PassivePhysicsDefense = *InPassivePhysicsDefense;
 
 						DamageBase = *InDamageBase;
 					}
-
-					ActivePhysicsAttack = *InActivePhysicsAttack;
-					ActiveMagicAttack = *InActiveMagicAttack;
-					PassiveMagicDefense = *InPassiveMagicDefense;
-					PassivePhysicsDefense = *InPassivePhysicsDefense;
 					
 				}
 				else {

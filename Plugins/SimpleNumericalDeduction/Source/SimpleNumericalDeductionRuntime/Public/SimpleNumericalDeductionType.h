@@ -58,6 +58,7 @@ public:
 
 /**
  * 描述日志信息关于玩家等级的打印策略
+ * N指向哪个玩家,哪个玩家等级将失效
  */
 UENUM(BlueprintType)
 enum class EIterativeDebugPrintMethod :uint8
@@ -87,12 +88,9 @@ struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharacterInfo
 public:
 	// 欲被反射的定义变量
 	UPROPERTY(EditAnywhere)
-		FSimpleSelectString Key;
+		FSimpleSelectString Key;// 欲被反射的定义变量,表名
 
-	//
-	UPROPERTY(EditAnywhere)
-		bool bIterationCount;// 是否允许启用迭代
-
+	// 玩家等级, 不勾选bIterationCount 才会显示本迭代次数
 	UPROPERTY(EditAnywhere)
 		int32 Level;// 玩家等级, 不勾选bIterationCount 才会显示本迭代次数
 };

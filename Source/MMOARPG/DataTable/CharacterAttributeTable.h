@@ -22,6 +22,9 @@ public:
 		int32 ID;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		int32 Level;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		float Health;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
@@ -44,6 +47,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		float MaxEmpiricalValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float DamageBase;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float ExperienceReward;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> SkillTags;

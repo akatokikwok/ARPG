@@ -105,14 +105,13 @@ void SSimepleNumbericalDeductionLog::Generate()
 										TMap<FName, float>& OutLvData) /*被填充的<属性名, 推导值>容器*/
 										->void 
 									{
-										if (!InDebugCharacterInfo.bIterationCount) {// 不勾选bIterationCount 才会显示本迭代次数
-											for (auto& TmpActiveData : *InDeduceAttributeDatas) {
-												if (TmpActiveData.DeduceValue.IsValidIndex(InLv)) {
-													OutLvData.Add(TmpActiveData.Key, FCString::Atof(*TmpActiveData.DeduceValue[InLv - 1]));
-												}
-												else {
-													return;
-												}
+										int32 Lv = InDebugCharacterInfo.Level;
+										for (auto& TmpActiveData : *InDeduceAttributeDatas) {
+											if (TmpActiveData.DeduceValue.IsValidIndex(Lv)) {
+												OutLvData.Add(TmpActiveData.Key, FCString::Atof(*TmpActiveData.DeduceValue[Lv - 1]));
+											}
+											else {
+												return;
 											}
 										}
 									};
