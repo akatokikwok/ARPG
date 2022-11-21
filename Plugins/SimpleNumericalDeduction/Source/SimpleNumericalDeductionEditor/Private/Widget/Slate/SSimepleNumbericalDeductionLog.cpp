@@ -105,39 +105,26 @@ void SSimepleNumbericalDeductionLog::Generate()
 		/** 3. 模拟计算并打印日志行 */
 		auto SimulationCalculation = [&](
 			TSubclassOf<UNumericalAlgorithmExecuteObject> InTestAlgorithmObject,/*指定1个数值推导算法*/
-			const FString& InActiveCharacterName,
-			const FString& InPassiveCharacterName,
-			EActionCharacterEventType EventType,
-			const TMap<FName, float>& InLvActiveData,
-			const TMap<FName, float>& InLvPassiveData) ->void
+			const FString& InActiveCharacterName,/*主动玩家日志信息名字*/
+			const FString& InPassiveCharacterName,/*被动玩家日志信息名字*/
+			EActionCharacterEventType EventType,/*玩家对玩家的事件类型*/
+			const TMap<FName, float>& InLvActiveData,/*收集到的主动玩家数据*/
+			const TMap<FName, float>& InLvPassiveData) /*收集到的被动玩家数据*/
+			->void
 		{
+			// 拿取数值算法对象.
 			if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(InTestAlgorithmObject->GetDefaultObject())) {
-
-				/* 测试代码, 测试一下伤害值日志打印*/
-				float InValue = InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
-				FSimplePreDebugPrintf PrintfLog;
-				PrintfLog.CharacterNameActive = TmpActive.Key.SelectString;
-				PrintfLog.CharacterNamePassive = TmpPassive.Key.SelectString;
-				PrintfLog.EventString = TEXT("--造成伤害--");
-				PrintfLog.Value = FString::SanitizeFloat(InValue);
-				AddLog(PrintfLog);
-			}
-
-
-
-			if (UNumericalAlgorithmExecuteObject* InObject =
-				Cast<UNumericalAlgorithmExecuteObject>(InTestAlgorithmObject->GetDefaultObject())) {
-				auto GetEventTypeString = [](EActionCharacterEventType InEventType)->FString {
+				// 获取玩家对玩家的事件类型
+				auto GetEventTypeString = [](EActionCharacterEventType InEventType) ->FString {
 					switch (InEventType) {
 						case EActionCharacterEventType::DAMAGE_EVENT:
 							return TEXT("--造成伤害--");
 						case EActionCharacterEventType::TREATMENT_EVENT:
 							return TEXT("--提供治疗--");
 					}
-
 					return TEXT("-出错-");
 				};
-
+				// 获取行为造成的数值
 				auto GetEventTypeValue = [&](EActionCharacterEventType InEventType)->float {
 					switch (InEventType) {
 						case EActionCharacterEventType::DAMAGE_EVENT:
@@ -145,19 +132,16 @@ void SSimepleNumbericalDeductionLog::Generate()
 						case EActionCharacterEventType::TREATMENT_EVENT:
 							return InObject->GetTreatmentAlgorithmValue(InLvActiveData, InLvPassiveData);
 					}
-
 					return 0.f;
 				};
 
-				int32 ActiveLevel = GetValueFromMap(TEXT("Level"), InLvActiveData);
-				int32 PassiveLevel = GetValueFromMap(TEXT("Level"), InLvPassiveData);
-
+				/* 测试代码, 测试一下伤害值日志打印*/
+				float InValue = InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
 				FSimplePreDebugPrintf PrintfLog;
-				PrintfLog.CharacterNameActive = FString::Printf(TEXT("Lv %i %s"), ActiveLevel, *InActiveCharacterName);
-				PrintfLog.CharacterNamePassive = FString::Printf(TEXT("Lv %i %s"), PassiveLevel, *InPassiveCharacterName);
+				PrintfLog.CharacterNameActive = InActiveCharacterName;
+				PrintfLog.CharacterNamePassive = InPassiveCharacterName;
 				PrintfLog.EventString = GetEventTypeString(EventType);
 				PrintfLog.Value = FString::Printf(TEXT("[%.2f]"), GetEventTypeValue(EventType));
-
 				AddLog(PrintfLog);
 			}
 		};
