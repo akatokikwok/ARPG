@@ -4,6 +4,7 @@
 #include "Settings/SNDObjectSettings.h"
 #include "Settings/SNDNumericalBalanceDebugSettings.h"
 #include "UObject/NumericalAlgorithmExecuteObject.h"
+#include "SimpleNumericalDeductionType.h"
 
 #define LOCTEXT_NAMESPACE "SSimepleNumbericalDeductionLog"
 
@@ -72,9 +73,9 @@ void SSimepleNumbericalDeductionLog::Generate()
 // 		AddLog(PrintfLog);
 // 	}
 	
-	if (const USNDObjectSettings* SNDObjectSettings = GetDefault<USNDObjectSettings>()) {
+	if (const USNDObjectSettings* SNDObjectSettings = GetDefault<USNDObjectSettings>()) {// SNDObjectSettings
 		
-		/** 寻找感兴趣的 某张Table下的所有属性数据 */
+		/** 1. 寻找感兴趣的 某张Table下的所有属性数据 */
 		auto FindData = [&](const FString& InKey) ->const TArray<FDeduceAttributeData>* {
 			for (auto& Tmp : SNDObjectSettings->AttributeDatas) {
 				if (Tmp.TableName.ToString() == InKey) {
@@ -84,37 +85,97 @@ void SSimepleNumbericalDeductionLog::Generate()
 			return nullptr;
 		};
 
+		/** 2. Lambda: 寻找某ID某个人物对应等级下的某条属性数据 */
+		auto GetSpecifyLevelData = [](
+			int32 InLv, /*等级*/
+			const TArray<FDeduceAttributeData>* InDeduceAttributeDatas, /*所有属性集*/
+			const FDebugCharacterInfo& InDebugCharacterInfo, /*关联玩家的日志数据*/
+			TMap<FName, float>& OutLvData) /*被填充的<属性名, 推导值>容器*/
+			->void {
+			for (auto& TmpActiveData : *InDeduceAttributeDatas) {
+				if (TmpActiveData.DeduceValue.IsValidIndex(InLv)) {
+					OutLvData.Add(TmpActiveData.Key, FCString::Atof(*TmpActiveData.DeduceValue[InLv - 1]));
+				}
+				else {
+					return;
+				}
+			}
+		};
+
+		/** 3. 模拟计算并打印日志行 */
+		auto SimulationCalculation = [&](
+			TSubclassOf<UNumericalAlgorithmExecuteObject> InTestAlgorithmObject,/*指定1个数值推导算法*/
+			const FString& InActiveCharacterName,
+			const FString& InPassiveCharacterName,
+			EActionCharacterEventType EventType,
+			const TMap<FName, float>& InLvActiveData,
+			const TMap<FName, float>& InLvPassiveData) ->void
+		{
+			if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(InTestAlgorithmObject->GetDefaultObject())) {
+
+				/* 测试代码, 测试一下伤害值日志打印*/
+				float InValue = InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
+				FSimplePreDebugPrintf PrintfLog;
+				PrintfLog.CharacterNameActive = TmpActive.Key.SelectString;
+				PrintfLog.CharacterNamePassive = TmpPassive.Key.SelectString;
+				PrintfLog.EventString = TEXT("--造成伤害--");
+				PrintfLog.Value = FString::SanitizeFloat(InValue);
+				AddLog(PrintfLog);
+			}
 
 
-		if (const USNDNumericalBalanceDebugSettings* SNDNumericalBalanceDebugSettings = GetDefault<USNDNumericalBalanceDebugSettings>()) {
+
+			if (UNumericalAlgorithmExecuteObject* InObject =
+				Cast<UNumericalAlgorithmExecuteObject>(InTestAlgorithmObject->GetDefaultObject())) {
+				auto GetEventTypeString = [](EActionCharacterEventType InEventType)->FString {
+					switch (InEventType) {
+						case EActionCharacterEventType::DAMAGE_EVENT:
+							return TEXT("--造成伤害--");
+						case EActionCharacterEventType::TREATMENT_EVENT:
+							return TEXT("--提供治疗--");
+					}
+
+					return TEXT("-出错-");
+				};
+
+				auto GetEventTypeValue = [&](EActionCharacterEventType InEventType)->float {
+					switch (InEventType) {
+						case EActionCharacterEventType::DAMAGE_EVENT:
+							return InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
+						case EActionCharacterEventType::TREATMENT_EVENT:
+							return InObject->GetTreatmentAlgorithmValue(InLvActiveData, InLvPassiveData);
+					}
+
+					return 0.f;
+				};
+
+				int32 ActiveLevel = GetValueFromMap(TEXT("Level"), InLvActiveData);
+				int32 PassiveLevel = GetValueFromMap(TEXT("Level"), InLvPassiveData);
+
+				FSimplePreDebugPrintf PrintfLog;
+				PrintfLog.CharacterNameActive = FString::Printf(TEXT("Lv %i %s"), ActiveLevel, *InActiveCharacterName);
+				PrintfLog.CharacterNamePassive = FString::Printf(TEXT("Lv %i %s"), PassiveLevel, *InPassiveCharacterName);
+				PrintfLog.EventString = GetEventTypeString(EventType);
+				PrintfLog.Value = FString::Printf(TEXT("[%.2f]"), GetEventTypeValue(EventType));
+
+				AddLog(PrintfLog);
+			}
+		};
+
+		//////////////////////////////////////////////////////////////////////////
+		if (const USNDNumericalBalanceDebugSettings* SNDNumericalBalanceDebugSettings = GetDefault<USNDNumericalBalanceDebugSettings>()) {// SNDNumericalBalanceDebugSettings
 			
-			// 扫描任意玩家间的交互活动
-			for (auto& TmpCharsInfo : SNDNumericalBalanceDebugSettings->DebugCharactersInfo) {
-				for (auto& TmpActive : TmpCharsInfo.CharacterActive) {
-					for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {
-						
-						if (true) {
+			/** 扫描任意玩家之间的日志信息交互 */
+			for (auto& TmpCharsInfo : SNDNumericalBalanceDebugSettings->DebugCharactersInfo) {// 需要知道有多少个角色信息
+
+				/// 禁用迭代许可策略
+				if (!SNDNumericalBalanceDebugSettings->bIterationLevel) {
+
+					for (auto& TmpActive : TmpCharsInfo.CharacterActive) {// 拿到单个主动方日志信息
+						for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {// 拿到单个被动方日志信息
+
 							if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {// 主动玩家表下的所有属性数据
 								if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
-									
-									/** Lambda: 寻找对应等级下的某条属性数据 */
-									auto GetSpecifyLevelData = [](
-										int32 InLv, /*等级*/
-										const TArray<FDeduceAttributeData>* InDeduceAttributeDatas, /*所有属性集*/
-										const FDebugCharacterInfo& InDebugCharacterInfo, /*关联玩家的日志数据*/
-										TMap<FName, float>& OutLvData) /*被填充的<属性名, 推导值>容器*/
-										->void 
-									{
-										int32 Lv = InDebugCharacterInfo.Level;
-										for (auto& TmpActiveData : *InDeduceAttributeDatas) {
-											if (TmpActiveData.DeduceValue.IsValidIndex(Lv)) {
-												OutLvData.Add(TmpActiveData.Key, FCString::Atof(*TmpActiveData.DeduceValue[Lv - 1]));
-											}
-											else {
-												return;
-											}
-										}
-									};
 
 									/** 收集主动玩家与被动玩家的数据*/
 									TMap<FName, float> LvActiveData;
@@ -139,9 +200,61 @@ void SSimepleNumbericalDeductionLog::Generate()
 						}
 					}
 				}
+				/// 开启迭代许可策略
+				else {
+					/** 依据打印策略执行不同方案 */
+					switch (SNDNumericalBalanceDebugSettings->IterativeMethod) {
+						// 一对多策略
+						case EIterativeDebugPrintMethod::ONE_TO_MANY_METHOD:
+						{
+							for (auto& TmpActive : TmpCharsInfo.CharacterActive) {// 拿到单个主动方日志信息
+								if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {// 仅访问一次主动玩家表下的数据
+									// 收集主动方玩家属性数据
+									TMap<FName, float> LvActiveData;
+									GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
+
+									/** 一个主动方下对应所有的被动方日志信息 */
+									for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {// 拿到单个被动方日志信息
+										if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
+											// 遍历每个推演等级的情况
+											for (int32 i = 1; i <= SNDObjectSettings->DeductionNumber; i++) {
+												// 每个推演等级都收集1次被动方玩家属性数据
+												TMap<FName, float> LvPassiveData;
+												GetSpecifyLevelData(i, Passive, TmpPassive, LvPassiveData);
+
+												// 开始模拟计算
+												SimulationCalculation(Tmp.TestAlgorithmObject,
+													TmpActive.Key.SelectString,
+													TmpPassive.Key.SelectString,
+													Tmp.EventType,
+													LvActiveData,
+													LvPassiveData);
+											}
+										}
+									}
+								}
+							}
+
+							break;
+						}
+						// 多对多策略
+						case EIterativeDebugPrintMethod::MANY_TO_MANY_METHOD:
+						{
+						
+
+							break;
+						}
+						// 多对一策略
+						case EIterativeDebugPrintMethod::MANY_TO_ONCE_METHOD:
+						{
+						
+							
+							break;
+						}
+					}
+				}
 			}
 		}
-				
 	}
 }
 

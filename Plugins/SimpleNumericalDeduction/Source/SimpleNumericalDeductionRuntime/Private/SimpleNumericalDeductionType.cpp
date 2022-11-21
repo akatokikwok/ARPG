@@ -35,3 +35,9 @@ bool FDebugPrintfLogContainer::IsPop()
 {
 	return Logs.Num() != 0;
 }
+
+FDebugCharacterInfo::FDebugCharacterInfo()
+	: Level(1)
+{
+
+}

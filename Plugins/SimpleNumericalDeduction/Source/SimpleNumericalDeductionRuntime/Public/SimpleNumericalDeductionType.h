@@ -86,6 +86,8 @@ struct SIMPLENUMERICALDEDUCTIONRUNTIME_API FDebugCharacterInfo
 {
 	GENERATED_USTRUCT_BODY()
 public:
+	FDebugCharacterInfo();
+
 	// 欲被反射的定义变量
 	UPROPERTY(EditAnywhere)
 		FSimpleSelectString Key;// 欲被反射的定义变量,表名
