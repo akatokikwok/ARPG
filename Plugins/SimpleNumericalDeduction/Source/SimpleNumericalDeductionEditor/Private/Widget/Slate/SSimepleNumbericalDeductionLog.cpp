@@ -168,17 +168,8 @@ void SSimepleNumbericalDeductionLog::Generate()
 									GetSpecifyLevelData(TmpPassive.Level, Passive, TmpPassive, LvPassiveData);
 
 									/** 模拟策略 */
-									if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(TmpCharsInfo.TestAlgorithmObject->GetDefaultObject())) {
-
-										/* 测试代码, 测试一下伤害值日志打印*/
-										float InValue = InObject->GetDamageAlgorithmValue(LvActiveData, LvPassiveData);
-										FSimplePreDebugPrintf PrintfLog;
-										PrintfLog.CharacterNameActive = TmpActive.Key.SelectString;
-										PrintfLog.CharacterNamePassive = TmpPassive.Key.SelectString;
-										PrintfLog.EventString = TEXT("--造成伤害--");
-										PrintfLog.Value = FString::SanitizeFloat(InValue);
-										AddLog(PrintfLog);
-									}
+									SimulationCalculation(TmpCharsInfo.TestAlgorithmObject, TmpActive.Key.SelectString, TmpPassive.Key.SelectString, TmpCharsInfo.EventType, 
+										LvActiveData, LvPassiveData);
 								}
 							}
 						}
@@ -207,12 +198,8 @@ void SSimepleNumbericalDeductionLog::Generate()
 												GetSpecifyLevelData(i, Passive, TmpPassive, LvPassiveData);
 
 												// 开始模拟计算
-												SimulationCalculation(Tmp.TestAlgorithmObject,
-													TmpActive.Key.SelectString,
-													TmpPassive.Key.SelectString,
-													Tmp.EventType,
-													LvActiveData,
-													LvPassiveData);
+												SimulationCalculation(TmpCharsInfo.TestAlgorithmObject,	TmpActive.Key.SelectString, TmpPassive.Key.SelectString, 
+													TmpCharsInfo.EventType, LvActiveData, LvPassiveData);
 											}
 										}
 									}
