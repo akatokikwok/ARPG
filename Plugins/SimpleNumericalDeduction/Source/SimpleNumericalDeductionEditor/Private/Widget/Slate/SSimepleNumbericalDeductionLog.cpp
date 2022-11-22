@@ -76,7 +76,7 @@ void SSimepleNumbericalDeductionLog::Generate()
 	if (const USNDObjectSettings* SNDObjectSettings = GetDefault<USNDObjectSettings>()) {// SNDObjectSettings
 		
 		/** 1. 寻找感兴趣的 某张Table下的所有属性数据 */
-		auto FindData = [&](const FString& InKey) ->const TArray<FDeduceAttributeData>* {
+		auto Lambda_FindData = [&](const FString& InKey) ->const TArray<FDeduceAttributeData>* {
 			for (auto& Tmp : SNDObjectSettings->AttributeDatas) {
 				if (Tmp.TableName.ToString() == InKey) {
 					return &Tmp.AttributeDatas;
@@ -86,7 +86,7 @@ void SSimepleNumbericalDeductionLog::Generate()
 		};
 
 		/** 2. Lambda: 寻找某ID某个人物对应等级下的某条属性数据 */
-		auto GetSpecifyLevelData = [](
+		auto Lambda_GetSpecifyLevelData = [](
 			int32 InLv, /*等级*/
 			const TArray<FDeduceAttributeData>* InDeduceAttributeDatas, /*所有属性集*/
 			const FDebugCharacterInfo& InDebugCharacterInfo, /*关联玩家的日志数据*/
@@ -103,7 +103,7 @@ void SSimepleNumbericalDeductionLog::Generate()
 		};
 
 		/** 3. 模拟计算并打印日志行 */
-		auto SimulationCalculation = [&](
+		auto Lambda_SimulationCalculation = [&](
 			TSubclassOf<UNumericalAlgorithmExecuteObject> InTestAlgorithmObject,/*指定1个数值推导算法*/
 			const FString& InActiveCharacterName,/*主动玩家日志信息名字*/
 			const FString& InPassiveCharacterName,/*被动玩家日志信息名字*/
@@ -158,17 +158,17 @@ void SSimepleNumbericalDeductionLog::Generate()
 					for (auto& TmpActive : TmpCharsInfo.CharacterActive) {// 拿到单个主动方日志信息
 						for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {// 拿到单个被动方日志信息
 
-							if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {// 主动玩家表下的所有属性数据
-								if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
+							if (const TArray<FDeduceAttributeData>* Active = Lambda_FindData(TmpActive.Key.SelectString)) {// 主动玩家表下的所有属性数据
+								if (const TArray<FDeduceAttributeData>* Passive = Lambda_FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
 
 									/** 收集主动玩家与被动玩家的数据*/
 									TMap<FName, float> LvActiveData;
-									GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
+									Lambda_GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
 									TMap<FName, float> LvPassiveData;
-									GetSpecifyLevelData(TmpPassive.Level, Passive, TmpPassive, LvPassiveData);
+									Lambda_GetSpecifyLevelData(TmpPassive.Level, Passive, TmpPassive, LvPassiveData);
 
 									/** 模拟策略 */
-									SimulationCalculation(TmpCharsInfo.TestAlgorithmObject, TmpActive.Key.SelectString, TmpPassive.Key.SelectString, TmpCharsInfo.EventType, 
+									Lambda_SimulationCalculation(TmpCharsInfo.TestAlgorithmObject, TmpActive.Key.SelectString, TmpPassive.Key.SelectString, TmpCharsInfo.EventType, 
 										LvActiveData, LvPassiveData);
 								}
 							}
@@ -183,22 +183,22 @@ void SSimepleNumbericalDeductionLog::Generate()
 						case EIterativeDebugPrintMethod::ONE_TO_MANY_METHOD:
 						{
 							for (auto& TmpActive : TmpCharsInfo.CharacterActive) {// 拿到单个主动方日志信息
-								if (const TArray<FDeduceAttributeData>* Active = FindData(TmpActive.Key.SelectString)) {// 仅访问一次主动玩家表下的数据
+								if (const TArray<FDeduceAttributeData>* Active = Lambda_FindData(TmpActive.Key.SelectString)) {// 仅访问一次主动玩家表下的数据
 									// 收集主动方玩家属性数据
 									TMap<FName, float> LvActiveData;
-									GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
+									Lambda_GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
 
 									/** 一个主动方下对应所有的被动方日志信息 */
 									for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {// 拿到单个被动方日志信息
-										if (const TArray<FDeduceAttributeData>* Passive = FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
+										if (const TArray<FDeduceAttributeData>* Passive = Lambda_FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
 											// 遍历每个推演等级的情况
 											for (int32 i = 1; i <= SNDObjectSettings->DeductionNumber; i++) {
 												// 每个推演等级都收集1次被动方玩家属性数据
 												TMap<FName, float> LvPassiveData;
-												GetSpecifyLevelData(i, Passive, TmpPassive, LvPassiveData);
+												Lambda_GetSpecifyLevelData(i, Passive, TmpPassive, LvPassiveData);
 
 												// 开始模拟计算
-												SimulationCalculation(TmpCharsInfo.TestAlgorithmObject,	TmpActive.Key.SelectString, TmpPassive.Key.SelectString, 
+												Lambda_SimulationCalculation(TmpCharsInfo.TestAlgorithmObject,	TmpActive.Key.SelectString, TmpPassive.Key.SelectString, 
 													TmpCharsInfo.EventType, LvActiveData, LvPassiveData);
 											}
 										}
@@ -211,14 +211,57 @@ void SSimepleNumbericalDeductionLog::Generate()
 						// 多对多策略
 						case EIterativeDebugPrintMethod::MANY_TO_MANY_METHOD:
 						{
-						
+							for (auto& TmpActive : TmpCharsInfo.CharacterActive) {// 拿到单个主动方日志信息
+								if (const TArray<FDeduceAttributeData>* Active = Lambda_FindData(TmpActive.Key.SelectString)) {// 仅访问一次主动玩家表下的数据
+
+									/** 一个主动方下对应所有的被动方日志信息 */
+									for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {// 拿到单个被动方日志信息
+										if (const TArray<FDeduceAttributeData>* Passive = Lambda_FindData(TmpPassive.Key.SelectString)) {// 被动玩家表下的所有属性数据
+											// 遍历每个推演等级的情况
+											for (int32 i = 1; i <= SNDObjectSettings->DeductionNumber; i++) {
+												// 每个推演等级都收集1次主动方玩家属性数据
+												TMap<FName, float> LvActiveData;
+												Lambda_GetSpecifyLevelData(TmpActive.Level, Active, TmpActive, LvActiveData);
+
+												// 每个推演等级都收集1次被动方玩家属性数据
+												TMap<FName, float> LvPassiveData;
+												Lambda_GetSpecifyLevelData(i, Passive, TmpPassive, LvPassiveData);
+
+												/** 以上就实现了每个等级对每个等级的 主被动双方的比较 */
+
+												// 开始模拟计算
+												Lambda_SimulationCalculation(TmpCharsInfo.TestAlgorithmObject, TmpActive.Key.SelectString, TmpPassive.Key.SelectString,
+													TmpCharsInfo.EventType, LvActiveData, LvPassiveData);
+											}
+										}
+									}
+								}
+							}
 
 							break;
 						}
 						// 多对一策略
 						case EIterativeDebugPrintMethod::MANY_TO_ONCE_METHOD:
 						{
-						
+							for (auto& TmpPassive : TmpCharsInfo.CharacterPassive) {
+								if (const TArray<FDeduceAttributeData>* Passive = Lambda_FindData(TmpPassive.Key.SelectString)) {
+									TMap<FName, float> LvPassiveData;
+									Lambda_GetSpecifyLevelData(TmpPassive.Level, Passive, TmpPassive, LvPassiveData);
+
+									for (auto& TmpActive : TmpCharsInfo.CharacterActive) {
+										if (const TArray<FDeduceAttributeData>* Active = Lambda_FindData(TmpPassive.Key.SelectString)) {
+											for (int32 i = 1; i <= SNDObjectSettings->DeductionNumber; i++) {
+												TMap<FName, float> LvActiveData;
+												Lambda_GetSpecifyLevelData(i, Active, TmpActive, LvActiveData);
+
+												// 开始模拟计算
+												Lambda_SimulationCalculation(TmpCharsInfo.TestAlgorithmObject, TmpActive.Key.SelectString, TmpPassive.Key.SelectString,
+													TmpCharsInfo.EventType, LvActiveData, LvPassiveData);
+											}
+										}
+									}
+								}
+							}
 							
 							break;
 						}
