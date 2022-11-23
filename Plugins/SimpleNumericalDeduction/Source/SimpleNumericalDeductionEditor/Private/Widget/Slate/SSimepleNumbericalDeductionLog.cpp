@@ -124,8 +124,8 @@ void SSimepleNumbericalDeductionLog::Generate()
 					}
 					return TEXT("-出错-");
 				};
-				// 获取行为造成的数值
-				auto GetEventTypeValue = [&](EActionCharacterEventType InEventType)->float {
+				// 获取行为造成的推导数值
+				auto GetEventTypeValue = [&](EActionCharacterEventType InEventType) ->float {
 					switch (InEventType) {
 						case EActionCharacterEventType::DAMAGE_EVENT:
 							return InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
@@ -136,7 +136,6 @@ void SSimepleNumbericalDeductionLog::Generate()
 				};
 
 				/* 测试代码, 测试一下伤害值日志打印*/
-				float InValue = InObject->GetDamageAlgorithmValue(InLvActiveData, InLvPassiveData);
 				FSimplePreDebugPrintf PrintfLog;
 				PrintfLog.CharacterNameActive = InActiveCharacterName;
 				PrintfLog.CharacterNamePassive = InPassiveCharacterName;
