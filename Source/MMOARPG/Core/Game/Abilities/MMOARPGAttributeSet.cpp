@@ -3,6 +3,7 @@
 #include "GameplayEffectExtension.h"
 #include "../Character/Core/MMOARPGCharacterBase.h"
 #include "../../../DataTable/CharacterAttributeTable.h"
+#include "../Damage/MMOARPGNumericalCalculation.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	: Level(1)
@@ -86,7 +87,23 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	}
 	/* 若是属性: 伤害*/
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute()) {
-		const float TmpDamage = GetDamage();// 记录一下当前临时伤害值.
+		
+		// 计算伤害值(使用封装的特定推演算法: 敌人的物理攻击和魔法攻击扣除我方的护甲和魔抗)
+		float ActivePhysicsAttack = 0.f;
+		float ActiveMagicAttack = 0.f;
+		if (UMMOARPGAttributeSet* InAttribute = Target->GetAttribute()) {
+			ActivePhysicsAttack = InAttribute->GetPhysicsAttack();
+			ActiveMagicAttack = InAttribute->GetMagicAttack();
+		}
+		float PassiveMagicDefense = GetMagicDefense();
+		float PassivePhysicsDefense = GetPhysicsDefense();
+		const float TmpDamage = MMOARPGNumericalCalculation::GetDamage(// 计算伤害值(使用封装的特定推演算法)
+			ActivePhysicsAttack,
+			ActiveMagicAttack,
+			PassiveMagicDefense,
+			PassivePhysicsDefense,
+			GetDamage());
+
 		SetDamage(0.f);// 清零.
 
 		const float OldHealth = GetHealth();// 记录被攻击前的血量.
