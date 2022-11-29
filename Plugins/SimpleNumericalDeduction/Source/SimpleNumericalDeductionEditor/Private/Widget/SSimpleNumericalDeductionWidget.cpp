@@ -212,6 +212,9 @@ FReply SSimpleNumericalDeductionWidget::GenerateDeduction()
 					if (UNumericalAlgorithmExecuteObject* InObject = Cast<UNumericalAlgorithmExecuteObject>(Tmp_attri.BaseAlgorithm->GetDefaultObject())) {
 						// 归属的单属性记录至参数包
 						NAEParam.Key = Tmp_attri.Key.ToString();
+						// 移除本身的空格,防止字符之间出现不太美观的空格
+						NAEParam.Key.RemoveSpacesInline();
+
 						// Tmp_attri.DeduceValue.Add(Tmp_attri.Value);// 推导值先默认给一份
 						// 注意上面那句有隐含bug,由于CSV对逗号敏感,故处理技能Tag的时候携带逗号会诱发bug
 						// 处理单属性的 推导值; 由于技能标签里有逗号, 故推荐用 连接符替换CSV敏感的逗号
