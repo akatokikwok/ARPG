@@ -135,15 +135,15 @@ void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 		// 让指定的用户号存档切换
 
 		if (GameCount == 0) {
-			CallServerUpdateKneading(1);
+			CallServerUpdateKneading(4);
 			GameCount += 3;
 		}
 		else if (GameCount == 2) {
-			CallServerUpdateKneading(1);
+			CallServerUpdateKneading(4);
 			GameCount++;
 		}
 		else if (GameCount >= 3) {
-			CallServerUpdateKneading(2);
+			CallServerUpdateKneading(5);
 			GameCount = 0;
 		}
 

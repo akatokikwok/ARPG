@@ -23,11 +23,11 @@ void UUI_GameMain::NativeConstruct()
 
 	// 让指定的用户号存档切换
 	if (GameCount == 0) {
-		Robot.InitUser(1, 3);// 手动写死测试, 1号用户3号存档
+		Robot.InitUser(4, 0);// 手动写死测试, 1号用户3号存档
 		GameCount++;
 	}
 	else if (GameCount == 1) {
-		Robot.InitUser(2, 3);// 手动写死测试, 3号用户3号存档
+		Robot.InitUser(5, 0);// 手动写死测试, 3号用户3号存档
 		GameCount++;
 	}
 
