@@ -24,7 +24,7 @@ void UFightComponent::BeginPlay()
 
 	// 初始化 持有本组件的人物基类.
 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
-	
+
 	if (MMOARPGCharacterBase.IsValid()) {
 		// 初始化 人里的ASC.	
 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
@@ -34,33 +34,33 @@ void UFightComponent::BeginPlay()
 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
 		}
 	}
-// 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
-// 	if (MMOARPGCharacterBase.IsValid()) {
-// 		// 初始化ASC.
-// 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
-// 
-// 		const FName InKey = TEXT("Player.Attack.ComboLinkage");
-// 		/* 仅运行在服务器的逻辑. */
-// 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
-// 			// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
-// 			AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
-// 			// 往Skills整个池子里写入注册 闪避
-// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Dodge"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-// 			// 往Skills整个池子里写入注册 冲刺
-// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-// 			// 往Skills整个池子里写入注册 冲刺2
-// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-// 			// 往池子里写入 受击能力
-// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Hit"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
-//  			// 往池子里写入 死亡能力
-//  			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Die"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
-// 
-// 			// 仅允许服务器注册ASC的持有对象(即人物基类.)..
-// 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
-// 		}
-// 		// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
-// 		this->RegisterComboAttack(ComboAttackCheck, InKey);
-// 	}
+	// 	MMOARPGCharacterBase = Cast<AMMOARPGCharacterBase>(GetOwner());
+	// 	if (MMOARPGCharacterBase.IsValid()) {
+	// 		// 初始化ASC.
+	// 		AbilitySystemComponent = Cast<UMMOARPGAbilitySystemComponent>(MMOARPGCharacterBase->GetAbilitySystemComponent());
+	// 
+	// 		const FName InKey = TEXT("Player.Attack.ComboLinkage");
+	// 		/* 仅运行在服务器的逻辑. */
+	// 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
+	// 			// 往Skill池子里写入 从DTRow里查出来的名叫"NormalAttack"的普攻连招.
+	// 			AddMMOARPGGameplayAbility_ToSkillpool(InKey, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+	// 			// 往Skills整个池子里写入注册 闪避
+	// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Dodge"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+	// 			// 往Skills整个池子里写入注册 冲刺
+	// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+	// 			// 往Skills整个池子里写入注册 冲刺2
+	// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.Skill.Sprint2"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+	// 			// 往池子里写入 受击能力
+	// 			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Hit"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
+	//  			// 往池子里写入 死亡能力
+	//  			AddMMOARPGGameplayAbility_ToSkillpool(TEXT("Player.State.Die"), EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_NONE);
+	// 
+	// 			// 仅允许服务器注册ASC的持有对象(即人物基类.)..
+	// 			AbilitySystemComponent->InitAbilityActorInfo(MMOARPGCharacterBase.Get(), MMOARPGCharacterBase.Get());
+	// 		}
+	// 		// 在连招触发器实例的内部, 使用GA:平砍 写入它; ROLE_SimulatedProxy模拟玩家也需要写入连招触发器.
+	// 		this->RegisterComboAttack(ComboAttackCheck, InKey);
+	// 	}
 }
 
 // 添加并授权某技能. 返回技能实例的句柄.
@@ -86,50 +86,56 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 	return nullptr;
 }
 
-// 按指定名字, 在Skills大池子里查找技能并激活.
-void UFightComponent::Attack_TriggerGA(const FName& InKey)
+// 从连招池子里提1个GA并激活.
+bool UFightComponent::Attack_TriggerGA(const FName& InGAKey)
 {
-	if (AbilitySystemComponent.IsValid()) {// 检查弱指针ASC是否被破坏.
-		if (InKey != TEXT("")) {
-			if (FGameplayAbilitySpecHandle* Handle = Skills.Find(InKey)) {
-				AbilitySystemComponent->TryActivateAbility(*Handle);
-			}
+	return TryActivateAbility(InGAKey, ComboAttacks);
+}
+
+// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
+bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap)
+{
+	// 检查弱指针ASC是否被破坏.
+	if (AbilitySystemComponent.IsValid()) {
+		if (const FGameplayAbilitySpecHandle* Handle = InMap.Find(InTagName)) {
+			AbilitySystemComponent->TryActivateAbility(*Handle);
+			return true;
 		}
 	}
+	return false;
 }
 
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	Attack_TriggerGA(TEXT("Player.Skill.Dodge"));
+	if (AbilitySystemComponent.IsValid()) {
+		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
+	}
 }
 
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	Attack_TriggerGA(TEXT("Player.Skill.Sprint"));
-}
-
-// void UFightComponent::Sprint2Skill_Implementation()
-// {
-// 	Attack_TriggerGA(TEXT("Player.Skill.Sprint2"));
-// }
-
-// 放受击技能
-void UFightComponent::Hit()
-{
 	if (AbilitySystemComponent.IsValid()) {
-		AbilitySystemComponent->TryActivateAbilitiesByTag(
-			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit"))));
+		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
 	}
 }
 
-// 放死亡 技能
+// 激活 受击技能
+void UFightComponent::Hit()
+{
+	if (AbilitySystemComponent.IsValid()) {
+		static const FName Player_State_Hit_Name(TEXT("Player.State.Hit"));
+		TryActivateAbility(Player_State_Hit_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Hit的受击GA
+	}
+}
+
+// 激活 死亡技能
 void UFightComponent::Die()
 {
 	if (AbilitySystemComponent.IsValid()) {
-		AbilitySystemComponent->TryActivateAbilitiesByTag(
-			FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die"))));
+		static const FName Character_State_Die_Name(TEXT("Player.State.Die"));
+		TryActivateAbility(Character_State_Die_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Die的死亡GA
 	}
 }
 
@@ -164,13 +170,17 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
 			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
 				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
-
-					/* 按技能形式来源切分, 分肢体形式的 和 真正技能形式的*/
-					if (GAType != EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS) {
-						Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 给大池子注册一队pair
-					}
-					else {/* 肢体行为的能力(如受击, 死亡, 嘲讽)*/
-						AddAbility(*InGameplayAbility);// 直接give技能, 不需要往大池子里注册.
+					/* 按技能形式来源切分, 分三类*/
+					switch (GAType) {
+						case GAMEPLAYABILITY_SKILLATTACK:
+							Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为skill池子添加元素
+							break;
+						case GAMEPLAYABILITY_COMBOATTACK:
+							ComboAttacks.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为连招池子添加元素
+							break;
+						case GAMEPLAYABILITY_LIMBS:
+							Limbs.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为肢体池子添加元素
+							break;
 					}
 				}
 			}
@@ -228,19 +238,19 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 {
 	// 核验 基类人和ASC
 	if (MMOARPGCharacterBase.IsValid() && AbilitySystemComponent.IsValid()) {
-// 		 const FName InKey = TEXT("Player.Attack.ComboLinkage");
+		// 		 const FName InKey = TEXT("Player.Attack.ComboLinkage");
 
-		/* 仅运行在服务器的逻辑. */
+				/* 仅运行在服务器的逻辑. */
 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
 			// 往Skill池子里写入 从DTRow里查出来的一组	GA
 			for (auto& Tmp : InGANames) {
-				AddMMOARPGGameplayAbility_ToSkillpool(Tmp, InGASrcEnum); 
+				AddMMOARPGGameplayAbility_ToSkillpool(Tmp, InGASrcEnum);
 			}
 
-// 			// 仅在combo来源形式下 广播 "用一组GA注册连招黑盒"
-// 			if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
-// 				RegisterComboAttackMulticast(InGANames);
-// 			}
+			// 			// 仅在combo来源形式下 广播 "用一组GA注册连招黑盒"
+			// 			if (InGASrcEnum == EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK) {
+			// 				RegisterComboAttackMulticast(InGANames);
+			// 			}
 		}
 	}
 }
@@ -271,3 +281,106 @@ void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 // {
 // 	RegisterComboAttack(InGANames);
 // }
+
+// 当血量变化时候处理
+void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	if (MMOARPGCharacterBase.IsValid()) {
+		// 目标任务是否死亡(死亡后会执行奖励buff结算)
+		if (MMOARPGCharacterBase->IsDie()) {
+			/* 对施法者 进行击杀战利结算贡献.种类是 "击杀奖励buff".*/
+			InstigatorPawn->RewardEffect(MMOARPGCharacterBase->GetCharacterLevel(),
+				MMOARPGCharacterBase->GetDeathRewardEffect(),
+				[&]() ->void {
+					// 施法者是否满足了升等级条件. 满足则给一份新的递归式的buff奖励, 种类是 "施法者提升经验值buff".
+					this->UpdateLevel(InstigatorPawn);
+				}
+			);
+
+			/* 对目标人物 执行使其死亡 最后执行.*/
+			MMOARPGCharacterBase->PlayDie();
+		}
+		else {
+			// 施法者和受击序号必须有意义.
+			if (InstigatorPawn != nullptr) {
+				if (MMOARPGCharacterBase->GetHitID() != INDEX_NONE) {
+					// 让挨打的人面朝向 施法攻击者.
+					FRotator TargetRot = (-InstigatorPawn->GetActorForwardVector()).ToOrientationRotator();
+					MMOARPGCharacterBase->SetActorRotation(TargetRot);
+
+					// 对目标人物, 再执行让它挨打受击.
+					MMOARPGCharacterBase->PlayHit();
+				}
+			}
+		}
+	}
+}
+
+// 当蓝量变化时候处理
+void UFightComponent::HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+
+}
+
+void UFightComponent::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
+{
+	
+}
+
+void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun_AppendLogic)
+{
+	if (AbilitySystemComponent.IsValid()) {
+		// 给自身应用 奖励机制GE
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewRewardBuff->GetDefaultObject()),
+			InNewLevel,
+			AbilitySystemComponent->MakeEffectContext()
+		);
+
+		// 执行传进来的附加逻辑段.
+		InFun_AppendLogic();
+	}
+}
+
+// 指明一个Pawn, 为其升等级.
+void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
+{
+	if (InUpgradeLevelPawn->IsUpdateLevel()) {
+		// 让人升一级
+		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1); 
+		// 递归判定
+		this->UpdateLevel(InUpgradeLevelPawn);
+	}
+}
+
+// 升自己等级.
+void UFightComponent::UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> InNewReward)
+{
+	if (AbilitySystemComponent.IsValid()) {
+		// 断言警告提示, 若奖励GE未配置则会提醒开发者.
+		checkf(InNewReward, TEXT("这张奖励机制的GE 必须在蓝图中被配置."));
+
+		// 给自身应用 奖励机制GE
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(InNewReward->GetDefaultObject()),
+			InLevel,
+			AbilitySystemComponent->MakeEffectContext()
+		);
+	}
+}
+
+// 从技能缓存池里提出所有技能名字
+void UFightComponent::GetSkillTagsName(TArray<FName>& OutNames)
+{
+	Skills.GetKeys(OutNames);
+}
+
+// 从连招缓存池里提出所有连招名字
+void UFightComponent::GetComboAttackTagsName(TArray<FName>& OutNames)
+{
+	ComboAttacks.GetKeys(OutNames);
+}
+
+// 从肢体缓存池里提出所有肢体动作名字
+void UFightComponent::GetLimbsTagsName(TArray<FName>& OutNames)
+{
+	Limbs.GetKeys(OutNames);
+}

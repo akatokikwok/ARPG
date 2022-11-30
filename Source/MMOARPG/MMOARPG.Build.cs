@@ -29,6 +29,8 @@ public class MMOARPG : ModuleRules
             "DataRegistry",
 			"SimpleDrawText",
 			"AIModule",
-        });
+			"SimpleHotUpdate",
+			"SimpleNumericalDeductionRuntime"
+		});
 	}
 }

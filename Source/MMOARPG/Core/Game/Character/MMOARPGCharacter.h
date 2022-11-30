@@ -28,6 +28,7 @@ public:
 
 	/** 攀爬跳姿势的切换逻辑. */
 	virtual void ClimbingMontageChanged(EClimbingMontageState InJumpState) override;
+
 protected:
 	// 打印指定时长的指定语句.
 	void Print(float InTime, const FString& InString);
@@ -112,7 +113,7 @@ protected:
 	/** RPC服务器 "执行攀岩跳的效果". */
 // 	UFUNCTION(Server, Reliable)
 // 		void CharacterJumpToServer();
-	
+
 	/** 广播 "攀岩跳" */
 // 	UFUNCTION( NetMulticast, Reliable)
 // 		void MulticastCharacterJump();
@@ -134,7 +135,7 @@ public:
 		void MouseLeftClickReleased();
 	// RPC在服务器, 右mouse松开后续
 // 	UFUNCTION(Server, Reliable)
-		void MouseRightClickReleased();
+	void MouseRightClickReleased();
 
 	// 按键冲刺, RPC在服务器.
 	UFUNCTION(Server, Reliable)
@@ -145,6 +146,20 @@ public:
 
 	// 覆写GetTarget接口. 读取敌对目标人物或者怪物
 	virtual AActor* GetTarget() override;
+
+public:
+	// 为本人物升级.
+	virtual void UpdateLevel(float InLevel) override;
+
+public:
+	// 处理人的血量; 覆写
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue) override;
+	
+	// 处理人的蓝量; 覆写
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue) override;
+
+	// 覆写处理经验值接口
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
 	/// //////////////////////////////////////////////////////////////////////////
 public:

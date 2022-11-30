@@ -25,7 +25,7 @@ class UWidget;
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
  */
 UCLASS()
-class MMOARPG_API AMMOARPGCharacterBase : 
+class MMOARPG_API AMMOARPGCharacterBase :
 	public ACharacter, public ISimpleComboInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
@@ -40,7 +40,7 @@ private:
 	 */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFlyComponent> FlyComponent;
-	
+
 	/** 游泳系统组件. */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<USwimmingComponent> SwimmingComponent;
@@ -48,14 +48,14 @@ private:
 	/** 攀爬系统组件. */
 	UPROPERTY(Category = "AMMOARPGCharacterBase", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UClimbingComponent> ClimbingComponent;
-	
+
 	/** 战斗系统组件. 强指针,释放了的话会让其内部的弱指针成员感应到 */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UFightComponent> FightComponent;
-		
+
 	/** MMOARPG ASC组件. */
- 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
- 		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
+	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 
 	/** GAS属性集指针. */
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -72,7 +72,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// 给特定的信号值,然后实现对应的notify逻辑; 覆写ISimpleCombatInterface::AnimSignal.
 	virtual void AnimSignal(int32 InSignal) override;
 	// 蓝图里实现的 AnimSignal函数. 名字特殊定制一下.
@@ -123,12 +123,30 @@ public:
 	FORCEINLINE UMMOARPGAttributeSet* GetAttribute() { return AttributeSet; }
 	// 拿取死亡动画序列号.
 	FORCEINLINE int32 GetDieIndex() { return DieIndex; }
+	// 拿取击杀本人物后的升经验奖励(在蓝图里配置好的)
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetUpgradeRewardEffect() { return UpgradeRewardEffect; }
+	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
+	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
+
 	// 拿取Widget组件里真正的UMG(仅在客户端).
 	UWidget* GetWidget();
 	// 隐藏血条UMG
 	void HideWidget();
 	// 显示血条UMG(并同时设定了血量显隐计时器寿命)
 	void ShowWidget();
+
+public:
+	// 获取属性集等级
+	virtual float GetCharacterLevel();
+	// 获取属性集血量
+	virtual float GetCharacterHealth();
+	// 获取属性集蓝量
+	virtual float GetCharacterMana();
+	// 获取属性集经验值
+	virtual float GetCharacterExp();
+
+	// 为本人物升级.
+	virtual void UpdateLevel(float InLevel);
 protected:
 	// 同步变量需要重写的方法.
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -158,7 +176,7 @@ public:/// 技能相关
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
-	
+
 
 	// 用1行DTR属性 注册更新AttributeSet指针数据
 	void UpdateAttribute(const FCharacterAttributeTable* InDTRowAttribute);
@@ -167,7 +185,7 @@ public:/// 技能相关
 	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
 
 	// 处理人的血量; 虚方法
-	virtual void HandleHealth(const struct FGameplayTagContainer& InTags, float InNewValue);
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的蓝量; 虚方法
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的伤害值; 虚方法
@@ -178,6 +196,9 @@ public:/// 技能相关
 		AActor* DamageCauser// 源ASC内的源actor
 	);
 
+	//  处理人的经验值; 虚方法
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue);
+
 	// 写入战斗组件里的受击ID
 	void SetHitID(int32 InNewID);
 	// 读取战斗组件里的受击ID
@@ -185,7 +206,7 @@ public:/// 技能相关
 
 	// 执行受击
 	virtual void PlayHit();
-	
+
 	// 执行死亡
 	virtual void PlayDie();
 
@@ -195,20 +216,44 @@ public:/// 技能相关
 	// "单机非广播版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
 
-// 	// 广播 "用一组GA注册连招黑盒"
-// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
+	// 	// 广播 "用一组GA注册连招黑盒"
+	// 	void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
-/// 关联GAS播蒙太奇的 公有方法
+	/// 关联GAS播蒙太奇的 公有方法
 public:
 	// 播放蒙太奇动画(服务端)
 	UFUNCTION(Server, Reliable)
 		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
-	
+
 	// 播放蒙太奇动画(被广播客户端)
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
-/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 授予击杀本人物的奖励Buff
+	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
+
+	// 判断是否满足升人物等级条件.
+	virtual bool IsUpdateLevel();
+
+public:
+	// 提出所有技能名字并存下来
+	void GetSkillTagsName(TArray<FName>& OutNames);
+	// 提出所有连招名字并存下来
+	void GetComboAttackTagsName(TArray<FName>& OutNames);
+	// 提出所有肢体动作名字并存下来
+	void GetLimbsTagsName(TArray<FName>& OutNames);
+
+	/// //////////////////////////////////////////////////////////////////////////
+protected:
+	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TSubclassOf<UGameplayEffect> DeathRewardEffect;
+
+	// 人物若被击杀后, 对手获得的升级经验值奖励Buff.
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TSubclassOf<UGameplayEffect> UpgradeRewardEffect;
+
 protected:
 	// 人物动作状态.
 	UPROPERTY(ReplicatedUsing = OnRep_ActionStateChanged)

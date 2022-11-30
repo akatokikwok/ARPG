@@ -20,7 +20,7 @@ void AMMOARPGAISpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetWorld() && GetWorld()->IsServer()) {/* 必须是服务器上的逻辑.*/
+	if (GetWorld() && GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {/* 必须是服务器上的逻辑.*/
 		SpawnAICharacter(CharacterID, Lv);
 	}
 }
@@ -87,6 +87,9 @@ void AMMOARPGAISpawnPoint::SpawnAICharacter(int32 InCharacterID, int32 InLV)
 							InCharacterTable_Style->MMOARPGCharacterClass,
 							Location,
 							FRotator::ZeroRotator)) {
+
+							// 让AI角色升等级.
+							InCharacterBase->UpdateLevel(InLV);
 
 							ListeningObjectPool.Add(InCharacterBase);// 同时注册进存活池子.
 						}

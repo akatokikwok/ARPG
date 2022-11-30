@@ -23,7 +23,7 @@ void AMMOARPGAICharacter::BeginPlay()
 				ToGamePlayNameTags(InDTR_Attribute->ComboAttackTags, ComboAttack_names);
 
 				// II. 更新技能
-				if (GetWorld()->IsServer()) {
+				if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
 					// 2.0 在服务器上强制给小怪一个默认的控制器.
 					if (!GetController()) {
 						APawn::SpawnDefaultController();
@@ -53,7 +53,7 @@ void AMMOARPGAICharacter::PlayDie()
 {
 	Super::PlayDie();
 
-	if (GetWorld() && GetWorld()->IsServer()) {
+	if (GetWorld() && GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
 		RemoveDeadBody(5.f);
 	}
 }

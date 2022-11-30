@@ -14,28 +14,30 @@ void AMMOARPGPlayerCharacter::BeginPlay()
 	InitKneadingLocation(GetMesh()->GetRelativeLocation());
 
 	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
-		GThread::Get()->GetCoroutines().BindLambda(1.5f, [&]() ->void {
-		#if !UE_MMOARPG_DEBUG_DS
-			// 仅当未开启调试才走 刷新人物样貌.
-			if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
-				FlushKneadingRequest();
-			}
-		#endif
+	#if !UE_MMOARPG_DEBUG_DS
+		// 仅当未开启调试才走 刷新人物样貌.
+		if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy) {
+			FlushKneadingRequest();
+		}
+	#endif
 
-			/// (该代码是为了做切换准备的 更新捏脸数据) 反复确保只要生成人物就实时拿到PS-CA. 
-			if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
-				UpdateKneadingBoby(InPlayerState->GetCA());// 第二次第三次进来之后要求实时刷新到最新PS里的CA.
-			}
+		/// (该代码是为了做切换准备的 更新捏脸数据) 反复确保只要生成人物就实时拿到PS-CA. 
+		if (AMMOARPGPlayerState* InPlayerState = GetPlayerState<AMMOARPGPlayerState>()) {
+			UpdateKneadingBoby(InPlayerState->GetCA());// 第二次第三次进来之后要求实时刷新到最新PS里的CA.
+		}
+
+		GThread::Get()->GetCoroutines().BindLambda(1.5f, [&]() ->void {
+		
 			});
 	}
 }
 
 void AMMOARPGPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-#if UE_MMOARPG_DEBUG_DS
-	GameCount = 0;
-#endif
-
+// #if UE_MMOARPG_DEBUG_DS
+// 	GameCount = 0;
+// #endif
+// 
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -132,16 +134,16 @@ void AMMOARPGPlayerCharacter::FlushKneadingRequest()
 
 		// 让指定的用户号存档切换
 
-		if (GameCount == 0 || GameCount == 1) {
-			CallServerUpdateKneading(1);
+		if (GameCount == 0) {
+			CallServerUpdateKneading(4);
 			GameCount += 3;
 		}
 		else if (GameCount == 2) {
-			CallServerUpdateKneading(1);
-			++GameCount;
+			CallServerUpdateKneading(4);
+			GameCount++;
 		}
-		else if (GameCount == 3 || GameCount == 4) {
-			CallServerUpdateKneading(3);
+		else if (GameCount >= 3) {
+			CallServerUpdateKneading(5);
 			GameCount = 0;
 		}
 

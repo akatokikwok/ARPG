@@ -1,5 +1,4 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "MMOARPGGameMode.h"
 #include "Character/MMOARPGCharacter.h"
 #include "UObject/ConstructorHelpers.h"
@@ -12,12 +11,11 @@
 #include "ThreadManage.h"
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "Protocol/GameProtocol.h"
+#include "Protocol/ServerProtocol.h"
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
-#include "Protocol/ServerProtocol.h"
-#include <MMOARPGType.h>
-#include "MMOARPGTagList.h"// 这个是引擎插件里的
-// #include "../../MMOARPGTagList.h"// 这个是项目里的
+#include "../../MMOARPGGameType.h"
+#include "MMOARPGTagList.h"
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -92,6 +90,20 @@ void AMMOARPGGameMode::LoginCharacterUpdateKneadingRequest(int32 InUserID)
 void AMMOARPGGameMode::GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot)
 {
 	SEND_DATA(SP_GetCharacterDataRequests, InUserID, InCharacterID, MMOARPGSlot);
+}
+
+/** 更新人物属性请求 */
+void AMMOARPGGameMode::UpdateAttributeRequests(int32 InUserID, int32 InCharacterID, MMOARPGCharacterAttributeType InAttributeType, float InValue)
+{
+	SEND_DATA(SP_UpdateAttributeRequests, InUserID, InCharacterID, InAttributeType, InValue);
+}
+
+/** 升级人物等级请求 */
+void AMMOARPGGameMode::UpdateLevelRequests(int32 InUserID, int32 InCharacterID, const FMMOARPGCharacterAttribute& InCharacterAttribute)
+{
+	FString AttributeString;
+	NetDataAnalysis::MMOARPGCharacterAttributeToString(InCharacterAttribute, AttributeString);
+	SEND_DATA(SP_CharacterUpgradeLevelRequests, InUserID, InCharacterID, AttributeString);
 }
 
 void AMMOARPGGameMode::IdentityReplicationRequests()
@@ -256,6 +268,9 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							// 还需要注册一下 连招黑盒
 							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
+							// 升级
+							//InPlayerCharacter->UpdateLevel(CharacterAttribute.Level.CurrentValue);
+
 							return MethodUnit::EServerCallType::PROGRESS_COMPLETE;
 						}
 					}
@@ -277,6 +292,20 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 			else {
 				UE_LOG(LogTemp, Error, TEXT("Exclusive server identity registration failed."));
 			}
+			break;
+		}
+
+		/** 接收到服务器的 人物升等级回复 */
+		case SP_CharacterUpgradeLevelResponses:
+		{
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterUpgradeLevelResponses);
+			break;
+		}
+
+		/** 接收到服务器的 人物刷新各属性点回复 */
+		case SP_UpdateAttributeaResponses:
+		{
+			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateAttributeaResponses);
 			break;
 		}
 	}

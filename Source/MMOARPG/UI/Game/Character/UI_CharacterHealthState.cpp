@@ -27,12 +27,12 @@ void UUI_CharacterHealthState::SetMana(float InPercentage)
 
 void UUI_CharacterHealthState::SetManaValue(float InMaxValue, float InCurrentValue)
 {
-	ManaText->SetText(FText::Format(LOCTEXT("UI_CharacterHealthState_SetManaValue", "{0} / {1}"), InCurrentValue, InMaxValue));
+	ManaText->SetText(FText::Format(LOCTEXT("UI_CharacterHealthState_SetManaValue", "{0} / {1}"), (int32)InCurrentValue, (int32)InMaxValue));
 }
 
 void UUI_CharacterHealthState::SetHealthValue(float InMaxValue, float InCurrentValue)
 {
-	HealthText->SetText(FText::Format(LOCTEXT("UI_CharacterHealthState_SetHealthValue", "{0} / {1}"), InCurrentValue, InMaxValue));
+	HealthText->SetText(FText::Format(LOCTEXT("UI_CharacterHealthState_SetHealthValue", "{0} / {1}"), (int32)InCurrentValue, (int32)InMaxValue));
 }
 
 #undef LOCTEXT_NAMESPACE

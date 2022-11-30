@@ -22,7 +22,7 @@ void UAbilityTask_PNAWDamageEvent::Activate()
 		// 使用ASC::AddGameplayEventTagContainerDelegate 去接收外部给到的GATag 并存成一个句柄.
 		if (AnimInstance != nullptr) {
 			DamageEventHandle = AbilitySystemComponent->AddGameplayEventTagContainerDelegate(
-				EventTags,
+				FGameplayTagContainer(),// 组一个空的标签容器. /*EventTags,*/
 				FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &UAbilityTask_PNAWDamageEvent::OnDamageGameplayEvent)
 			);
 		}

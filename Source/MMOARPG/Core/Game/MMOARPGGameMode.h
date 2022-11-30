@@ -31,6 +31,11 @@ public:
 	/** 向CS服务器发送 gas人物属性集请求 */
 	void GetCharacterDataRequests(int32 InUserID, int32 InCharacterID, int32 MMOARPGSlot);
 
+	// 更新人物属性请求.
+	void UpdateAttributeRequests(int32 InUserID, int32 InCharacterID, MMOARPGCharacterAttributeType InAttributeType, float InValue);
+
+	// 升级人物等级请求.
+	void UpdateLevelRequests(int32 InUserID, int32 InCharacterID, const FMMOARPGCharacterAttribute& InCharacterAttribute);
 protected:
 	//	向CS发送身份覆写请求.
 	void IdentityReplicationRequests();

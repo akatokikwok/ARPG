@@ -55,6 +55,15 @@
 			"Name": "SimpleDrawText",
 			"Enabled": true,
 			"MarketplaceURL": "https://renzhai.net/150.html"
+		},
+		{
+			"Name": "SimpleHotUpdate",
+			"Enabled": true,
+			"MarketplaceURL": "https://renzhai.net/470.html"
+		},
+		{
+			"Name": "SimpleNumericalDeduction",
+			"Enabled": true
 		}
 	]
 }

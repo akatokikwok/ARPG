@@ -25,11 +25,13 @@ public:
 	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
 
-	// 按指定名字, 在Skills大池子里查找技能并激活.
+	// 从连招池子里提1个GA并激活.
 	UFUNCTION(BlueprintCallable)
-		void Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
+		bool Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
 
-	
+	// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
+	bool TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap);
+
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
@@ -50,31 +52,31 @@ public:
 
 	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Press();
+	void Press();
 	// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Released();
+	void Released();
 	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
-		void Reset();
+	void Reset();
 
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
-		void DodgeSkill();// 放闪避技能; 广播至其他客户端
+	void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
-	// 放冲刺技能. 广播至其他客户端
-	//UFUNCTION(NetMulticast, Reliable)
-		void SprintSkill();// 放冲刺技能; 广播至其他客户端
+// 放冲刺技能. 广播至其他客户端
+//UFUNCTION(NetMulticast, Reliable)
+	void SprintSkill();// 放冲刺技能; 广播至其他客户端
 
- 	// 放冲刺2技能. 广播至其他客户端
- 	//UFUNCTION(NetMulticast, Reliable)
- 		//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
+// 放冲刺2技能. 广播至其他客户端
+//UFUNCTION(NetMulticast, Reliable)
+	//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
-	// 放受击 技能
-	UFUNCTION( BlueprintCallable)
+	// 激活 受击技能
+	UFUNCTION(BlueprintCallable)
 		void Hit();
 
-	// 放死亡 技能
+	// 激活 死亡技能
 	UFUNCTION(BlueprintCallable)
 		void Die();
 
@@ -89,7 +91,35 @@ public:
 	/*UFUNCTION(NetMulticast, Reliable)*/
 // 		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
-		/// //////////////////////////////////////////////////////////////////////////
+public:
+	// 当血量变化时候处理
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
+
+	// 当蓝量变化时候处理
+	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
+
+	// 当经验值变化的时处理
+	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue);
+
+	// 击杀授予的奖励buff结算.
+	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewReward, TFunction<void()> InFun_AppendLogic);
+
+	// 指明一个Pawn, 为其升等级.
+	void UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn);
+
+	// 升自己等级.
+	void UpdateLevel(float InLevel, TSubclassOf<UGameplayEffect> InNewReward);
+
+public:
+	// 从技能缓存池里提出所有技能名字
+	void GetSkillTagsName(TArray<FName>& OutNames);
+
+	// 从连招缓存池里提出所有连招名字
+	void GetComboAttackTagsName(TArray<FName>& OutNames);
+
+	// 从肢体缓存池里提出所有肢体动作名字
+	void GetLimbsTagsName(TArray<FName>& OutNames);
+
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC
@@ -101,13 +131,17 @@ private:
 	// Combo形式的攻击 触发器
 	UPROPERTY()
 		FSimpleComboCheck ComboAttackCheck;
-protected:
-	// GA缓存池, 1个技能名对1个技能句柄
-	TMap<FName, FGameplayAbilitySpecHandle> Skills;
 
 public:
 	// 受击ID
 	UPROPERTY()
 		int32 HitID;// 受击ID
 
+protected:
+	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄
+	TMap<FName, FGameplayAbilitySpecHandle> Skills;
+	// 连招缓存池
+	TMap<FName, FGameplayAbilitySpecHandle> ComboAttacks;
+	// 肢体行为缓存池
+	TMap<FName, FGameplayAbilitySpecHandle> Limbs;
 };
