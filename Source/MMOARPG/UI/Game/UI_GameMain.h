@@ -15,6 +15,8 @@
 class UUI_Print;
 class UUI_CharacterHealthState;
 class UProgressBar;
+class UUI_SkillPage;
+class UUI_UnderSkillGroup;
 
 /**
  * 类似于LoginMain, HallMain
@@ -28,9 +30,18 @@ private:
 	UPROPERTY(meta = (BindWidget))
 		UUI_CharacterHealthState* MainCharacterHealthState;
 	
+	// 窗口技能页
+	UPROPERTY(meta = (BindWidget))
+		UUI_SkillPage* SkillPage;
+
+	// 横排技能组
+	UPROPERTY(meta = (BindWidget))
+		UUI_UnderSkillGroup* UnderSkillGroup;
+
 	// 经验进度条,
 	UPROPERTY(meta = (BindWidget))
 		UProgressBar* EXPBar;
+
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
