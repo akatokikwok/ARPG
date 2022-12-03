@@ -26,5 +26,5 @@ public:
 	virtual void NativeConstruct() override;
 
 public:
-
+	void LayoutSlot(const TArray<FName>& InSkillTags);
 };

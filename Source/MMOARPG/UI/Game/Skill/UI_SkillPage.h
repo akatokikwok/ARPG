@@ -26,7 +26,7 @@ public:
 	virtual void NativeConstruct() override;
 
 public:
-	//
+	// 一组技能标签
 	void LayoutSlot(const TArray<FName>& InKeys);
 	
 	//
