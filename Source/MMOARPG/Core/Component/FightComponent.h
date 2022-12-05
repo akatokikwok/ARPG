@@ -35,11 +35,12 @@ public:
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
-	// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
-	void AddSkillAttack(const FName& InKey);
+	//// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
+	//void AddSkillAttack(const FName& InKey);
 
-	// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
-	void AddComboAttack(const FName& InKey);
+	//// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
+	//void AddComboAttack(const FName& InKey);
+
 protected:
 	/** 用指定GA去注册连招触发器黑盒. */
 	void RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName);

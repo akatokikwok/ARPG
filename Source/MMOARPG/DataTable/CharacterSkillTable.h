@@ -24,9 +24,9 @@ public:
 // 	TSubclassOf<UGameplayAbility>* FindLimbs(const FName& InKey);// 用Key获取缓存池:肢体行为
 
 public:
-	// ID号, 存在于负责技能的DTRow.
+	// 可选用的人物号(比如主角,仆从1,仆从2)
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
-		int32 ID;// ID号, 存在于负责技能的DTRow.
+		int32 ID;// 可选用的人物号(比如主角,仆从1,仆从2)
 	
 	// 技能图标
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")

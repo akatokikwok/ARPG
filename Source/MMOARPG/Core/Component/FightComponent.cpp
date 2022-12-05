@@ -145,75 +145,72 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 		// 用GameState找出人身上配的 DTRow::技能表
 		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// 从DTR里拿表中的TMAP作为数据源.
-			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
-				switch (InGAType) {
-					case GAMEPLAYABILITY_LIMBS:
-					{
-						return InSkillTable_row->FindLimbs(InKey_GAName);
-						break;
-					}
-					case GAMEPLAYABILITY_SKILLATTACK:
-					{
-						return InSkillTable_row->FindSkillAttack(InKey_GAName);
-						break;
-					}
-					case GAMEPLAYABILITY_COMBOATTACK:
-					{
-						return InSkillTable_row->FindComboAttack(InKey_GAName);
-						break;
-					}
-				}
-				return nullptr;
-			};
+#pragma region 弃用
+// 			// 从DTR里拿表中的TMAP作为数据源.
+// 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
+// 				switch (InGAType) {
+// 					case GAMEPLAYABILITY_LIMBS:
+// 					{
+// 						return InSkillTable_row->FindLimbs(InKey_GAName);
+// 						break;
+// 					}
+// 					case GAMEPLAYABILITY_SKILLATTACK:
+// 					{
+// 						return InSkillTable_row->FindSkillAttack(InKey_GAName);
+// 						break;
+// 					}
+// 					case GAMEPLAYABILITY_COMBOATTACK:
+// 					{
+// 						return InSkillTable_row->FindComboAttack(InKey_GAName);
+// 						break;
+// 					}
+// 				}
+// 				return nullptr;
+// 			};
+#pragma endregion 弃用
 
 			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
-				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
-					/* 按技能形式来源切分, 分三类*/
-					switch (GAType) {
-						case GAMEPLAYABILITY_SKILLATTACK:
-							Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为skill池子添加元素
-							break;
-						case GAMEPLAYABILITY_COMBOATTACK:
-							ComboAttacks.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为连招池子添加元素
-							break;
-						case GAMEPLAYABILITY_LIMBS:
-							Limbs.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为肢体池子添加元素
-							break;
-					}
-				}
+			/* 按技能形式来源切分, 分三类*/
+			switch (GAType) {
+				case GAMEPLAYABILITY_SKILLATTACK:
+					Skills.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为skill池子添加元素
+					break;
+				case GAMEPLAYABILITY_COMBOATTACK:
+					ComboAttacks.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为连招池子添加元素
+					break;
+				case GAMEPLAYABILITY_LIMBS:
+					Limbs.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为肢体池子添加元素
+					break;
 			}
-			//
 		}
 	}
 }
 
 // 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
-void UFightComponent::AddSkillAttack(const FName& InKey)
-{
-	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// DT单行里查找Skill缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindComboAttack(InKey)) {
-				Skills.Add(InKey, AddAbility(*InGameplayAbility));
-			}
-		}
-	}
-}
+// void UFightComponent::AddSkillAttack(const FName& InKey)
+// {
+// 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+// 		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+// 			// DT单行里查找Skill缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+// 			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindComboAttack(InKey)) {
+// 				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+// 			}
+// 		}
+// 	}
+// }
 
-// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
-void UFightComponent::AddComboAttack(const FName& InKey)
-{
-	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// DT单行里查找连击缓存池,并按名字找到GA,	往Skill池子里写入这个GA
-			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindSkillAttack(InKey)) {
-				Skills.Add(InKey, AddAbility(*InGameplayAbility));
-			}
-		}
-	}
-}
+//// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
+//void UFightComponent::AddComboAttack(const FName& InKey)
+//{
+//	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+//		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+//			// DT单行里查找连击缓存池,并按名字找到GA,	往Skill池子里写入这个GA
+//			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindSkillAttack(InKey)) {
+//				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+//			}
+//		}
+//	}
+//}
 
 // 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 void UFightComponent::Press()
@@ -240,7 +237,7 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 	if (MMOARPGCharacterBase.IsValid() && AbilitySystemComponent.IsValid()) {
 		// 		 const FName InKey = TEXT("Player.Attack.ComboLinkage");
 
-				/* 仅运行在服务器的逻辑. */
+		/* 仅运行在服务器的逻辑. */
 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
 			// 往Skill池子里写入 从DTRow里查出来的一组	GA
 			for (auto& Tmp : InGANames) {
