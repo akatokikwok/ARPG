@@ -25,7 +25,7 @@ public:
 	FCharacterStyleTable* GetCharacterStyleTable(int32 InCharacterTableID);// 从DT里读指定ID的 人物样式行
 	TArray<FCharacterStyleTable*>* GetCharacterStyleTables();// 把多行人物样式 写入样式DT.
 
-	FCharacterSkillTable* GetCharacterSkillTable(int32 InSkillTableID);// 从DT里读指定ID的 技能
+	FCharacterSkillTable* GetCharacterSkillTable(const FName& InSkillKey, int32 InSkillTableID);// 从DT里读指定ID的 技能
 	TArray<FCharacterSkillTable*>* GetCharacterSkillTables();// 把多行技能 写入技能DT.
 
 	FCharacterAttributeTable* GetCharacterAttributeTable(int32 InCharacterTableID);// 从属性集DT里读出指定角色号的 属性集

@@ -1,5 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "MMOARPGGameState.h"
+#include "Abilities/GameplayAbility.h"
 
 AMMOARPGGameState::AMMOARPGGameState()
 {
@@ -43,9 +44,24 @@ TArray<FCharacterStyleTable*>* AMMOARPGGameState::GetCharacterStyleTables()
 	return GetTables_write(CharacterStyleTablePtr, CharacterStyleTables, TEXT("CharacterTable"));
 }
 
-FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(int32 InSkillTableID)
+FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(const FName& InSkillKey, int32 InCharacterSkillTableID)
 {
-	return GetTable_read(InSkillTableID, CharacterSkillTablePtr, CharacterSkillTables, TEXT("SkillTable"));
+	if (TArray<FCharacterSkillTable*>* AllRows = GetTables_write(CharacterSkillTablePtr, CharacterSkillTables, TEXT("SkillTable"))) {
+		/** FindByPredicate条件匹配 */
+		if (FCharacterSkillTable** InFoundSkillTable = AllRows->FindByPredicate(
+			[&](const FCharacterSkillTable* InSKillData)->bool {
+				if (InSKillData->ID == InCharacterSkillTableID) {
+					return InSKillData->GameplayAbility.GetDefaultObject()->AbilityTags == FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InSkillKey));
+				}
+				return false;
+			})
+		) 
+		{
+			return *InFoundSkillTable;
+		}
+	}
+
+	return NULL;
 }
 
 TArray<FCharacterSkillTable*>* AMMOARPGGameState::GetCharacterSkillTables()

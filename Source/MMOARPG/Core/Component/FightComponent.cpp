@@ -144,7 +144,7 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 {
 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 		// 用GameState找出人身上配的 DTRow::技能表
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(InKey_GAName, MMOARPGCharacterBase->GetID())) {
 #pragma region 弃用
 // 			// 从DTR里拿表中的TMAP作为数据源.
 // 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
