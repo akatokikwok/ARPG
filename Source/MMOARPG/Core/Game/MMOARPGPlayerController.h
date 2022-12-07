@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "../Common/Core/GamePlay/PlayerControllerBase.h"
 #include "MMOARPGPlayerController.generated.h"
 
 class AMMOARPGCharacter;
@@ -11,7 +11,7 @@ class AMMOARPGCharacter;
  *
  */
 UCLASS()
-class MMOARPG_API AMMOARPGPlayerController : public APlayerController
+class MMOARPG_API AMMOARPGPlayerController : public APlayerControllerBase
 {
 	GENERATED_BODY()
 public:
