@@ -64,6 +64,10 @@
 		{
 			"Name": "SimpleNumericalDeduction",
 			"Enabled": true
+		},
+		{
+			"Name": "SimplePopup",
+			"Enabled": true
 		}
 	]
 }
