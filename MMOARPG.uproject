@@ -67,7 +67,8 @@
 		},
 		{
 			"Name": "SimplePopup",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "https://renzhai.net/518.html"
 		}
 	]
 }

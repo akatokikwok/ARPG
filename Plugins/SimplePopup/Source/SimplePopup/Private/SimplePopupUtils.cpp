@@ -1,4 +1,4 @@
-// Copyright (C) RenZhai.2021.All Rights Reserved.
+﻿// Copyright (C) RenZhai.2021.All Rights Reserved.
 #include "SimplePopupUtils.h"
 #include "SimplePopupType.h"
 #include "Core/UI_SimplePopup.h"

@@ -1,4 +1,4 @@
-// Copyright (C) RenZhai.2021.All Rights Reserved.
+ï»¿// Copyright (C) RenZhai.2021.All Rights Reserved.
 
 #pragma once
 
@@ -10,11 +10,11 @@ DECLARE_DYNAMIC_DELEGATE(FSimpleBlueprintDelegate);
 UENUM(BlueprintType)
 enum class ESimplePopupType :uint8
 {
-	NONE  UMETA(DisplayName = "None"),//¿ÕµÄ
-	DELAY UMETA(DisplayName = "Delay"), //¸ø¶¨Ò»¸öÊ±¼ä£¬µ½ÁË¾ÍÉ¾³ı×Ô¼º
-	WAIT  UMETA(DisplayName = "Wait"),//µ¯´°»áÒ»Ö±³öÏÖ
-	ONE   UMETA(DisplayName = "Once Button"),//»áÉú³ÉÒ»¸ö°´Å¥ Õâ¸ö°´Å¥°ó¶¨È¡Ïû
-	TWO   UMETA(DisplayName = "Two Button"),//³öÏÖÁ½¸öÒ»¸ö°ó¶¨È¡Ïû Ò»¸ö°ó¶¨È·¶¨
+	NONE  UMETA(DisplayName = "None"),//ç©ºçš„
+	DELAY UMETA(DisplayName = "Delay"), //ç»™å®šä¸€ä¸ªæ—¶é—´ï¼Œåˆ°äº†å°±åˆ é™¤è‡ªå·±
+	WAIT  UMETA(DisplayName = "Wait"),//å¼¹çª—ä¼šä¸€ç›´å‡ºç°
+	ONE   UMETA(DisplayName = "Once Button"),//ä¼šç”Ÿæˆä¸€ä¸ªæŒ‰é’® è¿™ä¸ªæŒ‰é’®ç»‘å®šå–æ¶ˆ
+	TWO   UMETA(DisplayName = "Two Button"),//å‡ºç°ä¸¤ä¸ªä¸€ä¸ªç»‘å®šå–æ¶ˆ ä¸€ä¸ªç»‘å®šç¡®å®š
 };
 
 class UUI_SimplePopup;

@@ -1,4 +1,4 @@
-// Copyright (C) RenZhai.2021.All Rights Reserved.
+ï»¿// Copyright (C) RenZhai.2021.All Rights Reserved.
 
 #pragma once
 
@@ -7,7 +7,7 @@
 
 class UUI_SimplePopup;
 
-//½ö½öÌá¹©C++Ê¹ÓÃ
+//ä»…ä»…æä¾›C++ä½¿ç”¨
 namespace SimplePopupUtils
 {
 	SIMPLEPOPUP_API FPopupHandle CreatePopup(

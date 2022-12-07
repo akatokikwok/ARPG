@@ -1,4 +1,4 @@
-// Copyright (C) RenZhai.2021.All Rights Reserved.
+ï»¿// Copyright (C) RenZhai.2021.All Rights Reserved.
 
 #pragma once
 
@@ -26,7 +26,7 @@ public:
 	 * @param	SureDelegate			Definite agent of pop-up window .
 	 * @param	CancelDelegate			Cancel agent for pop ups .
 	 * @param	Life					When the pop-up window type is ESimplePopupType::DELAY, you need a custom time to destroy it.
-	 * @param	DelayDestroy			×¨ÃÅÎªÑÓ³Ù²¥·Å¶¯»­×¼±¸
+	 * @param	DelayDestroy			ä¸“é—¨ä¸ºå»¶è¿Ÿæ’­æ”¾åŠ¨ç”»å‡†å¤‡
 	 * @return  FPopupHandle			Returns a pop-up handle. You can customize many pop-up behaviors .@See PopupSure(...),PopupCancel(..).
 	 */
 	UFUNCTION(BlueprintCallable, Category = SimplePopup, meta = (WorldContext = WorldContextObject))

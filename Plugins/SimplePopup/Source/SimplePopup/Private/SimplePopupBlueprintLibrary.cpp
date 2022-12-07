@@ -1,5 +1,6 @@
-// Copyright (C) RenZhai.2021.All Rights Reserved.
+﻿// Copyright (C) RenZhai.2021.All Rights Reserved.
 #include "SimplePopupBlueprintLibrary.h"
+#include "Core/UI_SimplePopup.h"
 
 FPopupHandle USimplePopupBlueprintLibrary::CreatePopup(
 	UObject* WorldContextObject,
