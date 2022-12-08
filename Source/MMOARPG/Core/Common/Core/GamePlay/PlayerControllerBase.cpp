@@ -27,7 +27,20 @@ void APlayerControllerBase::Tick(float DeltaTime)
 
 void APlayerControllerBase::CreateWindows(const FText& InButtonName, const FText& InButtonContent, uint8 InProtocol)
 {
-
+	if (!GetWorld()->IsServer()) {
+		if (SimplePopupClass) {
+			SimplePopupUtils::CreatePopup(GetWorld(),
+				SimplePopupClass,
+				InButtonContent,
+				ESimplePopupType::ONE,
+				InButtonName,
+				FText(),
+				100.f,
+				0.f,
+				FSimpleDelegate::CreateUObject(this, &APlayerControllerBase::OnSureButtonClicked, InProtocol),
+				FSimpleDelegate());
+		}
+	}
 }
 
 void APlayerControllerBase::OnSureButtonClicked(uint8 InProtocol)

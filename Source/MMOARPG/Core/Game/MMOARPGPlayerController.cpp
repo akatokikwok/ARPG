@@ -99,3 +99,8 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 		}
 	}
 }
+
+void AMMOARPGPlayerController::OnSureButtonClicked(uint8 InProtocol)
+{
+
+}

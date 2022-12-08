@@ -23,6 +23,7 @@ public:
 	void CreateWindows(const FText& InButtonName, const FText& InButtonContent, uint8 InProtocol);
 
 protected:
+	// 回调, Sure键按下后的反应
 	UFUNCTION()
 	virtual void OnSureButtonClicked(uint8 InProtocol);
 
