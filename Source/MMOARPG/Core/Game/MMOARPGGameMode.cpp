@@ -106,6 +106,12 @@ void AMMOARPGGameMode::UpdateLevelRequests(int32 InUserID, int32 InCharacterID, 
 	SEND_DATA(SP_CharacterUpgradeLevelRequests, InUserID, InCharacterID, AttributeString);
 }
 
+/** 经过DS,向CS发送重生请求 */
+void AMMOARPGGameMode::CharacterResurrectionRequests(int32 InUserID, int32 InCharacterID)
+{
+	SEND_DATA(SP_CharacterResurrectionRequests, InUserID, InCharacterID);
+}
+
 void AMMOARPGGameMode::IdentityReplicationRequests()
 {
 	FString IP;
@@ -306,6 +312,19 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 		case SP_UpdateAttributeaResponses:
 		{
 			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateAttributeaResponses);
+			break;
+		}
+
+		/** 接收到来自CS的 响应人物重生协议 */
+		case SP_CharacterResurrectionResponses:
+		{
+			bool bResurrection = false;
+			int32 UserID = INDEX_NONE;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterResurrectionResponses, UserID, bResurrection);
+			if (UserID != INDEX_NONE) {
+				
+			}
+
 			break;
 		}
 	}

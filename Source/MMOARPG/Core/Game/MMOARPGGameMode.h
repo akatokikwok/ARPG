@@ -36,6 +36,10 @@ public:
 
 	// 升级人物等级请求.
 	void UpdateLevelRequests(int32 InUserID, int32 InCharacterID, const FMMOARPGCharacterAttribute& InCharacterAttribute);
+
+	// 经过DS,向CS发送重生请求
+	void CharacterResurrectionRequests(int32 InUserID, int32 InCharacterID);
+
 protected:
 	//	向CS发送身份覆写请求.
 	void IdentityReplicationRequests();
