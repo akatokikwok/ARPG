@@ -15,7 +15,13 @@
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
 #include "../../MMOARPGGameType.h"
-#include "MMOARPGTagList.h"
+// #include "MMOARPGTagList.h"
+
+extern void NameToEGamePlayTags0s(const FName& InName, TArray<FName>& OutName);
+extern FName EGamePlayTags0sToName(const TArray<FName>& InName);
+extern void AnalysisArrayNameToGamePlayTags(const TArray<FName>& InNames, TArray<FName>& OutNames);
+//extern void AnalysisGamePlayTagsToArrayName(const TArray<FName>& InNames, TArray<FName>& OutNames);
+
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
