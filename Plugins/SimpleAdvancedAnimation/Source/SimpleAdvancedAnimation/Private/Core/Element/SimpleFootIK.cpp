@@ -52,7 +52,7 @@ FFootIKInfo* FSimpleFootIK::FindFootIKInfo(const FName& InKeyName)
 float FSimpleFootIK::FootTrace(const FName& BoneName, float InTraceDistance)
 {
 	if (Character != nullptr) {
-		if (Character->IsPendingKill()) {// 人被销毁了.
+		if (IsValid(Character)) {// 人被销毁了.
  			bPendingKill = true;
 			Character = nullptr;
 			return 0.0f;

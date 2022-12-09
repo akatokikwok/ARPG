@@ -488,7 +488,7 @@ void AMMOARPGCharacterBase::GetLimbsTagsName(TArray<FName>& OutNames)
 
 void AMMOARPGCharacterBase::Resurrection()
 {
-	if (GetWorld()->IsServer()) {
+	if (IsNetMode(ENetMode::NM_DedicatedServer)) {
 		if (AttributeSet) {
 			AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
 			AttributeSet->SetMana(AttributeSet->GetMaxMana());

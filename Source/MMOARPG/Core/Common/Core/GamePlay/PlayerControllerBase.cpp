@@ -27,7 +27,7 @@ void APlayerControllerBase::Tick(float DeltaTime)
 
 void APlayerControllerBase::CreateWindows(const FText& InButtonName, const FText& InButtonContent, uint8 InProtocol)
 {
-	if (!GetWorld()->IsServer()) {
+	if (!IsNetMode(ENetMode::NM_DedicatedServer)) {
 		if (SimplePopupClass) {
 			SimplePopupUtils::CreatePopup(GetWorld(),
 				SimplePopupClass,
