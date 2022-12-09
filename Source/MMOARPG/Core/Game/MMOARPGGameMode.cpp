@@ -280,6 +280,11 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							// 还需要注册一下 连招黑盒
 							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
+							// 在客户端创建死亡提示窗口
+							if (InPlayerCharacter->IsDie()) {
+								InPlayerCharacter->CreateResurrectionWindowsClient();
+							}
+
 							// 升级
 							//InPlayerCharacter->UpdateLevel(CharacterAttribute.Level.CurrentValue);
 

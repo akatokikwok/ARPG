@@ -34,8 +34,8 @@ public:
 
 protected:
 	// 服务端执行人物重生
-	UFUNCTION(Server, reliable)
-		void ResurrectionOnServer();
+	UFUNCTION(Server, Reliable)
+	void ResurrectionOnServer();
 
 protected:
 	// 敌对人物或者小怪,人物基类弱指针;
