@@ -220,7 +220,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 									NetDataAnalysis::StringToCharacterAppearances(CAJsonString, InPlayerState->GetCA());
 									// DS上刷新外貌 与 RPC客户端刷新容貌.
 									InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());
-// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
+									// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
 								}
 								return MethodUnit::EServerCallType::PROGRESS_COMPLETE;// 所有步骤完成后就断开不再遍历.
 							}
@@ -318,11 +318,26 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 		/** 接收到来自CS的 响应人物重生协议 */
 		case SP_CharacterResurrectionResponses:
 		{
-			bool bResurrection = false;
+			bool bResurrection = false;// 复活结果
 			int32 UserID = INDEX_NONE;
 			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterResurrectionResponses, UserID, bResurrection);
+
 			if (UserID != INDEX_NONE) {
-				
+				if (bResurrection) {
+					MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(
+						GetWorld(),
+						[&](AMMOARPGPlayerController* InController) ->MethodUnit::EServerCallType {
+							if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
+								if (InPlayerCharacter->GetUserID() == UserID) {
+									InPlayerCharacter->Resurrection();
+								}
+							}
+						}
+					);
+				}
+				else {
+					UE_LOG(LogTemp, Log, TEXT("Exclusive server identity registration succeeded."));
+				}
 			}
 
 			break;

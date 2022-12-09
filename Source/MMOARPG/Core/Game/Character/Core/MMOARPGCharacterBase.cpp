@@ -485,3 +485,13 @@ void AMMOARPGCharacterBase::GetLimbsTagsName(TArray<FName>& OutNames)
 		FightComponent->GetLimbsTagsName(OutNames);
 	}
 }
+
+void AMMOARPGCharacterBase::Resurrection()
+{
+	if (GetWorld()->IsServer()) {
+		if (AttributeSet) {
+			AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
+			AttributeSet->SetMana(AttributeSet->GetMaxMana());
+		}
+	}
+}

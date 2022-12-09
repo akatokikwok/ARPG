@@ -4,6 +4,14 @@
 #include "MMOARPGGameType.generated.h"
 
 /**
+ * 弹窗消息类型枚举
+ */
+enum class EPopupMsgType :uint8
+{
+	POPUP_MSG_RESURRECTION,// 重生
+};
+
+/**
  * 游戏各阶段状态枚举.
  */
 enum EMMOARPGGameStatusType

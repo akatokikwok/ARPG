@@ -244,6 +244,10 @@ public:
 	// 提出所有肢体动作名字并存下来
 	void GetLimbsTagsName(TArray<FName>& OutNames);
 
+public:
+	// 人物执行复活
+	void Resurrection();
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.

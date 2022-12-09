@@ -17,6 +17,8 @@
 #include "../MMOARPGPlayerController.h"
 #include "MMOARPGTagList.h"
 
+#define LOCTEXT_NAMESPACE "AMMOARPGCharacter"
+
 /** 按键绑定. */
 void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -581,3 +583,17 @@ void AMMOARPGCharacter::HandleExp(const struct FGameplayTagContainer& InTags, fl
 		}
 	}
 }
+
+void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
+{
+	if (GetWorld()) {
+		if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+			InPlayerController->CreateWindows(
+				LOCTEXT("Resurrection_Button", "Resurrection"),
+				LOCTEXT("Resurrection_Content", "When the character dies, it will be revived to the latest generation point after clicking rebirth."),
+				(uint8)EPopupMsgType::POPUP_MSG_RESURRECTION);
+		}
+	}
+}
+
+#undef LOCTEXT_NAMESPACE

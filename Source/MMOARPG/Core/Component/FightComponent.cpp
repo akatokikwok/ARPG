@@ -12,6 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "../Game/MMOARPGGameState.h"
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
+#include "../Game/Character/MMOARPGCharacter.h"
 
 UFightComponent::UFightComponent()
 {
@@ -296,6 +297,11 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 
 			/* 对目标人物 执行使其死亡 最后执行.*/
 			MMOARPGCharacterBase->PlayDie();
+
+			// 只有玩家角色才可以创建重生提示弹窗(仅在客户端)
+			if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+				InCharacter->CreateResurrectionWindowsClient();
+			}
 		}
 		else {
 			// 施法者和受击序号必须有意义.

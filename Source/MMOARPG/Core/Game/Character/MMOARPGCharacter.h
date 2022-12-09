@@ -161,6 +161,11 @@ public:
 	// 覆写处理经验值接口
 	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
+public:
+	// 创建重生弹窗
+	UFUNCTION(Client, Reliable)
+	void CreateResurrectionWindowsClient();
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -179,6 +184,5 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
-
 };
 

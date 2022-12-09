@@ -1,10 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-#include "MMOARPGPlayerController.h"
+﻿#include "MMOARPGPlayerController.h"
 #include "Character/MMOARPGCharacter.h"
 #include "Character/MMOARPGPlayerCharacter.h"
 #include "MMOARPGGameState.h"
 #include "MMOARPGPlayerState.h"
 #include "../../MMOARPGGameMethod.h"
+#include "MMOARPGGameMode.h"
 
 AMMOARPGPlayerController::AMMOARPGPlayerController()
 {
@@ -69,7 +69,7 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/// 检索半径范围内最近的敌对目标.
-	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy || 
+	if (GetLocalRole() == ENetRole::ROLE_AutonomousProxy ||
 		GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
 		if (GetPawn() != nullptr) {
 
@@ -100,7 +100,26 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	}
 }
 
+/** 覆写; 回调, Sure键按下后的反应 */
 void AMMOARPGPlayerController::OnSureButtonClicked(uint8 InProtocol)
 {
+	EPopupMsgType MsgType = (EPopupMsgType)InProtocol;
+	switch (MsgType) {
+		case EPopupMsgType::POPUP_MSG_RESURRECTION:
+		{
+			ResurrectionOnServer_Implementation();// 向服务端请求人物重生
+			break;
+		}
+	}
+}
 
+/** 向服务端请求人物重生 */
+void AMMOARPGPlayerController::ResurrectionOnServer_Implementation()
+{
+	if (AMMOARPGCharacterBase* InCharacter = GetPawn<AMMOARPGCharacterBase>()) {
+		if (AMMOARPGGameMode* InGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+			// 经过DS,向CS发送重生请求
+			InGameMode->CharacterResurrectionRequests(InCharacter->GetUserID(), InCharacter->GetID());
+		}
+	}
 }

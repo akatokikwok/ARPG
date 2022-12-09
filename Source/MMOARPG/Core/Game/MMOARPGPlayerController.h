@@ -28,9 +28,14 @@ public:
 	// RPC在服务器, 写入目标人物或者小怪.
 	UFUNCTION(server, reliable)
 		void ResetTargetOnServer(AMMOARPGCharacterBase* InNewTarget);
-	
+
 	// 拿取目标人物或者小怪.
 	AMMOARPGCharacterBase* GetTarget() { return Target.Get(); }
+
+protected:
+	// 服务端执行人物重生
+	UFUNCTION(Server, reliable)
+		void ResurrectionOnServer();
 
 protected:
 	// 敌对人物或者小怪,人物基类弱指针;
