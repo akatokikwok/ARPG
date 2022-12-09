@@ -107,7 +107,7 @@ void AMMOARPGPlayerController::OnSureButtonClicked(uint8 InProtocol)
 	switch (MsgType) {
 		case EPopupMsgType::POPUP_MSG_RESURRECTION:
 		{
-			ResurrectionOnServer_Implementation();// 向服务端请求人物重生
+			ResurrectionOnServer();// 向服务端请求人物重生
 			break;
 		}
 	}
