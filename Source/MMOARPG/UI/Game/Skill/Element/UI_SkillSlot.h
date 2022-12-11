@@ -23,6 +23,7 @@ public:
 		UButton* SkillButton;
 
 public:
+	UUI_SkillSlot(const FObjectInitializer& ObjectInitializer);
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -40,6 +41,10 @@ protected:
 private:
 	// 隐藏图标
 	void HiddenIcon();
+
+protected:
+	static int32 PlayerSkillNumber;
+	int32 KeyNumber;
 
 private:
 	// 拖拽ICON显示类

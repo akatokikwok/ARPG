@@ -6,10 +6,27 @@
 #include "Styling/SlateBrush.h"
 #include "../../../../Core/Game/Character/MMOARPGCharacter.h"
 
+int32 UUI_SkillSlot::PlayerSkillNumber = 0;
+
+UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, KeyNumber(INDEX_NONE)
+{
+
+}
+
 void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	PlayerSkillNumber++;
+	FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
+	GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
+
+	// 暂定5个键位, 超出了则重置映射键位
+	if (PlayerSkillNumber >= 5) {
+		PlayerSkillNumber = 0;
+	}
 }
 
 void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
