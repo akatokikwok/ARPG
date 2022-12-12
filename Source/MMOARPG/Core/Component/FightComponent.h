@@ -10,6 +10,29 @@
 #include "../../MMOARPGGameType.h"
 #include "FightComponent.generated.h"
 
+/**
+ * 技能插槽的数据结构
+ */
+USTRUCT(BlueprintType)
+struct MMOARPG_API FMMOARPGSkillSlot
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	// 技能名称
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		FName SkillName;// 技能名称
+
+	// 希望释放出去的技能实例句柄
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		FGameplayAbilitySpecHandle Handle;// 希望释放出去的技能实例句柄
+
+public:
+	// 技能名称是否有意义
+	bool IsVaild() const { return SkillName != NAME_None; }
+	//
+	void Reset();
+};
+
 
 /**
  * 战斗组件.继承自MotionComp
@@ -60,6 +83,14 @@ public:
 	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
 	void Reset();
+
+public:
+	// 释放技能形式的攻击(非连招普攻)
+	bool SKillAttack(int32 InSlot);
+
+	// 技能形式的技能是否可以释放
+	UFUNCTION(BlueprintCallable)
+		bool Skill(const FName& InKey);
 
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
@@ -145,4 +176,8 @@ protected:
 	TMap<FName, FGameplayAbilitySpecHandle> ComboAttacks;
 	// 肢体行为缓存池
 	TMap<FName, FGameplayAbilitySpecHandle> Limbs;
+
+protected:
+	/** 可视化的插槽技能释放表,只有存在着里面才被授权使用 */
+	TMap<int32, FMMOARPGSkillSlot> SkillSlots;
 };

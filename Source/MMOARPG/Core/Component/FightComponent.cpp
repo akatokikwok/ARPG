@@ -231,6 +231,27 @@ void UFightComponent::Reset()
 	ComboAttackCheck.Reset();
 }
 
+// 释放技能形式的攻击(非连招普攻)
+bool UFightComponent::SKillAttack(int32 InSlot)
+{
+	if (SkillSlots.Contains(InSlot)) {
+		if (SkillSlots[InSlot].IsVaild()) {// 技能名称有意义
+			if (!Skill(SkillSlots[InSlot].SkillName)) {// 可以激活指定名字的技能
+				// 使用ASC激活技能句柄
+				return AbilitySystemComponent->TryActivateAbility(SkillSlots[InSlot].Handle);
+			}
+		}
+	}
+
+	return false;
+}
+
+// 是否可以激活指定名字的技能
+bool UFightComponent::Skill(const FName& InKey)
+{
+	return TryActivateAbility(InKey, Skills);
+}
+
 // 注册各部分技能(按形式来源)
 void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EMMOARPGGameplayAbilityType InGASrcEnum)
 {
@@ -386,4 +407,9 @@ void UFightComponent::GetComboAttackTagsName(TArray<FName>& OutNames)
 void UFightComponent::GetLimbsTagsName(TArray<FName>& OutNames)
 {
 	Limbs.GetKeys(OutNames);
+}
+
+void FMMOARPGSkillSlot::Reset()
+{
+
 }
