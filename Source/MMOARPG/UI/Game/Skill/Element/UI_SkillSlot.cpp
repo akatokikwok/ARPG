@@ -10,6 +10,7 @@ int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
 UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, bMappingKey(false)
 	, KeyNumber(INDEX_NONE)
 {
 
@@ -19,13 +20,15 @@ void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerSkillNumber++;
-	FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
-	GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
+	if (bMappingKey) {
+		KeyNumber = ++PlayerSkillNumber;
+		FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
+		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
 
-	// 暂定5个键位, 超出了则重置映射键位
-	if (PlayerSkillNumber >= 5) {
-		PlayerSkillNumber = 0;
+		// 暂定5个键位, 超出了则重置映射键位
+		if (PlayerSkillNumber >= 5) {
+			PlayerSkillNumber = 0;
+		}
 	}
 }
 
@@ -36,7 +39,15 @@ void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UUI_SkillSlot::OnClickedWidget()
 {
+	UUI_Base::Print(FString::FromInt(KeyNumber));
 
+	if (KeyNumber > 0) {
+		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {
+				InCharacter->SKillAttackOnServer(KeyNumber);
+			}
+		}
+	}
 }
 
 /** 侦测鼠标键按下 */

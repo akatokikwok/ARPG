@@ -601,4 +601,9 @@ void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
 	}
 }
 
+void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
+{
+
+}
+
 #undef LOCTEXT_NAMESPACE

@@ -72,6 +72,11 @@ public:
 	/** 接口: 执行播放控件动画, 需指定UMG动画具体名称. */
 	void PlayWidgetAnim(const FString& InWidgetName);
 
+public:
+	void Print(const FName& InContent);
+	void Print(const FText& InContent);
+	void Print(const FString& InContent);
+
 protected:
 	//
 	UPROPERTY()

@@ -166,6 +166,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CreateResurrectionWindowsClient();
 
+	//
+	UFUNCTION(Server, Reliable)
+	void SKillAttackOnServer(int32 InSlot);
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

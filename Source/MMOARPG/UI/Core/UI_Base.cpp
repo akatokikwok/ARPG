@@ -32,3 +32,20 @@ void UUI_Base::PlayWidgetAnim(const FString& InWidgetName)
 		UUserWidget::PlayAnimation(MyTempAnim);
 	}
 }
+
+void UUI_Base::Print(const FName& InContent)
+{
+	Print(InContent.ToString());
+}
+
+void UUI_Base::Print(const FText& InContent)
+{
+	Print(InContent.ToString());
+}
+
+void UUI_Base::Print(const FString& InContent)
+{
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Orange, InContent);
+	}
+}

@@ -21,7 +21,9 @@ public:
 	// 技能图标外侧包裹的button
 	UPROPERTY(meta = (BindWidget))
 		UButton* SkillButton;
-
+	//
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+		bool bMappingKey;
 public:
 	UUI_SkillSlot(const FObjectInitializer& ObjectInitializer);
 	virtual void NativeConstruct() override;
