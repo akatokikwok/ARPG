@@ -601,9 +601,12 @@ void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
 	}
 }
 
+/** 服务端执行技能形式的技能攻击(需指定一个槽号) */
 void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
 {
-
+	if (GetFightComponent()) {
+		GetFightComponent()->SKillAttack(InSlot);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

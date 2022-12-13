@@ -43,7 +43,8 @@ void UUI_SkillSlot::OnClickedWidget()
 
 	if (KeyNumber > 0) {
 		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
-			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {
+			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
+				// 服务端执行技能形式的技能攻击(需指定一个槽号)
 				InCharacter->SKillAttackOnServer(KeyNumber);
 			}
 		}

@@ -106,20 +106,44 @@ bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FNam
 	return false;
 }
 
+// 释放技能形式的攻击(非连招普攻)
+bool UFightComponent::SKillAttack(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		if (SkillSlotsTMap[InSlot].IsVaild()) {// 技能名称有意义
+			if (!Skill(SkillSlotsTMap[InSlot].SkillName)) {// 可以激活指定名字的技能
+				/** 使用ASC激活技能池子里指定槽号的技能句柄 */
+				return AbilitySystemComponent->TryActivateAbility(SkillSlotsTMap[InSlot].Handle);
+			}
+		}
+	}
+	return false;
+}
+
+// 是否可以激活指定名字的技能
+bool UFightComponent::Skill(const FName& InKey)
+{
+	return TryActivateAbility(InKey, Skills);
+}
+
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	if (AbilitySystemComponent.IsValid()) {
-		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
-	}
+	Skill(TEXT("Character.Skill.Dodge"));
+
+// 	if (AbilitySystemComponent.IsValid()) {
+// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
+// 	}
 }
 
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	if (AbilitySystemComponent.IsValid()) {
-		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
-	}
+	Skill(TEXT("Character.Skill.Sprint"));
+
+// 	if (AbilitySystemComponent.IsValid()) {
+// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
+// 	}
 }
 
 // 激活 受击技能
@@ -229,27 +253,6 @@ void UFightComponent::Released()
 void UFightComponent::Reset()
 {
 	ComboAttackCheck.Reset();
-}
-
-// 释放技能形式的攻击(非连招普攻)
-bool UFightComponent::SKillAttack(int32 InSlot)
-{
-	if (SkillSlots.Contains(InSlot)) {
-		if (SkillSlots[InSlot].IsVaild()) {// 技能名称有意义
-			if (!Skill(SkillSlots[InSlot].SkillName)) {// 可以激活指定名字的技能
-				// 使用ASC激活技能句柄
-				return AbilitySystemComponent->TryActivateAbility(SkillSlots[InSlot].Handle);
-			}
-		}
-	}
-
-	return false;
-}
-
-// 是否可以激活指定名字的技能
-bool UFightComponent::Skill(const FName& InKey)
-{
-	return TryActivateAbility(InKey, Skills);
 }
 
 // 注册各部分技能(按形式来源)

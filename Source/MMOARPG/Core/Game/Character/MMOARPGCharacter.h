@@ -166,7 +166,7 @@ public:
 	UFUNCTION(Client, Reliable)
 	void CreateResurrectionWindowsClient();
 
-	//
+	// 服务端执行技能形式的技能攻击(需指定一个槽号)
 	UFUNCTION(Server, Reliable)
 	void SKillAttackOnServer(int32 InSlot);
 
