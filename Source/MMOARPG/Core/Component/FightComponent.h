@@ -92,6 +92,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool Skill(const FName& InKey);
 
+	/** 往技能池子(技能形式)指定槽号添加技能 */
+	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
+
+	/** 交换技能并查询是否成功 */
+	bool RemoveSkillSlot(int32 InSlot);
+
+	/** 移除技能并查询是否成功 */
+	bool SwapSkillSlot(int32 InASlot, int32 InBSlot);
+
+public:
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
 	void DodgeSkill();// 放闪避技能; 广播至其他客户端
@@ -179,5 +189,5 @@ protected:
 
 protected:
 	/** 可视化的插槽技能释放表,只有存在着里面才被授权使用 */
-	TMap<int32, FMMOARPGSkillSlot> SkillSlots;
+	TMap<int32, FMMOARPGSkillSlot> SkillSlotsTMap;
 };

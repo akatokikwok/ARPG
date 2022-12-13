@@ -126,6 +126,42 @@ bool UFightComponent::Skill(const FName& InKey)
 	return TryActivateAbility(InKey, Skills);
 }
 
+/** 往技能池子(技能形式)指定槽号添加技能 */
+bool UFightComponent::AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot)
+{
+	// 已存在则允许覆盖
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		SkillSlotsTMap[InSlot] = InSkillSlot;
+		return true;
+	}
+	return false;
+}
+
+/** 交换技能并查询是否成功 */
+bool UFightComponent::RemoveSkillSlot(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		// 再移除技能节点(指定槽位给个空,视为移除)
+		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
+		return true;
+	}
+	return false;
+}
+
+/** 移除技能并查询是否成功 */
+bool UFightComponent::SwapSkillSlot(int32 InASlot, int32 InBSlot)
+{
+	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
+		if (SkillSlotsTMap[InASlot].IsVaild() || SkillSlotsTMap[InBSlot].IsVaild()) {
+			FMMOARPGSkillSlot Tmp = SkillSlotsTMap[InASlot];
+			SkillSlotsTMap[InASlot] = SkillSlotsTMap[InBSlot];
+			SkillSlotsTMap[InBSlot] = Tmp;
+			return true;
+		}
+	}
+	return false;
+}
+
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
