@@ -85,23 +85,6 @@ public:
 	void Reset();
 
 public:
-	// 释放技能形式的攻击(非连招普攻)
-	bool SKillAttack(int32 InSlot);
-
-	// 技能形式的技能是否可以释放
-	UFUNCTION(BlueprintCallable)
-		bool Skill(const FName& InKey);
-
-	/** 往技能池子(技能形式)指定槽号添加技能 */
-	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
-
-	/** 交换技能并查询是否成功 */
-	bool RemoveSkillSlot(int32 InSlot);
-
-	/** 移除技能并查询是否成功 */
-	bool SwapSkillSlot(int32 InASlot, int32 InBSlot);
-
-public:
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
 	void DodgeSkill();// 放闪避技能; 广播至其他客户端
@@ -161,6 +144,34 @@ public:
 
 	// 从肢体缓存池里提出所有肢体动作名字
 	void GetLimbsTagsName(TArray<FName>& OutNames);
+
+public:
+	// 释放技能形式的攻击(非连招普攻)
+	bool SKillAttack(int32 InSlot);
+
+	// 技能形式的技能是否可以释放
+	UFUNCTION(BlueprintCallable)
+		bool Skill(const FName& InKey);
+
+	/** 往技能池子(技能形式)指定槽号添加技能 */
+	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
+
+	/** 交换技能并查询是否成功 */
+	bool RemoveSkillSlot(int32 InSlot);
+
+	/** 移除技能并查询是否成功 */
+	bool SwapSkillSlot(int32 InASlot, int32 InBSlot);
+
+public:
+	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */
+	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
+
+	/** 从总缓存池内移除指定TagName的技能 */
+	void RemoveSkill(const FName& InNameTag);
+
+protected:
+	/** 小接口: ASC移除给定句柄的技能 */
+	void ClearAbility(FGameplayAbilitySpecHandle InHanle);
 
 private:
 	/**来自人物基类的ASC

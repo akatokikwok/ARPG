@@ -162,6 +162,38 @@ bool UFightComponent::SwapSkillSlot(int32 InASlot, int32 InBSlot)
 	return false;
 }
 
+/** 真正技能缓存池里注册并装配 技能表的指定名字的技能 */
+FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (FCharacterSkillTable* InSkillTable = InGameState->GetCharacterSkillTable(InNameTag, MMOARPGCharacterBase->GetID())) {// 从DT里读指定游玩人物专属ID的 一行技能信息
+			if (!Skills.Contains(InNameTag)) {
+				Skills.Add(InNameTag, this->AddAbility(InSkillTable->GameplayAbility));
+				return Skills[InNameTag];
+			}
+		}
+	}
+
+	return FGameplayAbilitySpecHandle();
+}
+
+/** 从总缓存池内移除指定TagName的技能 */
+void UFightComponent::RemoveSkill(const FName& InNameTag)
+{
+	if (Skills.Contains(InNameTag)) {
+		//  小接口: ASC移除给定句柄的技能
+		this->ClearAbility(Skills[InNameTag]);
+		// 移除容器里的一组pair
+		Skills.Remove(InNameTag);
+	}
+}
+
+/** 小接口: ASC移除给定句柄的技能 */
+void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
+{
+	AbilitySystemComponent->ClearAbility(InHanle);
+}
+
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
