@@ -55,8 +55,7 @@ FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(const FName& InS
 				}
 				return false;
 			})
-		) 
-		{
+			) {
 			return *InFoundSkillTable;
 		}
 	}
@@ -77,4 +76,25 @@ FCharacterAttributeTable* AMMOARPGGameState::GetCharacterAttributeTable(int32 In
 TArray<FCharacterAttributeTable*>* AMMOARPGGameState::GetCharacterAttributeTables()
 {
 	return GetTables_write(CharacterAttributeTablePtr, CharacterAttributeTables, TEXT("CharacterAttribute"));
+}
+
+/** 提取出给定ID号的人物的所有行技能信息(即某个ID的人物拥有多少个技能) */
+bool AMMOARPGGameState::GetCharacterSkillsTables(int32 InCharacterID, TArray<FCharacterSkillTable*>& OutSkillTables)
+{
+	if (TArray<FCharacterSkillTable*>* InCharacterSkillTables = GetCharacterSkillTables()) {// 先拿取所有行技能信息.
+		if (FCharacterSkillTable** FoundedElePtr = InCharacterSkillTables->FindByPredicate(// 若确保能查找到 给定人物ID的那行技能信息
+				[InCharacterID](const FCharacterSkillTable* InSingleRowPtr) ->bool { 
+					return InSingleRowPtr->ID == InCharacterID; 
+				})) {
+				
+			// 再提取到出参
+			for (auto& Row_Skill : *InCharacterSkillTables) {
+				if (Row_Skill->ID == InCharacterID) {
+					OutSkillTables.Add(Row_Skill);
+				}
+			}
+			return OutSkillTables.Num() > 0;
+		}
+	}
+	return false;
 }

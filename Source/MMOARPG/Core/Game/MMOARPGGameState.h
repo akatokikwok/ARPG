@@ -31,6 +31,10 @@ public:
 	FCharacterAttributeTable* GetCharacterAttributeTable(int32 InCharacterTableID);// 从属性集DT里读出指定角色号的 属性集
 	TArray<FCharacterAttributeTable*>* GetCharacterAttributeTables();// 把多行属性集 写入 属性集DT
 
+public:
+	/**  提取出给定ID号的人物的所有行技能信息(即某个ID的人物拥有多少个技能) (需要人物角色ID和所有行技能信息) */
+	bool GetCharacterSkillsTables(int32 InCharacterID, TArray<FCharacterSkillTable*>& OutSkillTables);
+
 protected:/// 一些关于DT读写行数据的通用模板.
 
 	/* 把多行DTRow 写入一张蓝图DT里.*/
