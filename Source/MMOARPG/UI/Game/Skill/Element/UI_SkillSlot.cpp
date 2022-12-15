@@ -51,12 +51,43 @@ void UUI_SkillSlot::OnClickedWidget()
 	}
 }
 
+#pragma region 对外接口
 void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture)
 {
 	SlotIcon->SetBrushFromTexture(InTexture);// 设置纹理
 	SlotIcon->SetVisibility(ESlateVisibility::Visible);// 蓝图内默认隐藏,这里需要手动显示
 }
 
+UTexture2D* UUI_SkillSlot::GetIcon()
+{
+	return Cast<UTexture2D>(SlotIcon->Brush.GetResourceObject());
+}
+
+void UUI_SkillSlot::SetIcon(UTexture2D* InNewTexture)
+{
+	SlotIcon->SetBrushFromTexture(InNewTexture);
+	SlotIcon->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UUI_SkillSlot::ResetIcon()
+{
+	SlotIcon->SetBrushFromTexture(nullptr);
+	SlotIcon->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UUI_SkillSlot::HiddenIcon()
+{
+	SlotIcon->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UUI_SkillSlot::VisibleIcon()
+{
+	SlotIcon->SetVisibility(ESlateVisibility::Visible);
+}
+#pragma endregion 对外接口
+
+
+#pragma region 覆写侦测拖拽手势系统函数
 /** 侦测鼠标键按下 */
 FReply UUI_SkillSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
@@ -109,6 +140,10 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
 			/* 接收到上一步拖拽行为传入的Operation, 拿到入参拖拽的UMG控件*/
 			if (UUI_SkillSlot* MyInventorySlot = Cast<UUI_SkillSlot>(InOperation->Payload)) {
+
+				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
+				
+				}
 				return true;
 			}
 		}
@@ -116,8 +151,4 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 	return bDrop;
 }
-
-void UUI_SkillSlot::HiddenIcon()
-{
-	SlotIcon->SetVisibility(ESlateVisibility::Hidden);
-}
+#pragma endregion 覆写侦测拖拽手势系统函数
