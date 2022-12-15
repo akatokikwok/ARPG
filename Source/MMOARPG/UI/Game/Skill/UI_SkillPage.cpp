@@ -27,15 +27,26 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 					
 					int32 RowNumber = 20;
 					int32 ColumNumber = 3;
+
+					int32 Index = 0;
 					for (int32 MyRow = 0; MyRow < RowNumber; MyRow++) {
 						for (int32 MyColum = 0; MyColum < ColumNumber; MyColum++) {
-							if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {
+							if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {// 构建出SkillSlot
 								if (UUniformGridSlot* GridSlot = SlotArrayInventory->AddChildToUniformGrid(SlotWidget)) {
 									GridSlot->SetColumn(MyColum);
 									GridSlot->SetRow(MyRow);
 									GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
 									GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 								}
+
+								if (SkillTables.IsValidIndex(Index)) {
+									if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SkillTables[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
+										FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
+										SlotWidget->Update(*TagName, SkillTables[Index]->Icon);
+									}
+								}
+
+								Index++;
 							}
 						}
 					}

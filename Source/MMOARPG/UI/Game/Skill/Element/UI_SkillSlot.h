@@ -34,6 +34,9 @@ public:
 	UFUNCTION()
 		void OnClickedWidget();
 
+	// 更新图标
+	void Update(const FName& InTagName, UTexture2D* InTexture);
+
 protected:
 	/** 这是一些为了实现拖拽功能而覆写的接口 (拖拽技能页里ICON到技能横栏里) */
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;

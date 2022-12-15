@@ -51,6 +51,12 @@ void UUI_SkillSlot::OnClickedWidget()
 	}
 }
 
+void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture)
+{
+	SlotIcon->SetBrushFromTexture(InTexture);// 设置纹理
+	SlotIcon->SetVisibility(ESlateVisibility::Visible);// 蓝图内默认隐藏,这里需要手动显示
+}
+
 /** 侦测鼠标键按下 */
 FReply UUI_SkillSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
