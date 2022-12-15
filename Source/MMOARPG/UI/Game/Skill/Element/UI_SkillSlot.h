@@ -16,7 +16,7 @@ struct FWidgetSlotInfo
 		: Tags(NAME_None)
 	{}
 
-	FName Tags;
+	FName Tags;// 技能名字
 
 	bool IsVaild() const { return Tags != NAME_None; };// 名字是否有意义
 	void Reset() { Tags = NAME_None; }// 名字重置

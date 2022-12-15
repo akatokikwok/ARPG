@@ -95,7 +95,7 @@ FReply UUI_SkillSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const
 
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton || InMouseEvent.IsTouchEvent()) {// 判断是鼠标右键执行了触摸
 		FReply Reply = FReply::Handled();
-		
+
 		TSharedPtr<SWidget> SlateWidgetDrag = GetCachedWidget();
 		if (SlateWidgetDrag.IsValid()) {// 检查触碰的UMG是有意义的
 			// 此刻标记并侦测为拖拽行为
@@ -111,7 +111,7 @@ FReply UUI_SkillSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const
 void UUI_SkillSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
 	if (this->ICODragDrogClass != nullptr) {// 拖拽ICON显示元素类不为空
-		if (UUI_ICODragDrog* ICODragDrogUMGIns = CreateWidget<UUI_ICODragDrog>(GetWorld(), ICODragDrogClass)) {// 构建1个技能图标Ins
+		if (UUI_ICODragDrog* ICODragDrogUMGIns = CreateWidget<UUI_ICODragDrog>(GetWorld(), ICODragDrogClass)) {// 构建被鼠标右键拖拽出来的技能Logo
 			/* New一个拖拽操作行为*/
 			if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass())) {
 				InDropOperation->SetFlags(RF_StrongRefOnFrame);// 防止GC
@@ -139,11 +139,35 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 	if (InOperation) {// 接收到有入参拖拽操作
 		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
 			/* 接收到上一步拖拽行为传入的Operation, 拿到入参拖拽的UMG控件*/
-			if (UUI_SkillSlot* MyInventorySlot = Cast<UUI_SkillSlot>(InOperation->Payload)) {
+			if (UUI_SkillSlot* MyInventorySlot = Cast<UUI_SkillSlot>(InOperation->Payload)) {// 拖拽出来的技能插槽实例
 
+				/** 1.技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
+
+					/* 客户端表现的效果.*/
+					{
+						// 先缓存 "右键拖拽Logo"的纹理和名字
+						UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
+						FName TmpTags = MyInventorySlot->GetSlotInfo().Tags;
+
+						// 给 "右键拖拽Logo" 重新写入
+						MyInventorySlot->SetIcon(GetIcon());
+						MyInventorySlot->GetSlotInfo().Tags = GetSlotInfo().Tags;
+
+						// 将自己的技能插槽信息更换为之前缓存的那一份
+						GetSlotInfo().Tags = TmpTags;
+						SetIcon(TmpTexture);
+					}
+				}
+				/** 2.技能插槽移动 */
+				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
 				
 				}
+				/** 3.其他行为 */
+				else {
+
+				}
+
 				return true;
 			}
 		}
