@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../../Core/UI_MainBase.h"
+#include "../Skill/Element/DragDrop/UI_DragDrog.h"
 #include "UI_PartnerList.generated.h"
 
 class UVerticalBox;
@@ -13,7 +13,7 @@ class UUI_PartnerInfo;
  * 
  */
 UCLASS()
-class MMOARPG_API UUI_PartnerList : public UUI_Base
+class MMOARPG_API UUI_PartnerList : public UUI_DragDrog
 {
 	GENERATED_BODY()
 

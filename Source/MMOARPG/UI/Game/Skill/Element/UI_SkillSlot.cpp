@@ -110,7 +110,7 @@ FReply UUI_SkillSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const
 /** 识别到是拖拽行为 */
 void UUI_SkillSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
-	if (this->ICODragDrogClass != nullptr) {// 拖拽ICON显示元素类不为空
+	if (this->ICODragDrogClass != nullptr && this->GetSlotInfo().IsVaild()) {// 允许产生拖拽行为的前提: 拖拽ICON显示元素类不为空; 且名称必须有意义
 		if (UUI_ICODragDrog* ICODragDrogUMGIns = CreateWidget<UUI_ICODragDrog>(GetWorld(), ICODragDrogClass)) {// 构建被鼠标右键拖拽出来的技能Logo
 			/* New一个拖拽操作行为*/
 			if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass())) {
@@ -121,7 +121,8 @@ void UUI_SkillSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 				InDropOperation->Payload = this;// 填充拖拽行为
 				OutOperation = InDropOperation;// 注册出参
 
-				//this->HiddenIcon();// 隐藏技能图片
+				// 拖拽的时候 默认隐藏技能Logo
+				HiddenIcon();
 			}
 		}
 	}
@@ -173,9 +174,10 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						MyInventorySlot->GetSlotInfo().Reset();
 					}
 				}
-				/** 3.其他行为 */
+				/** 3.其他行为(比如拖拽失败了) */
 				else {
-
+					// 让拖拽Logo在过程中显示出来
+					MyInventorySlot->VisibleIcon();
 				}
 
 				return true;
