@@ -54,8 +54,8 @@ void UUI_SkillSlot::OnClickedWidget()
 #pragma region 对外接口
 void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture)
 {
-	SlotIcon->SetBrushFromTexture(InTexture);// 设置纹理
-	SlotIcon->SetVisibility(ESlateVisibility::Visible);// 蓝图内默认隐藏,这里需要手动显示
+	this->SetIcon(InTexture);
+	this->SlotInfo.Tags = InTagName;// 注册技能名字为入参.
 }
 
 UTexture2D* UUI_SkillSlot::GetIcon()
@@ -65,8 +65,8 @@ UTexture2D* UUI_SkillSlot::GetIcon()
 
 void UUI_SkillSlot::SetIcon(UTexture2D* InNewTexture)
 {
-	SlotIcon->SetBrushFromTexture(InNewTexture);
-	SlotIcon->SetVisibility(ESlateVisibility::Visible);
+	SlotIcon->SetBrushFromTexture(InNewTexture);// 设置纹理
+	SlotIcon->SetVisibility(ESlateVisibility::Visible);// 蓝图内默认隐藏,这里需要手动显示
 }
 
 void UUI_SkillSlot::ResetIcon()
@@ -162,6 +162,16 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				/** 2.技能插槽移动 */
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
 				
+					//客户端表现
+					{
+						// 设置一下自身
+						this->GetSlotInfo().Tags = MyInventorySlot->GetSlotInfo().Tags;
+						this->SetIcon(MyInventorySlot->GetIcon());
+
+						// 把拖拽的实例复位掉
+						MyInventorySlot->ResetIcon();
+						MyInventorySlot->GetSlotInfo().Reset();
+					}
 				}
 				/** 3.其他行为 */
 				else {
