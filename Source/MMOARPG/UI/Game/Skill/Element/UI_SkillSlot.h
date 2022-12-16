@@ -66,6 +66,9 @@ public:/// 一系列接口
 	//
 	void VisibleIcon();
 
+	// KeyNumber为-1的情况被视作 横向框是1个技能表.
+	bool IsSkillTableSlot()const { return KeyNumber == INDEX_NONE; }
+
 protected:
 	/** 这是一些为了实现拖拽功能而覆写的接口 (拖拽技能页里ICON到技能横栏里) */
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;

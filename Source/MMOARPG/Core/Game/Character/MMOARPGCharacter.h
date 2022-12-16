@@ -170,6 +170,32 @@ public:
 	UFUNCTION(Server, Reliable)
 	void SKillAttackOnServer(int32 InSlot);
 
+public:/// 关于技能槽的一些接口
+	// 从SkillSlot里面移动到技能能表里面
+	UFUNCTION(Server, Reliable)
+		void SKillSlotMoveToSkillTable(int32 InSlot);
+
+	// 从SkillSlot里面交换到技能能表里面
+	UFUNCTION(Server, Reliable)
+		void SKillSlotSwapSkillTable(int32 InRemoveSlot, const FName& InTag);
+
+	// 从SkillTable里面移动过来一个技能到空的技能表里面
+	UFUNCTION(Server, Reliable)
+		void SKillTableSlotMoveToSkillSlot(const FName& InTag, int32 InSlot);
+
+	// 从技能表里面移动过来替换原有的技能
+	UFUNCTION(Server, Reliable)
+		void SKillTableSlotSwapSkillSlot(int32 InRemoveSlot, const FName& InTag);
+
+	// 技能Slot之间的移动
+	UFUNCTION(Server, Reliable)
+		void SKillSlotMoveToNewSlot(int32 InASlot, int32 InBSlot);
+
+	// 技能Slot之间的交换
+	UFUNCTION(Server, Reliable)
+		void SillSlotSwap(int32 InASlot, int32 InBSlot);
+
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

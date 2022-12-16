@@ -144,8 +144,15 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 				/** 1.技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
+					/* 1.1 服务器表现 */
+					{
+						if (!MyInventorySlot->IsSkillTableSlot() && !this->IsSkillTableSlot()) {
+							// 通知服务端 这2个槽号的槽Swap
+							InCharacter->SillSlotSwap(this->KeyNumber, MyInventorySlot->KeyNumber);
+						}
+					}
 
-					/* 客户端表现的效果.*/
+					/* 1.2 客户端表现的效果.*/
 					{
 						// 先缓存 "右键拖拽Logo"的纹理和名字
 						UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
@@ -162,8 +169,15 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				}
 				/** 2.技能插槽移动 */
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
-				
-					//客户端表现
+					/* 2.1 服务器表现 */
+					{
+						if (!MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {
+							// 通知服务端 这2个槽号的槽移动
+							InCharacter->SKillSlotMoveToNewSlot(MyInventorySlot->KeyNumber, KeyNumber);
+						}
+					}
+
+					/* 2.2 客户端表现 */
 					{
 						// 设置一下自身
 						this->GetSlotInfo().Tags = MyInventorySlot->GetSlotInfo().Tags;
@@ -179,7 +193,6 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					// 让拖拽Logo在过程中显示出来
 					MyInventorySlot->VisibleIcon();
 				}
-
 				return true;
 			}
 		}

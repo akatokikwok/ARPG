@@ -609,4 +609,37 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
 	}
 }
 
+#pragma region 技能槽业务可用到的一些接口
+void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
+{
+
+}
+
+void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlot, const FName& InTag)
+{
+
+}
+
+void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InTag, int32 InSlot)
+{
+
+}
+
+void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InTag)
+{
+
+}
+
+void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int32 InBSlot)
+{
+
+}
+
+/** 单行技能框内2个技能槽交换 */
+void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot)
+{
+
+}
+#pragma endregion 技能槽业务可用到的一些接口
+
 #undef LOCTEXT_NAMESPACE
