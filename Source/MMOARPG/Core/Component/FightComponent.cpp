@@ -106,94 +106,6 @@ bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FNam
 	return false;
 }
 
-// 释放技能形式的攻击(非连招普攻)
-bool UFightComponent::SKillAttack(int32 InSlot)
-{
-	if (SkillSlotsTMap.Contains(InSlot)) {
-		if (SkillSlotsTMap[InSlot].IsVaild()) {// 技能名称有意义
-			if (!Skill(SkillSlotsTMap[InSlot].SkillName)) {// 可以激活指定名字的技能
-				/** 使用ASC激活技能池子里指定槽号的技能句柄 */
-				return AbilitySystemComponent->TryActivateAbility(SkillSlotsTMap[InSlot].Handle);
-			}
-		}
-	}
-	return false;
-}
-
-// 是否可以激活指定名字的技能
-bool UFightComponent::Skill(const FName& InKey)
-{
-	return TryActivateAbility(InKey, Skills);
-}
-
-/** 往技能池子(技能形式)指定槽号添加技能 */
-bool UFightComponent::AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot)
-{
-	// 已存在则允许覆盖
-	if (SkillSlotsTMap.Contains(InSlot)) {
-		SkillSlotsTMap[InSlot] = InSkillSlot;
-		return true;
-	}
-	return false;
-}
-
-/** 交换技能并查询是否成功 */
-bool UFightComponent::RemoveSkillSlot(int32 InSlot)
-{
-	if (SkillSlotsTMap.Contains(InSlot)) {
-		// 再移除技能节点(指定槽位给个空,视为移除)
-		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
-		return true;
-	}
-	return false;
-}
-
-/** 移除技能并查询是否成功 */
-bool UFightComponent::SwapSkillSlot(int32 InASlot, int32 InBSlot)
-{
-	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
-		if (SkillSlotsTMap[InASlot].IsVaild() || SkillSlotsTMap[InBSlot].IsVaild()) {
-			FMMOARPGSkillSlot Tmp = SkillSlotsTMap[InASlot];
-			SkillSlotsTMap[InASlot] = SkillSlotsTMap[InBSlot];
-			SkillSlotsTMap[InBSlot] = Tmp;
-			return true;
-		}
-	}
-	return false;
-}
-
-/** 真正技能缓存池里注册并装配 技能表的指定名字的技能 */
-FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
-{
-	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
-		if (FCharacterSkillTable* InSkillTable = InGameState->GetCharacterSkillTable(InNameTag, MMOARPGCharacterBase->GetID())) {// 从DT里读指定游玩人物专属ID的 一行技能信息
-			if (!Skills.Contains(InNameTag)) {
-				Skills.Add(InNameTag, this->AddAbility(InSkillTable->GameplayAbility));
-				return Skills[InNameTag];
-			}
-		}
-	}
-
-	return FGameplayAbilitySpecHandle();
-}
-
-/** 从总缓存池内移除指定TagName的技能 */
-void UFightComponent::RemoveSkill(const FName& InNameTag)
-{
-	if (Skills.Contains(InNameTag)) {
-		//  小接口: ASC移除给定句柄的技能
-		this->ClearAbility(Skills[InNameTag]);
-		// 移除容器里的一组pair
-		Skills.Remove(InNameTag);
-	}
-}
-
-/** 小接口: ASC移除给定句柄的技能 */
-void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
-{
-	AbilitySystemComponent->ClearAbility(InHanle);
-}
-
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
@@ -482,5 +394,124 @@ void UFightComponent::GetLimbsTagsName(TArray<FName>& OutNames)
 
 void FMMOARPGSkillSlot::Reset()
 {
-
+	*this = FMMOARPGSkillSlot();
 }
+
+#pragma region 关于真正GA池子的一些操作函数
+/** 真正技能缓存池里注册并装配 技能表的指定名字的技能 */
+FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (FCharacterSkillTable* InSkillTable = InGameState->GetCharacterSkillTable(InNameTag, MMOARPGCharacterBase->GetID())) {// 从DT里读指定游玩人物专属ID的 一行技能信息
+			if (!Skills.Contains(InNameTag)) {
+				Skills.Add(InNameTag, this->AddAbility(InSkillTable->GameplayAbility));
+				return Skills[InNameTag];// 并返回这个技能句柄
+			}
+		}
+	}
+	return FGameplayAbilitySpecHandle();// 否则返回空技能句柄
+}
+
+/** 从总缓存池内移除指定TagName的技能 */
+void UFightComponent::RemoveSkill(const FName& InNameTag)
+{
+	if (Skills.Contains(InNameTag)) {
+		//  小接口: ASC移除给定句柄的技能
+		this->ClearAbility(Skills[InNameTag]);
+		// 移除容器里的一组pair
+		Skills.Remove(InNameTag);
+	}
+}
+
+/** 小接口: ASC移除给定句柄的技能 */
+void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
+{
+	AbilitySystemComponent->ClearAbility(InHanle);
+}
+#pragma endregion 关于真正GA池子的一些操作函数
+
+//////////////////////////////////////////////////////////////////////////
+
+#pragma region 技能槽及技能形式技能的接口
+// 释放技能形式的攻击(非连招普攻)
+bool UFightComponent::SKillAttack(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		if (SkillSlotsTMap[InSlot].IsVaild()) {// 技能名称有意义
+			if (!Skill(SkillSlotsTMap[InSlot].SkillName)) {// 可以激活指定名字的技能
+				/** 使用ASC激活技能池子里指定槽号的技能句柄 */
+				return AbilitySystemComponent->TryActivateAbility(SkillSlotsTMap[InSlot].Handle);
+			}
+		}
+	}
+	return false;
+}
+
+// 是否可以激活指定名字的技能
+bool UFightComponent::Skill(const FName& InKey)
+{
+	return TryActivateAbility(InKey, Skills);
+}
+
+/** 往SkillMap里注册1份 技能槽数据 (并判断操作是否成功) */
+bool UFightComponent::AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot)
+{
+	// 已存在则允许覆盖
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		SkillSlotsTMap[InSlot] = InSkillSlot;
+		return true;
+	}
+	return false;
+}
+
+/** 用入参组一份技能槽数据并注册至Skill槽容器 */
+bool UFightComponent::AddSkillSlot(int32 InSlot, const FName& InSkillNameTag)
+{
+	// 用入参槽号和技能名字 "填充1份实际的技能槽数据"
+	FMMOARPGSkillSlot SkillSlot;
+	SkillSlot.Handle = AddSkill(InSkillNameTag);
+	SkillSlot.SkillName = InSkillNameTag;
+
+	// 往SkillMap里注册 刚才那份技能槽数据
+	return this->AddSkillSlot(InSlot, SkillSlot);
+}
+
+/** 移除技能并查询是否成功 */
+bool UFightComponent::RemoveSkillSlot(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		// 再移除技能节点(指定槽位给个空,视为移除)
+		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
+		return true;
+	}
+	return false;
+}
+
+/** 交换技能并查询是否成功 */
+bool UFightComponent::SwapSkillSlot(int32 InASlot, int32 InBSlot)
+{
+	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
+		if (SkillSlotsTMap[InASlot].IsVaild() || SkillSlotsTMap[InBSlot].IsVaild()) {
+			FMMOARPGSkillSlot Tmp = SkillSlotsTMap[InASlot];
+			SkillSlotsTMap[InASlot] = SkillSlotsTMap[InBSlot];
+			SkillSlotsTMap[InBSlot] = Tmp;
+			return true;
+		}
+	}
+	return false;
+}
+
+/** 移动技能并查询是否成功 */
+bool UFightComponent::MoveSkillSlot(int32 InASlot, int32 InBSlot)
+{
+	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
+		if (SkillSlotsTMap[InASlot].IsVaild() && !SkillSlotsTMap[InBSlot].IsVaild()) {
+			// B槽被A槽填充,且A槽清空复位
+			SkillSlotsTMap[InBSlot] = SkillSlotsTMap[InASlot];
+			SkillSlotsTMap[InASlot].Reset();
+			return true;
+		}
+	}
+	return false;
+}
+#pragma endregion 技能槽及技能形式技能的接口

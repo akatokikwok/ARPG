@@ -153,14 +153,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool Skill(const FName& InKey);
 
-	/** 往技能池子(技能形式)指定槽号添加技能 */
+	/** 往Skill槽容器注册1份 技能槽数据 (并判断操作是否成功) */
 	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
+
+	/** 用入参组一份技能槽数据并注册至Skill槽容器 (并判断操作是否成功) */
+	bool AddSkillSlot(int32 InSlot, const FName& InSkillNameTag);
 
 	/** 交换技能并查询是否成功 */
 	bool RemoveSkillSlot(int32 InSlot);
 
 	/** 移除技能并查询是否成功 */
 	bool SwapSkillSlot(int32 InASlot, int32 InBSlot);
+
+	/** 移动技能并查询是否成功 */
+	bool MoveSkillSlot(int32 InASlot, int32 InBSlot);
 
 public:
 	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */

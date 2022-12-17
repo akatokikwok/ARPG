@@ -620,25 +620,40 @@ void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlo
 
 }
 
-void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InTag, int32 InSlot)
+void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InSkillName, int32 InSlot)
 {
+	if (GetFightComponent()) {
+		if (GetFightComponent()->AddSkillSlot(InSlot, InSkillName)) {
 
+		}
+	}
 }
 
-void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InTag)
+void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InSkillName)
 {
-
+	if (GetFightComponent()) {
+		
+	}
 }
 
+/** 技能Slot之间的移动 */
 void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int32 InBSlot)
 {
+	if (GetFightComponent()) {
+		if (GetFightComponent()->MoveSkillSlot(InASlot, InBSlot)) {/** 移动技能并查询是否成功 */
 
+		}
+	}
 }
 
 /** 单行技能框内2个技能槽交换 */
 void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot)
 {
-
+	if (GetFightComponent()) {
+		if (GetFightComponent()->SwapSkillSlot(InASlot, InBSlot)) {/** 交换技能并查询是否成功 */
+		
+		}
+	}
 }
 #pragma endregion 技能槽业务可用到的一些接口
 
