@@ -418,7 +418,7 @@ void UFightComponent::RemoveSkill(const FName& InNameTag)
 	if (Skills.Contains(InNameTag)) {
 		//  小接口: ASC移除给定句柄的技能
 		this->ClearAbility(Skills[InNameTag]);
-		// 移除容器里的一组pair
+		// 移除"Skills容器" 里的一组pair
 		Skills.Remove(InNameTag);
 	}
 }
@@ -485,6 +485,16 @@ bool UFightComponent::RemoveSkillSlot(int32 InSlot)
 		return true;
 	}
 	return false;
+}
+
+/** 移除指定槽号的旧技能并添加新技能 */
+bool UFightComponent::RemoveSkillSlot(int32 InSlot, const FName& InSkillName)
+{
+	// 移除原来的技能档位
+	RemoveSkillSlot(InSlot);
+
+	// 添加入参组的一个技能包
+	return AddSkillSlot(InSlot, InSkillName);
 }
 
 /** 交换技能并查询是否成功 */

@@ -142,7 +142,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 			/* 接收到上一步拖拽行为传入的Operation, 拿到入参拖拽的UMG控件*/
 			if (UUI_SkillSlot* MyInventorySlot = Cast<UUI_SkillSlot>(InOperation->Payload)) {// 拖拽出来的技能插槽实例
 
-				/** 1.技能插槽交换行为 */
+				/** I. 技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
 					/* 1.1 服务器表现 */
 					{
@@ -151,11 +151,14 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 							InCharacter->SillSlotSwap(this->KeyNumber, MyInventorySlot->KeyNumber);
 						}
 						else if (MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 对方是从技能页拖出来的,而自己是在技能框里的
-							//从SkillTable里面移动过来一个技能到空的技能表里面
+							// 从技能页拖拽一个移动到技能框里
 							InCharacter->SKillTableSlotSwapSkillSlot(KeyNumber, MyInventorySlot->GetSlotInfo().Tags);
 						}
+						else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方拖过来的来自技能框, 自己作为接收方是技能页
+							// 从技能框交换到技能页里
+							InCharacter->SKillSlotSwapSkillTable(MyInventorySlot->KeyNumber, GetSlotInfo().Tags);
+						}
 					}
-
 					/* 1.2 客户端表现的效果.*/
 					{
 						// 先缓存 "右键拖拽Logo"的纹理和名字
@@ -171,7 +174,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						SetIcon(TmpTexture);
 					}
 				}
-				/** 2.技能插槽移动 */
+				/** II. 技能插槽移动; // 拖拽出来的有技能, 自己作为接收方没有技能,这种行为称之为技能移动 */
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
 					/* 2.1 服务器表现 */
 					{
@@ -185,7 +188,6 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						}
 						
 					}
-
 					/* 2.2 客户端表现 */
 					{
 						// 设置一下自身
@@ -197,7 +199,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						MyInventorySlot->GetSlotInfo().Reset();
 					}
 				}
-				/** 3.其他行为(比如拖拽失败了) */
+				/** III. 其他行为(比如拖拽失败了) */
 				else {
 					// 让拖拽Logo在过程中显示出来
 					MyInventorySlot->VisibleIcon();

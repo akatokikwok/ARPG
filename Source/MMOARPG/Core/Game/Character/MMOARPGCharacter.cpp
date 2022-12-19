@@ -610,16 +610,27 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
 }
 
 #pragma region 技能槽业务可用到的一些接口
+/** 从横框到技能页: 移动 */
 void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
 {
-
+	if (GetFightComponent()) {
+		if (GetFightComponent()->RemoveSkillSlot(InSlot)) {
+		
+		}
+	}
 }
 
-void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlot, const FName& InTag)
+/** 从横框到技能页: 交换 */
+void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlot, const FName& InSkillName)
 {
-
+	if (GetFightComponent()) {
+		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
+			
+		}
+	}
 }
 
+/** 从技能页到横框: 移动 */
 void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InSkillName, int32 InSlot)
 {
 	if (GetFightComponent()) {
@@ -629,10 +640,13 @@ void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName
 	}
 }
 
+/** 从技能页到横框: 交换 */
 void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InSkillName)
 {
 	if (GetFightComponent()) {
-		
+		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
+			
+		}
 	}
 }
 

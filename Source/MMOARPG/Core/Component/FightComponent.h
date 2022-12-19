@@ -172,10 +172,13 @@ public:
 	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */
 	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
 
+	/** 移除指定槽号的旧技能并添加新技能 */
+	bool RemoveSkillSlot(int32 InSlot, const FName& InSkillName);
+
+protected:
 	/** 从总缓存池内移除指定TagName的技能 */
 	void RemoveSkill(const FName& InNameTag);
 
-protected:
 	/** 小接口: ASC移除给定句柄的技能 */
 	void ClearAbility(FGameplayAbilitySpecHandle InHanle);
 
