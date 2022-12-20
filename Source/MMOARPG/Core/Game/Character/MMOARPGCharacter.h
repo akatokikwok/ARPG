@@ -161,7 +161,8 @@ public:
 	// 覆写处理经验值接口
 	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
-public:
+public:/// 关于GameMode可调用的一些技能与UI交互的接口
+
 	// 创建重生弹窗
 	UFUNCTION(Client, Reliable)
 	void CreateResurrectionWindowsClient();
@@ -170,7 +171,19 @@ public:
 	UFUNCTION(Server, Reliable)
 	void SKillAttackOnServer(int32 InSlot);
 
-public:/// 关于技能槽的一些接口
+	// 在客户端 更新技能表(SkillPage)
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillTableOnClient(const TArray<FName>& InSkillTags);
+
+	// 在客户端 更新技能槽节点(横框)
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillSlotsOnClient(const TArray<FName>& InSkillTags);
+
+	// 在客户端 向DS请求更新技能节点
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillSlotsOnServer();
+
+public:/// 关于技能槽业务的一些接口
 
 	/** 从横框到技能页: 移动 */
 	UFUNCTION(Server, Reliable)
