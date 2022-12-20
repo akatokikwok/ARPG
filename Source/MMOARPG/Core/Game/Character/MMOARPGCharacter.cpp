@@ -614,6 +614,7 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
 void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
 {
 	if (GetFightComponent()) {
+		/* 移除SkillTMap的技能节点并查询是否成功 */
 		if (GetFightComponent()->RemoveSkillSlot(InSlot)) {
 		
 		}
@@ -624,6 +625,7 @@ void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
 void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlot, const FName& InSkillName)
 {
 	if (GetFightComponent()) {
+		/* 先移除横框里的技能节点, 并添加新的技能节点*/
 		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
 			
 		}
@@ -634,6 +636,7 @@ void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlo
 void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InSkillName, int32 InSlot)
 {
 	if (GetFightComponent()) {
+		/* 往横框里添加技能 */
 		if (GetFightComponent()->AddSkillSlot(InSlot, InSkillName)) {
 
 		}
@@ -644,13 +647,14 @@ void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName
 void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InSkillName)
 {
 	if (GetFightComponent()) {
+		/* 先移除横框里的技能节点, 并添加新的技能节点*/
 		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
 			
 		}
 	}
 }
 
-/** 技能Slot之间的移动 */
+/** 横框内, 任意2个技能Slot之间的移动 */
 void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int32 InBSlot)
 {
 	if (GetFightComponent()) {
@@ -660,7 +664,7 @@ void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int
 	}
 }
 
-/** 单行技能框内2个技能槽交换 */
+/** 横框内, 任意2个技能内2个技能槽交换 */
 void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot)
 {
 	if (GetFightComponent()) {

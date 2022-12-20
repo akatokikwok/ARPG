@@ -146,7 +146,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
 					/* 1.1 服务器表现 */
 					{
-						if (!MyInventorySlot->IsSkillTableSlot() && !this->IsSkillTableSlot()) {// 确保两者都在技能横框里
+						if (!MyInventorySlot->IsSkillTableSlot() && !this->IsSkillTableSlot()) {// 在横框里, 2个互换
 							// 通知服务端 这2个槽号的槽Swap
 							InCharacter->SillSlotSwap(this->KeyNumber, MyInventorySlot->KeyNumber);
 						}
@@ -186,7 +186,9 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 							//从SkillTable里面移动过来一个技能到空的技能表里面
 							InCharacter->SKillTableSlotMoveToSkillSlot(MyInventorySlot->GetSlotInfo().Tags, KeyNumber);
 						}
-						
+						else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方是技能框,自己是技能页
+							InCharacter->SKillSlotMoveToSkillTable(MyInventorySlot->KeyNumber);/** 从横框到技能页: 移动 */
+						}
 					}
 					/* 2.2 客户端表现 */
 					{

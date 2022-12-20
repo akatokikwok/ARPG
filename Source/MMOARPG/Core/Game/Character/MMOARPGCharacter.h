@@ -171,6 +171,7 @@ public:
 	void SKillAttackOnServer(int32 InSlot);
 
 public:/// 关于技能槽的一些接口
+
 	/** 从横框到技能页: 移动 */
 	UFUNCTION(Server, Reliable)
 		void SKillSlotMoveToSkillTable(int32 InSlot);
@@ -187,11 +188,11 @@ public:/// 关于技能槽的一些接口
 	UFUNCTION(Server, Reliable)
 		void SKillTableSlotSwapSkillSlot(int32 InRemoveSlot, const FName& InTag);
 
-	// 技能Slot之间的移动
+	/** 任意2个技能Slot之间的移动 */
 	UFUNCTION(Server, Reliable)
 		void SKillSlotMoveToNewSlot(int32 InASlot, int32 InBSlot);
 
-	// 技能Slot之间的交换
+	/** 横框内, 任意2个技能内2个技能槽交换 */
 	UFUNCTION(Server, Reliable)
 		void SillSlotSwap(int32 InASlot, int32 InBSlot);
 

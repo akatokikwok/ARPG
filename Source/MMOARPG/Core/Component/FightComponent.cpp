@@ -476,10 +476,13 @@ bool UFightComponent::AddSkillSlot(int32 InSlot, const FName& InSkillNameTag)
 	return this->AddSkillSlot(InSlot, SkillSlot);
 }
 
-/** 移除技能并查询是否成功 */
+/** 移除SkillTMap的技能节点并查询是否成功 */
 bool UFightComponent::RemoveSkillSlot(int32 InSlot)
 {
 	if (SkillSlotsTMap.Contains(InSlot)) {
+		// 先移除真实技能
+		RemoveSkill(SkillSlotsTMap[InSlot].SkillName);
+
 		// 再移除技能节点(指定槽位给个空,视为移除)
 		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
 		return true;
@@ -487,14 +490,17 @@ bool UFightComponent::RemoveSkillSlot(int32 InSlot)
 	return false;
 }
 
-/** 移除指定槽号的旧技能并添加新技能 */
-bool UFightComponent::RemoveSkillSlot(int32 InSlot, const FName& InSkillName)
+/** 在横框, 移除指定槽号的旧技能并添加新技能 */
+bool UFightComponent::RemoveSkillSlot(int32 InRemoveSlot, const FName& InSkillName)
 {
-	// 移除原来的技能档位
-	RemoveSkillSlot(InSlot);
+	// 移除真实技能
+	RemoveSkill(InSkillName);
+
+	// 移除SkillTmap的技能节点
+	RemoveSkillSlot(InRemoveSlot);
 
 	// 添加入参组的一个技能包
-	return AddSkillSlot(InSlot, InSkillName);
+	return AddSkillSlot(InRemoveSlot, InSkillName);
 }
 
 /** 交换技能并查询是否成功 */

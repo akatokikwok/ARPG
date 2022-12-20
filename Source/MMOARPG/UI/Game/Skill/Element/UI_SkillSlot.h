@@ -77,7 +77,7 @@ protected:
 
 protected:
 	static int32 PlayerSkillNumber;
-	int32 KeyNumber;
+	int32 KeyNumber;// 技能框内的具体的槽的序号
 	FWidgetSlotInfo SlotInfo;// 技能槽数据
 
 private:

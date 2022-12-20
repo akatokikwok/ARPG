@@ -159,7 +159,7 @@ public:
 	/** 用入参组一份技能槽数据并注册至Skill槽容器 (并判断操作是否成功) */
 	bool AddSkillSlot(int32 InSlot, const FName& InSkillNameTag);
 
-	/** 交换技能并查询是否成功 */
+	/** 移除SkillTMap的技能节点并查询是否成功 */
 	bool RemoveSkillSlot(int32 InSlot);
 
 	/** 移除技能并查询是否成功 */
@@ -172,7 +172,7 @@ public:
 	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */
 	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
 
-	/** 移除指定槽号的旧技能并添加新技能 */
+	/** 在横框, 移除指定槽号的旧技能并添加新技能 */
 	bool RemoveSkillSlot(int32 InSlot, const FName& InSkillName);
 
 protected:
