@@ -209,6 +209,9 @@ public:/// 关于技能槽业务的一些接口
 	UFUNCTION(Server, Reliable)
 		void SillSlotSwap(int32 InASlot, int32 InBSlot);
 
+public:
+	// 初始化技能
+ 	void InitSkill();
 
 	/// //////////////////////////////////////////////////////////////////////////
 public:

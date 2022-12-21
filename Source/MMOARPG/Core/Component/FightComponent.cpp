@@ -111,9 +111,9 @@ void UFightComponent::DodgeSkill/*_Implementation*/()
 {
 	Skill(TEXT("Character.Skill.Dodge"));
 
-// 	if (AbilitySystemComponent.IsValid()) {
-// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
-// 	}
+	// 	if (AbilitySystemComponent.IsValid()) {
+	// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
+	// 	}
 }
 
 // 放冲刺技能. 广播至其他客户端
@@ -121,9 +121,9 @@ void UFightComponent::SprintSkill/*_Implementation*/()
 {
 	Skill(TEXT("Character.Skill.Sprint"));
 
-// 	if (AbilitySystemComponent.IsValid()) {
-// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
-// 	}
+	// 	if (AbilitySystemComponent.IsValid()) {
+	// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
+	// 	}
 }
 
 // 激活 受击技能
@@ -150,32 +150,32 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 		// 用GameState找出人身上配的 DTRow::技能表
 		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(InKey_GAName, MMOARPGCharacterBase->GetID())) {
-#pragma region 弃用
-// 			// 从DTR里拿表中的TMAP作为数据源.
-// 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
-// 				switch (InGAType) {
-// 					case GAMEPLAYABILITY_LIMBS:
-// 					{
-// 						return InSkillTable_row->FindLimbs(InKey_GAName);
-// 						break;
-// 					}
-// 					case GAMEPLAYABILITY_SKILLATTACK:
-// 					{
-// 						return InSkillTable_row->FindSkillAttack(InKey_GAName);
-// 						break;
-// 					}
-// 					case GAMEPLAYABILITY_COMBOATTACK:
-// 					{
-// 						return InSkillTable_row->FindComboAttack(InKey_GAName);
-// 						break;
-// 					}
-// 				}
-// 				return nullptr;
-// 			};
-#pragma endregion 弃用
+		#pragma region 弃用
+			// 			// 从DTR里拿表中的TMAP作为数据源.
+			// 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
+			// 				switch (InGAType) {
+			// 					case GAMEPLAYABILITY_LIMBS:
+			// 					{
+			// 						return InSkillTable_row->FindLimbs(InKey_GAName);
+			// 						break;
+			// 					}
+			// 					case GAMEPLAYABILITY_SKILLATTACK:
+			// 					{
+			// 						return InSkillTable_row->FindSkillAttack(InKey_GAName);
+			// 						break;
+			// 					}
+			// 					case GAMEPLAYABILITY_COMBOATTACK:
+			// 					{
+			// 						return InSkillTable_row->FindComboAttack(InKey_GAName);
+			// 						break;
+			// 					}
+			// 				}
+			// 				return nullptr;
+			// 			};
+		#pragma endregion 弃用
 
-			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			/* 按技能形式来源切分, 分三类*/
+					// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+					/* 按技能形式来源切分, 分三类*/
 			switch (GAType) {
 				case GAMEPLAYABILITY_SKILLATTACK:
 					Skills.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为skill池子添加元素
@@ -331,7 +331,7 @@ void UFightComponent::HandleMana(const struct FGameplayTagContainer& InTags, flo
 
 void UFightComponent::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-	
+
 }
 
 void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun_AppendLogic)
@@ -353,7 +353,7 @@ void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
 {
 	if (InUpgradeLevelPawn->IsUpdateLevel()) {
 		// 让人升一级
-		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1); 
+		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1);
 		// 递归判定
 		this->UpdateLevel(InUpgradeLevelPawn);
 	}
@@ -428,6 +428,64 @@ void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
 {
 	AbilitySystemComponent->ClearAbility(InHanle);
 }
+
+void UFightComponent::InitSkill()
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+
+			// 0. 待加工的一组技能表技能或是横框内技能
+			TArray<FName> InSkillTags;
+
+			// I. 依次从三种技能形式来源的池子里 提取出Skill型,Combo型,Limb型的技能名字
+			TArray<FName> SkillTags;
+			GetSkillTagsName(SkillTags);
+
+			TArray<FName> ComboAttackTags;
+			GetComboAttackTagsName(ComboAttackTags);
+
+			TArray<FName> LimbsTags;
+			GetLimbsTagsName(LimbsTags);
+
+			// II. 取出本人物的所有技能Table行
+			TArray<FCharacterSkillTable*> OutSKillTableRows;
+			InGameState->GetCharacterSkillsTables(InCharacter->GetID(), OutSKillTableRows);
+
+			// III. 
+			for (auto& SKillTableRow : OutSKillTableRows) {
+				check(SKillTableRow->GameplayAbility);// 断言TableRow里的技能蓝图
+
+				if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SKillTableRow->GameplayAbility->GetDefaultObject())) {
+					//FName不可靠, 使用ToStringSimple提取出真实技能的AbilityTags.
+					const FString TagString = InGameplayAbility->AbilityTags.ToStringSimple();
+
+					for (auto& SkillTmp : SkillTags) {
+
+					}
+					for (auto& LimbsTmp : LimbsTags) {
+
+					}
+					for (auto& ComboTmp : ComboAttackTags) {
+
+					}
+					InSkillTags.Add(*TagString);
+				}
+			}
+			// IV. 在客户端 更新技能表(SkillPage)
+			InCharacter->UpdateSkillTableOnClient(InSkillTags);
+
+			TArray<int32> Inkeys_int;
+			SkillSlotsTMap.GetKeys(Inkeys_int);
+			InSkillTags.Empty();
+			for (auto& Itr : SkillSlotsTMap) {
+				InSkillTags.Add(Itr.Value.SkillName);// 提取出所有的技能名字存储1个数组
+			}
+
+			InCharacter->UpdateSkillSlotsOnClient(InSkillTags);// 在客户端 更新技能槽节点(横框)
+		}
+	}
+}
+
 #pragma endregion 关于真正GA池子的一些操作函数
 
 //////////////////////////////////////////////////////////////////////////

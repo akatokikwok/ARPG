@@ -182,6 +182,10 @@ protected:
 	/** 小接口: ASC移除给定句柄的技能 */
 	void ClearAbility(FGameplayAbilitySpecHandle InHanle);
 
+public:
+	// 初始化技能
+	void InitSkill();
+
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC

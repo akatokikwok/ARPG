@@ -691,6 +691,14 @@ void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot
 		}
 	}
 }
+
 #pragma endregion 技能槽业务可用到的一些接口
+
+void AMMOARPGCharacter::InitSkill()
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->InitSkill();
+	}
+}
 
 #undef LOCTEXT_NAMESPACE

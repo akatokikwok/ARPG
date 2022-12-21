@@ -281,7 +281,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
 
 							// 更新技能、更新UI左侧技能表(SkillPage)、下侧技能Slot框
-
+							InPlayerCharacter->InitSkill();
 
 
 							// 在客户端创建死亡提示窗口
