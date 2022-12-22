@@ -431,6 +431,15 @@ void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
 
 void UFightComponent::InitSkill()
 {
+	// 更新不同的技能表(SkillPage)
+	this->UpdateSkillTable();
+	// 更新不同的技能节点(SkillSlots)
+	this->UpdateSkillSlots();
+}
+
+// 更新表(SkillPage)
+void UFightComponent::UpdateSkillTable()
+{
 	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
 
@@ -483,16 +492,21 @@ void UFightComponent::InitSkill()
 
 			// IV. 在客户端 更新技能表(SkillPage)
 			InCharacter->UpdateSkillTableOnClient(InSkillTags);
-
-			TArray<int32> Inkeys_int;
-			SkillSlotsTMap.GetKeys(Inkeys_int);
-			InSkillTags.Empty();
-			for (auto& Itr : SkillSlotsTMap) {
-				InSkillTags.Add(Itr.Value.SkillName);// 提取出所有的技能名字存储1个数组
-			}
-
-			InCharacter->UpdateSkillSlotsOnClient(InSkillTags);// 在客户端 更新技能槽节点(横框)
 		}
+	}
+}
+
+// 更新技能节点(SkillSlots)
+void UFightComponent::UpdateSkillSlots()
+{
+	if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+		TArray<FName> InSkillTags;
+		for (auto& Itr : SkillSlotsTMap) {
+			InSkillTags.Add(Itr.Value.SkillName);// 提取出所有的技能名字存储1个数组
+		}
+
+		// 在客户端 更新技能槽节点(横框)
+		InCharacter->UpdateSkillSlotsOnClient(InSkillTags);
 	}
 }
 

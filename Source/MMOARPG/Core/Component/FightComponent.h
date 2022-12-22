@@ -186,6 +186,14 @@ public:
 	// 初始化技能
 	void InitSkill();
 
+	// 更新表
+	void UpdateSkillTable();
+
+	// 更新技能节点
+	void UpdateSkillSlots();
+
+//////////////////////////////////////////////////////////////////////////
+
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC
