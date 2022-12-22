@@ -451,26 +451,36 @@ void UFightComponent::InitSkill()
 			TArray<FCharacterSkillTable*> OutSKillTableRows;
 			InGameState->GetCharacterSkillsTables(InCharacter->GetID(), OutSKillTableRows);
 
-			// III. 
+			/** Lambda: 给一组技能名,看看给定的技能名是否位于其中 */
+			auto FindGameplayTags = [&](const FString& InString, const TArray<FName>& InSkillNames)->bool {
+				for (const FName& SkillName : InSkillNames) {
+					if (InString == SkillName.ToString()) {
+						return true;
+					}
+				}
+				return false;
+			};
+
+			// III. 找到技能行里没有的技能,有差异的地方
 			for (auto& SKillTableRow : OutSKillTableRows) {
 				check(SKillTableRow->GameplayAbility);// 断言TableRow里的技能蓝图
 
-				if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SKillTableRow->GameplayAbility->GetDefaultObject())) {
-					//FName不可靠, 使用ToStringSimple提取出真实技能的AbilityTags.
+				if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SKillTableRow->GameplayAbility->GetDefaultObject())) {// TableRow里的具体技能
+
+					bool bExist = false;
+
+					// 真实技能的AbilityTags.; FName不可靠, 使用ToStringSimple提取出真实技能的AbilityTags.
 					const FString TagString = InGameplayAbility->AbilityTags.ToStringSimple();
 
-					for (auto& SkillTmp : SkillTags) {
-
+					// 若发现真实技能Tag都不被这三种类型包含, 则手动给技能表填充元素
+					if (!FindGameplayTags(TagString, SkillTags) &&
+						!FindGameplayTags(TagString, LimbsTags) &&
+						!FindGameplayTags(TagString, ComboAttackTags)) {
+						InSkillTags.Add(*TagString);
 					}
-					for (auto& LimbsTmp : LimbsTags) {
-
-					}
-					for (auto& ComboTmp : ComboAttackTags) {
-
-					}
-					InSkillTags.Add(*TagString);
 				}
 			}
+
 			// IV. 在客户端 更新技能表(SkillPage)
 			InCharacter->UpdateSkillTableOnClient(InSkillTags);
 
