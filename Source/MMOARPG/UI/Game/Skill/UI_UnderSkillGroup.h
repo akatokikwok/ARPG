@@ -8,7 +8,7 @@ class UHorizontalBox;
 class UUI_SkillSlot;
 
 /**
- * HUD上一派横格子的技能组
+ * HUD内 下侧的技能横框
  */
 UCLASS()
 class MMOARPG_API UUI_UnderSkillGroup : public UUI_Base
@@ -27,4 +27,9 @@ public:
 
 public:
 	void LayoutSlot(const TArray<FName>& InSkillTags);
+
+protected:
+	// 回调, 用于绑定 委托-"更新技能节点".
+	UFUNCTION()
+		void UpdateSkillSlots(const TArray<FName>& InSkillTags);
 };

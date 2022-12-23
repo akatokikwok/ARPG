@@ -6,6 +6,8 @@
 #include "../Common/Core/GamePlay/PlayerControllerBase.h"
 #include "MMOARPGPlayerController.generated.h"
 
+DECLARE_DELEGATE_OneParam(FUpdateSkillDelegate, const TArray<FName>&)
+
 class AMMOARPGCharacter;
 /**
  *
@@ -14,6 +16,10 @@ UCLASS()
 class MMOARPG_API AMMOARPGPlayerController : public APlayerControllerBase
 {
 	GENERATED_BODY()
+public:
+	FUpdateSkillDelegate UpdateSkillTableDelegate;// 委托:更新技能表
+	FUpdateSkillDelegate UpdateSkillSlotDelegate; // 委托:更新技能节点
+
 public:
 	AMMOARPGPlayerController();
 	virtual void BeginPlay() override;

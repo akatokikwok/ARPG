@@ -13,6 +13,11 @@ void UUI_SkillPage::NativeConstruct()
 	Super::NativeConstruct();
 	// 以一组技能标签来构建外观布局
 	LayoutSlot(TArray<FName>());
+
+	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+		// 为委托"更新技能表(Page)" 注册回调
+		InPlayerController->UpdateSkillTableDelegate.BindUObject(this, &UUI_SkillPage::UpdateSkillTable);
+	}
 }
 
 void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
@@ -58,5 +63,5 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 
 void UUI_SkillPage::UpdateSkillTable(const TArray<FName>& InSkillTags)
 {
-
+	LayoutSlot(InSkillTags);
 }

@@ -11,6 +11,11 @@ void UUI_UnderSkillGroup::NativeConstruct()
 {
 	Super::NativeConstruct();
 	LayoutSlot(TArray<FName>());
+
+	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+		// 为委托"更新技能节点(横框内SkillSlots)" 注册回调
+		InPlayerController->UpdateSkillSlotDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateSkillSlots);
+	}
 }
 
 void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
@@ -29,4 +34,9 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 			}
 		}
 	}
+}
+
+void UUI_UnderSkillGroup::UpdateSkillSlots(const TArray<FName>& InSkillTags)
+{
+	LayoutSlot(InSkillTags);
 }

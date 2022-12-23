@@ -8,7 +8,7 @@ class UUniformGridPanel;
 class UUI_SkillSlot;
 
 /**
- * 技能页
+ * 技能页(技能表)
  */
 UCLASS()
 class MMOARPG_API UUI_SkillPage : public UUI_Base
@@ -28,8 +28,8 @@ public:
 public:
 	// 以一组技能标签来构建外观布局
 	void LayoutSlot(const TArray<FName>& InKeys);
-	
-	//
+
+	// 回调, 用于绑定 委托-"更新技能表".
 	UFUNCTION()
-	void UpdateSkillTable(const TArray<FName>& InSkillTags);
+		void UpdateSkillTable(const TArray<FName>& InSkillTags);
 };
