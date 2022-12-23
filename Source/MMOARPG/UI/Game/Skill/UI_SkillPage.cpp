@@ -12,7 +12,7 @@ void UUI_SkillPage::NativeConstruct()
 {
 	Super::NativeConstruct();
 	// 以一组技能标签来构建外观布局
-	LayoutSlot(TArray<FName>());
+	//LayoutSlot(TArray<FName>());
 
 	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
 		// 为委托"更新技能表(Page)" 注册回调
@@ -26,10 +26,23 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 		if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 			if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {
 				
-				TArray<FCharacterSkillTable*> SkillTables;
+				TArray<FCharacterSkillTable*> SkillTableRows;
 				int32 CharacterID = InCharacterBase->GetID();
-				if (InGameState->GetCharacterSkillsTables(CharacterID, SkillTables)) {/* 若提取人物基类的所有技能信息 并操作成功*/
+				if (InGameState->GetCharacterSkillsTables(CharacterID, SkillTableRows)) {/* 若提取人物基类的所有技能信息 并操作成功*/
 					
+					TArray<FCharacterSkillTable*> AllowSkillTableRows;// 本身不具有的技能s
+					for (auto& AnySkillNameTmp : InKeys) {
+						for (auto& SkillTmp : SkillTableRows) {
+							if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SkillTmp->GameplayAbility->GetDefaultObject())) {
+								/* 本质上就是 给定的一组名字 与 人物所有技能名字作相同比对,并提取出共有的技能 */
+								if (AnySkillNameTmp.ToString() == InGameplayAbility->AbilityTags.ToStringSimple()) {
+									AllowSkillTableRows.Add(SkillTmp);
+									break;// 只要找到了1个就可以停止扫描所有技能行了
+								}
+							}
+						}
+					}
+
 					int32 RowNumber = 20;
 					int32 ColumNumber = 3;
 
@@ -44,10 +57,11 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 									GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 								}
 
-								if (SkillTables.IsValidIndex(Index)) {
-									if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SkillTables[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
+								// 初始化表
+								if (AllowSkillTableRows.IsValidIndex(Index)) {
+									if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
 										FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
-										SlotWidget->Update(*TagName, SkillTables[Index]->Icon);
+										SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon);
 									}
 								}
 
