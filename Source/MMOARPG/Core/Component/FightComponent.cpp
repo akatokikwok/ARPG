@@ -444,7 +444,7 @@ void UFightComponent::UpdateSkillTable()
 		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
 
 			// 0. 待加工的一组技能表技能或是横框内技能
-			TArray<FName> InSkillTags;
+			TArray<FName> ResultSkillTags;
 
 			// I. 依次从三种技能形式来源的池子里 提取出Skill型,Combo型,Limb型的技能名字
 			TArray<FName> SkillTags;
@@ -470,7 +470,7 @@ void UFightComponent::UpdateSkillTable()
 				return false;
 			};
 
-			// III. 找到技能行里没有的技能,有差异的地方
+			// III. 给ResultTags做值; 找到技能行里没有的技能,有差异的地方
 			for (auto& SKillTableRow : OutSKillTableRows) {
 				check(SKillTableRow->GameplayAbility);// 断言TableRow里的技能蓝图
 
@@ -485,13 +485,13 @@ void UFightComponent::UpdateSkillTable()
 					if (!FindGameplayTags(TagString, SkillTags) &&
 						!FindGameplayTags(TagString, LimbsTags) &&
 						!FindGameplayTags(TagString, ComboAttackTags)) {
-						InSkillTags.Add(*TagString);
+						ResultSkillTags.Add(*TagString);
 					}
 				}
 			}
 
-			// IV. 在客户端 更新技能表(SkillPage)
-			InCharacter->UpdateSkillTableOnClient(InSkillTags);
+			// IV. 在客户端 更新技能表(SkillPage)-仅UI外观
+			InCharacter->UpdateSkillTableOnClient(ResultSkillTags);
 		}
 	}
 }
@@ -505,7 +505,7 @@ void UFightComponent::UpdateSkillSlots()
 			InSkillTags.Add(Itr.Value.SkillName);// 提取出所有的技能名字存储1个数组
 		}
 
-		// 在客户端 更新技能槽节点(横框)
+		// 在客户端 更新技能槽节点(横框)-仅UI外观
 		InCharacter->UpdateSkillSlotsOnClient(InSkillTags);
 	}
 }

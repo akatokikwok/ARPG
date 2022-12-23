@@ -609,7 +609,7 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
 	}
 }
 
-// 在客户端 更新技能表(SkillPage)
+// 在客户端 更新技能表(SkillPage)-UI外观
 void AMMOARPGCharacter::UpdateSkillTableOnClient_Implementation(const TArray<FName>& InSkillTags)
 {
 	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
@@ -617,7 +617,7 @@ void AMMOARPGCharacter::UpdateSkillTableOnClient_Implementation(const TArray<FNa
 	}
 }
 
-// 在客户端 更新技能槽节点(横框)
+// 在客户端 更新技能槽节点(横框)-UI外观
 void AMMOARPGCharacter::UpdateSkillSlotsOnClient_Implementation(const TArray<FName>& InSkillTags)
 {
 	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {

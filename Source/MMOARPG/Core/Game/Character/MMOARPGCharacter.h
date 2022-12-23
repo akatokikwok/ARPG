@@ -171,11 +171,11 @@ public:/// 关于GameMode可调用的一些技能与UI交互的接口
 	UFUNCTION(Server, Reliable)
 	void SKillAttackOnServer(int32 InSlot);
 
-	// 在客户端 更新技能表(SkillPage)
+	// 在客户端 更新技能表(SkillPage)-UI外观
 	UFUNCTION(Client, Reliable)
 		void UpdateSkillTableOnClient(const TArray<FName>& InSkillTags);
 
-	// 在客户端 更新技能槽节点(横框)
+	// 在客户端 更新技能槽节点(横框)-UI外观
 	UFUNCTION(Client, Reliable)
 		void UpdateSkillSlotsOnClient(const TArray<FName>& InSkillTags);
 
