@@ -16,7 +16,10 @@
 
 UFightComponent::UFightComponent()
 {
-
+	// 首先给五个槽位初始化数据
+	for (int32 i = 0; i < 5; i++) {
+		SkillSlotsTMap.Add(i + 1, FMMOARPGSkillSlot());
+	}
 }
 
 void UFightComponent::BeginPlay()
@@ -109,7 +112,7 @@ bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FNam
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	Skill(TEXT("Character.Skill.Dodge"));
+	Skill(TEXT("Player.Skill.Dodge"));
 
 	// 	if (AbilitySystemComponent.IsValid()) {
 	// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
@@ -119,7 +122,7 @@ void UFightComponent::DodgeSkill/*_Implementation*/()
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	Skill(TEXT("Character.Skill.Sprint"));
+	Skill(TEXT("Player.Skill.Sprint"));
 
 	// 	if (AbilitySystemComponent.IsValid()) {
 	// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA

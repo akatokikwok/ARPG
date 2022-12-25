@@ -22,7 +22,7 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 {
 	SlotArray->ClearChildren();
 
-	if (!SlotArray->GetChildrenCount() && SkillSlotClass) {
+	if (/*!SlotArray->GetChildrenCount() && */SkillSlotClass) {
 		if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {
 			if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 
