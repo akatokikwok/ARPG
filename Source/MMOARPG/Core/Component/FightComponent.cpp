@@ -579,7 +579,7 @@ bool UFightComponent::RemoveSkillSlot(int32 InSlot)
 bool UFightComponent::RemoveSkillSlot(int32 InRemoveSlot, const FName& InSkillName)
 {
 	// 移除真实技能
-	RemoveSkill(InSkillName);
+	//RemoveSkill(InSkillName);
 
 	// 移除SkillTmap的技能节点
 	RemoveSkillSlot(InRemoveSlot);
