@@ -543,7 +543,10 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack);// 将Tag组转换为服务器存储的序列
 			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs);// 将Tag组转换为服务器存储的序列
 
-		// 3. 命令GM升人物等级
+			// 3.序列化技能装配
+			SerializationSkillAssembly(CharacterAttribute.SkillAssemblyString);
+
+			// 4. 命令GM升人物等级
 			MMOARPGGameMode->UpdateLevelRequests(UserID, ID, CharacterAttribute);
 		}
 	}
@@ -701,7 +704,6 @@ void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot
 		}
 	}
 }
-
 #pragma endregion 技能槽业务可用到的一些接口
 
 void AMMOARPGCharacter::InitSkill()
@@ -709,6 +711,16 @@ void AMMOARPGCharacter::InitSkill()
 	if (GetFightComponent()) {
 		GetFightComponent()->InitSkill();
 	}
+}
+
+void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
+{
+
+}
+
+void AMMOARPGCharacter::SerializationSkillAssembly(FString& OutString)
+{
+
 }
 
 #undef LOCTEXT_NAMESPACE

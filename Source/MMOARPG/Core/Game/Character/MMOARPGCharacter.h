@@ -210,6 +210,13 @@ public:/// 关于技能槽业务的一些接口
 		void SillSlotSwap(int32 InASlot, int32 InBSlot);
 
 public:
+	// 反序列化已装配技能
+	void DeserializationSkillAssembly(const FString& InString);
+
+	// 序列化已装配技能
+	void SerializationSkillAssembly(FString& OutString);
+
+public:
 	// 初始化技能
  	void InitSkill();
 
