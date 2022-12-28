@@ -49,8 +49,13 @@ private:
 	//
 	UFUNCTION()
 		void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
+
 	// 链接至指定端口号的服务器并 循环绑定创建客户端接收响应协议的回调RecvProtocol.
 	void LinkServer();
+
+public:
+	// 更新技能装配
+	void UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString);
 
 private:
 	/// 当DS接收到来自中心服务器的回复.

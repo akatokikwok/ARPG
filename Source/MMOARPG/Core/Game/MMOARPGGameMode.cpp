@@ -199,6 +199,13 @@ void AMMOARPGGameMode::LinkServer()
 	}
 }
 
+void AMMOARPGGameMode::UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString)
+{
+
+	// 向服务器发送协议请求: 装配技能
+	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID, SkillSlotString);
+}
+
 /// 当DS接收到来自中心服务器的回复.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
@@ -357,6 +364,18 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 				}
 			}
 
+			break;
+		}
+
+		/** 收到来自CS的 响应更新技能装配 */
+		case SP_UpdateSkillAssemblyResponses:
+		{
+			int32 UserID = INDEX_NONE;
+			bool bUpdateSuccessfully = false;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateSkillAssemblyResponses, UserID, bUpdateSuccessfully);
+			if (bUpdateSuccessfully) {
+				//UE_LOG(LogTemp, Warning, TEXT("aaa"));
+			}
 			break;
 		}
 	}
