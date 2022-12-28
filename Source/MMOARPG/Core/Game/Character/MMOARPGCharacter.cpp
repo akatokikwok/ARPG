@@ -643,6 +643,9 @@ void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
 		if (GetFightComponent()->RemoveSkillSlot(InSlot)) {
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -655,6 +658,9 @@ void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlo
 		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -667,6 +673,9 @@ void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName
 		if (GetFightComponent()->AddSkillSlot(InSlot, InSkillName)) {
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -679,6 +688,9 @@ void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemov
 		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -690,6 +702,9 @@ void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int
 		if (GetFightComponent()->MoveSkillSlot(InASlot, InBSlot)) {/** 移动技能并查询是否成功 */
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -701,6 +716,9 @@ void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot
 		if (GetFightComponent()->SwapSkillSlot(InASlot, InBSlot)) {/** 交换技能并查询是否成功 */
 			// 更新UI-更新技能节点
 			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
 		}
 	}
 }
@@ -721,6 +739,23 @@ void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
 void AMMOARPGCharacter::SerializationSkillAssembly(FString& OutString)
 {
 
+}
+
+void AMMOARPGCharacter::UpdateSkillAssembly()
+{
+	if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+		// 序列化装配技能
+		FString SkillAssemblyString;
+		SerializationSkillAssembly(SkillAssemblyString);
+
+		// 角色所有形式技能
+		TArray<FName> SkillTagsName;
+		TArray<FName> ComboAttackTagsName;
+		TArray<FName> LimbsTagsName;
+
+		// 让GM去Request CS服务器的数据
+		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID, SkillAssemblyString);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -216,6 +216,9 @@ public:
 	// 序列化已装配技能
 	void SerializationSkillAssembly(FString& OutString);
 
+	// 更新装配技能
+	void UpdateSkillAssembly();
+
 public:
 	// 初始化技能
  	void InitSkill();
