@@ -271,20 +271,20 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 
 							// 技能信息的原位转换(从从_下划线拼接形式转化为一组FName.)
 							/// 各种形式技能组的数据来源都是来自于从服务器JSON里解析出来的.
-							ToGamePlayTags(CharacterAttribute.ComboAttack);
-							ToGamePlayTags(CharacterAttribute.Skill);
-							ToGamePlayTags(CharacterAttribute.Limbs);
+							ToGamePlayTags(CharacterAttribute.ComboAttack.Slots);
+							ToGamePlayTags(CharacterAttribute.Skill.Slots);
+							ToGamePlayTags(CharacterAttribute.Limbs.Slots);
 
 							// 给人更新属性集
 							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
 
 							// 给人更新技能(按形式来源,一共三种,分别是combo连招, Skill能力, limb肢体行为)
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.ComboAttack, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.ComboAttack.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
 
 							// 注册一下 Combo黑盒
-							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
+							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack.Slots);
 
 							// 技能装配 反序列化
 							InPlayerCharacter->DeserializationSkillAssembly(CharacterAttribute.SkillAssemblyString);

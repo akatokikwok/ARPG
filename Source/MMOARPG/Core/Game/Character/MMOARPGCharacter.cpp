@@ -539,9 +539,9 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 			GetComboAttackTagsName(ComboAttackTagsName);
 			GetLimbsTagsName(LimbsTagsName);
 			// 借由服务器方法, 把标签群组 转为位序列
-			AnalysisGamePlayTagsToArrayName(SkillTagsName, CharacterAttribute.Skill);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs);// 将Tag组转换为服务器存储的序列
+			AnalysisGamePlayTagsToArrayName(SkillTagsName, CharacterAttribute.Skill.Slots);// 将Tag组转换为服务器存储的序列
+			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack.Slots);// 将Tag组转换为服务器存储的序列
+			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs.Slots);// 将Tag组转换为服务器存储的序列
 
 			// 3.序列化技能装配
 			SerializationSkillAssembly(CharacterAttribute.SkillAssemblyString);
