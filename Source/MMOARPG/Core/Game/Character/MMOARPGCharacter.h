@@ -223,6 +223,10 @@ public:
 	// 初始化技能
  	void InitSkill();
 
+private:
+	// 小接口: 将一组技能名字转化为服务器上更小格式的位
+	void MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, TArray<FName>& OutBitComboAttack, TArray<FName>& OutBitLimbs);
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

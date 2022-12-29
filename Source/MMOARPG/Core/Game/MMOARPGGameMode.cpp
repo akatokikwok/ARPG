@@ -15,6 +15,7 @@
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
 #include "../../MMOARPGGameType.h"
+#include "MMOARPGType.h"
 // #include "MMOARPGTagList.h"
 
 extern void NameToEGamePlayTags0s(const FName& InName, TArray<FName>& OutName);
@@ -199,12 +200,26 @@ void AMMOARPGGameMode::LinkServer()
 	}
 }
 
-void AMMOARPGGameMode::UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString)
+void AMMOARPGGameMode::UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString,
+	const TArray<FName>& InBitSkill,
+	const TArray<FName>& InBitComboAttack,
+	const TArray<FName>& InBitLimbs)
 {
+	//
+	FString BitSkillJson;
+	FString BitComboAttackJson;
+	FString BitLimbsJson;
+	// 将技能槽数据压缩成JSON 预准备发给CS
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitSkill),/* 使用特殊构造器*/ BitSkillJson);
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitComboAttack),/* 使用特殊构造器*/ BitComboAttackJson);
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitLimbs),/* 使用特殊构造器*/ BitLimbsJson);
 
 	// 向服务器发送协议请求: 装配技能
-	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID, SkillSlotString);
-}
+	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID
+		SkillSlotString,
+		BitSkillJson,
+		BitComboAttackJson,
+		BitLimbsJson);
 
 /// 当DS接收到来自中心服务器的回复.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)

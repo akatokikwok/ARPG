@@ -530,18 +530,11 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 			// 1. 处理人物属性字段, 提出AS里的人物所有属性字段,存成MMOAD型
 			GetAttribute()->ToMMOARPGCharacterAttribute(CharacterAttribute);
 
-			// 2. 处理角色技能
-			TArray<FName> SkillTagsName;
-			TArray<FName> ComboAttackTagsName;
-			TArray<FName> LimbsTagsName;
-			// 使用各自的提取方法, 提取3种标签名群组
-			GetSkillTagsName(SkillTagsName);
-			GetComboAttackTagsName(ComboAttackTagsName);
-			GetLimbsTagsName(LimbsTagsName);
-			// 借由服务器方法, 把标签群组 转为位序列
-			AnalysisGamePlayTagsToArrayName(SkillTagsName, CharacterAttribute.Skill.Slots);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack.Slots);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs.Slots);// 将Tag组转换为服务器存储的序列
+			// 2. 将技能槽名字Tag组转换为格式更小的服务器存储的序列
+			MMOARPGAttributeSlotsToBits(
+				CharacterAttribute.Skill.Slots,
+				CharacterAttribute.ComboAttack.Slots,
+				CharacterAttribute.Limbs.Slots);
 
 			// 3.序列化技能装配
 			SerializationSkillAssembly(CharacterAttribute.SkillAssemblyString);
@@ -724,11 +717,33 @@ void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot
 }
 #pragma endregion 技能槽业务可用到的一些接口
 
+/**
+ *  初始化所有技能槽数据
+ */
 void AMMOARPGCharacter::InitSkill()
 {
 	if (GetFightComponent()) {
 		GetFightComponent()->InitSkill();
 	}
+}
+
+// 小接口: 将一组技能名字转化为服务器上更小格式的位
+void AMMOARPGCharacter::MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, TArray<FName>& OutBitComboAttack, TArray<FName>& OutBitLimbs)
+{
+	// 
+	TArray<FName> SkillTagsName;
+	TArray<FName> ComboAttackTagsName;
+	TArray<FName> LimbsTagsName;
+	// 提取角色所有形式技能名字
+	GetSkillTagsName(SkillTagsName);
+	GetComboAttackTagsName(ComboAttackTagsName);
+	GetLimbsTagsName(LimbsTagsName);
+
+	// 进一步转换成更小的位
+	// 借由服务器方法, 把标签群组 转为位序列
+	AnalysisGamePlayTagsToArrayName(SkillTagsName, OutBitSkill);// 将Tag组转换为服务器存储的序列
+	AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, OutBitComboAttack);// 将Tag组转换为服务器存储的序列
+	AnalysisGamePlayTagsToArrayName(LimbsTagsName, OutBitLimbs);// 将Tag组转换为服务器存储的序列
 }
 
 void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
@@ -748,13 +763,19 @@ void AMMOARPGCharacter::UpdateSkillAssembly()
 		FString SkillAssemblyString;
 		SerializationSkillAssembly(SkillAssemblyString);
 
-		// 角色所有形式技能
+		// 将技能名字槽转化为服务器上更小格式的位
 		TArray<FName> SkillTagsName;
 		TArray<FName> ComboAttackTagsName;
 		TArray<FName> LimbsTagsName;
+		MMOARPGAttributeSlotsToBits(SkillTagsName, ComboAttackTagsName, LimbsTagsName);
 
 		// 让GM去Request CS服务器的数据
-		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID, SkillAssemblyString);
+		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID, 
+			SkillAssemblyString,
+			SkillTagsName,
+			ComboAttackTagsName,
+			LimbsTagsName
+			);
 	}
 }
 

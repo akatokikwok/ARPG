@@ -55,7 +55,11 @@ private:
 
 public:
 	// 更新技能装配
-	void UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString);
+	void UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString,
+		const TArray<FName>& InBitSkill,
+		const TArray<FName>& InBitComboAttack,
+		const TArray<FName>& InBitLimbs
+	);
 
 private:
 	/// 当DS接收到来自中心服务器的回复.
