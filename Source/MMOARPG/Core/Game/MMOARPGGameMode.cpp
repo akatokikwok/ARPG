@@ -215,11 +215,12 @@ void AMMOARPGGameMode::UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, 
 	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitLimbs),/* 使用特殊构造器*/ BitLimbsJson);
 
 	// 向服务器发送协议请求: 装配技能
-	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID
+	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID,
 		SkillSlotString,
 		BitSkillJson,
 		BitComboAttackJson,
 		BitLimbsJson);
+}
 
 /// 当DS接收到来自中心服务器的回复.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
