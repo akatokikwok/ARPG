@@ -308,6 +308,30 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 			TagCodes.Add(TEXT("// 此文件禁止被多个文件include,否则会造成链接错误."));
 			TagCodes.Add(TEXT(""));
 
+			/* int32 GetGamePlayTagOrderIndex(const FName &InTag) */
+			TagCodes.Add(TEXT(""));
+			TagCodes.Add(TEXT("/*A static function that contains a list of types order*/"));
+			TagCodes.Add(TEXT("int32 GetGamePlayTagOrderIndex(const FName &InTag)"));
+			TagCodes.Add(TEXT("{"));
+			TagCodes.Add(TEXT("	static TArray<FString> GameplayTagsOrder = "));
+			TagCodes.Add(TEXT("	{"));
+			for (auto& Tmp : Tags) {
+				TagCodes.Add(FString::Printf(TEXT("		\"%s\","), *Tmp));
+			}
+			TagCodes.Add(TEXT("	};"));
+			TagCodes.Add(TEXT(""));
+			TagCodes.Add(TEXT("	return GameplayTagsOrder.Find(InTag.ToString());"));
+			TagCodes.Add(TEXT("}"));
+
+			/* int32 GetOrderMatchingEnumIndex(int32 InGameplayTagsOrderIndex) */
+			TagCodes.Add(TEXT(""));
+			TagCodes.Add(TEXT("/*Get the number of enumerations of the current order*/"));
+			TagCodes.Add(TEXT("int32 GetOrderMatchingEnumIndex(int32 InGameplayTagsOrderIndex)"));
+			TagCodes.Add(TEXT("{"));
+			TagCodes.Add(TEXT("	return FMath::CeilToInt((float)InGameplayTagsOrderIndex / 63.f);"));
+			TagCodes.Add(TEXT("}"));
+			TagCodes.Add(TEXT(""));
+
 			/* part 0: 扫描并生成各个枚举 */
 			for (int32 i = 0; i < InTotal; ++i) {
 				TagsPos = SpawnEnumFunctionCode(i/*第几个枚举*/, TagsPos/* 开始行数*/);
@@ -316,6 +340,49 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 
 			/* part 1*/
 			TagCodes.Add(TEXT("//////////////////////////Main/////////////////////////////"));
+
+			/* bool SingleBitAndOrderToTagName(const int32 InEnumIndex, const uint64 EnumValue,FName &TagName) */
+			TagCodes.Add(TEXT("/*Convert BitAndOrder to bytes and TagName*/"));
+			TagCodes.Add(TEXT("bool SingleBitAndOrderToTagName(const int32 InEnumIndex, const uint64 EnumValue,FName &TagName)"));
+			TagCodes.Add(TEXT("{"));
+			TagCodes.Add(TEXT("	switch (InEnumIndex)"));
+			TagCodes.Add(TEXT("	{"));
+			for (int32 i = 0; i < InTotal; i++) {
+				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), i);
+				TagCodes.Add(FString::Printf(TEXT("	case %i:"), i));
+				TagCodes.Add(FString::Printf(TEXT("		TagName = *%sToName((%s)EnumValue);"), *EnumName, *EnumName));
+				TagCodes.Add(TEXT("		return true;"));
+			}
+			TagCodes.Add(TEXT("	}"));
+			TagCodes.Add(TEXT(""));
+			TagCodes.Add(TEXT("	return false;"));
+			TagCodes.Add(TEXT("}"));
+			TagCodes.Add(TEXT(""));
+
+			/* bool SingleTagNameToBitAndOrder(const FName& TageName, int32& InEnumIndex, uint64& EnumValue) */
+			TagCodes.Add(TEXT("/*Convert FName to bytes and order*/"));
+			TagCodes.Add(TEXT("bool SingleTagNameToBitAndOrder(const FName& TageName, int32& InEnumIndex, uint64& EnumValue)"));
+			TagCodes.Add(TEXT("{"));
+			TagCodes.Add(TEXT("	int32 InOrder = GetGamePlayTagOrderIndex(TageName);"));
+			TagCodes.Add(TEXT("	if (InOrder != INDEX_NONE)"));
+			TagCodes.Add(TEXT("	{"));
+			TagCodes.Add(TEXT("		InEnumIndex = GetOrderMatchingEnumIndex(InOrder) - 1;"));
+			TagCodes.Add(TEXT("		switch (InEnumIndex)"));
+			TagCodes.Add(TEXT("		{"));
+			for (int32 i = 0; i < InTotal; i++) {
+				FString EnumName = FString::Printf(TEXT("EGamePlayTags%i"), i);
+				TagCodes.Add(FString::Printf(TEXT("		case %i:"), i));
+				TagCodes.Add(FString::Printf(TEXT("			EnumValue = (uint64)NameTo%s(TageName);"), *EnumName));
+				TagCodes.Add(TEXT("			return true;"));
+			}
+			TagCodes.Add(TEXT("		}"));
+			TagCodes.Add(TEXT("	}"));
+			TagCodes.Add(TEXT(""));
+			TagCodes.Add(TEXT("	return true;"));
+			TagCodes.Add(TEXT("}"));
+			TagCodes.Add(TEXT(""));
+
+			/* void %s AnalysisArrayNameToGamePlayTags(const TArray<FName> &InNames,TArray<FName> &OutNames) */
 			TagCodes.Add(TEXT("/* Convert the server's sequence to a label. */"));
 			TagCodes.Add(FString::Printf(TEXT("void %s AnalysisArrayNameToGamePlayTags(const TArray<FName> &InNames,TArray<FName> &OutNames)"), *APIString));
 			TagCodes.Add(TEXT("{"));
