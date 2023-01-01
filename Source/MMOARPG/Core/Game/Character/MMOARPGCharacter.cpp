@@ -748,12 +748,16 @@ void AMMOARPGCharacter::MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, 
 
 void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
 {
-
+	if (GetFightComponent()) {
+		GetFightComponent()->DeserializationSkillAssembly(InString);
+	}
 }
 
 void AMMOARPGCharacter::SerializationSkillAssembly(FString& OutString)
 {
-
+	if (GetFightComponent()) {
+		GetFightComponent()->SerializationSkillAssembly(OutString);
+	}
 }
 
 void AMMOARPGCharacter::UpdateSkillAssembly()

@@ -14,6 +14,10 @@
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
 #include "../Game/Character/MMOARPGCharacter.h"
 
+// 由于MMOARPGCharacter里已经包含了MMOTagList.h, 所以直接extern
+extern bool SingleBitAndOrderToTagName(const int32 InEnumIndex, const uint64 EnumValue, FName& TagName);
+extern bool SingleTagNameToBitAndOrder(const FName& TageName, int32& InEnumIndex, uint64& EnumValue);
+
 UFightComponent::UFightComponent()
 {
 	// 首先给五个槽位初始化数据
@@ -511,6 +515,53 @@ void UFightComponent::UpdateSkillSlots()
 		// 在客户端 更新技能槽节点(横框)-仅UI外观
 		InCharacter->UpdateSkillSlotsOnClient(InSkillTags);
 	}
+}
+
+void UFightComponent::DeserializationSkillAssembly(const FString& InString)
+{
+	// 用逗号间隔切碎输入的字符串
+	TArray<FString> MapArrays;
+	InString.ParseIntoArray(MapArrays, TEXT(","));
+
+	if (SkillSlotsTMap.Num()) {
+		for (int32 i = 0; i < MapArrays.Num(); i++) {
+			int32 Key;
+			int32 EnumIndex = INDEX_NONE;
+			uint64 TagNameBit = 0;
+			{
+				FString K, V;
+				MapArrays[i].Split(TEXT(":"), &K, &V);
+				Key = FCString::Atoi(*K);
+
+				FString E, B;
+				V.Split(TEXT("|"), &E, &B);
+				EnumIndex = FCString::Atoi(*E);
+
+				TagNameBit = FCString::Strtoui64(*B, NULL, 10);
+			}
+
+			SingleBitAndOrderToTagName(EnumIndex, TagNameBit, SkillSlotsTMap[Key].SkillName);
+
+			// 按槽号提出Skill型的GA并保存其真实技能句柄
+			if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(SkillSlotsTMap[Key].SkillName)) {
+				SkillSlotsTMap[Key].Handle = *InHandle;
+			}
+		}
+	}
+}
+
+void UFightComponent::SerializationSkillAssembly(FString& OutString)
+{
+	for (auto& Tmp : SkillSlotsTMap) {// 扫描插槽map容器
+		uint64 Bit = 0llu; // 无符号64位
+		int32 EnumIndex = INDEX_NONE;
+		// 把给定的技能名字转换为带顺序的bit位
+		SingleTagNameToBitAndOrder(Tmp.Value.SkillName, EnumIndex, Bit);
+
+		OutString += FString::Printf(TEXT("%i:%i|%llu,"), Tmp.Key, EnumIndex, Bit);
+	}
+	// 多余的拼法逗号删掉.
+	OutString.RemoveFromEnd(TEXT(","));
 }
 
 #pragma endregion 关于真正GA池子的一些操作函数

@@ -192,7 +192,13 @@ public:
 	// 更新技能节点
 	void UpdateSkillSlots();
 
-//////////////////////////////////////////////////////////////////////////
+public:
+	// 反序列化 已处理好的技能bit并最终处理其真实句柄
+	void DeserializationSkillAssembly(const FString& InString);
+	// 序列化后输出一个 为带顺序的bit位的技能名字
+	void SerializationSkillAssembly(FString& OutString);
+
+	//////////////////////////////////////////////////////////////////////////
 
 private:
 	/**来自人物基类的ASC
