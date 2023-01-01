@@ -26,11 +26,11 @@ void UUI_GameMain::NativeConstruct()
 	 * 在数据库机器上的wp_usermeta表上查看创建出来的2个角色的用户号user_id字段
 	 */
 	if (GameCount == 0) {
-		Robot.InitUser(6, 0);// 手动写死测试, 6号用户0号存档
+		Robot.InitUser(8, 0);// 手动写死测试, 8号用户0号存档
 		GameCount++;
 	}
 	else if (GameCount == 1) {
-		Robot.InitUser(7, 0);// 手动写死测试, 7号用户0号存档
+		Robot.InitUser(9, 0);// 手动写死测试, 9号用户0号存档
 		GameCount++;
 	}
 
