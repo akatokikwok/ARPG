@@ -1,6 +1,7 @@
 ﻿#include "UI_SkillPage.h"
 #include "Components/UniformGridSlot.h"
 #include "Components/UniformGridPanel.h"
+#include "Components/Button.h"
 #include "Blueprint/DragDropOperation.h"
 #include "../../../Core/Game/MMOARPGGameState.h"
 #include "../../../Core/Game/Character/Core/MMOARPGCharacterBase.h"
@@ -17,12 +18,19 @@ void UUI_SkillPage::NativeConstruct()
 	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
 		// 为委托"更新技能表(Page)" 注册回调
 		InPlayerController->UpdateSkillTableDelegate.BindUObject(this, &UUI_SkillPage::UpdateSkillTable);
+
+		//
+		InPlayerController->InputComponent->BindAction(TEXT("SkillMenu"), IE_Pressed, this, &UUI_SkillPage::OnClickedWidget);
 	}
+	
+	//
+	CloseButton->OnPressed.AddDynamic(this, &UUI_SkillPage::OnClose);
 }
 
 void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 {
-	if (SlotArrayInventory->GetChildrenCount() == 0 && SkillSlotClass != nullptr) {
+	SlotArrayInventory->ClearChildren();
+	if (/*SlotArrayInventory->GetChildrenCount() == 0 && */ SkillSlotClass != nullptr) {
 		if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 			if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {
 				
@@ -59,9 +67,11 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 
 								// 初始化表
 								if (AllowSkillTableRows.IsValidIndex(Index)) {
-									if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
-										FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
-										SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon);
+									if (AllowSkillTableRows[Index]->GameplayAbility) {
+										if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
+											FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
+											SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon);
+										}
 									}
 								}
 
@@ -78,4 +88,19 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 void UUI_SkillPage::UpdateSkillTable(const TArray<FName>& InSkillTags)
 {
 	LayoutSlot(InSkillTags);
+}
+
+void UUI_SkillPage::OnClickedWidget()
+{
+	if (GetVisibility() == ESlateVisibility::Visible) {
+		OnClose();
+	}
+	else {
+		SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UUI_SkillPage::OnClose()
+{
+	SetVisibility(ESlateVisibility::Collapsed);
 }

@@ -1,6 +1,6 @@
 ﻿#include "UI_SkillSlot.h"
-#include "Blueprint/DragDropOperation.h"
 #include "Components/Button.h"
+#include "Blueprint/DragDropOperation.h"
 #include "Components/Image.h"
 #include "DragDrop/UI_ICODragDrog.h"
 #include "Styling/SlateBrush.h"
@@ -21,9 +21,18 @@ void UUI_SkillSlot::NativeConstruct()
 	Super::NativeConstruct();
 
 	if (bMappingKey) {
+		//映射键位
 		KeyNumber = ++PlayerSkillNumber;
+
+		// 屏幕打印按下了哪个键位
 		FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
+		
+		// 键鼠输入绑定回调
 		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
+		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
+
+		//设置Key名称
+		SetKeyName(FString::FromInt(PlayerSkillNumber));
 
 		// 暂定5个键位, 超出了则重置映射键位
 		if (PlayerSkillNumber >= 5) {
@@ -49,6 +58,11 @@ void UUI_SkillSlot::OnClickedWidget()
 			}
 		}
 	}
+}
+
+void UUI_SkillSlot::OnReleasedClickedWidget()
+{
+
 }
 
 #pragma region 对外接口
@@ -172,6 +186,17 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						// 将自己的技能插槽信息更换为之前缓存的那一份
 						GetSlotInfo().Tags = TmpTags;
 						SetIcon(TmpTexture);
+
+						// CD效果
+						{
+							FSlotBuild SlotBuildTmp = MyInventorySlot->SlotBuild;
+							MyInventorySlot->SlotBuild = SlotBuild;
+							SlotBuild = SlotBuildTmp;
+							StartUpdateCD();
+							MyInventorySlot->StartUpdateCD();
+							MyInventorySlot->ClearCD();
+							ClearCD();
+						}
 					}
 				}
 				/** II. 技能插槽移动; // 拖拽出来的有技能, 自己作为接收方没有技能,这种行为称之为技能移动 */
@@ -199,6 +224,13 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 						// 把拖拽的实例复位掉
 						MyInventorySlot->ResetIcon();
 						MyInventorySlot->GetSlotInfo().Reset();
+
+						// CD效果
+						{
+							StartUpdateCD(MyInventorySlot->SlotBuild.Cooldown);
+							SetMaxCD(MyInventorySlot->SlotBuild.MaxCooldown);
+							MyInventorySlot->FoceClearCD();
+						}
 					}
 				}
 				/** III. 其他行为(比如拖拽失败了) */

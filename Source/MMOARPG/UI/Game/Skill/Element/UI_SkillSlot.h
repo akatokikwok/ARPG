@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "../../../Core/UI_Base.h"
+#include "Slot/UI_Slot.h"
 #include "UI_SkillSlot.generated.h"
 
 class UImage;
@@ -26,19 +27,28 @@ struct FWidgetSlotInfo
  * 技能UI插槽
  */
 UCLASS()
-class MMOARPG_API UUI_SkillSlot : public UUI_Base
+class MMOARPG_API UUI_SkillSlot : public UUI_Slot
 {
 	GENERATED_BODY()
 public:
-	// 技能图标Image
-	UPROPERTY(meta = (BindWidget))
-		UImage* SlotIcon;
-	// 技能图标外侧包裹的button
-	UPROPERTY(meta = (BindWidget))
-		UButton* SkillButton;
+	// 拖拽ICON显示类
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<class UUI_ICODragDrog> ICODragDrogClass;
+
 	//
-	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		bool bMappingKey;
+
+// 	// 技能图标Image
+// 	UPROPERTY(meta = (BindWidget))
+// 		UImage* SlotIcon;
+// 	// 技能图标外侧包裹的button
+// 	UPROPERTY(meta = (BindWidget))
+// 		UButton* SkillButton;
+// 	//
+// 	UPROPERTY(EditDefaultsOnly, Category = UI)
+// 		bool bMappingKey;
+
 public:
 	UUI_SkillSlot(const FObjectInitializer& ObjectInitializer);
 	virtual void NativeConstruct() override;
@@ -46,8 +56,10 @@ public:
 
 public:
 	// 敲击后的回调
-	UFUNCTION()
-		void OnClickedWidget();
+	virtual void OnClickedWidget() override;
+	
+	//
+	virtual void OnReleasedClickedWidget() override;
 
 	// 更新图标
 	void Update(const FName& InTagName, UTexture2D* InTexture);
@@ -79,9 +91,4 @@ protected:
 	static int32 PlayerSkillNumber;
 	int32 KeyNumber;// 技能框内的具体的槽的序号
 	FWidgetSlotInfo SlotInfo;// 技能槽数据
-
-private:
-	// 拖拽ICON显示类
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-		TSubclassOf<class UUI_ICODragDrog> ICODragDrogClass;
 };
