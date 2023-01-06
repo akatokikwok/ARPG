@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "../../Core/UI_Base.h"
+#include "UI_MovePage.h"
 #include "UI_SkillPage.generated.h"
 
 class UUniformGridPanel;
@@ -10,9 +10,10 @@ class UButton;
 
 /**
  * 技能页(技能表)
+ * 继承自 允许拖拽自身的控件UUI_MovePage
  */
 UCLASS()
-class MMOARPG_API UUI_SkillPage : public UUI_Base
+class MMOARPG_API UUI_SkillPage : public UUI_MovePage
 {
 	GENERATED_BODY()
 public:

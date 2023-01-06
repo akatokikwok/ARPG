@@ -80,7 +80,7 @@ UTexture2D* UUI_SkillSlot::GetIcon()
 void UUI_SkillSlot::SetIcon(UTexture2D* InNewTexture)
 {
 	SlotIcon->SetBrushFromTexture(InNewTexture);// 设置纹理
-	SlotIcon->SetVisibility(ESlateVisibility::Visible);// 蓝图内默认隐藏,这里需要手动显示
+	SlotIcon->SetVisibility(ESlateVisibility::HitTestInvisible);// 蓝图内默认隐藏,这里需要手动显示
 }
 
 void UUI_SkillSlot::ResetIcon()
