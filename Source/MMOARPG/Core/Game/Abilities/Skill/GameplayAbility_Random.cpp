@@ -6,7 +6,11 @@ void UGameplayAbility_Random::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) {
+// 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) {
+// 		return;
+// 	}
+
+	if (!CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true)) {// 强制不提交CD
 		return;
 	}
 
