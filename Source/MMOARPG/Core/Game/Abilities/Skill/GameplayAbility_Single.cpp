@@ -15,7 +15,8 @@ void UGameplayAbility_Single::ActivateAbility(const FGameplayAbilitySpecHandle H
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
 		/* 因为是单技能,所以只传入并播首个section. */
 		if (UMMOARPGGameplayAbility::PlayMontageAnim(*FString::FromInt(0.f))) {
-			
+			// 通知客户端更新CD
+			UMMOARPGGameplayAbility::CallUpdateCooldownOnClient();
 		}
 	}
 }

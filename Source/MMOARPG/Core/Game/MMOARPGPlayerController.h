@@ -6,7 +6,11 @@
 #include "../Common/Core/GamePlay/PlayerControllerBase.h"
 #include "MMOARPGPlayerController.generated.h"
 
+// 委托:更新技能page或者是更新技能slot
 DECLARE_DELEGATE_OneParam(FUpdateSkillDelegate, const TArray<FName>&)
+
+// 委托:通知客户端更新CD; 需要技能名字和冷却时长
+DECLARE_DELEGATE_TwoParams(FUpdateSkillCooldownDelegate, const FName&, float)
 
 class AMMOARPGCharacter;
 /**
@@ -19,6 +23,7 @@ class MMOARPG_API AMMOARPGPlayerController : public APlayerControllerBase
 public:
 	FUpdateSkillDelegate UpdateSkillTableDelegate;// 委托:更新技能表
 	FUpdateSkillDelegate UpdateSkillSlotDelegate; // 委托:更新技能节点
+	FUpdateSkillCooldownDelegate UpdateSkillCooldownDelegate;// 委托:通知客户端更新CD
 
 public:
 	AMMOARPGPlayerController();
@@ -37,6 +42,10 @@ public:
 
 	// 拿取目标人物或者小怪.
 	AMMOARPGCharacterBase* GetTarget() { return Target.Get(); }
+
+	// 通知客户端更新CD; 需要技能名字和冷却时长
+	UFUNCTION(Client, Reliable)
+		void CallUpdateCooldownOnClient(const FName& InTagName, float InCooldownValue);
 
 protected:
 	// 服务端执行人物重生

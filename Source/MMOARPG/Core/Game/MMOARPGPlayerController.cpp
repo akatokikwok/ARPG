@@ -58,6 +58,12 @@ void AMMOARPGPlayerController::ResetTargetOnServer_Implementation(AMMOARPGCharac
 	Target = InNewTarget;
 }
 
+// 通知客户端更新CD
+void AMMOARPGPlayerController::CallUpdateCooldownOnClient_Implementation(const FName& InTagName, float InCooldownValue)
+{
+	UpdateSkillCooldownDelegate.ExecuteIfBound(InTagName, InCooldownValue);
+}
+
 void AMMOARPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();

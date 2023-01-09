@@ -47,6 +47,10 @@ public:
 	UFUNCTION()
 		virtual	void OnDamageGameplayEvent(FGameplayTag InGameplayTag, FGameplayEventData Payload);
 
+protected:
+	// 在客户端更新CD
+	void CallUpdateCooldownOnClient();
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 播哪个蒙太奇.

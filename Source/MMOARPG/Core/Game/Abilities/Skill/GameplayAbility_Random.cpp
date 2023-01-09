@@ -16,7 +16,8 @@ void UGameplayAbility_Random::ActivateAbility(const FGameplayAbilitySpecHandle H
 
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
 		if (UMMOARPGGameplayAbility::PlayMontageAnim(*FString::FromInt(FMath::RandRange(0, GetCompositeSectionsNumber() - 1)))) {
-
+			// 通知客户端更新CD
+			UMMOARPGGameplayAbility::CallUpdateCooldownOnClient();
 		}
 	}
 }

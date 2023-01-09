@@ -2,6 +2,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask/AbilityTask_PMAWDamageEvent.h"
 #include "AbilitySystemComponent.h"
+#include "../MMOARPGPlayerController.h"
+#include "../Character/Core/MMOARPGCharacterBase.h"
 
 UMMOARPGGameplayAbility::UMMOARPGGameplayAbility()
 {
@@ -109,6 +111,23 @@ void UMMOARPGGameplayAbility::OnDamageGameplayEvent(FGameplayTag InGameplayTag, 
 		/** III: 做完值的GE包里提取出所有GE (伤害GE)应用给敌人. */
 		for (auto& Tmp : MMOGE_Pak.TargetEffectSpecs) {
 			TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles = K2_ApplyGameplayEffectSpecToTarget(Tmp, MMOGE_Pak.TargetHandleData);
+		}
+	}
+}
+
+// 在客户端更新CD
+void UMMOARPGGameplayAbility::CallUpdateCooldownOnClient()
+{
+	if (UGameplayEffect* InCooldownBuff = GetCooldownGameplayEffect()) {/* 用本GA查询一下是否蓝图有配置CD的buff */
+		float CDValue = 0.f;
+		if (InCooldownBuff->DurationMagnitude.GetStaticMagnitudeIfPossible(this->GetAbilityLevel(), CDValue) && // 通过GA等级拿到冷却buff里的步幅值 (即CD值)
+			CDValue != 0.f) {
+			if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(this->GetActorInfo().OwnerActor)) {// 通过GetActorInfo拿玩家
+				if (AMMOARPGPlayerController* InPlayerController = Cast<AMMOARPGPlayerController>(InCharacterBase->GetController())) {// 再拿到人的控制器
+					// 让controller通知客户端更新CD
+					InPlayerController->CallUpdateCooldownOnClient(*(this->AbilityTags).ToStringSimple(), CDValue);
+				}
+			}
 		}
 	}
 }
