@@ -32,4 +32,8 @@ protected:
 	// 回调, 用于绑定 委托-"更新技能节点".
 	UFUNCTION()
 		void UpdateSkillSlots(const TArray<FName>& InSkillTags);
+
+	// 回调, 用于绑定技能CD
+	UFUNCTION()
+		void UpdateSkillCD(const FName& InTagName, float InCDValue);
 };

@@ -15,6 +15,9 @@ void UUI_UnderSkillGroup::NativeConstruct()
 	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
 		// 为委托"更新技能节点(横框内SkillSlots)" 注册回调
 		InPlayerController->UpdateSkillSlotDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateSkillSlots);
+
+		// 为委托"更新技能CD"注册UI上的回调
+		InPlayerController->UpdateSkillCooldownDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateSkillCD);
 	}
 }
 
@@ -66,4 +69,20 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 void UUI_UnderSkillGroup::UpdateSkillSlots(const TArray<FName>& InSkillTags)
 {
 	LayoutSlot(InSkillTags);
+}
+
+void UUI_UnderSkillGroup::UpdateSkillCD(const FName& InTagName, float InCDValue)
+{
+	if (SlotArray) {
+		for (int32 i = 0; i < SlotArray->GetChildrenCount(); ++i) {
+			if (UUI_SkillSlot* InSkillSlot = Cast<UUI_SkillSlot>(SlotArray->GetChildAt(i))) {
+				if (InSkillSlot->GetSlotInfo().Tags == InTagName) {
+					// 设置起始CD与最大CD
+					InSkillSlot->StartUpdateCD(InCDValue);
+					InSkillSlot->SetMaxCD(InCDValue);
+					break;
+				}
+			}
+		}
+	}
 }
