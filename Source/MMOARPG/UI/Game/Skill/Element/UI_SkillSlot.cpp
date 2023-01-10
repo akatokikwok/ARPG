@@ -175,27 +175,30 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					}
 					/* 1.2 客户端表现的效果.*/
 					{
-						// 先缓存 "右键拖拽Logo"的纹理和名字
-						UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
-						FName TmpTags = MyInventorySlot->GetSlotInfo().Tags;
+						// 技能效果
+						{
+							// 先缓存 "右键拖拽Logo"的纹理和名字
+							UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
+							FName TmpTags = MyInventorySlot->GetSlotInfo().Tags;
 
-						// 给 "右键拖拽Logo" 重新写入
-						MyInventorySlot->SetIcon(GetIcon());
-						MyInventorySlot->GetSlotInfo().Tags = GetSlotInfo().Tags;
+							// 给 "右键拖拽Logo" 重新写入
+							MyInventorySlot->SetIcon(GetIcon());
+							MyInventorySlot->GetSlotInfo().Tags = GetSlotInfo().Tags;
 
-						// 将自己的技能插槽信息更换为之前缓存的那一份
-						GetSlotInfo().Tags = TmpTags;
-						SetIcon(TmpTexture);
+							// 将自己的技能插槽信息更换为之前缓存的那一份
+							GetSlotInfo().Tags = TmpTags;
+							SetIcon(TmpTexture);
+						}
 
 						// CD效果
 						{
 							FSlotBuild SlotBuildTmp = MyInventorySlot->SlotBuild;
-							MyInventorySlot->SlotBuild = SlotBuild;
-							SlotBuild = SlotBuildTmp;
-							StartUpdateCD();
+							MyInventorySlot->SlotBuild = this->SlotBuild;
+							this->SlotBuild = SlotBuildTmp;
+							this->StartUpdateCD();
 							MyInventorySlot->StartUpdateCD();
 							MyInventorySlot->ClearCD();
-							ClearCD();
+							this->ClearCD();
 						}
 					}
 				}
@@ -217,18 +220,20 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					}
 					/* 2.2 客户端表现 */
 					{
-						// 设置一下自身
-						this->GetSlotInfo().Tags = MyInventorySlot->GetSlotInfo().Tags;
-						this->SetIcon(MyInventorySlot->GetIcon());
-
-						// 把拖拽的实例复位掉
-						MyInventorySlot->ResetIcon();
-						MyInventorySlot->GetSlotInfo().Reset();
+						// 技能效果
+						{
+							// 设置一下自身
+							this->GetSlotInfo().Tags = MyInventorySlot->GetSlotInfo().Tags;
+							this->SetIcon(MyInventorySlot->GetIcon());
+							// 把拖拽的实例复位掉
+							MyInventorySlot->ResetIcon();
+							MyInventorySlot->GetSlotInfo().Reset();
+						}
 
 						// CD效果
 						{
-							StartUpdateCD(MyInventorySlot->SlotBuild.Cooldown);
-							SetMaxCD(MyInventorySlot->SlotBuild.MaxCooldown);
+							StartUpdateCD(MyInventorySlot->SlotBuild.Cooldown);// 标记CD UI开始
+							SetMaxCD(MyInventorySlot->SlotBuild.MaxCooldown);// 设置最大CD
 							MyInventorySlot->FoceClearCD();
 						}
 					}

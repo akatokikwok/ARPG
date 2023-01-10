@@ -36,4 +36,7 @@ protected:
 	// 回调, 用于绑定技能CD
 	UFUNCTION()
 		void UpdateSkillCD(const FName& InTagName, float InCDValue);
+
+	// 使用传入的lambda专门处理技能横框的特定slot
+	void CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InFunction);
 };
