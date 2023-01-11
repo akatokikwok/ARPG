@@ -53,16 +53,17 @@ void UAnimNotifyState_AddForce::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 
 FVector UAnimNotifyState_AddForce::CalCurrentCharacterDirection(ACharacter* InCharacter)
 {
+	FVector V = FVector::ZeroVector;
 	if (InCharacter) {
 		if (DirectionForce.X != 0.f) {
-			return InCharacter->GetActorForwardVector() * DirectionForce.X;
+			V += InCharacter->GetActorForwardVector() * DirectionForce.X;
 		}
-		else if (DirectionForce.Y != 0.f) {
-			return InCharacter->GetActorRightVector() * DirectionForce.Y;
+		if (DirectionForce.Y != 0.f) {
+			V += InCharacter->GetActorRightVector() * DirectionForce.Y;
 		}
-		else if (DirectionForce.Z != 0.f) {
-			return InCharacter->GetActorUpVector() * DirectionForce.Z;
+		if (DirectionForce.Z != 0.f) {
+			V += InCharacter->GetActorUpVector() * DirectionForce.Z;
 		}
 	}
-	return FVector::ZeroVector;
+	return V;
 }
