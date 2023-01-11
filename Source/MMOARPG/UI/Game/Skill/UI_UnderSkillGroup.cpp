@@ -66,18 +66,46 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 		}
 	}
 	else {// 表明是刷新或重新更新技能组
+		
+		int32 Index = 0;
+		CallSKillSlot([&](UUI_SkillSlot* InSkillSlot) ->bool {
+			if (InSkillSlot) {
+				if (InSkillTags.IsValidIndex(Index)) {
+					/* 不相等则表明 客户端模拟的不正确,需由服务器去矫正 */
+					if (InSkillSlot->GetSlotInfo().Tags != InSkillTags[Index]) {
+						if (AMMOARPGCharacterBase* InCharacterBase = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {
+							if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+								TArray<FCharacterSkillTable*> SkillTables;
+								int32 CharacterID = InCharacterBase->GetID();
+								if (InGameState->GetCharacterSkillsTables(CharacterID, SkillTables)) {
+									// 先清除原先的图标
+									InSkillSlot->ResetIcon();
+									InSkillSlot->GetSlotInfo().Reset();
 
-// 		CallSKillSlot([&](UUI_SkillSlot* InSkillSlot) ->bool {
-// 			if (InSkillSlot) {
-// 				if (InSkillSlot->GetSlotInfo().Tags == InTagName) {
-// 					InSkillSlot->StartUpdateCD(InCDValue);
-// 					InSkillSlot->SetMaxCD(InCDValue);
-// 					return true;
-// 				}
-// 			}
-// 			return false;
-// 			}
-// 		);
+									// 先查找到和入参匹配的技能行
+									if (FCharacterSkillTable** MySkillTableRow = SkillTables.FindByPredicate(
+										[&](FCharacterSkillTable* InTableRowInfo)->bool {
+											if (UGameplayAbility* InGA = Cast<UGameplayAbility>(InTableRowInfo->GameplayAbility->GetDefaultObject())) {
+												if (InSkillTags[Index].ToString() == InGA->AbilityTags.ToStringSimple()) {
+													return true;
+												}
+											}
+											return false;
+										})) {
+										// 这个技能槽去 更新 上一步符合条件的技能行里的图标
+										InSkillSlot->Update(InSkillTags[Index], (*MySkillTableRow)->Icon);
+									}
+								}
+							}
+						}
+					}
+					//
+				}
+			}
+			Index++;// 计数迭代
+
+			return false;
+		});
 	}
 }
 
