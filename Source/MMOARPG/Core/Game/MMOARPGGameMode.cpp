@@ -309,9 +309,10 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 							InPlayerCharacter->InitSkill();
 
 
-							// 在客户端创建死亡提示窗口
+							// 监测到人物处于死亡状态
 							if (InPlayerCharacter->IsDie()) {
-								InPlayerCharacter->CreateResurrectionWindowsClient();
+								InPlayerCharacter->CreateResurrectionWindowsClient();// 在客户端创建死亡提示窗口
+								InPlayerCharacter->DeactivationRecoveryEffect();// 解除持续恢复buff
 							}
 
 							// 升级

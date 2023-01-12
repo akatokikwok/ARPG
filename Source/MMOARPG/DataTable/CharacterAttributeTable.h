@@ -55,6 +55,12 @@ public:
 		float ExperienceReward;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float StaminaValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float MaxStaminaValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> SkillTags;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")

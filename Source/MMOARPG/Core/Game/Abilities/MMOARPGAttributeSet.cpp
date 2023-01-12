@@ -19,6 +19,8 @@ UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	, AttackRange(200.f)
 	, EmpiricalValue(0.f)
 	, MaxEmpiricalValue(100.f)
+	, StaminaValue(100.f)
+	, MaxStaminaValue(100.f)
 {
 
 }
@@ -124,7 +126,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	}
 	/* 若是经验值.*/
 	else if (Data.EvaluatedData.Attribute == GetEmpiricalValueAttribute()) {
-		float NewEmpiricalValue = Magnitude + GetEmpiricalValue() + 100.f;// 额外再加100
+		float NewEmpiricalValue = Magnitude + GetEmpiricalValue(); /* + 100.f;// 额外再加100*/
 		SetEmpiricalValue(NewEmpiricalValue);
 
 		Target->HandleExp(SourceTagContainer, Magnitude);
@@ -136,6 +138,10 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	/* 蓝上限. */
 	else if (Data.EvaluatedData.Attribute == GetMaxManaAttribute()) {
 		SetMana(GetMaxMana());
+	}
+	/* 最大经验值 */
+	else if (Data.EvaluatedData.Attribute == GetMaxEmpiricalValueAttribute()) {
+
 	}
 }
 
@@ -174,6 +180,8 @@ void UMMOARPGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UMMOARPGAttributeSet, PhysicsDefense);
 	DOREPLIFETIME(UMMOARPGAttributeSet, EmpiricalValue);
 	DOREPLIFETIME(UMMOARPGAttributeSet, MaxEmpiricalValue);
+	DOREPLIFETIME(UMMOARPGAttributeSet, StaminaValue);
+	DOREPLIFETIME(UMMOARPGAttributeSet, MaxStaminaValue);
 }
 
 // 用服务器端的GAS属性集 注册本AS类里各字段.
@@ -191,6 +199,9 @@ void UMMOARPGAttributeSet::RegistrationProperties(const FMMOARPGCharacterAttribu
 	RegistrationParam(AttackRange, Data.AttackRange);
 	RegistrationParam(EmpiricalValue, Data.EmpiricalValue);
 	RegistrationParam(MaxEmpiricalValue, Data.MaxEmpiricalValue);
+	RegistrationParam(StaminaValue, Data.StaminaValue);
+	RegistrationParam(MaxStaminaValue, Data.MaxStaminaValue);
+	
 }
 
 // 用DTR_属性 注册本AS类里各字段.
@@ -207,6 +218,48 @@ void UMMOARPGAttributeSet::RegistrationProperties(const FCharacterAttributeTable
 	RegistrationParam(MagicDefense, Data->MagicDefense);
 	RegistrationParam(AttackRange, Data->AttackRange);
 	RegistrationParam(MaxEmpiricalValue, Data->MaxEmpiricalValue);
+	RegistrationParam(StaminaValue, Data->StaminaValue);
+	RegistrationParam(MaxStaminaValue, Data->MaxStaminaValue);
+}
+
+/**  */
+void UMMOARPGAttributeSet::ToMMOARPGCharacterAttribute(FMMOARPGCharacterAttribute& OutData)
+{
+	RegistrationParam(OutData.Level, Level);
+	RegistrationParam(OutData.Health, Health);
+	RegistrationParam(OutData.MaxHealth, MaxHealth);
+	RegistrationParam(OutData.Mana, Mana);
+	RegistrationParam(OutData.MaxMana, MaxMana);
+	RegistrationParam(OutData.PhysicsAttack, PhysicsAttack);
+	RegistrationParam(OutData.MagicAttack, MagicAttack);
+	RegistrationParam(OutData.PhysicsDefense, PhysicsDefense);
+	RegistrationParam(OutData.MagicDefense, MagicDefense);
+	RegistrationParam(OutData.AttackRange, AttackRange);
+	RegistrationParam(OutData.MaxEmpiricalValue, MaxEmpiricalValue);
+	RegistrationParam(OutData.EmpiricalValue, EmpiricalValue);
+	RegistrationParam(OutData.MaxStaminaValue, MaxStaminaValue);
+	RegistrationParam(OutData.StaminaValue, StaminaValue);
+}
+
+// 仅工具方法.
+void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData)
+{
+	InAttributeData.SetBaseValue(InNewAttributeData.BaseValue);
+	InAttributeData.SetCurrentValue(InNewAttributeData.CurrentValue);
+}
+
+// 工具方法
+void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const float InValue)
+{
+	InAttributeData.SetBaseValue(InValue);
+	InAttributeData.SetCurrentValue(InValue);
+}
+
+// 用UE内型的AD注册 MMOAD
+void UMMOARPGAttributeSet::RegistrationParam(FMMOARPGAttributeData& InNewAttributeData, const FGameplayAttributeData& InAttributeData)
+{
+	InNewAttributeData.BaseValue = InAttributeData.GetBaseValue();
+	InNewAttributeData.CurrentValue = InAttributeData.GetCurrentValue();
 }
 
 void UMMOARPGAttributeSet::OnRep_Level(const FGameplayAttributeData& OldValue)
@@ -274,40 +327,12 @@ void UMMOARPGAttributeSet::OnRep_MaxEmpiricalValue(const FGameplayAttributeData&
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxEmpiricalValue, OldValue);
 }
 
-/**  */
-void UMMOARPGAttributeSet::ToMMOARPGCharacterAttribute(FMMOARPGCharacterAttribute& OutData)
+void UMMOARPGAttributeSet::OnRep_StaminaValue(const FGameplayAttributeData& OldValue)
 {
-	RegistrationParam(OutData.Level, Level);
-	RegistrationParam(OutData.Health, Health);
-	RegistrationParam(OutData.MaxHealth, MaxHealth);
-	RegistrationParam(OutData.Mana, Mana);
-	RegistrationParam(OutData.MaxMana, MaxMana);
-	RegistrationParam(OutData.PhysicsAttack, PhysicsAttack);
-	RegistrationParam(OutData.MagicAttack, MagicAttack);
-	RegistrationParam(OutData.PhysicsDefense, PhysicsDefense);
-	RegistrationParam(OutData.MagicDefense, MagicDefense);
-	RegistrationParam(OutData.AttackRange, AttackRange);
-	RegistrationParam(OutData.MaxEmpiricalValue, MaxEmpiricalValue);
-	RegistrationParam(OutData.EmpiricalValue, EmpiricalValue);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, StaminaValue, OldValue);
 }
 
-// 仅工具方法.
-void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const FMMOARPGAttributeData& InNewAttributeData)
+void UMMOARPGAttributeSet::OnRep_MaxStaminaValue(const FGameplayAttributeData& OldValue)
 {
-	InAttributeData.SetBaseValue(InNewAttributeData.BaseValue);
-	InAttributeData.SetCurrentValue(InNewAttributeData.CurrentValue);
-}
-
-// 工具方法
-void UMMOARPGAttributeSet::RegistrationParam(FGameplayAttributeData& InAttributeData, const float InValue)
-{
-	InAttributeData.SetBaseValue(InValue);
-	InAttributeData.SetCurrentValue(InValue);
-}
-
-// 用UE内型的AD注册 MMOAD
-void UMMOARPGAttributeSet::RegistrationParam(FMMOARPGAttributeData& InNewAttributeData, const FGameplayAttributeData& InAttributeData)
-{
-	InNewAttributeData.BaseValue = InAttributeData.GetBaseValue();
-	InNewAttributeData.CurrentValue = InAttributeData.GetCurrentValue();
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxStaminaValue, OldValue);
 }

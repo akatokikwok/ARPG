@@ -14,6 +14,8 @@ FCharacterAttributeTable::FCharacterAttributeTable()
 	, MaxEmpiricalValue(100.f)
 	, DamageBase(15)
 	, ExperienceReward(30)
+	, StaminaValue(100.f)
+	, MaxStaminaValue(100.f)
 {
 	// 任意生命体都具备以下的技能与行为.
 

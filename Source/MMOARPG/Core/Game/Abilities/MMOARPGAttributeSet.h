@@ -76,6 +76,12 @@ protected:
 	// Rep最大经验
 	UFUNCTION()
 		virtual void OnRep_MaxEmpiricalValue(const FGameplayAttributeData& OldValue);
+	// Rep耐力值
+	UFUNCTION()
+		virtual void OnRep_StaminaValue(const FGameplayAttributeData& OldValue);
+	// Rep最大耐力值
+	UFUNCTION()
+		virtual void OnRep_MaxStaminaValue(const FGameplayAttributeData& OldValue);
 
 protected:
 	// 工具方法:
@@ -150,4 +156,14 @@ public:
 		UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxEmpiricalValue)
 		FGameplayAttributeData MaxEmpiricalValue;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxEmpiricalValue)
+
+		// 耐力值
+		UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_StaminaValue)
+		FGameplayAttributeData StaminaValue;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, StaminaValue)
+		
+		// 最大耐力值
+		UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxStaminaValue)
+		FGameplayAttributeData MaxStaminaValue;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxStaminaValue)
 };

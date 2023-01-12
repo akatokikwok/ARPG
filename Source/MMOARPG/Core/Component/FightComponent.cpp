@@ -564,6 +564,31 @@ void UFightComponent::SerializationSkillAssembly(FString& OutString)
 	OutString.RemoveFromEnd(TEXT(","));
 }
 
+void UFightComponent::ActivateRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect)
+{
+	if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+		if (MMOARPGCharacterBase.IsValid()) {
+			// 1.先填充GE句柄context
+			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+			EffectContext.AddSourceObject(UMotionComponent::MMOARPGCharacterBase.Get());
+
+			// 2.用入参构建1个GE实例并应用
+			FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InGameplayEffect, 
+				MMOARPGCharacterBase->GetCharacterLevel(), EffectContext);
+			if (EffectSpecHandle.IsValid()) {
+				AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent.Get());
+			}
+		}
+	}
+}
+
+void UFightComponent::DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect)
+{
+	if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+		AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(InGameplayEffect, AbilitySystemComponent.Get());
+	}
+}
+
 #pragma endregion 关于真正GA池子的一些操作函数
 
 //////////////////////////////////////////////////////////////////////////

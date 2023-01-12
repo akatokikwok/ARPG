@@ -198,6 +198,13 @@ public:
 	// 序列化后输出一个 为带顺序的bit位的技能名字
 	void SerializationSkillAssembly(FString& OutString);
 
+public:
+	// 激活持续恢复buff
+	void ActivateRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
+
+	// 解除持续恢复buff
+	void DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
+
 	//////////////////////////////////////////////////////////////////////////
 
 private:

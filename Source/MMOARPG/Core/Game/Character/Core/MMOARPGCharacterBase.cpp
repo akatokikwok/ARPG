@@ -125,6 +125,12 @@ void AMMOARPGCharacterBase::BeginPlay()
 					InMMOARPGAnimInstanceBase->InitAnimInstance(this);// 拿到动画实例并构建IK数据.
 				}
 			}
+
+			// 激活持续恢复buff,运行在协程中
+			GThread::Get()->GetCoroutines().BindLambda(0.5f,
+				[&]() ->void {
+					ActivateRecoveryEffect();
+				});
 		}
 
 		/* 在人内部 给ASC注册GAS属性集.*/
@@ -365,7 +371,7 @@ void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ cons
 // 
 void AMMOARPGCharacterBase::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-	
+
 }
 
 // 写入战斗组件里的受击ID
@@ -390,6 +396,9 @@ void AMMOARPGCharacterBase::PlayHit()
 void AMMOARPGCharacterBase::PlayDie()
 {
 	GetFightComponent()->Die();
+
+	// 解除持续恢复buff
+	DeactivationRecoveryEffect();
 }
 
 // 使用战斗组件里的 注册各部分技能(按形式来源)
@@ -486,12 +495,34 @@ void AMMOARPGCharacterBase::GetLimbsTagsName(TArray<FName>& OutNames)
 	}
 }
 
+// 人物执行复活
 void AMMOARPGCharacterBase::Resurrection()
 {
 	if (IsNetMode(ENetMode::NM_DedicatedServer)) {
 		if (AttributeSet) {
 			AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
 			AttributeSet->SetMana(AttributeSet->GetMaxMana());
+
+			// 再次激活持续恢复buff
+			ActivateRecoveryEffect();
+		}
+	}
+}
+
+void AMMOARPGCharacterBase::ActivateRecoveryEffect()
+{
+	if (FightComponent) {
+		for (auto& Tmp : RecoveryEffect) {
+			FightComponent->ActivateRecoveryEffect(Tmp);
+		}
+	}
+}
+
+void AMMOARPGCharacterBase::DeactivationRecoveryEffect()
+{
+	if (FightComponent) {
+		for (auto& Tmp : RecoveryEffect) {
+			FightComponent->DeactivationRecoveryEffect(Tmp);
 		}
 	}
 }

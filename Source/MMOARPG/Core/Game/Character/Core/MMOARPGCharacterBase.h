@@ -248,6 +248,12 @@ public:
 	// 人物执行复活
 	void Resurrection();
 
+	// 激活持续恢复buff
+	void ActivateRecoveryEffect();
+
+	// 解除持续恢复的buff
+	void DeactivationRecoveryEffect();
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
@@ -257,6 +263,10 @@ protected:
 	// 人物若被击杀后, 对手获得的升级经验值奖励Buff.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
 		TSubclassOf<UGameplayEffect> UpgradeRewardEffect;
+
+	// 一组持续恢复buff
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TArray<TSubclassOf<UGameplayEffect>> RecoveryEffect;
 
 protected:
 	// 人物动作状态.
