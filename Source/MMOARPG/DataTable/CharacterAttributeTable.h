@@ -59,6 +59,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		float MaxStaminaValue;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float HealthRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float ManaRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float StaminaRate;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> SkillTags;

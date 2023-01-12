@@ -125,7 +125,9 @@ void AMMOARPGCharacterBase::BeginPlay()
 					InMMOARPGAnimInstanceBase->InitAnimInstance(this);// 拿到动画实例并构建IK数据.
 				}
 			}
-
+		}
+		else {/* 位于服务器上*/
+			
 			// 激活持续恢复buff,运行在协程中
 			GThread::Get()->GetCoroutines().BindLambda(0.5f,
 				[&]() ->void {

@@ -70,7 +70,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));// 设定血
 		
-		if (Target != nullptr) {
+		if (Target && Magnitude < 0.0f) {// 只有magnitude小于0对于血量才有意义; 若大于0则会产生受击动画
 			// 先用lambda加工源Char和源Actor
 			AMMOARPGCharacterBase* SourceCharacter = nullptr;
 			AActor* SourceActor = nullptr;
@@ -126,7 +126,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 	}
 	/* 若是经验值.*/
 	else if (Data.EvaluatedData.Attribute == GetEmpiricalValueAttribute()) {
-		float NewEmpiricalValue = Magnitude + GetEmpiricalValue(); /* + 100.f;// 额外再加100*/
+		float NewEmpiricalValue = Magnitude + GetEmpiricalValue();/* + 100.f;// 额外再加100*/
 		SetEmpiricalValue(NewEmpiricalValue);
 
 		Target->HandleExp(SourceTagContainer, Magnitude);
