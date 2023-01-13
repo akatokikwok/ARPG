@@ -26,7 +26,7 @@ void UUI_SkillSlot::NativeConstruct()
 
 		// 屏幕打印按下了哪个键位
 		FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
-		
+
 		// 键鼠输入绑定回调
 		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
 		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
@@ -51,10 +51,12 @@ void UUI_SkillSlot::OnClickedWidget()
 	UUI_Base::Print(FString::FromInt(KeyNumber));
 
 	if (KeyNumber > 0) {
-		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
-			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
-				// 服务端执行技能形式的技能攻击(需指定一个槽号)
-				InCharacter->SKillAttackOnServer(KeyNumber);
+		if (UUI_Slot::IsCooldown()) {
+			if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+				if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
+					// 服务端执行技能形式的技能攻击(需指定一个槽号)
+					InCharacter->SKillAttackOnServer(KeyNumber);
+				}
 			}
 		}
 	}
