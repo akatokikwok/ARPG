@@ -15,12 +15,21 @@ struct FWidgetSlotInfo
 {
 	FWidgetSlotInfo()
 		: Tags(NAME_None)
+		, Cost(0.f)
 	{}
 
 	FName Tags;// 技能名字
+	float Cost;// 技能消耗量
 
-	bool IsVaild() const { return Tags != NAME_None; };// 名字是否有意义
-	void Reset() { Tags = NAME_None; }// 名字重置
+	// 技能名是否有意义
+	bool IsVaild() const { return Tags != NAME_None; };
+	
+	// 技能槽内所有属性全部复位
+	void Reset() 
+	{ 
+		Tags = NAME_None; 
+		Cost = 0.f;
+	}
 };
 
 /**
@@ -61,8 +70,8 @@ public:
 	//
 	virtual void OnReleasedClickedWidget() override;
 
-	// 更新图标
-	void Update(const FName& InTagName, UTexture2D* InTexture);
+	// 刷新skillslot数据
+	void Update(const FName& InTagName, UTexture2D* InTexture, float InCost = 0.f);
 
 public:/// 一系列接口
 	// 获取 技能槽信息
@@ -86,6 +95,13 @@ protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+public:
+	// 是否屏蔽了技能输入
+	bool IsShieldSkill();
+
+	// 技能是否满足 足以消耗
+	bool IsCost();
 
 protected:
 	static int32 PlayerSkillNumber;

@@ -6,6 +6,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "../../../Core/Game/MMOARPGPlayerController.h"
 #include "../../../Core/Game/Character/Core/MMOARPGCharacterBase.h"
+#include "MMOARPG/Core/Game/Abilities/MMOARPGGameplayAbility.h"
 
 void UUI_UnderSkillGroup::NativeConstruct()
 {
@@ -23,7 +24,7 @@ void UUI_UnderSkillGroup::NativeConstruct()
 	// 屏蔽输入的计时代理
 	bShieldSkill.Fun.BindLambda([&]() {
 		ShieldSkillInput(true);
-	});
+		});
 }
 
 void UUI_UnderSkillGroup::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -60,18 +61,17 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 
 								// 更新具体数据和技能
 								if (InSkillTags.IsValidIndex(MyRow)) {
-									// 先查找到和入参匹配的技能行
-									if (FCharacterSkillTable** MySkillTableRow = SkillTables.FindByPredicate(
-										[&](FCharacterSkillTable* InTableRowInfo)->bool {
-											if (UGameplayAbility* InGA = Cast<UGameplayAbility>(InTableRowInfo->GameplayAbility->GetDefaultObject())) {
-												if (InSkillTags[MyRow].ToString() == InGA->AbilityTags.ToStringSimple()) {
-													return true;
-												}
+									// 检索所有 匹配的技能行
+									for (auto& SkillTmp : SkillTables) {
+										if (UMMOARPGGameplayAbility* InMMOGA = Cast<UMMOARPGGameplayAbility>(SkillTmp->GameplayAbility->GetDefaultObject())) {
+											if (InSkillTags[MyRow].ToString() == InMMOGA->AbilityTags.ToStringSimple()) {// 找出名字一致的那一行
+												// 刷新这个skillslot
+												SlotWidget->Update(InSkillTags[MyRow], 
+													SkillTmp->Icon, 
+													InMMOGA->CostValue("Mana", InCharacterBase->GetCharacterLevel()));
+												break;
 											}
-											return false;
-										})) {
-										// 这个技能槽去 更新 上一步符合条件的技能行里的图标
-										SlotWidget->Update(InSkillTags[MyRow], (*MySkillTableRow)->Icon);
+										}
 									}
 								}
 							}
@@ -177,5 +177,5 @@ void UUI_UnderSkillGroup::ShieldSkillInput(bool bShield)
 			InSkillSlot->SetIsEnabled(bShield);
 		}
 		return false;
-	});
+		});
 }

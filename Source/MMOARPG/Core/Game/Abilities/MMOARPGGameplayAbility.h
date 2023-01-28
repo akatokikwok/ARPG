@@ -33,6 +33,10 @@ public:// 蓝图版. 提供给CPP版使用
 public:
 	// 拿取蒙太奇内部的总段数.
 	int32 GetCompositeSectionsNumber();
+
+	// 读取出buff在特定等级和在特定属性下的耗费值
+	float CostValue(const FString& InCostName, float InLevel);
+
 public:
 	/** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
 	UFUNCTION(BlueprintCallable, Category = "MMOARPGGameplayAbility|Tasks", meta = (DisplayName = "PlayMontageAndWait"/*, HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE")*/))

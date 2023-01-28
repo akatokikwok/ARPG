@@ -6,6 +6,7 @@
 #include "Styling/SlateBrush.h"
 #include "../../../../Core/Game/Character/MMOARPGCharacter.h"
 #include "../UI_UnderSkillGroup.h"
+#include "MMOARPG/Core/Game/Abilities/MMOARPGAttributeSet.h"
 
 int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
@@ -52,15 +53,19 @@ void UUI_SkillSlot::OnClickedWidget()
 	UUI_Base::Print(FString::FromInt(KeyNumber));
 
 	if (KeyNumber > 0) {
-		if (UUI_Slot::IsCooldown()) {
-			if (UUI_UnderSkillGroup* InUnderSkillGroup = GetParents<UUI_UnderSkillGroup>()) {
-				if (!InUnderSkillGroup->IsShieldSkill()) {// 仅当未屏蔽技能输入
+		if (UUI_Slot::IsCooldown()) {// 是否 在处在CD中
+			if (!IsShieldSkill()) {// 是否 未屏蔽技能输入
+				if (IsCost()) {// 是否 足以消耗
 					if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
 						if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
 							// 服务端执行技能形式的技能攻击(需指定一个槽号)
 							InCharacter->SKillAttackOnServer(KeyNumber);
 						}
 					}
+				}
+				else {
+					// 打印 技能不满足足以消耗的条件
+
 				}
 			}
 		}
@@ -73,10 +78,11 @@ void UUI_SkillSlot::OnReleasedClickedWidget()
 }
 
 #pragma region 对外接口
-void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture)
+void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture, float InCost)
 {
 	this->SetIcon(InTexture);
 	this->SlotInfo.Tags = InTagName;// 注册技能名字为入参.
+	this->SlotInfo.Cost = InCost;// 指派为特定的消耗值
 }
 
 UTexture2D* UUI_SkillSlot::GetIcon()
@@ -258,3 +264,27 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 	return bDrop;
 }
 #pragma endregion 覆写侦测拖拽手势系统函数
+
+// 是否屏蔽了技能输入
+bool UUI_SkillSlot::IsShieldSkill()
+{
+	if (UUI_UnderSkillGroup* InUnderSkillGroup = GetParents<UUI_UnderSkillGroup>()) {
+		return InUnderSkillGroup->IsShieldSkill();
+	}
+
+	return false;
+}
+
+// 技能是否满足 足以消耗
+bool UUI_SkillSlot::IsCost()
+{
+	if (GetWorld() && GetWorld()->GetFirstPlayerController()) {
+		if (AMMOARPGCharacterBase* InPawn = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacterBase>()) {
+			if (UMMOARPGAttributeSet* InAttribute = InPawn->GetAttribute()) {
+				return InAttribute->GetMana() >= SlotInfo.Cost;
+			}
+		}
+	}
+
+	return false;
+}
