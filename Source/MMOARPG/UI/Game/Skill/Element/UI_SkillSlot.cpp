@@ -5,6 +5,7 @@
 #include "DragDrop/UI_ICODragDrog.h"
 #include "Styling/SlateBrush.h"
 #include "../../../../Core/Game/Character/MMOARPGCharacter.h"
+#include "../UI_UnderSkillGroup.h"
 
 int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
@@ -52,10 +53,14 @@ void UUI_SkillSlot::OnClickedWidget()
 
 	if (KeyNumber > 0) {
 		if (UUI_Slot::IsCooldown()) {
-			if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
-				if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
-					// 服务端执行技能形式的技能攻击(需指定一个槽号)
-					InCharacter->SKillAttackOnServer(KeyNumber);
+			if (UUI_UnderSkillGroup* InUnderSkillGroup = GetParents<UUI_UnderSkillGroup>()) {
+				if (!InUnderSkillGroup->IsShieldSkill()) {// 仅当未屏蔽技能输入
+					if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+						if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
+							// 服务端执行技能形式的技能攻击(需指定一个槽号)
+							InCharacter->SKillAttackOnServer(KeyNumber);
+						}
+					}
 				}
 			}
 		}

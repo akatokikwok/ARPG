@@ -19,6 +19,18 @@ void UUI_UnderSkillGroup::NativeConstruct()
 		// 为委托"更新技能CD"注册UI上的回调
 		InPlayerController->UpdateSkillCooldownDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateSkillCD);
 	}
+
+	// 屏蔽输入的计时代理
+	bShieldSkill.Fun.BindLambda([&]() {
+		ShieldSkillInput(true);
+	});
+}
+
+void UUI_UnderSkillGroup::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	bShieldSkill.Tick(InDeltaTime);
 }
 
 void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
@@ -36,6 +48,10 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 						int32 RowNumber = 5;
 						for (int32 MyRow = 0; MyRow < RowNumber; MyRow++) {
 							if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {
+								//
+								SlotWidget->SetParents(this);
+
+								//
 								if (UHorizontalBoxSlot* BoxSlot = SlotArray->AddChildToHorizontalBox(SlotWidget)) {
 									BoxSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
 									BoxSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
@@ -66,7 +82,7 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 		}
 	}
 	else {// 表明是刷新或重新更新技能组
-		
+
 		int32 Index = 0;
 		CallSKillSlot([&](UUI_SkillSlot* InSkillSlot) ->bool {
 			if (InSkillSlot) {
@@ -105,7 +121,7 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 			Index++;// 计数迭代
 
 			return false;
-		});
+			});
 	}
 }
 
@@ -117,16 +133,19 @@ void UUI_UnderSkillGroup::UpdateSkillSlots(const TArray<FName>& InSkillTags)
 void UUI_UnderSkillGroup::UpdateSkillCD(const FName& InTagName, float InCDValue)
 {
 	CallSKillSlot([&](UUI_SkillSlot* InSkillSlot) ->bool {
-			if (InSkillSlot) {
-				if (InSkillSlot->GetSlotInfo().Tags == InTagName) {
-					InSkillSlot->StartUpdateCD(InCDValue);
-					InSkillSlot->SetMaxCD(InCDValue);
-					return true;
-				}
+		if (InSkillSlot) {
+			if (InSkillSlot->GetSlotInfo().Tags == InTagName) {
+				InSkillSlot->StartUpdateCD(InCDValue);
+				InSkillSlot->SetMaxCD(InCDValue);
+				return true;
 			}
-			return false;
+		}
+		return false;
 		}
 	);
+
+	// 建议屏蔽技能输入CD一秒
+	ShieldSkillInput(1.0f);
 }
 
 // 使用传入的lambda专门处理技能横框的特定slot
@@ -139,4 +158,24 @@ void UUI_UnderSkillGroup::CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InLambda
 			}
 		}
 	}
+}
+
+// 在一段时间内 屏蔽技能输入
+void UUI_UnderSkillGroup::ShieldSkillInput(float InTime)
+{
+	ShieldSkillInput(false);
+
+	bShieldSkill = true;
+	bShieldSkill = InTime;
+}
+
+// 是否禁用技能输入
+void UUI_UnderSkillGroup::ShieldSkillInput(bool bShield)
+{
+	CallSKillSlot([&](UUI_SkillSlot* InSkillSlot) ->bool {
+		if (InSkillSlot) {
+			InSkillSlot->SetIsEnabled(bShield);
+		}
+		return false;
+	});
 }

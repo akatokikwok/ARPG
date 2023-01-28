@@ -125,7 +125,7 @@ enum class EClimbingTurnState : uint8
 };
 
 /**
- * 刷新切换BOOL状态的结构, 用于飞行姿态中的疾飞和落地.
+ * 刷新切换BOOL状态的结构, 多用途,可绑定lambda
  */
 struct FResetBool
 {

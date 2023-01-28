@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Channel/SimpleChannel.h"
 #include "Components/Widget.h"
+#include "MMOARPG\MMOARPGGameType.h"
 #include "UI_Base.generated.h"
 
 /**

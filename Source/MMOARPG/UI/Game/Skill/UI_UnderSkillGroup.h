@@ -24,9 +24,14 @@ public:
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 public:
+	// 初始化
 	void LayoutSlot(const TArray<FName>& InSkillTags);
+	
+	// 是否人为屏蔽了技能输入
+	bool IsShieldSkill() { return *bShieldSkill; }
 
 protected:
 	// 回调, 用于绑定 委托-"更新技能节点".
@@ -39,4 +44,14 @@ protected:
 
 	// 使用传入的lambda专门处理技能横框的特定slot
 	void CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InFunction);
+
+	// 屏蔽技能输入
+	void ShieldSkillInput(float InTime);
+
+	//
+	void ShieldSkillInput(bool bShield);
+
+private:
+	// 刷新切换BOOL状态的结构
+	FResetBool bShieldSkill;
 };
