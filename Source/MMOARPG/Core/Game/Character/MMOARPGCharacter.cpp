@@ -746,6 +746,13 @@ void AMMOARPGCharacter::MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, 
 	AnalysisGamePlayTagsToArrayName(LimbsTagsName, OutBitLimbs);// 将Tag组转换为服务器存储的序列
 }
 
+void AMMOARPGCharacter::UpdateSkillSlots()
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->UpdateSkillSlots();
+	}
+}
+
 void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
 {
 	if (GetFightComponent()) {

@@ -361,6 +361,12 @@ void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
 	if (InUpgradeLevelPawn->IsUpdateLevel()) {
 		// 让人升一级
 		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1);
+
+		// 更新角色的技能Slot
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(InUpgradeLevelPawn)) {
+			InCharacter->UpdateSkillSlots();
+		}
+
 		// 递归判定
 		this->UpdateLevel(InUpgradeLevelPawn);
 	}

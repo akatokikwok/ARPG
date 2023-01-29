@@ -227,6 +227,10 @@ private:
 	// 小接口: 将一组技能名字转化为服务器上更小格式的位
 	void MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, TArray<FName>& OutBitComboAttack, TArray<FName>& OutBitLimbs);
 
+public:
+	// 更新人物的 技能节点
+	void UpdateSkillSlots();
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
