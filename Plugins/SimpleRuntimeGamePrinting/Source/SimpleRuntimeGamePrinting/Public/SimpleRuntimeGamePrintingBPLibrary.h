@@ -23,7 +23,7 @@
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
 UCLASS()
-class USimpleRuntimeGamePrintingBPLibrary : public UBlueprintFunctionLibrary
+class SIMPLERUNTIMEGAMEPRINTING_API USimpleRuntimeGamePrintingBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
