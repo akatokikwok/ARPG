@@ -45,3 +45,35 @@ void UUI_GamePrintf::SetText(const FText& InText)
 {
 	TextBlock->SetText(InText);
 }
+
+// 设置字体
+void UUI_GamePrintf::SetText(const FText& InText, const FString& InColor)
+{
+	TextBlock->SetText(FText::FromString(
+		SimpleRuntimeGamePrinting::FPrintSlot()
+		.AddSlot()
+		.Color(InColor)
+		[
+			InText.ToString()
+		].ToString()
+	));
+}
+
+// 设置字体
+void UUI_GamePrintf::SetText(const SimpleRuntimeGamePrinting::FPrintSlot& InMySlot)
+{
+	TextBlock->SetText(FText::FromString(
+		InMySlot.ToString()
+	));
+}
+
+// 以路径ID映射来设置图片
+void UUI_GamePrintf::SetImage(const FString& InImgID)
+{
+	TextBlock->SetText(FText::FromString(
+		SimpleRuntimeGamePrinting::FPrintSlot()
+		.AddSlot()
+		.Image(InImgID)
+		.ToString()
+	));
+}
