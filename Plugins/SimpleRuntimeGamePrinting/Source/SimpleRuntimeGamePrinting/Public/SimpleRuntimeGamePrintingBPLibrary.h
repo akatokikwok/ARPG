@@ -9,6 +9,7 @@ class UWorld;
 class UUI_GamePrintf;
 
 /* 
+* GamePrint空间的BP Library
 *	Function library class.
 *	Each function in it is expected to be static and represents blueprint node that can be called in any blueprint.
 *
@@ -38,7 +39,7 @@ public:
 		const FText& InSlot,
 		float InDieDelayTime = 7.0f);
 
-	//
+	// GamePrint, 需要一个绘制空间文本
 	static bool GamePrint(
 		UWorld* InWorld,
 		TSubclassOf<UUI_GamePrintf> GamePrintfClass,

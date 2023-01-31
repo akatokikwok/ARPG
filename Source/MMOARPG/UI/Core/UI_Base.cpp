@@ -2,6 +2,7 @@
 
 
 #include "UI_Base.h"
+#include "MMOARPG/Core/Game/MMOARPGHUD.h"
 
 /** 接口: 查找并拿取控件的指定动画,可能返空. */
 UWidgetAnimation* UUI_Base::GetNameWidgetAnimation(const FString& InWidgetAnimName)
@@ -30,6 +31,27 @@ void UUI_Base::PlayWidgetAnim(const FString& InWidgetName)
 	// 先查后播.
 	if (UWidgetAnimation* MyTempAnim = GetNameWidgetAnimation(InWidgetName)) {
 		UUserWidget::PlayAnimation(MyTempAnim);
+	}
+}
+
+void UUI_Base::LogPrint(const FText& InContent)
+{
+	if (AMMOARPGHUD* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AMMOARPGHUD>()) {
+		InHUD->LogPrint(InContent);
+	}
+}
+
+void UUI_Base::ErrorPrint(const FText& InContent)
+{
+	if (AMMOARPGHUD* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AMMOARPGHUD>()) {
+		InHUD->ErrorPrint(InContent);
+	}
+}
+
+void UUI_Base::WarningPrint(const FText& InContent)
+{
+	if (AMMOARPGHUD* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AMMOARPGHUD>()) {
+		InHUD->WarningPrint(InContent);
 	}
 }
 

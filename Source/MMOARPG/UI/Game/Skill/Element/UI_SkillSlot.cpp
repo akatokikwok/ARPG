@@ -10,6 +10,8 @@
 
 int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
+#define LOCTEXT_NAMESPACE "UUI_SkillSlot"
+
 UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, bMappingKey(false)
@@ -61,13 +63,21 @@ void UUI_SkillSlot::OnClickedWidget()
 							// 服务端执行技能形式的技能攻击(需指定一个槽号)
 							InCharacter->SKillAttackOnServer(KeyNumber);
 						}
+						else {
+							// 警示 未进入战斗姿态
+							UUI_Base::WarningPrint(LOCTEXT("ActionState_Key", "Must be in fight state."));
+						}
 					}
 				}
 				else {
-					// 打印 技能不满足足以消耗的条件
-
+					// 警示 技能不满足足以消耗的条件
+					UUI_Base::WarningPrint(LOCTEXT("Cost_Key", "Mana deficiency."));
 				}
 			}
+		}
+		else {
+			// 警示 本技能尚且处于冷却中
+			UUI_Base::WarningPrint(LOCTEXT("CD_Key", "This skill is not ready yet."));
 		}
 	}
 }
@@ -289,3 +299,5 @@ bool UUI_SkillSlot::IsCost()
 
 	return false;
 }
+
+#undef LOCTEXT_NAMESPACE

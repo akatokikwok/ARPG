@@ -74,6 +74,11 @@ public:
 	void PlayWidgetAnim(const FString& InWidgetName);
 
 public:
+	void LogPrint(const FText& InContent);
+	void ErrorPrint(const FText& InContent);
+	void WarningPrint(const FText& InContent);
+
+public:
 	void Print(const FName& InContent);
 	void Print(const FText& InContent);
 	void Print(const FString& InContent);

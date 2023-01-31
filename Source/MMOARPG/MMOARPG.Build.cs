@@ -28,7 +28,9 @@ public class MMOARPG : ModuleRules
             "AIModule",
             "SimpleHotUpdate",
             "SimpleNumericalDeductionRuntime",
-            "SimplePopup"
+            "SimplePopup",
+            "SimpleRuntimeGamePrinting"
+
         });
 	}
 }
