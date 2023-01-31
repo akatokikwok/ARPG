@@ -15,8 +15,12 @@ class SIMPLERUNTIMEGAMEPRINTING_API UUI_GamePrintf : public UUserWidget
 {
 	GENERATED_BODY()
 public:
+	UUI_GamePrintf(const FObjectInitializer& ObjectInitializer);
 	virtual void NativeConstruct();
 	virtual void NativeDestruct();
+
+	// 本控件的自定义初始化
+	void WidgetConstruct();
 
 public:
 	// 接口: 查找并拿取控件的指定动画,可能返空
@@ -42,8 +46,21 @@ public:
 	UFUNCTION()
 		void SetImage(const FString& InImgID);
 
+public:
+	// 延时一段时间后移除UI控件
+	UFUNCTION()
+		void Die();
+
+	// Set
+	UFUNCTION()
+		void SetDieDelayTime(float InTime) { DieDelayTime = InTime; }
+
 protected:
 	// 富文本textblock
 	UPROPERTY(meta = (BindWidget))
 		URichTextBlock* TextBlock;
+
+protected:
+	float DieDelayTime;
+	FTimerHandle DieDelayTimeHandle;
 };

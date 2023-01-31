@@ -1,14 +1,28 @@
 ﻿#include "UMG/UI_GamePrintf.h"
 #include "Components/RichTextBlock.h"
 
+UUI_GamePrintf::UUI_GamePrintf(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, DieDelayTime(7.f)
+{
+
+}
+
 void UUI_GamePrintf::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 }
 
 void UUI_GamePrintf::NativeDestruct()
 {
 	Super::NativeDestruct();
+}
+
+void UUI_GamePrintf::WidgetConstruct()
+{
+	GetWorld()->GetTimerManager().SetTimer(DieDelayTimeHandle, this, &UUI_GamePrintf::Die, DieDelayTime);
+	PlayTextAnim();
 }
 
 /** 接口: 查找并拿取控件的指定动画,可能返空. */
@@ -76,4 +90,14 @@ void UUI_GamePrintf::SetImage(const FString& InImgID)
 		.Image(InImgID)
 		.ToString()
 	));
+}
+
+void UUI_GamePrintf::Die()
+{
+	if (GetWorld()->GetTimerManager().TimerExists(DieDelayTimeHandle)) {
+		GetWorld()->GetTimerManager().ClearTimer(DieDelayTimeHandle);
+	}
+
+	//移除掉
+	UUserWidget::RemoveFromParent();
 }

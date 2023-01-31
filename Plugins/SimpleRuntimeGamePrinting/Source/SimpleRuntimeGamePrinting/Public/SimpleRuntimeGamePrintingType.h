@@ -3,7 +3,7 @@
 #include "SimpleRuntimeGamePrintingType.generated.h"
 
 /**
- * 
+ * 可以蓝图反射的 文本内容结构
  */
 USTRUCT(BlueprintType, Blueprintable)
 struct FSimplePrintSlot
