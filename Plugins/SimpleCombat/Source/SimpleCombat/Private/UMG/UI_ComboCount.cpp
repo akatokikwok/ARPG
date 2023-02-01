@@ -45,6 +45,7 @@ void UUI_ComboCount::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 // 设定连击计数text
 void UUI_ComboCount::SetComboText(const int32 Num)
 {
+	//ComboText->SetText(FText::Format(LOCTEXT("ComboText_Key", "连打了 +{0} 次"), Num));
 	ComboText->SetText(FText::Format(LOCTEXT("ComboText_Key", "+{0}"), Num));
 }
 

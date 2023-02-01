@@ -161,6 +161,13 @@ public:
 	// 覆写处理经验值接口
 	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
+	// 覆写HandleDamage
+	virtual void HandleDamage(
+		float DamageAmount,
+		const struct FGameplayTagContainer& DamageTags,
+		AMMOARPGCharacterBase* InstigatorPawn,
+		AActor* DamageCauser) override;
+
 public:/// 关于GameMode可调用的一些技能与UI交互的接口
 
 	// 创建重生弹窗
@@ -230,6 +237,12 @@ private:
 public:
 	// 更新人物的 技能节点
 	void UpdateSkillSlots();
+
+public:/// UI效果相关
+
+	// 在客户端执行连打计数UI控件效果
+	UFUNCTION(Client, Reliable)
+		void PlayComboCountClient();
 
 	/// //////////////////////////////////////////////////////////////////////////
 public:

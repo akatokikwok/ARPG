@@ -16,6 +16,7 @@
 #include "../MMOARPGPlayerState.h"
 #include "../MMOARPGPlayerController.h"
 #include "MMOARPGTagList.h"
+#include "../MMOARPGHUD.h"
 
 extern void NameToEGamePlayTags0s(const FName& InName, TArray<FName>& OutName);
 extern FName EGamePlayTags0sToName(const TArray<FName>& InName);
@@ -211,6 +212,18 @@ void AMMOARPGCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void AMMOARPGCharacter::HandleDamage(float DamageAmount, const struct FGameplayTagContainer& DamageTags, AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser)
+{
+	Super::HandleDamage(DamageAmount, DamageTags, InstigatorPawn, DamageCauser);
+
+	// 仅在客户端 让施法者开始连击计数UI效果
+	if (DamageAmount > 1.f) {// 伤害数值必须是正数
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(InstigatorPawn)) {
+			InCharacter->PlayComboCountClient();
+		}
 	}
 }
 
@@ -750,6 +763,15 @@ void AMMOARPGCharacter::UpdateSkillSlots()
 {
 	if (GetFightComponent()) {
 		GetFightComponent()->UpdateSkillSlots();
+	}
+}
+
+void AMMOARPGCharacter::PlayComboCountClient_Implementation()
+{
+	if (APlayerController* InPlayerController = Cast<APlayerController>(GetController())) {
+		if (AMMOARPGHUD* InHUD = InPlayerController->GetHUD<AMMOARPGHUD>()) {
+			InHUD->PlayComboCount();
+		}
 	}
 }
 
