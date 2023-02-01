@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
+#include "../Common/Core/GamePlay/HUDBase.h"
 #include "HotUpdateHUD.generated.h"
 
 class UUI_HotUpdateMain;
@@ -12,7 +12,7 @@ class UUI_HotUpdateMain;
  * 
  */
 UCLASS()
-class MMOARPG_API AHotUpdateHUD : public AHUD
+class MMOARPG_API AHotUpdateHUD : public AHUDBase
 {
 	GENERATED_BODY()
 public:
