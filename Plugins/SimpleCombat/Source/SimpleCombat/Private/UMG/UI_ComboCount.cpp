@@ -70,7 +70,7 @@ void UUI_ComboCount::SetMaxDeltaTime(float InNewMaxDeltaTime)
 {
 	MaxDeltaTime = InNewMaxDeltaTime;
 	TimeDelta = InNewMaxDeltaTime;
-	// 重置显示
+	// 复位成正常透明度
 	ComboAttackBar->SetRenderOpacity(1.f);
 }
 
