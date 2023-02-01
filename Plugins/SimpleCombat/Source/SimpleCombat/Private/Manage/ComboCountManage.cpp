@@ -48,6 +48,12 @@ TStatId FComboCountManage::GetStatId() const
 UUI_ComboCount* FComboCountManage::GetComboCount(UWorld* InWorld, TSubclassOf<UUI_ComboCount> InClass)
 {
 	if (InWorld && InClass) {
+		/**
+		 * 为了修复单例被多个客户端仅一次调用的bug,设定一套解决方案,如下 
+		 * 且插件内也无法使用多线程技术,所以推荐设立1个删除的handle
+		 * 不使用字段指针去保留UI控件,而且每次都动态构建1个计数控件
+		 * 到一定时间后就销毁掉UI
+		 */
 		// 构建1个连打计数UI控件,并上屏
 		if (UUI_ComboCount* MyComboCountPtr = CreateWidget<UUI_ComboCount>(InWorld, InClass)) {
 			MyComboCountPtr->AddToViewport(100);

@@ -36,7 +36,15 @@ void UUI_ComboCount::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 			PlayWidgetAnim("PlayBar");
 
-			// 执行自动销毁
+			/**
+			 * 为了修复单例被多个客户端仅一次调用的bug,设定一套解决方案,如下
+			 * 且插件内也无法使用多线程技术,所以推荐设立1个删除的handle
+			 * 延时销毁上1个,并会在ComboCountManage里创建下一个新的
+			 * 不使用字段指针去保留UI控件,而且每次都动态构建1个计数控件
+			 * 到一定时间后就销毁掉UI
+			 */
+
+			// 存续时长消耗完毕后, 执行延时自我销毁,
 			GetWorld()->GetTimerManager().SetTimer(DieDelayTimeHandle, this, &UUI_ComboCount::Die, 2.f);
 		}
 	}
@@ -58,12 +66,19 @@ void UUI_ComboCount::PlayAnim()
 // 控件消亡
 void UUI_ComboCount::Die()
 {
+	/**
+	 * 为了修复单例被多个客户端仅一次调用的bug,设定一套解决方案,如下
+	 * 且插件内也无法使用多线程技术,所以推荐设立1个删除的handle
+	 * 不使用字段指针去保留UI控件,而且每次都动态构建1个计数控件
+	 * 到一定时间后就销毁掉UI
+	 */
+
 	// 清除延时器
 	if (GetWorld()->GetTimerManager().TimerExists(DieDelayTimeHandle)) {
 		GetWorld()->GetTimerManager().ClearTimer(DieDelayTimeHandle);
 	}
-	// 移除掉UI
-	RemoveFromParent();
+	// 移除掉控件自己
+	this->RemoveFromParent();
 }
 
 // 设定UI最大存续时长
