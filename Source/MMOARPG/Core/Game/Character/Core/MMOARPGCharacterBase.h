@@ -232,6 +232,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
+	// 广播起身动画
+	UFUNCTION(NetMulticast, Reliable)
+		void GetUpOnMulticast();
+
 public:
 	// 授予击杀本人物的奖励Buff
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);

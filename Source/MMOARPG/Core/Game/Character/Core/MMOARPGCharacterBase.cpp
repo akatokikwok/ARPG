@@ -477,6 +477,11 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 	}
 }
 
+void AMMOARPGCharacterBase::GetUpOnMulticast_Implementation()
+{
+	GetUp();
+}
+
 // 授予击杀本人物的奖励Buff
 void AMMOARPGCharacterBase::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun)
 {
@@ -525,6 +530,9 @@ void AMMOARPGCharacterBase::Resurrection()
 
 			// 再次激活持续恢复buff
 			ActivateRecoveryEffect();
+
+			// 顺带播放 起身跳起动画
+			GetUpOnMulticast();
 		}
 	}
 }
