@@ -230,6 +230,9 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	else if (InSignal == 10) {// 10停用本角色人物被挑飞状态动画(即落地)
 		GetFightComponent()->bPickFly = false;
 	}
+	else if (InSignal == 11) {// 11 是起身
+		GetUp();
+	}
 }
 
 // 用1行DTR属性 注册更新AttributeSet指针数据
@@ -540,6 +543,18 @@ void AMMOARPGCharacterBase::DeactivationRecoveryEffect()
 	if (FightComponent) {
 		for (auto& Tmp : RecoveryEffect) {
 			FightComponent->DeactivationRecoveryEffect(Tmp);
+		}
+	}
+}
+
+// 播放 人物被击倒或挑飞后起身
+void AMMOARPGCharacterBase::GetUp()
+{
+	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
+		if (InAnimTable_row->GetUpMontage != nullptr) {
+			PlayAnimMontage(InAnimTable_row->GetUpMontage, // 蒙太奇资产: SwitchFight
+				1.f
+			);
 		}
 	}
 }

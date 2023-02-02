@@ -257,6 +257,10 @@ public:
 	// 解除持续恢复的buff
 	void DeactivationRecoveryEffect();
 
+public:
+	// 播放 人物被击倒或挑飞后起身
+	void GetUp();
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
