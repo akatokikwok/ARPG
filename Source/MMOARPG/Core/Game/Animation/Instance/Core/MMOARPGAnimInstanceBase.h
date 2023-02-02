@@ -72,6 +72,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")
 		TArray<FName> BoneNames;
 
+	// 是否被挑飞
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+		bool bPickFly;
+
 private:
 	// 脚部 射线追踪IK时候的 射线绘制选项.
 	UPROPERTY(EditDefaultsOnly, Category = "AnimAttrubute|FootIK")

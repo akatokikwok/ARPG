@@ -128,6 +128,9 @@ public:
 	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
 
+	// 检查本角色是否被挑飞
+	bool IsPickFly();
+
 	// 拿取Widget组件里真正的UMG(仅在客户端).
 	UWidget* GetWidget();
 	// 隐藏血条UMG

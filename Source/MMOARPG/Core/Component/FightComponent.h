@@ -224,6 +224,10 @@ public:
 	UPROPERTY()
 		int32 HitID;// 受击ID
 
+	// 本角色是否被挑飞
+	UPROPERTY()
+	bool bPickFly = false;
+
 protected:
 	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄
 	TMap<FName, FGameplayAbilitySpecHandle> Skills;

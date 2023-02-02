@@ -224,6 +224,12 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	else if (InSignal == 8) {
 		DieIndex = 1;
 	}
+	else if (InSignal == 9) {// 9激活本角色人物被挑飞状态动画
+		GetFightComponent()->bPickFly = true;
+	}
+	else if (InSignal == 10) {// 10停用本角色人物被挑飞状态动画(即落地)
+		GetFightComponent()->bPickFly = false;
+	}
 }
 
 // 用1行DTR属性 注册更新AttributeSet指针数据
@@ -320,6 +326,15 @@ void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
 	GThread::Get()->GetCoroutines().BindLambda(InTime, [&]() {
 		Destroy();
 		});
+}
+
+// 检查本角色是否被挑飞
+bool AMMOARPGCharacterBase::IsPickFly()
+{
+	if (GetFightComponent()) {
+		return GetFightComponent()->bPickFly;
+	}
+	return false;
 }
 
 // 拿取Widget组件里真正的UMG(仅在客户端).
