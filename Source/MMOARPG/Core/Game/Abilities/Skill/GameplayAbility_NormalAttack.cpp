@@ -8,7 +8,7 @@ void UGameplayAbility_NormalAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
 		/* 传入明确的 第几段招式*/
-		if (UMMOARPGGameplayAbility::PlayMontageAnim(*FString::FromInt(InCharacterBase->GetSimpleComboInfo()->ComboIndex) )) {
+		if (UMMOARPGGameplayAbility::PlayMontageAnim(*FString::FromInt(InCharacterBase->GetSimpleComboInfo(*UGameplayAbility::AbilityTags.ToStringSimple())->ComboIndex) )) {
 			
 			// 仅打印提示表明当前是第几段Combo.
 			//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Purple, FString::Printf(TEXT("这是第 %d 段combo招式."), InCharacterBase->GetSimpleComboInfo()->ComboIndex));

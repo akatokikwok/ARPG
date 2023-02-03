@@ -82,3 +82,7 @@ void UMotionComponent::ResetRotationRate(float DeltaTime)
 	}
 }
 
+bool UMotionComponent::IsAir()
+{
+	return CharacterMovementComponent->IsFalling();
+}

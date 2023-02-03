@@ -349,9 +349,9 @@ UWidget* AMMOARPGCharacterBase::GetWidget()
 	return nullptr;
 }
 
-struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
+struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo(const FName& InGAKey)
 {
-	return GetFightComponent()->GetSimpleComboInfo();
+	return GetFightComponent()->GetSimpleComboInfo(InGAKey);
 }
 
 // 广播 刷新最新的人物GAS属性集.

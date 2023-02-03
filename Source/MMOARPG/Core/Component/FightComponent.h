@@ -66,13 +66,13 @@ public:
 
 protected:
 	/** 用指定GA去注册连招触发器黑盒. */
-	void RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName);
+	void RegisterComboAttack(const FName& InGAName);
 
 	// 添加并授权某技能. 返回技能实例的句柄.
 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
 public:
-	// 拿连击触发器.
-	FSimpleComboCheck* GetSimpleComboInfo() { return &ComboAttackCheck; }
+	// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
+	FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAkey);
 
 	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
@@ -215,9 +215,9 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TWeakObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 
-	// Combo形式的攻击 触发器
+	// 一组Combo形式的攻击 黑盒触发器(包含空中连击, 地面连击)
 	UPROPERTY()
-		FSimpleComboCheck ComboAttackCheck;
+		TArray<FSimpleComboCheck> ComboAttackChecks;
 
 public:
 	// 受击ID

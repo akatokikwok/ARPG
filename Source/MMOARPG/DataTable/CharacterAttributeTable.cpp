@@ -19,7 +19,8 @@ FCharacterAttributeTable::FCharacterAttributeTable()
 {
 	// 任意生命体都具备以下的技能与行为.
 
-	ComboAttackTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")));
+	ComboAttackTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage.Air")));
+	ComboAttackTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage.Ground")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit")));
 }

@@ -174,7 +174,7 @@ protected:
 
 public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
-	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
+	virtual struct FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAKey) override;
 
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)

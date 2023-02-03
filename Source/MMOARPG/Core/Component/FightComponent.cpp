@@ -224,22 +224,48 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 //	}
 //}
 
+// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
+FSimpleComboCheck* UFightComponent::GetSimpleComboInfo(const FName& InGAkey)
+{
+	return ComboAttackChecks.FindByPredicate(
+		[InGAkey](const FSimpleComboCheck& InComboCheck) ->bool {
+			return InComboCheck.ComboKey_GA == InGAkey;
+		});
+}
+
 // 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 void UFightComponent::Press()
 {
-	ComboAttackCheck.Press();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		if (UMotionComponent::IsAir()) {// 在空中
+			if (AnyComboCheck.ComboKey_GA == TEXT("Character.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
+				AnyComboCheck.Press();
+				break;
+			}
+		}
+		else {// 在地面
+			if (AnyComboCheck.ComboKey_GA == TEXT("Character.Attack.ComboLinkage.Ground")) {// 放的是地面连击
+				AnyComboCheck.Press();
+				break;
+			}
+		}
+	}
 }
 
 // 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
 void UFightComponent::Released()
 {
-	ComboAttackCheck.Released();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		AnyComboCheck.Released();
+	}
 }
 
-// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
+// 复位所有的连击黑盒检测器
 void UFightComponent::Reset()
 {
-	ComboAttackCheck.Reset();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		AnyComboCheck.Reset();
+	}
 }
 
 // 注册各部分技能(按形式来源)
@@ -265,8 +291,10 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 }
 
 /** 用1个GA去注册1个连招黑盒. */
-void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName)
+void UFightComponent::RegisterComboAttack(const FName& InGAName)
 {
+	FSimpleComboCheck& InComboAttackCheck = ComboAttackChecks.AddDefaulted_GetRef();// 往连击检测容器内手动构造1个
+
 	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
 	InComboAttackCheck.ComboKey_GA = InGAName;
 	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
@@ -280,8 +308,8 @@ void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck,
 // 用一组GA去注册1个连招黑盒
 void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 {
-	for (auto& Tmp : InGANames) {
-		RegisterComboAttack(ComboAttackCheck, Tmp);
+	for (auto& GATag : InGANames) {
+		RegisterComboAttack(GATag);
 	}
 }
 

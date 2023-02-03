@@ -4,6 +4,7 @@
 #include "../../../Character/Core/MMOARPGCharacterBase.h"
 #include "../../../../../MMOARPGGameMethod.h"
 #include "ThreadManage.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Beginplay.
 void AMMOARPGAIControllerBase::BeginPlay()
@@ -57,7 +58,12 @@ AMMOARPGCharacterBase* AMMOARPGAIControllerBase::FindTarget()
 void AMMOARPGAIControllerBase::Attack(AMMOARPGCharacterBase* InTarget)
 {
 	if (AMMOARPGCharacterBase* OwnerCharacter = Cast<AMMOARPGCharacterBase>(GetPawn())) {
-		OwnerCharacter->NormalAttack(TEXT("Player.Attack.ComboLinkage"));
+		if (OwnerCharacter->GetMovementComponent()->IsFalling()) {
+			OwnerCharacter->NormalAttack(TEXT("Player.Attack.ComboLinkage.Air"));
+		}
+		else {
+			OwnerCharacter->NormalAttack(TEXT("Player.Attack.ComboLinkage.Ground"));
+		}
 	}
 }
 
