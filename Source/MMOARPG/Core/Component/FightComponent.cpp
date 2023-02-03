@@ -350,6 +350,13 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 					FRotator TargetRot = (-InstigatorPawn->GetActorForwardVector()).ToOrientationRotator();
 					MMOARPGCharacterBase->SetActorRotation(TargetRot);
 
+					/* 这里特殊处理一下一种情形, 即施法者在滞空下坠时候对地面状态的敌人进行空中连击 */
+					if (MMOARPGCharacterBase->GetHitID() == 6) {// 测试用,暂时认为受击ID是6的时候 施法者跳在空中使用空中Combo,敌人受到为6的空中受击
+						if (!IsAir()) {// 但施法者缺正在从滞空坠落到地面
+							MMOARPGCharacterBase->SetHitID(FMath::RandRange(0, 1));// 人跌落到地面后再受击, 暂时重置置敌人受击ID为0或1
+						}
+					}
+
 					// 对目标人物, 再执行让它挨打受击.
 					MMOARPGCharacterBase->PlayHit();
 				}
