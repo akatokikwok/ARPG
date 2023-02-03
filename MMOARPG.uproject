@@ -69,6 +69,14 @@
 			"Name": "SimplePopup",
 			"Enabled": true,
 			"MarketplaceURL": "https://renzhai.net/518.html"
+		},
+		{
+			"Name": "CascadeToNiagaraConverter",
+			"Enabled": true
+		},
+		{
+			"Name": "NiagaraFluids",
+			"Enabled": true
 		}
 	]
 }
