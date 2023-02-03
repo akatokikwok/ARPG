@@ -238,13 +238,13 @@ void UFightComponent::Press()
 {
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
 		if (UMotionComponent::IsAir()) {// 在空中
-			if (AnyComboCheck.ComboKey_GA == TEXT("Character.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
+			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
 				AnyComboCheck.Press();
 				break;
 			}
 		}
 		else {// 在地面
-			if (AnyComboCheck.ComboKey_GA == TEXT("Character.Attack.ComboLinkage.Ground")) {// 放的是地面连击
+			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Ground")) {// 放的是地面连击
 				AnyComboCheck.Press();
 				break;
 			}
