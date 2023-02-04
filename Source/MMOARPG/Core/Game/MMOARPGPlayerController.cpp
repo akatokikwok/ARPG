@@ -8,7 +8,7 @@
 
 AMMOARPGPlayerController::AMMOARPGPlayerController()
 {
-	bShowMouseCursor = true;
+	bShowMouseCursor = false;
 }
 
 void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacterID)
@@ -106,6 +106,14 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	}
 }
 
+void AMMOARPGPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("ShowMouseCursor", IE_Pressed, this, &AMMOARPGPlayerController::ShowMouseCursor);
+	InputComponent->BindAction("ShowMouseCursor", IE_Released, this, &AMMOARPGPlayerController::HideMouseCursor);
+}
+
 /** 覆写; 回调, Sure键按下后的反应 */
 void AMMOARPGPlayerController::OnSureButtonClicked(uint8 InProtocol)
 {
@@ -128,4 +136,14 @@ void AMMOARPGPlayerController::ResurrectionOnServer_Implementation()
 			InGameMode->CharacterResurrectionRequests(InCharacter->GetUserID(), InCharacter->GetID());
 		}
 	}
+}
+
+void AMMOARPGPlayerController::ShowMouseCursor()
+{
+	SetShowMouseCursor(true);
+}
+
+void AMMOARPGPlayerController::HideMouseCursor()
+{
+	SetShowMouseCursor(false);
 }

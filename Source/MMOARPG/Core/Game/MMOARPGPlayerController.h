@@ -29,6 +29,8 @@ public:
 	AMMOARPGPlayerController();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void SetupInputComponent() override;
+
 	virtual void OnSureButtonClicked(uint8 InProtocol) override;
 
 public:
@@ -51,6 +53,13 @@ protected:
 	// 服务端执行人物重生
 	UFUNCTION(Server, Reliable)
 	void ResurrectionOnServer();
+
+public:
+	//
+	void ShowMouseCursor();
+
+	//
+	void HideMouseCursor();
 
 protected:
 	// 敌对人物或者小怪,人物基类弱指针;
