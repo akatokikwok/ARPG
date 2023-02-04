@@ -240,6 +240,9 @@ void UFightComponent::Press()
 		if (UMotionComponent::IsAir()) {// 在空中
 			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
 				AnyComboCheck.Press();
+				if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+					InChar->HandleCameraViewWhenAirCombo();
+				}
 				break;
 			}
 		}
@@ -257,6 +260,13 @@ void UFightComponent::Released()
 {
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
 		AnyComboCheck.Released();
+
+		if (UMotionComponent::IsAir()) {// 在空中
+			AnyComboCheck.Released();
+			if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+				InChar->HandleCameraViewWhenNotInAirCombo();
+			}
+		}
 	}
 }
 

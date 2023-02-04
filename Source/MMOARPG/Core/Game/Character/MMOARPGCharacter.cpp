@@ -775,6 +775,16 @@ void AMMOARPGCharacter::PlayComboCountClient_Implementation()
 	}
 }
 
+void AMMOARPGCharacter::HandleCameraViewWhenAirCombo_Implementation()
+{
+	K2_HandleCameraViewWhenAirCombo();
+}
+
+void AMMOARPGCharacter::HandleCameraViewWhenNotInAirCombo_Implementation()
+{
+	K2_HandleCameraViewWhenNotInAirCombo();
+}
+
 void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
 {
 	if (GetFightComponent()) {

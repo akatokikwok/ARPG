@@ -244,6 +244,23 @@ public:/// UI效果相关
 	UFUNCTION(Client, Reliable)
 		void PlayComboCountClient();
 
+public:
+	// 当空中连击的时候调高镜头
+	UFUNCTION(NetMulticast, Reliable)
+		void HandleCameraViewWhenAirCombo();
+
+	// 当非空中连击的时候调低镜头
+	UFUNCTION(NetMulticast, Reliable)
+		void HandleCameraViewWhenNotInAirCombo();
+
+	//
+	UFUNCTION( BlueprintImplementableEvent)
+		void K2_HandleCameraViewWhenAirCombo();
+
+	//
+	UFUNCTION(BlueprintImplementableEvent)
+		void K2_HandleCameraViewWhenNotInAirCombo();
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
