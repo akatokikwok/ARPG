@@ -14,9 +14,9 @@ FString UAnimNotify_FaceTarget::GetNotifyName_Implementation() const
 	return Super::GetNotifyName_Implementation();
 }
 
-void UAnimNotify_FaceTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_FaceTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 
 	if (ISimpleComboInterface* InSimpleCombatInterface = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
 		if (AActor* InTarget = InSimpleCombatInterface->GetTarget()) {// 先拿敌对目标.

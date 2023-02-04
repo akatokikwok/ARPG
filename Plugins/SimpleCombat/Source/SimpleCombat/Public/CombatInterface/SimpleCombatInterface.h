@@ -32,7 +32,7 @@ public:
 		virtual void ComboAttack(const FName& InKey) {}
 
 	// 获取连招检测器.
-	virtual struct FSimpleComboCheck* GetSimpleComboInfo() { return nullptr; };
+	virtual struct FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAKey) { return nullptr; };
 
 	// 读取敌对目标人物或者怪物
 	UFUNCTION(BlueprintCallable, Category = "Combat")

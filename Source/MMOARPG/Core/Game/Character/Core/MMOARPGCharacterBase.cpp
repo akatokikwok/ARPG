@@ -126,6 +126,14 @@ void AMMOARPGCharacterBase::BeginPlay()
 				}
 			}
 		}
+		else {/* 位于服务器上*/
+			
+			// 激活持续恢复buff,运行在协程中
+			GThread::Get()->GetCoroutines().BindLambda(0.5f,
+				[&]() ->void {
+					ActivateRecoveryEffect();
+				});
+		}
 
 		/* 在人内部 给ASC注册GAS属性集.*/
 		TArray<UAttributeSet*> AttributeSets;
@@ -215,6 +223,15 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	}
 	else if (InSignal == 8) {
 		DieIndex = 1;
+	}
+	else if (InSignal == 9) {// 9激活本角色人物被挑飞状态动画
+		GetFightComponent()->bPickFly = true;
+	}
+	else if (InSignal == 10) {// 10停用本角色人物被挑飞状态动画(即落地)
+		GetFightComponent()->bPickFly = false;
+	}
+	else if (InSignal == 11) {// 11 是起身
+		GetUp();
 	}
 }
 
@@ -314,6 +331,15 @@ void AMMOARPGCharacterBase::RemoveDeadBody(float InTime /*= 4.f*/)
 		});
 }
 
+// 检查本角色是否被挑飞
+bool AMMOARPGCharacterBase::IsPickFly()
+{
+	if (GetFightComponent()) {
+		return GetFightComponent()->bPickFly;
+	}
+	return false;
+}
+
 // 拿取Widget组件里真正的UMG(仅在客户端).
 UWidget* AMMOARPGCharacterBase::GetWidget()
 {
@@ -323,9 +349,9 @@ UWidget* AMMOARPGCharacterBase::GetWidget()
 	return nullptr;
 }
 
-struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo()
+struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo(const FName& InGAKey)
 {
-	return GetFightComponent()->GetSimpleComboInfo();
+	return GetFightComponent()->GetSimpleComboInfo(InGAKey);
 }
 
 // 广播 刷新最新的人物GAS属性集.
@@ -365,7 +391,7 @@ void AMMOARPGCharacterBase::HandleDamage(float DamageAmount,/* 伤害值 */ cons
 // 
 void AMMOARPGCharacterBase::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-	
+
 }
 
 // 写入战斗组件里的受击ID
@@ -390,6 +416,9 @@ void AMMOARPGCharacterBase::PlayHit()
 void AMMOARPGCharacterBase::PlayDie()
 {
 	GetFightComponent()->Die();
+
+	// 解除持续恢复buff
+	DeactivationRecoveryEffect();
 }
 
 // 使用战斗组件里的 注册各部分技能(按形式来源)
@@ -448,6 +477,11 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 	}
 }
 
+void AMMOARPGCharacterBase::GetUpOnMulticast_Implementation()
+{
+	GetUp();
+}
+
 // 授予击杀本人物的奖励Buff
 void AMMOARPGCharacterBase::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun)
 {
@@ -483,5 +517,52 @@ void AMMOARPGCharacterBase::GetLimbsTagsName(TArray<FName>& OutNames)
 {
 	if (FightComponent) {
 		FightComponent->GetLimbsTagsName(OutNames);
+	}
+}
+
+// 人物执行复活
+void AMMOARPGCharacterBase::Resurrection()
+{
+	if (IsNetMode(ENetMode::NM_DedicatedServer)) {
+		if (AttributeSet) {
+			AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
+			AttributeSet->SetMana(AttributeSet->GetMaxMana());
+
+			// 再次激活持续恢复buff
+			ActivateRecoveryEffect();
+
+			// 顺带播放 起身跳起动画
+			GetUpOnMulticast();
+		}
+	}
+}
+
+void AMMOARPGCharacterBase::ActivateRecoveryEffect()
+{
+	if (FightComponent) {
+		for (auto& Tmp : RecoveryEffect) {
+			FightComponent->ActivateRecoveryEffect(Tmp);
+		}
+	}
+}
+
+void AMMOARPGCharacterBase::DeactivationRecoveryEffect()
+{
+	if (FightComponent) {
+		for (auto& Tmp : RecoveryEffect) {
+			FightComponent->DeactivationRecoveryEffect(Tmp);
+		}
+	}
+}
+
+// 播放 人物被击倒或挑飞后起身
+void AMMOARPGCharacterBase::GetUp()
+{
+	if (FCharacterAnimTable* InAnimTable_row = AMMOARPGCharacterBase::GetAnimTable()) {
+		if (InAnimTable_row->GetUpMontage != nullptr) {
+			PlayAnimMontage(InAnimTable_row->GetUpMontage, // 蒙太奇资产: SwitchFight
+				1.f
+			);
+		}
 	}
 }

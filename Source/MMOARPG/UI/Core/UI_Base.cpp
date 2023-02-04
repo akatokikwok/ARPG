@@ -2,6 +2,7 @@
 
 
 #include "UI_Base.h"
+#include "../../Core/Common/Core/GamePlay/HUDBase.h"
 
 /** 接口: 查找并拿取控件的指定动画,可能返空. */
 UWidgetAnimation* UUI_Base::GetNameWidgetAnimation(const FString& InWidgetAnimName)
@@ -30,5 +31,43 @@ void UUI_Base::PlayWidgetAnim(const FString& InWidgetName)
 	// 先查后播.
 	if (UWidgetAnimation* MyTempAnim = GetNameWidgetAnimation(InWidgetName)) {
 		UUserWidget::PlayAnimation(MyTempAnim);
+	}
+}
+
+void UUI_Base::LogPrint(const FText& InContent)
+{
+	if (AHUDBase* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AHUDBase>()) {
+		InHUD->LogPrint(InContent);
+	}
+}
+
+void UUI_Base::ErrorPrint(const FText& InContent)
+{
+	if (AHUDBase* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AHUDBase>()) {
+		InHUD->ErrorPrint(InContent);
+	}
+}
+
+void UUI_Base::WarningPrint(const FText& InContent)
+{
+	if (AHUDBase* InHUD = GetWorld()->GetFirstPlayerController()->GetHUD<AHUDBase>()) {
+		InHUD->WarningPrint(InContent);
+	}
+}
+
+void UUI_Base::Print(const FName& InContent)
+{
+	Print(InContent.ToString());
+}
+
+void UUI_Base::Print(const FText& InContent)
+{
+	Print(InContent.ToString());
+}
+
+void UUI_Base::Print(const FString& InContent)
+{
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Orange, InContent);
 	}
 }

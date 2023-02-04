@@ -16,6 +16,14 @@
 #include "../MMOARPGPlayerState.h"
 #include "../MMOARPGPlayerController.h"
 #include "MMOARPGTagList.h"
+#include "../MMOARPGHUD.h"
+
+extern void NameToEGamePlayTags0s(const FName& InName, TArray<FName>& OutName);
+extern FName EGamePlayTags0sToName(const TArray<FName>& InName);
+// extern void AnalysisArrayNameToGamePlayTags(const TArray<FName>& InNames, TArray<FName>& OutNames);
+extern void AnalysisGamePlayTagsToArrayName(const TArray<FName>& InNames, TArray<FName>& OutNames);
+
+#define LOCTEXT_NAMESPACE "AMMOARPGCharacter"
 
 /** 按键绑定. */
 void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -204,6 +212,18 @@ void AMMOARPGCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void AMMOARPGCharacter::HandleDamage(float DamageAmount, const struct FGameplayTagContainer& DamageTags, AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser)
+{
+	Super::HandleDamage(DamageAmount, DamageTags, InstigatorPawn, DamageCauser);
+
+	// 仅在客户端 让施法者开始连击计数UI效果
+	if (DamageAmount > 1.f) {// 伤害数值必须是正数
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(InstigatorPawn)) {
+			InCharacter->PlayComboCountClient();
+		}
 	}
 }
 
@@ -523,20 +543,16 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 			// 1. 处理人物属性字段, 提出AS里的人物所有属性字段,存成MMOAD型
 			GetAttribute()->ToMMOARPGCharacterAttribute(CharacterAttribute);
 
-			// 2. 处理角色技能
-			TArray<FName> SkillTagsName;
-			TArray<FName> ComboAttackTagsName;
-			TArray<FName> LimbsTagsName;
-			// 使用各自的提取方法, 提取3种标签名群组
-			GetSkillTagsName(SkillTagsName);
-			GetComboAttackTagsName(ComboAttackTagsName);
-			GetLimbsTagsName(LimbsTagsName);
-			// 借由服务器方法, 把标签群组 转为位序列
-			AnalysisGamePlayTagsToArrayName(SkillTagsName, CharacterAttribute.Skill);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, CharacterAttribute.ComboAttack);// 将Tag组转换为服务器存储的序列
-			AnalysisGamePlayTagsToArrayName(LimbsTagsName, CharacterAttribute.Limbs);// 将Tag组转换为服务器存储的序列
+			// 2. 将技能槽名字Tag组转换为格式更小的服务器存储的序列
+			MMOARPGAttributeSlotsToBits(
+				CharacterAttribute.Skill.Slots,
+				CharacterAttribute.ComboAttack.Slots,
+				CharacterAttribute.Limbs.Slots);
 
-		// 3. 命令GM升人物等级
+			// 3.序列化技能装配
+			SerializationSkillAssembly(CharacterAttribute.SkillAssemblyString);
+
+			// 4. 命令GM升人物等级
 			MMOARPGGameMode->UpdateLevelRequests(UserID, ID, CharacterAttribute);
 		}
 	}
@@ -581,3 +597,219 @@ void AMMOARPGCharacter::HandleExp(const struct FGameplayTagContainer& InTags, fl
 		}
 	}
 }
+
+void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
+{
+	if (GetWorld()) {
+		if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+			InPlayerController->CreateWindows(
+				LOCTEXT("Resurrection_Button", "Resurrection"),
+				LOCTEXT("Resurrection_Content", "When the character dies, it will be revived to the latest generation point after clicking rebirth."),
+				(uint8)EPopupMsgType::POPUP_MSG_RESURRECTION);
+		}
+	}
+}
+
+/** 服务端执行技能形式的技能攻击(需指定一个槽号) */
+void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->SKillAttack(InSlot);
+	}
+}
+
+// 在客户端 更新技能表(SkillPage)-UI外观
+void AMMOARPGCharacter::UpdateSkillTableOnClient_Implementation(const TArray<FName>& InSkillTags)
+{
+	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+		InPlayerController->UpdateSkillTableDelegate.ExecuteIfBound(InSkillTags);
+	}
+}
+
+// 在客户端 更新技能槽节点(横框)-UI外观
+void AMMOARPGCharacter::UpdateSkillSlotsOnClient_Implementation(const TArray<FName>& InSkillTags)
+{
+	if (AMMOARPGPlayerController* InPlayerController = GetWorld()->GetFirstPlayerController<AMMOARPGPlayerController>()) {
+		InPlayerController->UpdateSkillSlotDelegate.ExecuteIfBound(InSkillTags);
+	}
+}
+
+// 在客户端 向DS请求更新技能节点
+void AMMOARPGCharacter::UpdateSkillSlotsOnServer_Implementation()
+{
+	// to do.
+}
+
+#pragma region 技能槽业务可用到的一些接口
+/** 从横框到技能页: 移动 */
+void AMMOARPGCharacter::SKillSlotMoveToSkillTable_Implementation(int32 InSlot)
+{
+	if (GetFightComponent()) {
+		/* 移除SkillTMap的技能节点并查询是否成功 */
+		if (GetFightComponent()->RemoveSkillSlot(InSlot)) {
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+
+/** 从横框到技能页: 交换 */
+void AMMOARPGCharacter::SKillSlotSwapSkillTable_Implementation(int32 InRemoveSlot, const FName& InSkillName)
+{
+	if (GetFightComponent()) {
+		/* 先移除横框里的技能节点, 并添加新的技能节点*/
+		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+
+/** 从技能页到横框: 移动 */
+void AMMOARPGCharacter::SKillTableSlotMoveToSkillSlot_Implementation(const FName& InSkillName, int32 InSlot)
+{
+	if (GetFightComponent()) {
+		/* 往横框里添加技能 */
+		if (GetFightComponent()->AddSkillSlot(InSlot, InSkillName)) {
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+
+/** 从技能页到横框: 交换 */
+void AMMOARPGCharacter::SKillTableSlotSwapSkillSlot_Implementation(int32 InRemoveSlot, const FName& InSkillName)
+{
+	if (GetFightComponent()) {
+		/* 先移除横框里的技能节点, 并添加新的技能节点*/
+		if (GetFightComponent()->RemoveSkillSlot(InRemoveSlot, InSkillName)) {
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+
+/** 横框内, 任意2个技能Slot之间的移动 */
+void AMMOARPGCharacter::SKillSlotMoveToNewSlot_Implementation(int32 InASlot, int32 InBSlot)
+{
+	if (GetFightComponent()) {
+		if (GetFightComponent()->MoveSkillSlot(InASlot, InBSlot)) {/** 移动技能并查询是否成功 */
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+
+/** 横框内, 任意2个技能内2个技能槽交换 */
+void AMMOARPGCharacter::SillSlotSwap_Implementation(int32 InASlot, int32 InBSlot)
+{
+	if (GetFightComponent()) {
+		if (GetFightComponent()->SwapSkillSlot(InASlot, InBSlot)) {/** 交换技能并查询是否成功 */
+			// 更新UI-更新技能节点
+			GetFightComponent()->UpdateSkillSlots();
+
+			// 向CS发送更新装配技能命令
+			this->UpdateSkillAssembly();
+		}
+	}
+}
+#pragma endregion 技能槽业务可用到的一些接口
+
+/**
+ *  初始化所有技能槽数据
+ */
+void AMMOARPGCharacter::InitSkill()
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->InitSkill();
+	}
+}
+
+// 小接口: 将一组技能名字转化为服务器上更小格式的位
+void AMMOARPGCharacter::MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, TArray<FName>& OutBitComboAttack, TArray<FName>& OutBitLimbs)
+{
+	// 
+	TArray<FName> SkillTagsName;
+	TArray<FName> ComboAttackTagsName;
+	TArray<FName> LimbsTagsName;
+	// 提取角色所有形式技能名字
+	GetSkillTagsName(SkillTagsName);
+	GetComboAttackTagsName(ComboAttackTagsName);
+	GetLimbsTagsName(LimbsTagsName);
+
+	// 进一步转换成更小的位
+	// 借由服务器方法, 把标签群组 转为位序列
+	AnalysisGamePlayTagsToArrayName(SkillTagsName, OutBitSkill);// 将Tag组转换为服务器存储的序列
+	AnalysisGamePlayTagsToArrayName(ComboAttackTagsName, OutBitComboAttack);// 将Tag组转换为服务器存储的序列
+	AnalysisGamePlayTagsToArrayName(LimbsTagsName, OutBitLimbs);// 将Tag组转换为服务器存储的序列
+}
+
+void AMMOARPGCharacter::UpdateSkillSlots()
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->UpdateSkillSlots();
+	}
+}
+
+void AMMOARPGCharacter::PlayComboCountClient_Implementation()
+{
+	if (APlayerController* InPlayerController = Cast<APlayerController>(GetController())) {
+		if (AMMOARPGHUD* InHUD = InPlayerController->GetHUD<AMMOARPGHUD>()) {
+			InHUD->PlayComboCount();
+		}
+	}
+}
+
+void AMMOARPGCharacter::DeserializationSkillAssembly(const FString& InString)
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->DeserializationSkillAssembly(InString);
+	}
+}
+
+void AMMOARPGCharacter::SerializationSkillAssembly(FString& OutString)
+{
+	if (GetFightComponent()) {
+		GetFightComponent()->SerializationSkillAssembly(OutString);
+	}
+}
+
+void AMMOARPGCharacter::UpdateSkillAssembly()
+{
+	if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {
+		// 序列化装配技能
+		FString SkillAssemblyString;
+		SerializationSkillAssembly(SkillAssemblyString);
+
+		// 将技能名字槽转化为服务器上更小格式的位
+		TArray<FName> SkillTagsName;
+		TArray<FName> ComboAttackTagsName;
+		TArray<FName> LimbsTagsName;
+		MMOARPGAttributeSlotsToBits(SkillTagsName, ComboAttackTagsName, LimbsTagsName);
+
+		// 让GM去Request CS服务器的数据
+		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID, 
+			SkillAssemblyString,
+			SkillTagsName,
+			ComboAttackTagsName,
+			LimbsTagsName
+			);
+	}
+}
+
+#undef LOCTEXT_NAMESPACE

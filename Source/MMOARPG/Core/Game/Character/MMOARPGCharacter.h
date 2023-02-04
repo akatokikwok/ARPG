@@ -161,6 +161,89 @@ public:
 	// 覆写处理经验值接口
 	virtual void HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
+	// 覆写HandleDamage
+	virtual void HandleDamage(
+		float DamageAmount,
+		const struct FGameplayTagContainer& DamageTags,
+		AMMOARPGCharacterBase* InstigatorPawn,
+		AActor* DamageCauser) override;
+
+public:/// 关于GameMode可调用的一些技能与UI交互的接口
+
+	// 创建重生弹窗
+	UFUNCTION(Client, Reliable)
+	void CreateResurrectionWindowsClient();
+
+	// 服务端执行技能形式的技能攻击(需指定一个槽号)
+	UFUNCTION(Server, Reliable)
+	void SKillAttackOnServer(int32 InSlot);
+
+	// 在客户端 更新技能表(SkillPage)-UI外观
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillTableOnClient(const TArray<FName>& InSkillTags);
+
+	// 在客户端 更新技能槽节点(横框)-UI外观
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillSlotsOnClient(const TArray<FName>& InSkillTags);
+
+	// 在客户端 向DS请求更新技能节点
+	UFUNCTION(Client, Reliable)
+		void UpdateSkillSlotsOnServer();
+
+public:/// 关于技能槽业务的一些接口
+
+	/** 从横框到技能页: 移动 */
+	UFUNCTION(Server, Reliable)
+		void SKillSlotMoveToSkillTable(int32 InSlot);
+
+	/** 从横框到技能页: 交换 */
+	UFUNCTION(Server, Reliable)
+		void SKillSlotSwapSkillTable(int32 InRemoveSlot, const FName& InTag);
+
+	/** 从技能页到横框: 移动 */
+	UFUNCTION(Server, Reliable)
+		void SKillTableSlotMoveToSkillSlot(const FName& InTag, int32 InSlot);
+
+	/** 从技能页到横框: 交换 */
+	UFUNCTION(Server, Reliable)
+		void SKillTableSlotSwapSkillSlot(int32 InRemoveSlot, const FName& InTag);
+
+	/** 任意2个技能Slot之间的移动 */
+	UFUNCTION(Server, Reliable)
+		void SKillSlotMoveToNewSlot(int32 InASlot, int32 InBSlot);
+
+	/** 横框内, 任意2个技能内2个技能槽交换 */
+	UFUNCTION(Server, Reliable)
+		void SillSlotSwap(int32 InASlot, int32 InBSlot);
+
+public:
+	// 反序列化已装配技能
+	void DeserializationSkillAssembly(const FString& InString);
+
+	// 序列化已装配技能
+	void SerializationSkillAssembly(FString& OutString);
+
+	// 更新装配技能
+	void UpdateSkillAssembly();
+
+public:
+	// 初始化技能
+ 	void InitSkill();
+
+private:
+	// 小接口: 将一组技能名字转化为服务器上更小格式的位
+	void MMOARPGAttributeSlotsToBits(TArray<FName>& OutBitSkill, TArray<FName>& OutBitComboAttack, TArray<FName>& OutBitLimbs);
+
+public:
+	// 更新人物的 技能节点
+	void UpdateSkillSlots();
+
+public:/// UI效果相关
+
+	// 在客户端执行连打计数UI控件效果
+	UFUNCTION(Client, Reliable)
+		void PlayComboCountClient();
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -179,6 +262,5 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
-
 };
 

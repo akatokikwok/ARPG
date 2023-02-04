@@ -10,6 +10,29 @@
 #include "../../MMOARPGGameType.h"
 #include "FightComponent.generated.h"
 
+/**
+ * 技能插槽的数据结构
+ */
+USTRUCT(BlueprintType)
+struct MMOARPG_API FMMOARPGSkillSlot
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	// 技能名称
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		FName SkillName;// 技能名称
+
+	// 希望释放出去的技能实例句柄
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		FGameplayAbilitySpecHandle Handle;// 希望释放出去的技能实例句柄
+
+public:
+	// 技能名称是否有意义
+	bool IsVaild() const { return SkillName != NAME_None; }
+	//
+	void Reset();
+};
+
 
 /**
  * 战斗组件.继承自MotionComp
@@ -35,20 +58,21 @@ public:
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
-	// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
-	void AddSkillAttack(const FName& InKey);
+	//// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
+	//void AddSkillAttack(const FName& InKey);
 
-	// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
-	void AddComboAttack(const FName& InKey);
+	//// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
+	//void AddComboAttack(const FName& InKey);
+
 protected:
 	/** 用指定GA去注册连招触发器黑盒. */
-	void RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName);
+	void RegisterComboAttack(const FName& InGAName);
 
 	// 添加并授权某技能. 返回技能实例的句柄.
 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
 public:
-	// 拿连击触发器.
-	FSimpleComboCheck* GetSimpleComboInfo() { return &ComboAttackCheck; }
+	// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
+	FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAkey);
 
 	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 	/*UFUNCTION(NetMulticast, Reliable)*/
@@ -60,6 +84,7 @@ public:
 	/*UFUNCTION(NetMulticast, Reliable)*/
 	void Reset();
 
+public:
 	// 放闪避技能. 广播至其他客户端
 	//UFUNCTION(NetMulticast, Reliable)
 	void DodgeSkill();// 放闪避技能; 广播至其他客户端
@@ -120,6 +145,68 @@ public:
 	// 从肢体缓存池里提出所有肢体动作名字
 	void GetLimbsTagsName(TArray<FName>& OutNames);
 
+public:
+	// 释放技能形式的攻击(非连招普攻)
+	bool SKillAttack(int32 InSlot);
+
+	// 技能形式的技能是否可以释放
+	UFUNCTION(BlueprintCallable)
+		bool Skill(const FName& InKey);
+
+	/** 往Skill槽容器注册1份 技能槽数据 (并判断操作是否成功) */
+	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
+
+	/** 用入参组一份技能槽数据并注册至Skill槽容器 (并判断操作是否成功) */
+	bool AddSkillSlot(int32 InSlot, const FName& InSkillNameTag);
+
+	/** 移除SkillTMap的技能节点并查询是否成功 */
+	bool RemoveSkillSlot(int32 InSlot);
+
+	/** 移除技能并查询是否成功 */
+	bool SwapSkillSlot(int32 InASlot, int32 InBSlot);
+
+	/** 移动技能并查询是否成功 */
+	bool MoveSkillSlot(int32 InASlot, int32 InBSlot);
+
+public:
+	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */
+	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
+
+	/** 在横框, 移除指定槽号的旧技能并添加新技能 */
+	bool RemoveSkillSlot(int32 InSlot, const FName& InSkillName);
+
+protected:
+	/** 从总缓存池内移除指定TagName的技能 */
+	void RemoveSkill(const FName& InNameTag);
+
+	/** 小接口: ASC移除给定句柄的技能 */
+	void ClearAbility(FGameplayAbilitySpecHandle InHanle);
+
+public:
+	// 初始化技能
+	void InitSkill();
+
+	// 更新表
+	void UpdateSkillTable();
+
+	// 更新技能节点
+	void UpdateSkillSlots();
+
+public:
+	// 反序列化 已处理好的技能bit并最终处理其真实句柄
+	void DeserializationSkillAssembly(const FString& InString);
+	// 序列化后输出一个 为带顺序的bit位的技能名字
+	void SerializationSkillAssembly(FString& OutString);
+
+public:
+	// 激活持续恢复buff
+	void ActivateRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
+
+	// 解除持续恢复buff
+	void DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
+
+	//////////////////////////////////////////////////////////////////////////
+
 private:
 	/**来自人物基类的ASC
 	 * 战斗组件也持有1个ASC
@@ -128,14 +215,18 @@ private:
 	UPROPERTY(Category = MMOARPGCharacterBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TWeakObjectPtr<UMMOARPGAbilitySystemComponent> AbilitySystemComponent;
 
-	// Combo形式的攻击 触发器
+	// 一组Combo形式的攻击 黑盒触发器(包含空中连击, 地面连击)
 	UPROPERTY()
-		FSimpleComboCheck ComboAttackCheck;
+		TArray<FSimpleComboCheck> ComboAttackChecks;
 
 public:
 	// 受击ID
 	UPROPERTY()
 		int32 HitID;// 受击ID
+
+	// 本角色是否被挑飞
+	UPROPERTY()
+	bool bPickFly = false;
 
 protected:
 	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄
@@ -144,4 +235,8 @@ protected:
 	TMap<FName, FGameplayAbilitySpecHandle> ComboAttacks;
 	// 肢体行为缓存池
 	TMap<FName, FGameplayAbilitySpecHandle> Limbs;
+
+protected:
+	/** 可视化的插槽技能释放表,只有存在着里面才被授权使用 */
+	TMap<int32, FMMOARPGSkillSlot> SkillSlotsTMap;
 };

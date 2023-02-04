@@ -1,11 +1,12 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SimpleCombatBPLibrary.generated.h"
+class UUI_ComboCount;
 
-/* 
+/*
 *	Function library class.
 *	Each function in it is expected to be static and represents blueprint node that can be called in any blueprint.
 *
@@ -15,7 +16,7 @@
 *	DisplayName - full name of the node, shown when you mouse over the node and in the blueprint drop down menu.
 *				Its lets you name the node using characters not allowed in C++ function names.
 *	CompactNodeTitle - the word(s) that appear on the node.
-*	Keywords -	the list of keywords that helps you to find node when you search for it using Blueprint drop-down menu. 
+*	Keywords -	the list of keywords that helps you to find node when you search for it using Blueprint drop-down menu.
 *				Good example is "Print String" node which you can find also by using keyword "log".
 *	Category -	the category your node will be under in the Blueprint drop-down menu.
 *
@@ -26,7 +27,12 @@ UCLASS()
 class USimpleCombatBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
+public:
+	// 使用计数单例, 构建出连打计数UI并同步执行UI表现
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "CombatText_ComboPlay", Category = "Combat", WorldContext = WorldContextObject))
+		static void ComboPlay(UObject* WorldContextObject, TSubclassOf<UUI_ComboCount> InClass);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "SimpleCombat sample test testing"), Category = "SimpleCombatTesting")
-	static float SimpleCombatSampleFunction(float Param);
+	// 销毁连打计数单例; 目的是为了防止第二次打开插件崩溃
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "CombatText_Destroy", Category = "Combat"))
+		static void ComboTextDestroy();
 };

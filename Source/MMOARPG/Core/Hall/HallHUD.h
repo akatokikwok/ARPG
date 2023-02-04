@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "../Common/Core/GamePlay/HUDBase.h"
 #include "HallHUD.generated.h"
 
 class UUI_HallMain;
@@ -12,7 +13,7 @@ class UUI_HallMain;
  * 
  */
 UCLASS()
-class MMOARPG_API AHallHUD : public AHUD
+class MMOARPG_API AHallHUD : public AHUDBase
 {
 	GENERATED_BODY()
 public:

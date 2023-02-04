@@ -26,4 +26,8 @@ public:
 	// 蒙太奇: 攀爬姿势;
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAnim")
 		UAnimMontage* ClimbingMontage;
+
+	// 挑飞后起身动画
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAnim")
+		UAnimMontage* GetUpMontage;
 };

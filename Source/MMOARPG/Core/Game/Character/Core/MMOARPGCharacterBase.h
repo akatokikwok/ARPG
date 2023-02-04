@@ -128,6 +128,9 @@ public:
 	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
 
+	// 检查本角色是否被挑飞
+	bool IsPickFly();
+
 	// 拿取Widget组件里真正的UMG(仅在客户端).
 	UWidget* GetWidget();
 	// 隐藏血条UMG
@@ -171,7 +174,7 @@ protected:
 
 public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
-	virtual struct FSimpleComboCheck* GetSimpleComboInfo() override;
+	virtual struct FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAKey) override;
 
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
@@ -229,6 +232,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
+	// 广播起身动画
+	UFUNCTION(NetMulticast, Reliable)
+		void GetUpOnMulticast();
+
 public:
 	// 授予击杀本人物的奖励Buff
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
@@ -244,6 +251,20 @@ public:
 	// 提出所有肢体动作名字并存下来
 	void GetLimbsTagsName(TArray<FName>& OutNames);
 
+public:
+	// 人物执行复活
+	void Resurrection();
+
+	// 激活持续恢复buff
+	void ActivateRecoveryEffect();
+
+	// 解除持续恢复的buff
+	void DeactivationRecoveryEffect();
+
+public:
+	// 播放 人物被击倒或挑飞后起身
+	void GetUp();
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
@@ -253,6 +274,10 @@ protected:
 	// 人物若被击杀后, 对手获得的升级经验值奖励Buff.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
 		TSubclassOf<UGameplayEffect> UpgradeRewardEffect;
+
+	// 一组持续恢复buff
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
+		TArray<TSubclassOf<UGameplayEffect>> RecoveryEffect;
 
 protected:
 	// 人物动作状态.

@@ -83,7 +83,7 @@ void UUI_InformationWidget::SetTextBlockStyle(
 				{
 					Icon->SetVisibility(ESlateVisibility::Visible);
 					Icon->SetBrushFromTexture(Tmp->Icon);
-					Icon->SetBrushSize(FVector2D(32.f, 32.f));
+					Icon->SetDesiredSizeOverride(FVector2D(32.f, 32.f));
 				}
 			}
 		}
@@ -106,7 +106,7 @@ void UUI_InformationWidget::SetTextBlockStyle(
 
 			BackgroundIcon->SetVisibility(ESlateVisibility::Visible);
 			BackgroundIcon->SetBrushFromTexture(Arrays[NewIndex]->Icon);
-			BackgroundIcon->SetBrushSize(FVector2D(156.f, 156.f));
+			BackgroundIcon->SetDesiredSizeOverride(FVector2D(156.f, 156.f));
 		}
 	}
 }

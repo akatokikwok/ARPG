@@ -26,7 +26,10 @@ void FSimpleComboCheck::Press()
 {
 	if (ComboIndex == INDEX_NONE) {
 		ComboIndex++;
-		Character_CombatInterface->ComboAttack(ComboKey_GA);
+		check(Character_CombatInterface);
+		if (Character_CombatInterface != nullptr) {
+			Character_CombatInterface->ComboAttack(ComboKey_GA);
+		}
 	}
 	bShortPress = true;
 	bLongPress = true;

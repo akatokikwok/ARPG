@@ -19,7 +19,7 @@ public:
 	// 重写GetNotifyName_Implementation.
 	virtual FString GetNotifyName_Implementation() const override;
 	// 重写Notify.
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 public:
 	/**
@@ -27,7 +27,8 @@ public:
 	 * 0.f, 1.f 设定为装卸武器
 	 * 2.f 设定为复位Combo触发器.
 	 * 7 和 8 设定为播 死亡蒙太奇的哪个section.
-	 * 
+	 * 9 10 表示激活挑飞 和禁用挑飞(落地)
+	 * 11 是在异常状态结束后人物起身
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify")
 		int32 SignalValue;

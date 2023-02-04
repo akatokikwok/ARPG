@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Channel/SimpleChannel.h"
 #include "Components/Widget.h"
+#include "MMOARPG\MMOARPGGameType.h"
 #include "UI_Base.generated.h"
 
 /**
@@ -71,6 +72,16 @@ protected:
 public:
 	/** 接口: 执行播放控件动画, 需指定UMG动画具体名称. */
 	void PlayWidgetAnim(const FString& InWidgetName);
+
+public:
+	void LogPrint(const FText& InContent);
+	void ErrorPrint(const FText& InContent);
+	void WarningPrint(const FText& InContent);
+
+public:
+	void Print(const FName& InContent);
+	void Print(const FText& InContent);
+	void Print(const FString& InContent);
 
 protected:
 	//

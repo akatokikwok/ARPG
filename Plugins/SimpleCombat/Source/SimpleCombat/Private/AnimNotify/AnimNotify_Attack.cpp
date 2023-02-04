@@ -32,9 +32,9 @@ FString UAnimNotify_Attack::GetNotifyName_Implementation() const
 }
 
 // 重写Notify.
-void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 	if (AActor* InSimpleCombatCharacter = Cast<AActor>(MeshComp->GetOuter())) {
 		FVector ComponentLocation = MeshComp->GetSocketLocation(InSocketName);
 		FRotator ComponentRotation = MeshComp->GetSocketRotation(InSocketName);
@@ -45,7 +45,7 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		if (InSimpleCombatCharacter->GetWorld() != nullptr) {
 
 			/* 满足任一条件才会 生成Hitbox, 由于bSpawnCollisionOnServer默认为TRUE,所以这一段仅在服务器上生成. */
-			if (!bSpawnCollisionOnServer || InSimpleCombatCharacter->GetWorld()->IsServer()) {
+			if (!bSpawnCollisionOnServer || InSimpleCombatCharacter->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
 				/** 生成一个碰撞物hitbox, 大概位于刀尖上的socket上 */
 				if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActor<AHitCollision>(HitObjectClass, ComponentLocation, ComponentRotation, ActorSpawnParameters)) {
 					

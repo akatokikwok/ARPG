@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "../Common/Core/GamePlay/PlayerControllerBase.h"
 #include "LoginPlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MMOARPG_API ALoginPlayerController : public APlayerController
+class MMOARPG_API ALoginPlayerController : public APlayerControllerBase
 {
 	GENERATED_BODY()
 public:

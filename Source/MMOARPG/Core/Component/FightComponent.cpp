@@ -12,10 +12,18 @@
 #include "Net/UnrealNetwork.h"
 #include "../Game/MMOARPGGameState.h"
 #include "../Game/Abilities/MMOARPGGameplayAbility.h"
+#include "../Game/Character/MMOARPGCharacter.h"
+
+// 由于MMOARPGCharacter里已经包含了MMOTagList.h, 所以直接extern
+extern bool SingleBitAndOrderToTagName(const int32 InEnumIndex, const uint64 EnumValue, FName& TagName);
+extern bool SingleTagNameToBitAndOrder(const FName& TageName, int32& InEnumIndex, uint64& EnumValue);
 
 UFightComponent::UFightComponent()
 {
-
+	// 首先给五个槽位初始化数据
+	for (int32 i = 0; i < 5; i++) {
+		SkillSlotsTMap.Add(i + 1, FMMOARPGSkillSlot());
+	}
 }
 
 void UFightComponent::BeginPlay()
@@ -108,17 +116,21 @@ bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FNam
 // 放闪避技能.
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	if (AbilitySystemComponent.IsValid()) {
-		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
-	}
+	Skill(TEXT("Player.Skill.Dodge"));
+
+	// 	if (AbilitySystemComponent.IsValid()) {
+	// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
+	// 	}
 }
 
 // 放冲刺技能. 广播至其他客户端
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	if (AbilitySystemComponent.IsValid()) {
-		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
-	}
+	Skill(TEXT("Player.Skill.Sprint"));
+
+	// 	if (AbilitySystemComponent.IsValid()) {
+	// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
+	// 	}
 }
 
 // 激活 受击技能
@@ -144,93 +156,116 @@ void UFightComponent::AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_G
 {
 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {
 		// 用GameState找出人身上配的 DTRow::技能表
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// 从DTR里拿表中的TMAP作为数据源.
-			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
-				switch (InGAType) {
-					case GAMEPLAYABILITY_LIMBS:
-					{
-						return InSkillTable_row->FindLimbs(InKey_GAName);
-						break;
-					}
-					case GAMEPLAYABILITY_SKILLATTACK:
-					{
-						return InSkillTable_row->FindSkillAttack(InKey_GAName);
-						break;
-					}
-					case GAMEPLAYABILITY_COMBOATTACK:
-					{
-						return InSkillTable_row->FindComboAttack(InKey_GAName);
-						break;
-					}
-				}
-				return nullptr;
-			};
+		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(InKey_GAName, MMOARPGCharacterBase->GetID())) {
+		#pragma region 弃用
+			// 			// 从DTR里拿表中的TMAP作为数据源.
+			// 			auto GetMMOAPRGGameplayAbility = [&](EMMOARPGGameplayAbilityType InGAType) ->TSubclassOf<UGameplayAbility>* {
+			// 				switch (InGAType) {
+			// 					case GAMEPLAYABILITY_LIMBS:
+			// 					{
+			// 						return InSkillTable_row->FindLimbs(InKey_GAName);
+			// 						break;
+			// 					}
+			// 					case GAMEPLAYABILITY_SKILLATTACK:
+			// 					{
+			// 						return InSkillTable_row->FindSkillAttack(InKey_GAName);
+			// 						break;
+			// 					}
+			// 					case GAMEPLAYABILITY_COMBOATTACK:
+			// 					{
+			// 						return InSkillTable_row->FindComboAttack(InKey_GAName);
+			// 						break;
+			// 					}
+			// 				}
+			// 				return nullptr;
+			// 			};
+		#pragma endregion 弃用
 
-			// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			if (GetMMOAPRGGameplayAbility(GAType) != nullptr) {
-				if (TSubclassOf<UGameplayAbility>* InGameplayAbility = GetMMOAPRGGameplayAbility(GAType)) {
+					// DT单行里查找缓存池,并按名字找到GA,	往Skills池子里写入这个GA
 					/* 按技能形式来源切分, 分三类*/
-					switch (GAType) {
-						case GAMEPLAYABILITY_SKILLATTACK:
-							Skills.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为skill池子添加元素
-							break;
-						case GAMEPLAYABILITY_COMBOATTACK:
-							ComboAttacks.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为连招池子添加元素
-							break;
-						case GAMEPLAYABILITY_LIMBS:
-							Limbs.Add(InKey_GAName, AddAbility(*InGameplayAbility));// 为肢体池子添加元素
-							break;
-					}
-				}
+			switch (GAType) {
+				case GAMEPLAYABILITY_SKILLATTACK:
+					Skills.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为skill池子添加元素
+					break;
+				case GAMEPLAYABILITY_COMBOATTACK:
+					ComboAttacks.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为连招池子添加元素
+					break;
+				case GAMEPLAYABILITY_LIMBS:
+					Limbs.Add(InKey_GAName, AddAbility(InSkillTable_row->GameplayAbility));// 为肢体池子添加元素
+					break;
 			}
-			//
 		}
 	}
 }
 
 // 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
-void UFightComponent::AddSkillAttack(const FName& InKey)
-{
-	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// DT单行里查找Skill缓存池,并按名字找到GA,	往Skills池子里写入这个GA
-			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindComboAttack(InKey)) {
-				Skills.Add(InKey, AddAbility(*InGameplayAbility));
-			}
-		}
-	}
-}
+// void UFightComponent::AddSkillAttack(const FName& InKey)
+// {
+// 	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+// 		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+// 			// DT单行里查找Skill缓存池,并按名字找到GA,	往Skills池子里写入这个GA
+// 			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindComboAttack(InKey)) {
+// 				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+// 			}
+// 		}
+// 	}
+// }
 
-// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
-void UFightComponent::AddComboAttack(const FName& InKey)
+//// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
+//void UFightComponent::AddComboAttack(const FName& InKey)
+//{
+//	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
+//		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
+//			// DT单行里查找连击缓存池,并按名字找到GA,	往Skill池子里写入这个GA
+//			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindSkillAttack(InKey)) {
+//				Skills.Add(InKey, AddAbility(*InGameplayAbility));
+//			}
+//		}
+//	}
+//}
+
+// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
+FSimpleComboCheck* UFightComponent::GetSimpleComboInfo(const FName& InGAkey)
 {
-	if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-		if (FCharacterSkillTable* InSkillTable_row = InGS->GetCharacterSkillTable(MMOARPGCharacterBase->GetID())) {
-			// DT单行里查找连击缓存池,并按名字找到GA,	往Skill池子里写入这个GA
-			if (TSubclassOf<UGameplayAbility>* InGameplayAbility = InSkillTable_row->FindSkillAttack(InKey)) {
-				Skills.Add(InKey, AddAbility(*InGameplayAbility));
-			}
-		}
-	}
+	return ComboAttackChecks.FindByPredicate(
+		[InGAkey](const FSimpleComboCheck& InComboCheck) ->bool {
+			return InComboCheck.ComboKey_GA == InGAkey;
+		});
 }
 
 // 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
 void UFightComponent::Press()
 {
-	ComboAttackCheck.Press();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		if (UMotionComponent::IsAir()) {// 在空中
+			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
+				AnyComboCheck.Press();
+				break;
+			}
+		}
+		else {// 在地面
+			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Ground")) {// 放的是地面连击
+				AnyComboCheck.Press();
+				break;
+			}
+		}
+	}
 }
 
 // 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
 void UFightComponent::Released()
 {
-	ComboAttackCheck.Released();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		AnyComboCheck.Released();
+	}
 }
 
-// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
+// 复位所有的连击黑盒检测器
 void UFightComponent::Reset()
 {
-	ComboAttackCheck.Reset();
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+		AnyComboCheck.Reset();
+	}
 }
 
 // 注册各部分技能(按形式来源)
@@ -240,7 +275,7 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 	if (MMOARPGCharacterBase.IsValid() && AbilitySystemComponent.IsValid()) {
 		// 		 const FName InKey = TEXT("Player.Attack.ComboLinkage");
 
-				/* 仅运行在服务器的逻辑. */
+		/* 仅运行在服务器的逻辑. */
 		if (MMOARPGCharacterBase->GetLocalRole() == ENetRole::ROLE_Authority) {
 			// 往Skill池子里写入 从DTRow里查出来的一组	GA
 			for (auto& Tmp : InGANames) {
@@ -256,8 +291,10 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 }
 
 /** 用1个GA去注册1个连招黑盒. */
-void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck, const FName& InGAName)
+void UFightComponent::RegisterComboAttack(const FName& InGAName)
 {
+	FSimpleComboCheck& InComboAttackCheck = ComboAttackChecks.AddDefaulted_GetRef();// 往连击检测容器内手动构造1个
+
 	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
 	InComboAttackCheck.ComboKey_GA = InGAName;
 	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
@@ -271,8 +308,8 @@ void UFightComponent::RegisterComboAttack(FSimpleComboCheck& InComboAttackCheck,
 // 用一组GA去注册1个连招黑盒
 void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 {
-	for (auto& Tmp : InGANames) {
-		RegisterComboAttack(ComboAttackCheck, Tmp);
+	for (auto& GATag : InGANames) {
+		RegisterComboAttack(GATag);
 	}
 }
 
@@ -299,6 +336,11 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 
 			/* 对目标人物 执行使其死亡 最后执行.*/
 			MMOARPGCharacterBase->PlayDie();
+
+			// 只有玩家角色才可以创建重生提示弹窗(仅在客户端)
+			if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+				InCharacter->CreateResurrectionWindowsClient();
+			}
 		}
 		else {
 			// 施法者和受击序号必须有意义.
@@ -307,6 +349,13 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 					// 让挨打的人面朝向 施法攻击者.
 					FRotator TargetRot = (-InstigatorPawn->GetActorForwardVector()).ToOrientationRotator();
 					MMOARPGCharacterBase->SetActorRotation(TargetRot);
+
+					/* 这里特殊处理一下一种情形, 即施法者在滞空下坠时候对地面状态的敌人进行空中连击 */
+					if (MMOARPGCharacterBase->GetHitID() == 6) {// 测试用,暂时认为受击ID是6的时候 施法者跳在空中使用空中Combo,敌人受到为6的空中受击
+						if (!IsAir()) {// 但施法者缺正在从滞空坠落到地面
+							MMOARPGCharacterBase->SetHitID(FMath::RandRange(0, 1));// 人跌落到地面后再受击, 暂时重置置敌人受击ID为0或1
+						}
+					}
 
 					// 对目标人物, 再执行让它挨打受击.
 					MMOARPGCharacterBase->PlayHit();
@@ -324,7 +373,7 @@ void UFightComponent::HandleMana(const struct FGameplayTagContainer& InTags, flo
 
 void UFightComponent::HandleExp(const struct FGameplayTagContainer& InTags, float InNewValue)
 {
-	
+
 }
 
 void UFightComponent::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun_AppendLogic)
@@ -346,7 +395,13 @@ void UFightComponent::UpdateLevel(AMMOARPGCharacterBase* InUpgradeLevelPawn)
 {
 	if (InUpgradeLevelPawn->IsUpdateLevel()) {
 		// 让人升一级
-		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1); 
+		InUpgradeLevelPawn->UpdateLevel(InUpgradeLevelPawn->GetCharacterLevel() + 1);
+
+		// 更新角色的技能Slot
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(InUpgradeLevelPawn)) {
+			InCharacter->UpdateSkillSlots();
+		}
+
 		// 递归判定
 		this->UpdateLevel(InUpgradeLevelPawn);
 	}
@@ -384,3 +439,297 @@ void UFightComponent::GetLimbsTagsName(TArray<FName>& OutNames)
 {
 	Limbs.GetKeys(OutNames);
 }
+
+void FMMOARPGSkillSlot::Reset()
+{
+	*this = FMMOARPGSkillSlot();
+}
+
+#pragma region 关于真正GA池子的一些操作函数
+/** 真正技能缓存池里注册并装配 技能表的指定名字的技能 */
+FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (FCharacterSkillTable* InSkillTable = InGameState->GetCharacterSkillTable(InNameTag, MMOARPGCharacterBase->GetID())) {// 从DT里读指定游玩人物专属ID的 一行技能信息
+			if (!Skills.Contains(InNameTag)) {
+				Skills.Add(InNameTag, this->AddAbility(InSkillTable->GameplayAbility));
+				return Skills[InNameTag];// 并返回这个技能句柄
+			}
+		}
+	}
+	return FGameplayAbilitySpecHandle();// 否则返回空技能句柄
+}
+
+/** 从总缓存池内移除指定TagName的技能 */
+void UFightComponent::RemoveSkill(const FName& InNameTag)
+{
+	if (Skills.Contains(InNameTag)) {
+		//  小接口: ASC移除给定句柄的技能
+		this->ClearAbility(Skills[InNameTag]);
+		// 移除"Skills容器" 里的一组pair
+		Skills.Remove(InNameTag);
+	}
+}
+
+/** 小接口: ASC移除给定句柄的技能 */
+void UFightComponent::ClearAbility(FGameplayAbilitySpecHandle InHanle)
+{
+	AbilitySystemComponent->ClearAbility(InHanle);
+}
+
+void UFightComponent::InitSkill()
+{
+	// 更新不同的技能表(SkillPage)
+	this->UpdateSkillTable();
+	// 更新不同的技能节点(SkillSlots)
+	this->UpdateSkillSlots();
+}
+
+// 更新表(SkillPage)
+void UFightComponent::UpdateSkillTable()
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+
+			// 0. 待加工的一组技能表技能或是横框内技能
+			TArray<FName> ResultSkillTags;
+
+			// I. 依次从三种技能形式来源的池子里 提取出Skill型,Combo型,Limb型的技能名字
+			TArray<FName> SkillTags;
+			GetSkillTagsName(SkillTags);
+
+			TArray<FName> ComboAttackTags;
+			GetComboAttackTagsName(ComboAttackTags);
+
+			TArray<FName> LimbsTags;
+			GetLimbsTagsName(LimbsTags);
+
+			// II. 取出本人物的所有技能Table行
+			TArray<FCharacterSkillTable*> OutSKillTableRows;
+			InGameState->GetCharacterSkillsTables(InCharacter->GetID(), OutSKillTableRows);
+
+			/** Lambda: 给一组技能名,看看给定的技能名是否位于其中 */
+			auto FindGameplayTags = [&](const FString& InString, const TArray<FName>& InSkillNames)->bool {
+				for (const FName& SkillName : InSkillNames) {
+					if (InString == SkillName.ToString()) {
+						return true;
+					}
+				}
+				return false;
+			};
+
+			// III. 给ResultTags做值; 找到技能行里没有的技能,有差异的地方
+			for (auto& SKillTableRow : OutSKillTableRows) {
+				check(SKillTableRow->GameplayAbility);// 断言TableRow里的技能蓝图
+
+				if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(SKillTableRow->GameplayAbility->GetDefaultObject())) {// TableRow里的具体技能
+
+					bool bExist = false;
+
+					// 真实技能的AbilityTags.; FName不可靠, 使用ToStringSimple提取出真实技能的AbilityTags.
+					const FString TagString = InGameplayAbility->AbilityTags.ToStringSimple();
+
+					// 若发现真实技能Tag都不被这三种类型包含, 则手动给技能表填充元素
+					if (!FindGameplayTags(TagString, SkillTags) &&
+						!FindGameplayTags(TagString, LimbsTags) &&
+						!FindGameplayTags(TagString, ComboAttackTags)) {
+						ResultSkillTags.Add(*TagString);
+					}
+				}
+			}
+
+			// IV. 在客户端 更新技能表(SkillPage)-仅UI外观
+			InCharacter->UpdateSkillTableOnClient(ResultSkillTags);
+		}
+	}
+}
+
+// 更新技能节点(SkillSlots)
+void UFightComponent::UpdateSkillSlots()
+{
+	if (AMMOARPGCharacter* InCharacter = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+		TArray<FName> InSkillTags;
+		for (auto& Itr : SkillSlotsTMap) {
+			InSkillTags.Add(Itr.Value.SkillName);// 提取出所有的技能名字存储1个数组
+		}
+
+		// 在客户端 更新技能槽节点(横框)-仅UI外观
+		InCharacter->UpdateSkillSlotsOnClient(InSkillTags);
+	}
+}
+
+void UFightComponent::DeserializationSkillAssembly(const FString& InString)
+{
+	// 用逗号间隔切碎输入的字符串
+	TArray<FString> MapArrays;
+	InString.ParseIntoArray(MapArrays, TEXT(","));
+
+	if (SkillSlotsTMap.Num()) {
+		for (int32 i = 0; i < MapArrays.Num(); i++) {
+			int32 Key;
+			int32 EnumIndex = INDEX_NONE;
+			uint64 TagNameBit = 0;
+			{
+				FString K, V;
+				MapArrays[i].Split(TEXT(":"), &K, &V);
+				Key = FCString::Atoi(*K);
+
+				FString E, B;
+				V.Split(TEXT("|"), &E, &B);
+				EnumIndex = FCString::Atoi(*E);
+
+				TagNameBit = FCString::Strtoui64(*B, NULL, 10);
+			}
+
+			SingleBitAndOrderToTagName(EnumIndex, TagNameBit, SkillSlotsTMap[Key].SkillName);
+
+			// 按槽号提出Skill型的GA并保存其真实技能句柄
+			if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(SkillSlotsTMap[Key].SkillName)) {
+				SkillSlotsTMap[Key].Handle = *InHandle;
+			}
+		}
+	}
+}
+
+void UFightComponent::SerializationSkillAssembly(FString& OutString)
+{
+	for (auto& Tmp : SkillSlotsTMap) {// 扫描插槽map容器
+		uint64 Bit = 0llu; // 无符号64位
+		int32 EnumIndex = INDEX_NONE;
+		// 把给定的技能名字转换为带顺序的bit位
+		SingleTagNameToBitAndOrder(Tmp.Value.SkillName, EnumIndex, Bit);
+
+		OutString += FString::Printf(TEXT("%i:%i|%llu,"), Tmp.Key, EnumIndex, Bit);
+	}
+	// 多余的拼法逗号删掉.
+	OutString.RemoveFromEnd(TEXT(","));
+}
+
+void UFightComponent::ActivateRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect)
+{
+	if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+		if (MMOARPGCharacterBase.IsValid()) {
+			// 1.先填充GE句柄context
+			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+			EffectContext.AddSourceObject(UMotionComponent::MMOARPGCharacterBase.Get());
+
+			// 2.用入参构建1个GE实例并应用
+			FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InGameplayEffect, 
+				MMOARPGCharacterBase->GetCharacterLevel(), EffectContext);
+			if (EffectSpecHandle.IsValid()) {
+				AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent.Get());
+			}
+		}
+	}
+}
+
+void UFightComponent::DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect)
+{
+	if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+		AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(InGameplayEffect, AbilitySystemComponent.Get());
+	}
+}
+
+#pragma endregion 关于真正GA池子的一些操作函数
+
+//////////////////////////////////////////////////////////////////////////
+
+#pragma region 技能槽及技能形式技能的接口
+// 释放技能形式的攻击(非连招普攻)
+bool UFightComponent::SKillAttack(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		if (SkillSlotsTMap[InSlot].IsVaild()) {// 技能名称有意义
+			if (!Skill(SkillSlotsTMap[InSlot].SkillName)) {// 可以激活指定名字的技能
+				/** 使用ASC激活技能池子里指定槽号的技能句柄 */
+				return AbilitySystemComponent->TryActivateAbility(SkillSlotsTMap[InSlot].Handle);
+			}
+		}
+	}
+	return false;
+}
+
+// 是否可以激活指定名字的技能
+bool UFightComponent::Skill(const FName& InKey)
+{
+	return TryActivateAbility(InKey, Skills);
+}
+
+/** 往SkillMap里注册1份 技能槽数据 (并判断操作是否成功) */
+bool UFightComponent::AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot)
+{
+	// 已存在则允许覆盖
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		SkillSlotsTMap[InSlot] = InSkillSlot;
+		return true;
+	}
+	return false;
+}
+
+/** 用入参组一份技能槽数据并注册至Skill槽容器 */
+bool UFightComponent::AddSkillSlot(int32 InSlot, const FName& InSkillNameTag)
+{
+	// 用入参槽号和技能名字 "填充1份实际的技能槽数据"
+	FMMOARPGSkillSlot SkillSlot;
+	SkillSlot.Handle = AddSkill(InSkillNameTag);
+	SkillSlot.SkillName = InSkillNameTag;
+
+	// 往SkillMap里注册 刚才那份技能槽数据
+	return this->AddSkillSlot(InSlot, SkillSlot);
+}
+
+/** 移除SkillTMap的技能节点并查询是否成功 */
+bool UFightComponent::RemoveSkillSlot(int32 InSlot)
+{
+	if (SkillSlotsTMap.Contains(InSlot)) {
+		// 先移除真实技能
+		RemoveSkill(SkillSlotsTMap[InSlot].SkillName);
+
+		// 再移除技能节点(指定槽位给个空,视为移除)
+		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
+		return true;
+	}
+	return false;
+}
+
+/** 在横框, 移除指定槽号的旧技能并添加新技能 */
+bool UFightComponent::RemoveSkillSlot(int32 InRemoveSlot, const FName& InSkillName)
+{
+	// 移除真实技能
+	//RemoveSkill(InSkillName);
+
+	// 移除SkillTmap的技能节点
+	RemoveSkillSlot(InRemoveSlot);
+
+	// 添加入参组的一个技能包
+	return AddSkillSlot(InRemoveSlot, InSkillName);
+}
+
+/** 交换技能并查询是否成功 */
+bool UFightComponent::SwapSkillSlot(int32 InASlot, int32 InBSlot)
+{
+	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
+		if (SkillSlotsTMap[InASlot].IsVaild() || SkillSlotsTMap[InBSlot].IsVaild()) {
+			FMMOARPGSkillSlot Tmp = SkillSlotsTMap[InASlot];
+			SkillSlotsTMap[InASlot] = SkillSlotsTMap[InBSlot];
+			SkillSlotsTMap[InBSlot] = Tmp;
+			return true;
+		}
+	}
+	return false;
+}
+
+/** 移动技能并查询是否成功 */
+bool UFightComponent::MoveSkillSlot(int32 InASlot, int32 InBSlot)
+{
+	if (InASlot != InBSlot && SkillSlotsTMap.Contains(InASlot) && SkillSlotsTMap.Contains(InBSlot)) {
+		if (SkillSlotsTMap[InASlot].IsVaild() && !SkillSlotsTMap[InBSlot].IsVaild()) {
+			// B槽被A槽填充,且A槽清空复位
+			SkillSlotsTMap[InBSlot] = SkillSlotsTMap[InASlot];
+			SkillSlotsTMap[InASlot].Reset();
+			return true;
+		}
+	}
+	return false;
+}
+#pragma endregion 技能槽及技能形式技能的接口

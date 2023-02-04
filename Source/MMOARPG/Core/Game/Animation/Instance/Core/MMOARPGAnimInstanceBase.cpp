@@ -16,7 +16,7 @@ UMMOARPGAnimInstanceBase::UMMOARPGAnimInstanceBase()
 	, LeftBoneName(TEXT("foot_l"))
 	, RightBoneName(TEXT("foot_r"))
 {
-
+	bPickFly = false;
 }
 
 void UMMOARPGAnimInstanceBase::NativeInitializeAnimation()
@@ -34,6 +34,7 @@ void UMMOARPGAnimInstanceBase::NativeUpdateAnimation(float Deltaseconds)
 		ActionState = InCharacterBase->GetActionState();// 战斗姿态启用检测.
 		bDeath = InCharacterBase->IsDie();// 人是否死亡.
 		DieIndex = InCharacterBase->GetDieIndex();// 死亡动画序列号.
+		bPickFly = InCharacterBase->IsPickFly();// 本角色是否被挑飞.
 
 		if (UCharacterMovementComponent* InCharacterMovementComponent = Cast<UCharacterMovementComponent>(InCharacterBase->GetMovementComponent())) {
 			/* 仅在攀岩模式下. */

@@ -36,6 +36,10 @@ public:
 
 	// 升级人物等级请求.
 	void UpdateLevelRequests(int32 InUserID, int32 InCharacterID, const FMMOARPGCharacterAttribute& InCharacterAttribute);
+
+	// 经过DS,向CS发送重生请求
+	void CharacterResurrectionRequests(int32 InUserID, int32 InCharacterID);
+
 protected:
 	//	向CS发送身份覆写请求.
 	void IdentityReplicationRequests();
@@ -45,8 +49,17 @@ private:
 	//
 	UFUNCTION()
 		void LinkServerInfo(ESimpleNetErrorType InType, const FString& InMsg);
+
 	// 链接至指定端口号的服务器并 循环绑定创建客户端接收响应协议的回调RecvProtocol.
 	void LinkServer();
+
+public:
+	// 更新技能装配
+	void UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString,
+		const TArray<FName>& InBitSkill,
+		const TArray<FName>& InBitComboAttack,
+		const TArray<FName>& InBitLimbs
+	);
 
 private:
 	/// 当DS接收到来自中心服务器的回复.

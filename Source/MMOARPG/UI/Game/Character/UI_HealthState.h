@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../../Core/UI_Base.h"
+#include "../Skill/Element/DragDrop/UI_DragDrog.h"
 #include "UI_HealthState.generated.h"
 
 class UTextBlock;
@@ -13,7 +13,7 @@ class UProgressBar;
  * 最简易的血条widget,仅携带等级与血条进度.(如野怪, 老怪)
  */
 UCLASS()
-class MMOARPG_API UUI_HealthState : public UUI_Base
+class MMOARPG_API UUI_HealthState : public UUI_DragDrog
 {
 	GENERATED_BODY()
 private:

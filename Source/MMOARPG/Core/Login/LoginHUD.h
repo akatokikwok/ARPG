@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "../Common/Core/GamePlay/HUDBase.h"
 #include "LoginHUD.generated.h"
 
 class UUI_LoginMain;
@@ -12,7 +13,7 @@ class UUI_LoginMain;
  * 
  */
 UCLASS()
-class MMOARPG_API ALoginHUD : public AHUD
+class MMOARPG_API ALoginHUD : public AHUDBase
 {
 	GENERATED_BODY()
 public:

@@ -4,6 +4,14 @@
 #include "MMOARPGGameType.generated.h"
 
 /**
+ * 弹窗消息类型枚举
+ */
+enum class EPopupMsgType :uint8
+{
+	POPUP_MSG_RESURRECTION,// 重生
+};
+
+/**
  * 游戏各阶段状态枚举.
  */
 enum EMMOARPGGameStatusType
@@ -117,7 +125,7 @@ enum class EClimbingTurnState : uint8
 };
 
 /**
- * 刷新切换BOOL状态的结构, 用于飞行姿态中的疾飞和落地.
+ * 刷新切换BOOL状态的结构, 多用途,可绑定lambda
  */
 struct FResetBool
 {

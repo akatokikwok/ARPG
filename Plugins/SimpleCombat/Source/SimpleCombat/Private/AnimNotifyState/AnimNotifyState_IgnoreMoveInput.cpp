@@ -1,9 +1,9 @@
 ﻿#include "AnimNotifyState/AnimNotifyState_IgnoreMoveInput.h"
 #include "GameFramework/Character.h"
 
-void UAnimNotifyState_IgnoreMoveInput::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
+void UAnimNotifyState_IgnoreMoveInput::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
 	if (ACharacter* InCharacter = Cast<ACharacter>(MeshComp->GetOuter())) {
 		// 仅在客户端mode, 主机玩家下:
@@ -19,14 +19,14 @@ void UAnimNotifyState_IgnoreMoveInput::NotifyBegin(USkeletalMeshComponent* MeshC
 	}
 }
 
-void UAnimNotifyState_IgnoreMoveInput::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
+void UAnimNotifyState_IgnoreMoveInput::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
+	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 }
 
-void UAnimNotifyState_IgnoreMoveInput::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotifyState_IgnoreMoveInput::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyEnd(MeshComp, Animation);
+	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
 	if (ACharacter* InCharacter = Cast<ACharacter>(MeshComp->GetOuter())) {
 

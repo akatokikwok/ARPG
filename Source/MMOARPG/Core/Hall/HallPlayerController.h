@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "../Common/Core/GamePlay/PlayerControllerBase.h"
 #include "Core/SimpleBrowse.h"
 #include "Core/SimpleZoom.h"
 #include "Core/SimplePanelMove.h"
@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class MMOARPG_API AHallPlayerController : public APlayerController
+class MMOARPG_API AHallPlayerController : public APlayerControllerBase
 {
 	GENERATED_BODY()
 public:

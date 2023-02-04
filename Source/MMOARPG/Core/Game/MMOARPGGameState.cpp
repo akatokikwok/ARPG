@@ -1,5 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "MMOARPGGameState.h"
+#include "Abilities/GameplayAbility.h"
 
 AMMOARPGGameState::AMMOARPGGameState()
 {
@@ -43,9 +44,23 @@ TArray<FCharacterStyleTable*>* AMMOARPGGameState::GetCharacterStyleTables()
 	return GetTables_write(CharacterStyleTablePtr, CharacterStyleTables, TEXT("CharacterTable"));
 }
 
-FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(int32 InSkillTableID)
+FCharacterSkillTable* AMMOARPGGameState::GetCharacterSkillTable(const FName& InSkillKey, int32 InCharacterSkillTableID)
 {
-	return GetTable_read(InSkillTableID, CharacterSkillTablePtr, CharacterSkillTables, TEXT("SkillTable"));
+	if (TArray<FCharacterSkillTable*>* AllRows = GetTables_write(CharacterSkillTablePtr, CharacterSkillTables, TEXT("SkillTable"))) {
+		/** FindByPredicate条件匹配 */
+		if (FCharacterSkillTable** InFoundSkillTable = AllRows->FindByPredicate(
+			[&](const FCharacterSkillTable* InSKillData)->bool {
+				if (InSKillData->ID == InCharacterSkillTableID) {
+					return InSKillData->GameplayAbility.GetDefaultObject()->AbilityTags == FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InSkillKey));
+				}
+				return false;
+			})
+			) {
+			return *InFoundSkillTable;
+		}
+	}
+
+	return NULL;
 }
 
 TArray<FCharacterSkillTable*>* AMMOARPGGameState::GetCharacterSkillTables()
@@ -61,4 +76,25 @@ FCharacterAttributeTable* AMMOARPGGameState::GetCharacterAttributeTable(int32 In
 TArray<FCharacterAttributeTable*>* AMMOARPGGameState::GetCharacterAttributeTables()
 {
 	return GetTables_write(CharacterAttributeTablePtr, CharacterAttributeTables, TEXT("CharacterAttribute"));
+}
+
+/** 提取出给定ID号的人物的所有行技能信息(即某个ID的人物拥有多少个技能) */
+bool AMMOARPGGameState::GetCharacterSkillsTables(int32 InCharacterID, TArray<FCharacterSkillTable*>& OutSkillTables)
+{
+	if (TArray<FCharacterSkillTable*>* InCharacterSkillTables = GetCharacterSkillTables()) {// 先拿取所有行技能信息.
+		if (FCharacterSkillTable** FoundedElePtr = InCharacterSkillTables->FindByPredicate(// 若确保能查找到 给定人物ID的那行技能信息
+				[InCharacterID](const FCharacterSkillTable* InSingleRowPtr) ->bool { 
+					return InSingleRowPtr->ID == InCharacterID; 
+				})) {
+				
+			// 再提取到出参
+			for (auto& Row_Skill : *InCharacterSkillTables) {
+				if (Row_Skill->ID == InCharacterID) {
+					OutSkillTables.Add(Row_Skill);
+				}
+			}
+			return OutSkillTables.Num() > 0;
+		}
+	}
+	return false;
 }

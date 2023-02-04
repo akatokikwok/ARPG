@@ -55,11 +55,29 @@ public:
 		float ExperienceReward;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float StaminaValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float MaxStaminaValue;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float HealthRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float ManaRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
+		float StaminaRate;
+
+	// 人物固定天生拥有的Skill形式技能
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> SkillTags;
 
+	// 人物固定天生拥有的Combo连打形式技能
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> ComboAttackTags;
 
+	// 人物固定天生拥有的Limb肢体形式技能
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterAttribute")
 		TArray<FGameplayTag> LimbsTags;
 };

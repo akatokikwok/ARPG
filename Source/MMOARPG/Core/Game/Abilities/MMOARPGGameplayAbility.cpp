@@ -2,6 +2,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask/AbilityTask_PMAWDamageEvent.h"
 #include "AbilitySystemComponent.h"
+#include "../MMOARPGPlayerController.h"
+#include "../Character/Core/MMOARPGCharacterBase.h"
 
 UMMOARPGGameplayAbility::UMMOARPGGameplayAbility()
 {
@@ -35,6 +37,24 @@ int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
 		return MontageToPlay->CompositeSections.Num();
 	}
 	return 0;
+}
+
+// 读取出buff在特定等级和在特定属性下的耗费值
+float UMMOARPGGameplayAbility::CostValue(const FString& InCostName, float InLevel)
+{
+	if (UGameplayEffect* InCostBuff = GetCostGameplayEffect()) {// 找到会执行消耗的buff
+		
+		for (auto& Modifier : InCostBuff->Modifiers) {// 检索一系列modifier,这些modifier可能是血 蓝 耐力之类
+			if (Modifier.Attribute.GetName() == InCostName) {// 找到入参指定的那个modifier名字,比如对耗蓝感兴趣
+				float InValue = 0.f;
+				if (Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(InLevel, InValue)) {// 若成功读取到 这个属性在特定等级造成的值(比如一秒耗费5滴蓝)
+					return FMath::Abs(InValue);
+				}
+			}
+		}
+	}
+
+	return 0.0f;
 }
 
 /** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
@@ -109,6 +129,23 @@ void UMMOARPGGameplayAbility::OnDamageGameplayEvent(FGameplayTag InGameplayTag, 
 		/** III: 做完值的GE包里提取出所有GE (伤害GE)应用给敌人. */
 		for (auto& Tmp : MMOGE_Pak.TargetEffectSpecs) {
 			TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles = K2_ApplyGameplayEffectSpecToTarget(Tmp, MMOGE_Pak.TargetHandleData);
+		}
+	}
+}
+
+// 在客户端更新CD
+void UMMOARPGGameplayAbility::CallUpdateCooldownOnClient()
+{
+	if (UGameplayEffect* InCooldownBuff = GetCooldownGameplayEffect()) {/* 用本GA查询一下是否蓝图有配置CD的buff */
+		float CDValue = 0.f;
+		if (InCooldownBuff->DurationMagnitude.GetStaticMagnitudeIfPossible(this->GetAbilityLevel(), CDValue) && // 通过GA等级拿到冷却buff里的步幅值 (即CD值)
+			CDValue != 0.f) {
+			if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(this->GetActorInfo().OwnerActor)) {// 通过GetActorInfo拿玩家
+				if (AMMOARPGPlayerController* InPlayerController = Cast<AMMOARPGPlayerController>(InCharacterBase->GetController())) {// 再拿到人的控制器
+					// 让controller通知客户端更新CD
+					InPlayerController->CallUpdateCooldownOnClient(*(this->AbilityTags).ToStringSimple(), CDValue);
+				}
+			}
 		}
 	}
 }

@@ -15,7 +15,14 @@
 #include "Core/MethodUnit.h"
 #include "MMOARPGPlayerController.h"
 #include "../../MMOARPGGameType.h"
-#include "MMOARPGTagList.h"
+#include "MMOARPGType.h"
+// #include "MMOARPGTagList.h"
+
+extern void NameToEGamePlayTags0s(const FName& InName, TArray<FName>& OutName);
+extern FName EGamePlayTags0sToName(const TArray<FName>& InName);
+extern void AnalysisArrayNameToGamePlayTags(const TArray<FName>& InNames, TArray<FName>& OutNames);
+//extern void AnalysisGamePlayTagsToArrayName(const TArray<FName>& InNames, TArray<FName>& OutNames);
+
 
 AMMOARPGGameMode::AMMOARPGGameMode()
 {
@@ -106,6 +113,12 @@ void AMMOARPGGameMode::UpdateLevelRequests(int32 InUserID, int32 InCharacterID, 
 	SEND_DATA(SP_CharacterUpgradeLevelRequests, InUserID, InCharacterID, AttributeString);
 }
 
+/** 经过DS,向CS发送重生请求 */
+void AMMOARPGGameMode::CharacterResurrectionRequests(int32 InUserID, int32 InCharacterID)
+{
+	SEND_DATA(SP_CharacterResurrectionRequests, InUserID, InCharacterID);
+}
+
 void AMMOARPGGameMode::IdentityReplicationRequests()
 {
 	FString IP;
@@ -187,6 +200,28 @@ void AMMOARPGGameMode::LinkServer()
 	}
 }
 
+void AMMOARPGGameMode::UpdateSkillAssembly(int32 InUserID, int32 InCharacterID, FString& SkillSlotString,
+	const TArray<FName>& InBitSkill,
+	const TArray<FName>& InBitComboAttack,
+	const TArray<FName>& InBitLimbs)
+{
+	//
+	FString BitSkillJson;
+	FString BitComboAttackJson;
+	FString BitLimbsJson;
+	// 将技能槽数据压缩成JSON 预准备发给CS
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitSkill),/* 使用特殊构造器*/ BitSkillJson);
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitComboAttack),/* 使用特殊构造器*/ BitComboAttackJson);
+	NetDataAnalysis::MMOARPGAttributeSlotToString(FMMOARPGAttributeSlot(InBitLimbs),/* 使用特殊构造器*/ BitLimbsJson);
+
+	// 向服务器发送协议请求: 装配技能
+	SEND_DATA(SP_UpdateSkillAssemblyRequests, InUserID, InCharacterID,
+		SkillSlotString,
+		BitSkillJson,
+		BitComboAttackJson,
+		BitLimbsJson);
+}
+
 /// 当DS接收到来自中心服务器的回复.
 void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Channel)
 {
@@ -214,7 +249,7 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 									NetDataAnalysis::StringToCharacterAppearances(CAJsonString, InPlayerState->GetCA());
 									// DS上刷新外貌 与 RPC客户端刷新容貌.
 									InPlayerCharacter->UpdateKneadingBoby(InPlayerState->GetCA());
-// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
+									// 									InPlayerCharacter->CallUpdateKneadingBobyOnClient(InPlayerState->GetCA());
 								}
 								return MethodUnit::EServerCallType::PROGRESS_COMPLETE;// 所有步骤完成后就断开不再遍历.
 							}
@@ -252,21 +287,33 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 
 							// 技能信息的原位转换(从从_下划线拼接形式转化为一组FName.)
 							/// 各种形式技能组的数据来源都是来自于从服务器JSON里解析出来的.
-							ToGamePlayTags(CharacterAttribute.ComboAttack);
-							ToGamePlayTags(CharacterAttribute.Skill);
-							ToGamePlayTags(CharacterAttribute.Limbs);
+							ToGamePlayTags(CharacterAttribute.ComboAttack.Slots);
+							ToGamePlayTags(CharacterAttribute.Skill.Slots);
+							ToGamePlayTags(CharacterAttribute.Limbs.Slots);
 
 							// 给人更新属性集
 							InPlayerCharacter->UpdateCharacterAttribute(CharacterAttribute);
 
 							// 给人更新技能(按形式来源,一共三种,分别是combo连招, Skill能力, limb肢体行为)
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.ComboAttack, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
-							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.ComboAttack.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Skill.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
+							InPlayerCharacter->RegisterGameplayAbility(CharacterAttribute.Limbs.Slots, EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS);
 
-							// 广播行为.
-							// 还需要注册一下 连招黑盒
-							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack);
+							// 注册一下 Combo黑盒
+							InPlayerCharacter->RegisterComboAttack(CharacterAttribute.ComboAttack.Slots);
+
+							// 技能装配 反序列化
+							InPlayerCharacter->DeserializationSkillAssembly(CharacterAttribute.SkillAssemblyString);
+
+							// 更新技能、更新UI左侧技能表(SkillPage)、下侧技能Slot框
+							InPlayerCharacter->InitSkill();
+
+
+							// 监测到人物处于死亡状态
+							if (InPlayerCharacter->IsDie()) {
+								InPlayerCharacter->CreateResurrectionWindowsClient();// 在客户端创建死亡提示窗口
+								InPlayerCharacter->DeactivationRecoveryEffect();// 解除持续恢复buff
+							}
 
 							// 升级
 							//InPlayerCharacter->UpdateLevel(CharacterAttribute.Level.CurrentValue);
@@ -306,6 +353,46 @@ void AMMOARPGGameMode::RecvProtocol(uint32 ProtocolNumber, FSimpleChannel* Chann
 		case SP_UpdateAttributeaResponses:
 		{
 			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateAttributeaResponses);
+			break;
+		}
+
+		/** 接收到来自CS的 响应人物重生协议 */
+		case SP_CharacterResurrectionResponses:
+		{
+			bool bResurrection = false;// 复活结果
+			int32 UserID = INDEX_NONE;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_CharacterResurrectionResponses, UserID, bResurrection);
+
+			if (UserID != INDEX_NONE) {
+				if (bResurrection) {
+					MethodUnit::ServerCallAllPlayerController<AMMOARPGPlayerController>(
+						GetWorld(),
+						[&](AMMOARPGPlayerController* InController) ->MethodUnit::EServerCallType {
+							if (AMMOARPGPlayerCharacter* InPlayerCharacter = InController->GetPawn<AMMOARPGPlayerCharacter>()) {
+								if (InPlayerCharacter->GetUserID() == UserID) {
+									InPlayerCharacter->Resurrection();
+								}
+							}
+						}
+					);
+				}
+				else {
+					UE_LOG(LogTemp, Log, TEXT("Exclusive server identity registration succeeded."));
+				}
+			}
+
+			break;
+		}
+
+		/** 收到来自CS的 响应更新技能装配 */
+		case SP_UpdateSkillAssemblyResponses:
+		{
+			int32 UserID = INDEX_NONE;
+			bool bUpdateSuccessfully = false;
+			SIMPLE_PROTOCOLS_RECEIVE(SP_UpdateSkillAssemblyResponses, UserID, bUpdateSuccessfully);
+			if (bUpdateSuccessfully) {
+				//UE_LOG(LogTemp, Warning, TEXT("aaa"));
+			}
 			break;
 		}
 	}
