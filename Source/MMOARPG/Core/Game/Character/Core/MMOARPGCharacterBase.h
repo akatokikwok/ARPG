@@ -228,6 +228,10 @@ public:
 	UFUNCTION(Server, Reliable)
 		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
 
+	// 中断蒙太奇
+	UFUNCTION(NetMulticast, Reliable)
+		void StopAnimMontageOnMulticast();
+
 	// 播放蒙太奇动画(被广播客户端)
 	UFUNCTION(NetMulticast, Reliable)
 		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);

@@ -461,6 +461,11 @@ void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InN
 	}
 }
 
+void AMMOARPGCharacterBase::StopAnimMontageOnMulticast_Implementation()
+{
+	ACharacter::StopAnimMontage();
+}
+
 void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
 {
 	float Duration = -1.f;
