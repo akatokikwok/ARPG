@@ -21,7 +21,7 @@ void UExecutionCalculation_StopMontage::Execute_Implementation(
 
 	if (TargetAC) {
 		if (AMMOARPGCharacterBase* InCharacter = Cast<AMMOARPGCharacterBase>(SourceAC->GetOwner())) {
-			if (InCharacter->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+			if (InCharacter->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {// 由于碰撞体检测就执行在服务器上,所以这里蒙太奇冲刺撞击也推荐只承认服务端
 				InCharacter->StopAnimMontageOnMulticast();
 				InCharacter->AnimSignal(2);
 			}
