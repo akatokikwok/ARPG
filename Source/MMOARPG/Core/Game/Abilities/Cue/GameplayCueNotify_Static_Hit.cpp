@@ -5,7 +5,7 @@
 
 void UGameplayCueNotify_Static_Hit::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)
 {
-	if (MyTarget && !MyTarget->IsPendingKill() && GetWorld()) {
+	if (MyTarget && IsValid(MyTarget) && GetWorld()) {
 		switch (EventType) {
 			case EGameplayCueEvent::Executed:// 检查Cue是不是被执行了
 			{
