@@ -22,12 +22,15 @@ float UMMOARPGAbilitySystemComponent::PlayMontage(UGameplayAbility* InAnimatingA
 		if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(AbilityActorInfo->OwnerActor)) {
 			if (IsOwnerActorAuthoritative()) {
 				// 服务器上 广播蒙太奇动画.
-				InCharacterBase->MontagePlayOnMulticast(NewAnimMontage, InPlayRate, StartSectionName);
+				InCharacterBase->MontagePlayOnMulticast(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName);
 			}
 			else {
 				// 客户端上 RPC服务器广播蒙太奇动画.
-				InCharacterBase->MontagePlayOnServer(NewAnimMontage, InPlayRate, StartSectionName);
+				InCharacterBase->MontagePlayOnServer(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName);
 			}
+
+			// 手动注册一个当前的蒙太奇
+			LocalAnimMontageInfo.AnimMontage = NewAnimMontage;
 
 			// 返回蒙太奇长度.
 			return NewAnimMontage->GetPlayLength();

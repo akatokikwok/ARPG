@@ -446,18 +446,10 @@ void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
 	}
 }
 
-// 广播 "用一组GA注册连招黑盒"
-// void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
-// {
-// 	if (FightComponent) {
-// 		FightComponent->RegisterComboAttackMulticast(InGANames);
-// 	}
-// }
-
-void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/)
 {
 	if (InNewAnimMontage) {
-		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InStartSectionName);
+		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InTimeToStartMontageAt, bStopAllMontages, InStartSectionName);
 	}
 }
 
@@ -466,13 +458,13 @@ void AMMOARPGCharacterBase::StopAnimMontageOnMulticast_Implementation()
 	ACharacter::StopAnimMontage();
 }
 
-void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+// 让动画实例播1个蒙太奇的指定section
+void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/)
 {
-	float Duration = -1.f;
 	if (GetMesh() && InNewAnimMontage) {
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance()) {
-			Duration = AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, 0.f);
-			if (Duration > 0.f) {
+			/** 在动画实例内 Play a Montage. Returns Length of Montage in seconds. Returns 0.f if failed to play. */
+			if (AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, InTimeToStartMontageAt, bStopAllMontages) > 0.f) {
 				// Start at a given Section.
 				if (InStartSectionName != NAME_None) {
 					AnimInstance->Montage_JumpToSection(InStartSectionName, InNewAnimMontage);
