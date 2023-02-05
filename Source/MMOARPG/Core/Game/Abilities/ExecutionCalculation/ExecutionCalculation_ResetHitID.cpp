@@ -25,13 +25,13 @@ void UExecutionCalculation_ResetHitID::Execute_Implementation(
 		if (AMMOARPGCharacterBase* InCharacter = Cast<AMMOARPGCharacterBase>(TargetAC->GetOwner())) {
 			if (!InCharacter->IsDie()) {
 				bool bPlay = false;
-				if (InCharacter->GetFightComponent()->IsAir()) {
+				if (InCharacter->GetFightComponent()->IsAir()) {// 空中受击
 					if (HitIDByAir != INDEX_NONE) {
 						InCharacter->SetHitID(HitIDByAir);
 						bPlay = true;
 					}
 				}
-				else {
+				else {// 地上受击
 					if (HitIDByGround != INDEX_NONE) {
 						InCharacter->SetHitID(HitIDByGround);
 						bPlay = true;
@@ -39,6 +39,7 @@ void UExecutionCalculation_ResetHitID::Execute_Implementation(
 				}
 
 				// 放受击技能
+				//  若启用 敌人激活受击技能(bHit)--如果这里启用, 则AttrbuteSet那边处理伤害受击的那处则会停用
 				if (bAuthorityPlayHit && bPlay) {
 					InCharacter->PlayHit();
 				}

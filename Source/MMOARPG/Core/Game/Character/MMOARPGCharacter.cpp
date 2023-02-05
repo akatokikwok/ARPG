@@ -559,9 +559,9 @@ void AMMOARPGCharacter::UpdateLevel(float InLevel)
 }
 
 /** 处理人的血量; 覆写 */
-void AMMOARPGCharacter::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+void AMMOARPGCharacter::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit)
 {
-	Super::HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
+	Super::HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue, bPlayHit);
 
 	if (GetWorld()) {
 		if (AMMOARPGGameMode* MMOARPGGameMode = GetWorld()->GetAuthGameMode<AMMOARPGGameMode>()) {

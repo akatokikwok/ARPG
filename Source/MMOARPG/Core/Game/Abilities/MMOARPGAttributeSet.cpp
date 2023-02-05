@@ -4,6 +4,7 @@
 #include "../Character/Core/MMOARPGCharacterBase.h"
 #include "../../../DataTable/CharacterAttributeTable.h"
 #include "../Damage/MMOARPGNumericalCalculation.h"
+#include "ExecutionCalculation/ExecutionCalculation_ResetHitID.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	: Level(1)
@@ -114,6 +115,23 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		const float OldHealth11 = GetHealth();
 
 		if (Target) {
+			/** 重置受击ID的GEEC和AttributeSet里处理播放受击必须是互斥的, 受击不可以同时在这2者之间都执行 */
+			bool bePlayHitMontage = true;
+			{
+				if (const UGameplayEffect* InGE = Data.EffectSpec.Def) {// 找到专门处理"伤害"属性的蓝图GEBuff
+					for (auto& AnyGEECPack : InGE->Executions) {
+						// 处理GEEC, 如果有重置受击ID的GEEC, 则额外单独拎出来处理受击ID
+						if (AnyGEECPack.CalculationClass) {
+							if (UExecutionCalculation_ResetHitID* InResetHitIDGEEC = Cast<UExecutionCalculation_ResetHitID>(AnyGEECPack.CalculationClass->GetDefaultObject())) {
+								// 重置受击ID的GEEC和AttributeSet里处理播放受击必须是互斥的, 受击不可以同时在这2者之间都执行; 这样就可以防止 同时在GEEC里放受击蒙太奇且也在其他地方受击
+								bePlayHitMontage = !InResetHitIDGEEC->bAuthorityPlayHit;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			// 先用lambda加工源Char和源Actor
 			AMMOARPGCharacterBase* SourceCharacter = nullptr;
 			AActor* SourceActor = nullptr;
@@ -121,7 +139,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 			// 命令目标去操作伤害和血量处理.
 			Target->HandleDamage(TmpDamage, SourceTagContainer, SourceCharacter, SourceActor);
-			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage);
+			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage, bePlayHitMontage);
 		}
 	}
 	/* 若是经验值.*/

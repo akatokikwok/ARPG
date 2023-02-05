@@ -118,7 +118,7 @@ public:
 
 public:
 	// 当血量变化时候处理
-	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit = true);
 
 	// 当蓝量变化时候处理
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);

@@ -188,7 +188,7 @@ public:/// 技能相关
 	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
 
 	// 处理人的血量; 虚方法
-	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit = true);
 	// 处理人的蓝量; 虚方法
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的伤害值; 虚方法

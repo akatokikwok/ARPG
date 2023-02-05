@@ -153,7 +153,7 @@ public:
 
 public:
 	// 处理人的血量; 覆写
-	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue) override;
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit = true) override;
 	
 	// 处理人的蓝量; 覆写
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue) override;

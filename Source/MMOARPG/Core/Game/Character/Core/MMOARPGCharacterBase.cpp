@@ -361,10 +361,10 @@ void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOAR
 }
 
 // 处理人的血量; 虚方法
-void AMMOARPGCharacterBase::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+void AMMOARPGCharacterBase::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit)
 {
 	if (FightComponent != nullptr) {
-		FightComponent->HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
+		FightComponent->HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue, bPlayHit);
 	}
 }
 

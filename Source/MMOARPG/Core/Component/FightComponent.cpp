@@ -330,7 +330,7 @@ void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 // }
 
 // 当血量变化时候处理
-void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit)
 {
 	if (MMOARPGCharacterBase.IsValid()) {
 		// 目标任务是否死亡(死亡后会执行奖励buff结算)
@@ -368,7 +368,9 @@ void UFightComponent::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor
 					}
 
 					// 对目标人物, 再执行让它挨打受击.
-					MMOARPGCharacterBase->PlayHit();
+					if (bPlayHit) {
+						MMOARPGCharacterBase->PlayHit();
+					}
 				}
 			}
 		}

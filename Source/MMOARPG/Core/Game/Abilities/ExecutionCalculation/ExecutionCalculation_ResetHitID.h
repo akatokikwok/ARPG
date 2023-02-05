@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ResetHitID")
 		int32 HitIDByAir;
 
-	// 是否启用 敌人激活受击技能(bHit)
+	// 是否启用 敌人激活受击技能(bHit)--如果这里启用, 则AttrbuteSet那边处理伤害受击的那处则会停用
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ResetHitID")
 		bool bAuthorityPlayHit;
 };
