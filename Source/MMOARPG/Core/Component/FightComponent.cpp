@@ -97,6 +97,11 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 // 从连招池子里提1个GA并激活.
 bool UFightComponent::Attack_TriggerGA(const FName& InGAKey)
 {
+	if (InGAKey == TEXT("Player.Attack.ComboLinkage.Air")) {
+		if (!IsAir()) {
+			return false;
+		}
+	}
 	return TryActivateAbility(InGAKey, ComboAttacks);
 }
 
