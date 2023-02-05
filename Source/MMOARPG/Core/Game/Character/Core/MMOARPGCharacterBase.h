@@ -240,6 +240,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void GetUpOnMulticast();
 
+	// 允许人在滞空停留一会儿
+	UFUNCTION(NetMulticast, Reliable)
+		void EnableGravityMulticast(float bDelayTime);
+
 public:
 	// 授予击杀本人物的奖励Buff
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);

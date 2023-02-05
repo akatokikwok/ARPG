@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
 #include "../../../Common/MMOARPGGameInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -477,6 +478,19 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 void AMMOARPGCharacterBase::GetUpOnMulticast_Implementation()
 {
 	GetUp();
+}
+
+void AMMOARPGCharacterBase::EnableGravityMulticast_Implementation(float bDelayTime)
+{
+	if (UCharacterMovementComponent* InCMC = Cast<UCharacterMovementComponent>(this->GetMovementComponent())) {
+		InCMC->GravityScale = 0.f;
+		InCMC->StopMovementImmediately();
+
+		// 设置为1s后回复原样~
+		GThread::Get()->GetCoroutines().BindLambda(bDelayTime, [InCMC]() {
+			InCMC->GravityScale = 1.f;
+			});
+	}
 }
 
 // 授予击杀本人物的奖励Buff
