@@ -20,8 +20,9 @@ extern bool SingleTagNameToBitAndOrder(const FName& TageName, int32& InEnumIndex
 
 UFightComponent::UFightComponent()
 {
-	// 首先给五个槽位初始化数据
-	for (int32 i = 0; i < 5; i++) {
+	// 由于技能有类型细分,现在累计是10个
+	// 1~5是通用技能
+	for (int32 i = 0; i < 10; i++) {
 		SkillSlotsTMap.Add(i + 1, FMMOARPGSkillSlot());
 	}
 }

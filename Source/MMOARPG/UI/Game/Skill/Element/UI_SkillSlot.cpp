@@ -28,20 +28,65 @@ void UUI_SkillSlot::NativeConstruct()
 		//映射键位
 		KeyNumber = ++PlayerSkillNumber;
 
-		// 屏幕打印按下了哪个键位
-		FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
+		switch (PlayerSkillNumber) {
+			// 键位1~5均执行一段 通用技能逻辑
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			{
+				// 保存键位名字,从整形数字转化为字符
+				KeyString = FString::FromInt(KeyNumber);
+				// 屏幕打印按下了哪个键位
+				FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
+				// 键鼠输入绑定回调
+				GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_Slot::OnClickedWidget);
+				GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
+				break;
+			}
+			// 键位6,从天而降类型技能
+			case 6:
+			{
+				SkillType = EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL;
+				KeyString = TEXT("R");
+				break;
+			}
+			// 键位7,闪避类型技能
+			case 7:
+			{
+				SkillType = EMMOARPGSkillType::DODGE_SKILL;
+				KeyString = TEXT("MR");
+				break;
+			}
+			// 键位8,地面连击类型技能
+			case 8:
+			{
+				SkillType = EMMOARPGSkillType::COMBO_GROUND_SKILL;
+				KeyString = TEXT("ML");
+				break;
+			}
+			// 键位9,滞空连击技能
+			case 9:
+			{
+				SkillType = EMMOARPGSkillType::COMBO_AIR_SKILL;
+				KeyString = TEXT("ML");
+				break;
+			}
+			// 键位10,条件类型技能
+			case 10:
+			{
+				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
+				KeyString = TEXT("F");
 
-		// 键鼠输入绑定回调
-		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_SkillSlot::OnClickedWidget);
-		GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
-
-		//设置Key名称
-		SetKeyName(FString::FromInt(PlayerSkillNumber));
-
-		// 暂定5个键位, 超出了则重置映射键位
-		if (PlayerSkillNumber >= 5) {
-			PlayerSkillNumber = 0;
+				// 重置映射键位
+				PlayerSkillNumber = 0;
+				break;
+			}
 		}
+
+		// 设置Key名称
+		UUI_Slot::SetKeyName(KeyString);
 	}
 }
 

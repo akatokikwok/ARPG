@@ -24,11 +24,11 @@ struct FWidgetSlotInfo
 
 	// 技能名是否有意义
 	bool IsVaild() const { return Tags != NAME_None; };
-	
+
 	// 技能槽内所有属性全部复位
-	void Reset() 
-	{ 
-		Tags = NAME_None; 
+	void Reset()
+	{
+		Tags = NAME_None;
 		Cost = 0.f;
 	}
 };
@@ -49,9 +49,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		bool bMappingKey;
 
+public:
 	// 技能分类类型
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		EMMOARPGSkillType SkillType;
+
+	// 可以被保存的键位技能名字
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		FString KeyString;
 
 public:
 	UUI_SkillSlot(const FObjectInitializer& ObjectInitializer);
@@ -61,7 +66,7 @@ public:
 public:
 	// 敲击后的回调
 	virtual void OnClickedWidget() override;
-	
+
 	//
 	virtual void OnReleasedClickedWidget() override;
 
@@ -99,7 +104,9 @@ public:
 	bool IsCost();
 
 protected:
+	// 映射的键位号码
 	static int32 PlayerSkillNumber;
+
 	int32 KeyNumber;// 技能框内的具体的槽的序号
 	FWidgetSlotInfo SlotInfo;// 技能槽数据
 };
