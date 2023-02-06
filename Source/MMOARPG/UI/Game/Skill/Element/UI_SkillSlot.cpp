@@ -17,7 +17,7 @@ UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	, bMappingKey(false)
 	, KeyNumber(INDEX_NONE)
 {
-
+	SkillType = EMMOARPGSkillType::GENERAL_SKILLS;
 }
 
 void UUI_SkillSlot::NativeConstruct()

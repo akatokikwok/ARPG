@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "../../../Core/UI_Base.h"
 #include "Slot/UI_Slot.h"
+#include "../../../../MMOARPGGameType.h"
 #include "UI_SkillSlot.generated.h"
 
 class UImage;
@@ -48,15 +49,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		bool bMappingKey;
 
-// 	// 技能图标Image
-// 	UPROPERTY(meta = (BindWidget))
-// 		UImage* SlotIcon;
-// 	// 技能图标外侧包裹的button
-// 	UPROPERTY(meta = (BindWidget))
-// 		UButton* SkillButton;
-// 	//
-// 	UPROPERTY(EditDefaultsOnly, Category = UI)
-// 		bool bMappingKey;
+	// 技能分类类型
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		EMMOARPGSkillType SkillType;
 
 public:
 	UUI_SkillSlot(const FObjectInitializer& ObjectInitializer);

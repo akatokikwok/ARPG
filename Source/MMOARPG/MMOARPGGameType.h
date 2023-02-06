@@ -4,6 +4,28 @@
 #include "MMOARPGGameType.generated.h"
 
 /**
+ * 技能分类类型
+ */
+UENUM(BlueprintType)
+enum class EMMOARPGSkillType : uint8
+{
+	// 1 2 3 4 5
+	GENERAL_SKILLS							UMETA(DisplayName = "General Skills"),
+	// 6 从天而降条件技能
+	DROP_FROM_THE_CLOUDS_SKILL				UMETA(DisplayName = "Drop From The Clouds"),
+	// 7 闪避技能 鼠标右键的那个闪避
+	DODGE_SKILL								UMETA(DisplayName = "Dodge Skill"),
+	// 8 地面连击技能
+	COMBO_GROUND_SKILL						UMETA(DisplayName = "Combo Ground Skill"),
+	// 9 空中连击技能
+	COMBO_AIR_SKILL							UMETA(DisplayName = "Combo Air Skill"),
+	// 10条件技能
+	CONDITIONAL_SKILLS						UMETA(DisplayName = "Conditional skills"),
+	// 其他件技能,诸如死亡那种状态技能
+	OTHER_SKILLS							UMETA(DisplayName = "Other skills"),
+};
+
+/**
  * 弹窗消息类型枚举
  */
 enum class EPopupMsgType :uint8
