@@ -9,6 +9,8 @@
 UENUM(BlueprintType)
 enum class EMMOARPGSkillType : uint8
 {
+	// None, 0
+	NONE_SKILLS								UMETA(DisplayName = "None"),
 	// 1 2 3 4 5
 	GENERAL_SKILLS							UMETA(DisplayName = "General Skills"),
 	// 6 从天而降条件技能
@@ -19,9 +21,9 @@ enum class EMMOARPGSkillType : uint8
 	COMBO_GROUND_SKILL						UMETA(DisplayName = "Combo Ground Skill"),
 	// 9 空中连击技能
 	COMBO_AIR_SKILL							UMETA(DisplayName = "Combo Air Skill"),
-	// 10条件技能
+	// 10 条件技能
 	CONDITIONAL_SKILLS						UMETA(DisplayName = "Conditional skills"),
-	// 其他件技能,诸如死亡那种状态技能
+	// 其他件技能,诸如死亡/受击那种状态技能
 	OTHER_SKILLS							UMETA(DisplayName = "Other skills"),
 };
 

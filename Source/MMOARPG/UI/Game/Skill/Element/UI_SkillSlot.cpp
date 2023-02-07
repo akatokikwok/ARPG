@@ -17,7 +17,7 @@ UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	, bMappingKey(false)
 	, KeyNumber(INDEX_NONE)
 {
-	SkillType = EMMOARPGSkillType::GENERAL_SKILLS;
+	SkillType = EMMOARPGSkillType::NONE_SKILLS;
 }
 
 void UUI_SkillSlot::NativeConstruct()
@@ -133,11 +133,12 @@ void UUI_SkillSlot::OnReleasedClickedWidget()
 }
 
 #pragma region 对外接口
-void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture, float InCost)
+void UUI_SkillSlot::Update(const FName& InTagName, UTexture2D* InTexture, float InCost /*= 0.f*/, EMMOARPGSkillType InSkillType /*= EMMOARPGSkillType::GENERAL_SKILLS*/)
 {
 	this->SetIcon(InTexture);
 	this->SlotInfo.Tags = InTagName;// 注册技能名字为入参.
 	this->SlotInfo.Cost = InCost;// 指派为特定的消耗值
+	this->SlotInfo.SkillType = InSkillType;// 注册为指定的技能分类类型
 }
 
 UTexture2D* UUI_SkillSlot::GetIcon()

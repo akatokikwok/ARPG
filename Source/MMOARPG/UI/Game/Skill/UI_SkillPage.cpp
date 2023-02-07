@@ -70,7 +70,7 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 									if (AllowSkillTableRows[Index]->GameplayAbility) {
 										if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
 											FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
-											SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon);
+											SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon, 0.f, AllowSkillTableRows[Index]->SkillType);
 										}
 									}
 								}

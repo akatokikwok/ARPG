@@ -17,10 +17,12 @@ struct FWidgetSlotInfo
 	FWidgetSlotInfo()
 		: Tags(NAME_None)
 		, Cost(0.f)
+		, SkillType(EMMOARPGSkillType::NONE_SKILLS)
 	{}
 
 	FName Tags;// 技能名字
 	float Cost;// 技能消耗量
+	EMMOARPGSkillType SkillType;// 技能分类类型
 
 	// 技能名是否有意义
 	bool IsVaild() const { return Tags != NAME_None; };
@@ -30,6 +32,7 @@ struct FWidgetSlotInfo
 	{
 		Tags = NAME_None;
 		Cost = 0.f;
+		SkillType = EMMOARPGSkillType::NONE_SKILLS;
 	}
 };
 
@@ -71,7 +74,7 @@ public:
 	virtual void OnReleasedClickedWidget() override;
 
 	// 刷新skillslot数据
-	void Update(const FName& InTagName, UTexture2D* InTexture, float InCost = 0.f);
+	void Update(const FName& InTagName, UTexture2D* InTexture, float InCost = 0.f, EMMOARPGSkillType InSkillType = EMMOARPGSkillType::GENERAL_SKILLS);
 
 public:/// 一系列接口
 	// 获取 技能槽信息

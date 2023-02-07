@@ -70,9 +70,7 @@ void UUI_UnderSkillGroup::UpdateSlot(
 				if (UMMOARPGGameplayAbility* InMMOGA = Cast<UMMOARPGGameplayAbility>(SkillTmp->GameplayAbility->GetDefaultObject())) {
 					if (InSkillTags[InMyRow].ToString() == InMMOGA->AbilityTags.ToStringSimple()) {// 找出名字一致的那一行
 						// 刷新这个skillslot
-						InSkillSlotWidget->Update(InSkillTags[InMyRow],
-							SkillTmp->Icon,
-							InMMOGA->CostValue("Mana", InCharacterLevel));
+						InSkillSlotWidget->Update(InSkillTags[InMyRow], SkillTmp->Icon, InMMOGA->CostValue("Mana", InCharacterLevel), SkillTmp->SkillType);
 						break;
 					}
 				}
