@@ -90,7 +90,7 @@ public:/// 一系列接口
 	//
 	void VisibleIcon();
 
-	// KeyNumber为-1的情况被视作 横向框是1个技能表.
+	// 1个SkillSlot是否来自技能页; 即这种KeyNumber为-1的情况
 	bool IsSkillTableSlot()const { return KeyNumber == INDEX_NONE; }
 
 protected:
