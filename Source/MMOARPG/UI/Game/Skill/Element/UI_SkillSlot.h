@@ -8,6 +8,7 @@
 
 class UImage;
 class UButton;
+class AMMOARPGCharacter;
 
 /**
  * 技能槽数据
@@ -98,6 +99,13 @@ protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+protected:
+	// 在服务端方面的"移动行为"-拖拽操作实质逻辑
+	void UpdateMoveToByServer(UUI_SkillSlot* MyInventorySlot, AMMOARPGCharacter* InCharacter);
+
+	// 在客户端方面的"移动行为"-拖拽操作实质逻辑
+	void UpdateMoveTo(UUI_SkillSlot* MyInventorySlot);
 
 public:
 	// 是否屏蔽了技能输入

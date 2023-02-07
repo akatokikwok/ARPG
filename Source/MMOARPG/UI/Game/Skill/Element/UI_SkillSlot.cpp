@@ -280,39 +280,10 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					}
 					/** 对方是通用类型技能, 而自己必须是无类型技能的键位 */
 					else if (MyInventorySlot->GetSlotInfo().SkillType == EMMOARPGSkillType::GENERAL_SKILLS && SkillType == EMMOARPGSkillType::NONE_SKILLS) {
-						/* 2.1 服务器表现 */
-						{
-							if (!MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 双方都在技能框内
-								// 通知服务端 这2个槽号的槽移动
-								InCharacter->SKillSlotMoveToNewSlot(MyInventorySlot->KeyNumber, KeyNumber);
-							}
-							else if (MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 对方是从技能页拖出来的,而自己是在技能框里的
-								// 从技能页里面移动过来一个技能到空的技能表里面
-								InCharacter->SKillTableSlotMoveToSkillSlot(MyInventorySlot->GetSlotInfo().Tags, KeyNumber);
-							}
-							else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方是技能框,自己是技能页
-								InCharacter->SKillSlotMoveToSkillTable(MyInventorySlot->KeyNumber);/** 从横框到技能页: 移动 */
-							}
-						}
-						/* 2.2 客户端表现 */
-						{
-							// 技能效果
-							{
-								// 设置一下自身
-								this->GetSlotInfo() = MyInventorySlot->GetSlotInfo();
-								this->SetIcon(MyInventorySlot->GetIcon());
-								// 把拖拽的实例复位掉
-								MyInventorySlot->ResetIcon();
-								MyInventorySlot->GetSlotInfo().Reset();
-							}
-
-							// CD效果
-							{
-								StartUpdateCD(MyInventorySlot->SlotBuild.Cooldown);// 标记CD UI开始
-								SetMaxCD(MyInventorySlot->SlotBuild.MaxCooldown);// 设置最大CD
-								MyInventorySlot->FoceClearCD();
-							}
-						}
+						// 在服务端方面的"移动行为"-拖拽操作实质逻辑
+						UpdateMoveToByServer(MyInventorySlot, InCharacter);
+						// 在客户端方面的"移动行为"-拖拽操作实质逻辑
+						UpdateMoveTo(MyInventorySlot);
 					}
 					/** 对方的类型不可以为无类型 */
 					else if (MyInventorySlot->GetSlotInfo().SkillType != EMMOARPGSkillType::NONE_SKILLS) {
@@ -335,6 +306,51 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 	return bDrop;
 }
+
+/// 在服务端方面的"移动行为"-拖拽操作实质逻辑
+void UUI_SkillSlot::UpdateMoveToByServer(UUI_SkillSlot* MyInventorySlot, AMMOARPGCharacter* InCharacter)
+{
+	/* 2.1 服务器表现 */
+	if (InCharacter && MyInventorySlot) {
+		if (!MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 双方都在技能框内
+			// 通知服务端 这2个槽号的槽移动
+			InCharacter->SKillSlotMoveToNewSlot(MyInventorySlot->KeyNumber, KeyNumber);
+		}
+		else if (MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 对方是从技能页拖出来的,而自己是在技能框里的
+			// 从技能页里面移动过来一个技能到空的技能表里面
+			InCharacter->SKillTableSlotMoveToSkillSlot(MyInventorySlot->GetSlotInfo().Tags, KeyNumber);
+		}
+		else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方是技能框,自己是技能页
+			InCharacter->SKillSlotMoveToSkillTable(MyInventorySlot->KeyNumber);/** 从横框到技能页: 移动 */
+		}
+	}
+}
+
+/// 在客户端方面的"移动行为"-拖拽操作实质逻辑
+void UUI_SkillSlot::UpdateMoveTo(UUI_SkillSlot* MyInventorySlot)
+{
+	/* 2.2 客户端表现 */
+	if (MyInventorySlot)
+	{
+		// 技能效果
+		{
+			// 设置一下自身
+			this->GetSlotInfo() = MyInventorySlot->GetSlotInfo();
+			this->SetIcon(MyInventorySlot->GetIcon());
+			// 把拖拽的实例复位掉
+			MyInventorySlot->ResetIcon();
+			MyInventorySlot->GetSlotInfo().Reset();
+		}
+
+		// CD效果
+		{
+			StartUpdateCD(MyInventorySlot->SlotBuild.Cooldown);// 标记CD UI开始
+			SetMaxCD(MyInventorySlot->SlotBuild.MaxCooldown);// 设置最大CD
+			MyInventorySlot->FoceClearCD();
+		}
+	}
+}
+
 #pragma endregion 覆写侦测拖拽手势系统函数
 
 // 是否屏蔽了技能输入
