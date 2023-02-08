@@ -59,7 +59,7 @@ protected:
 
 protected:
 	// 更新横框内槽位数据和外观的入口
-	void UpdateSlot(const TArray<FName>& InSkillTags, TArray<FCharacterSkillTable*> InSkillTables, UHorizontalBox* InSlotArray, int32 InStart, int32 InCharacterLevel);
+	void UpdateSlot(const TArray<FName>& InSkillTags, TArray<FCharacterSkillTable*> InSkillTables, UHorizontalBox* InSlotArray, int32 InStart, int32 AppendSize, int32 InCharacterLevel);
 
 private:
 	// 刷新切换BOOL状态的结构

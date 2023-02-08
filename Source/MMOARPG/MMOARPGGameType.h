@@ -23,6 +23,8 @@ enum class EMMOARPGSkillType : uint8
 	COMBO_AIR_SKILL							UMETA(DisplayName = "Combo Air Skill"),
 	// 10 条件技能
 	CONDITIONAL_SKILLS						UMETA(DisplayName = "Conditional skills"),
+	// 11 冲刺技能
+	SPRINT_SKILLS							UMETA(DisplayName = "Sprint Skill"),
 	// 其他件技能,诸如死亡/受击那种状态技能
 	OTHER_SKILLS							UMETA(DisplayName = "Other skills"),
 };

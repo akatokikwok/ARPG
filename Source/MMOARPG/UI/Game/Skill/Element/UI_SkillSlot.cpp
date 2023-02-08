@@ -79,6 +79,13 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
 				KeyString = TEXT("F");
 
+				break;
+			}
+			// 键位11,此键位只能存储 冲刺型技能
+			case 11:
+			{
+				SkillType = EMMOARPGSkillType::SPRINT_SKILLS;
+				KeyString = TEXT("E");
 				// 重置映射键位
 				PlayerSkillNumber = 0;
 				break;

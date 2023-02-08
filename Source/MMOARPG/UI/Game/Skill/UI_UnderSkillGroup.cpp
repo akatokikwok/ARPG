@@ -44,8 +44,8 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 				int32 CharacterID = InCharacterBase->GetID();
 				if (InGameState->GetCharacterSkillsTables(CharacterID, SkillTables)) {// 能提取出主角身上的所有技能
 
-					UpdateSlot(InSkillTags, SkillTables, SlotArrayA, 0, InCharacterBase->GetCharacterLevel());
-					UpdateSlot(InSkillTags, SkillTables, SlotArrayB, 5, InCharacterBase->GetCharacterLevel());
+					UpdateSlot(InSkillTags, SkillTables, SlotArrayA, 0, 5, InCharacterBase->GetCharacterLevel());
+					UpdateSlot(InSkillTags, SkillTables, SlotArrayB, 5, 6, InCharacterBase->GetCharacterLevel());
 				}
 			}
 		}
@@ -60,6 +60,7 @@ void UUI_UnderSkillGroup::UpdateSlot(
 	TArray<FCharacterSkillTable*> InSkillTables,// 挑选出来的合适技能行
 	UHorizontalBox* InSlotArray,// 哪组横框
 	int32 InStart,// 一组技能中开始解算的起始序号
+	int32 AppendSize,// 长度
 	int32 InCharacterLevel)// 玩家GAS等级
 {
 	// Lambda-刷新某个skillslot所有数据和外观
@@ -79,7 +80,7 @@ void UUI_UnderSkillGroup::UpdateSlot(
 	};
 
 	if (InSlotArray->GetChildrenCount() == 0) {/// 表明是重新创建技能组
-		int32 RowNumber = InStart + 5;
+		int32 RowNumber = InStart + AppendSize;
 		for (int32 MyRow = InStart; MyRow < RowNumber; MyRow++) {
 			if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {
 				// 横框设定为skillslot的父级面板
