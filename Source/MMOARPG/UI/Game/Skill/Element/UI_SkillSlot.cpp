@@ -235,8 +235,9 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				/// /** I. 技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
 					
-					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// Page->Page
-					
+					if (MyInventorySlot->IsSkillTableSlot() && this->IsSkillTableSlot()) {// Page->Page
+						// 在客户端方面的"交换行为"-拖拽操作实质逻辑
+						UpdateSwap(MyInventorySlot);
 					}
 					/* 仅允许同类型的通用技能互换*/
 					else if ((MyInventorySlot->GetSlotInfo().SkillType == EMMOARPGSkillType::GENERAL_SKILLS) && (MyInventorySlot->GetSlotInfo().SkillType == GetSlotInfo().SkillType)) {
@@ -268,8 +269,9 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
 					
 					/** Page->Page */
-					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {
-
+					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// Page->Page
+						// 在客户端方面的"移动行为"-拖拽操作实质逻辑
+						UpdateMoveTo(MyInventorySlot);
 					}
 					/** 对方是通用类型技能, 而自己必须是无类型技能的键位 */
 					else if (MyInventorySlot->GetSlotInfo().SkillType == EMMOARPGSkillType::GENERAL_SKILLS && SkillType == EMMOARPGSkillType::NONE_SKILLS) {
