@@ -45,35 +45,35 @@ void UUI_SkillSlot::NativeConstruct()
 				GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
 				break;
 			}
-			// 键位6,从天而降类型技能
+			// 键位6,此键位只能存储 从天而降类型技能
 			case 6:
 			{
 				SkillType = EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL;
 				KeyString = TEXT("R");
 				break;
 			}
-			// 键位7,闪避类型技能
+			// 键位7,此键位只能存储 闪避类型技能
 			case 7:
 			{
 				SkillType = EMMOARPGSkillType::DODGE_SKILL;
 				KeyString = TEXT("MR");
 				break;
 			}
-			// 键位8,地面连击类型技能
+			// 键位8,此键位只能存储 地面连击类型技能
 			case 8:
 			{
 				SkillType = EMMOARPGSkillType::COMBO_GROUND_SKILL;
 				KeyString = TEXT("ML");
 				break;
 			}
-			// 键位9,滞空连击技能
+			// 键位9,此键位只能存储 滞空连击技能
 			case 9:
 			{
 				SkillType = EMMOARPGSkillType::COMBO_AIR_SKILL;
 				KeyString = TEXT("ML");
 				break;
 			}
-			// 键位10,条件类型技能
+			// 键位10,此键位只能存储 条件类型技能
 			case 10:
 			{
 				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
@@ -227,59 +227,46 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 				/// /** I. 技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
-					/* 1.1 服务器表现 */
-					{
-						if (!MyInventorySlot->IsSkillTableSlot() && !this->IsSkillTableSlot()) {// 在横框里, 2个互换
-							// 通知服务端 这2个槽号的槽Swap
-							InCharacter->SillSlotSwap(this->KeyNumber, MyInventorySlot->KeyNumber);
+					
+					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// Page->Page
+					
+					}
+					/* 仅允许同类型的通用技能互换*/
+					else if ((MyInventorySlot->GetSlotInfo().SkillType == EMMOARPGSkillType::GENERAL_SKILLS) && (MyInventorySlot->GetSlotInfo().SkillType == GetSlotInfo().SkillType)) {
+
+						// 在服务端方面的"交换行为"-拖拽操作实质逻辑
+						UpdateSwapByServer(MyInventorySlot, InCharacter);
+						// 在客户端方面的"交换行为"-拖拽操作实质逻辑
+						UpdateSwap(MyInventorySlot);
+					}
+					else if (MyInventorySlot->GetSlotInfo().SkillType != EMMOARPGSkillType::NONE_SKILLS) {
+						if ((MyInventorySlot->GetSlotInfo().SkillType == this->SkillType && MyInventorySlot->IsSkillTableSlot()) || // Page->Slot
+							(!MyInventorySlot->IsSkillTableSlot() && MyInventorySlot->GetSlotInfo().SkillType == this->GetSlotInfo().SkillType)) {//Slot->Page 
+							// 在服务端方面的"交换行为"-拖拽操作实质逻辑
+							UpdateSwapByServer(MyInventorySlot, InCharacter);
+							// 在客户端方面的"交换行为"-拖拽操作实质逻辑
+							UpdateSwap(MyInventorySlot);
 						}
-						else if (MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 对方是从技能页拖出来的,而自己是在技能框里的
-							// 从技能页拖拽一个移动到技能框里
-							InCharacter->SKillTableSlotSwapSkillSlot(KeyNumber, MyInventorySlot->GetSlotInfo().Tags);
-						}
-						else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方拖过来的来自技能框, 自己作为接收方是技能页
-							// 从技能框交换到技能页里
-							InCharacter->SKillSlotSwapSkillTable(MyInventorySlot->KeyNumber, GetSlotInfo().Tags);
+						else {
+							WarningPrint(LOCTEXT("Icon_Drag", "Skills and slot types are different."));
+							MyInventorySlot->VisibleIcon();
 						}
 					}
-					/* 1.2 客户端表现的效果.*/
-					{
-						// 技能效果
-						{
-							// 先缓存 "右键拖拽Logo"的纹理和名字
-							UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
-							//FName TmpTags = MyInventorySlot->GetSlotInfo().Tags;
-							FWidgetSlotInfo DraggedWidgetInfo = MyInventorySlot->GetSlotInfo();
-
-							// 给 "右键拖拽Logo" 重新写入
-							MyInventorySlot->SetIcon(GetIcon());
-							MyInventorySlot->GetSlotInfo() = DraggedWidgetInfo;
-
-							// 将自己的技能插槽信息更换为之前缓存的那一份
-							GetSlotInfo() = DraggedWidgetInfo;
-							SetIcon(TmpTexture);
-						}
-
-						// CD效果
-						{
-							FSlotBuild SlotBuildTmp = MyInventorySlot->SlotBuild;
-							MyInventorySlot->SlotBuild = this->SlotBuild;
-							this->SlotBuild = SlotBuildTmp;
-							this->StartUpdateCD();
-							MyInventorySlot->StartUpdateCD();
-							MyInventorySlot->ClearCD();
-							this->ClearCD();
-						}
+					else {
+						WarningPrint(LOCTEXT("Icon_Drag", "Skills and slot types are different."));
+						MyInventorySlot->VisibleIcon();
 					}
 				}
 				/// /** II. 技能插槽移动; // 拖拽出来的有技能, 自己作为接收方没有技能,这种行为称之为技能移动 */
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
-					/** Table->Table */
+					
+					/** Page->Page */
 					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {
 
 					}
 					/** 对方是通用类型技能, 而自己必须是无类型技能的键位 */
 					else if (MyInventorySlot->GetSlotInfo().SkillType == EMMOARPGSkillType::GENERAL_SKILLS && SkillType == EMMOARPGSkillType::NONE_SKILLS) {
+
 						// 在服务端方面的"移动行为"-拖拽操作实质逻辑
 						UpdateMoveToByServer(MyInventorySlot, InCharacter);
 						// 在客户端方面的"移动行为"-拖拽操作实质逻辑
@@ -288,10 +275,22 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					/** 对方的类型不可以为无类型 */
 					else if (MyInventorySlot->GetSlotInfo().SkillType != EMMOARPGSkillType::NONE_SKILLS) {
 
+						if ((MyInventorySlot->GetSlotInfo().SkillType == this->SkillType && MyInventorySlot->IsSkillTableSlot()) ||// 从Page->Slot;
+							(this->IsSkillTableSlot() && this->SkillType == EMMOARPGSkillType::NONE_SKILLS)) {// 从Slot->Page
+							// 在服务端方面的"移动行为"-拖拽操作实质逻辑
+							UpdateMoveToByServer(MyInventorySlot, InCharacter);
+							// 在客户端方面的"移动行为"-拖拽操作实质逻辑
+							UpdateMoveTo(MyInventorySlot);
+						}
+						else {// 操作失败警告打印
+							WarningPrint(LOCTEXT("Icon_Drag", "Skills and slot types are different."));
+							MyInventorySlot->VisibleIcon();
+						}
 					}
 					/**  */
 					else {
-
+						WarningPrint(LOCTEXT("Icon_Drag", "Skills and slot types are different."));
+						MyInventorySlot->VisibleIcon();
 					}
 				}
 				/// /** III. 其他行为(比如拖拽失败了) */
@@ -305,6 +304,60 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 	}
 
 	return bDrop;
+}
+
+/// 在服务端方面的"交换行为"-拖拽操作实质逻辑
+void UUI_SkillSlot::UpdateSwapByServer(UUI_SkillSlot* MyInventorySlot, AMMOARPGCharacter* InCharacter)
+{
+	/* 1.1 服务器表现 */
+	if (InCharacter && MyInventorySlot) {
+		if (!MyInventorySlot->IsSkillTableSlot() && !this->IsSkillTableSlot()) {// 在横框里, 2个互换
+			// 通知服务端 这2个槽号的槽Swap
+			InCharacter->SillSlotSwap(this->KeyNumber, MyInventorySlot->KeyNumber);
+		}
+		else if (MyInventorySlot->IsSkillTableSlot() && !IsSkillTableSlot()) {// 对方是从技能页拖出来的,而自己是在技能框里的
+			// 从技能页拖拽一个移动到技能框里
+			InCharacter->SKillTableSlotSwapSkillSlot(KeyNumber, MyInventorySlot->GetSlotInfo().Tags);
+		}
+		else if (!MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// 对方拖过来的来自技能框, 自己作为接收方是技能页
+			// 从技能框交换到技能页里
+			InCharacter->SKillSlotSwapSkillTable(MyInventorySlot->KeyNumber, GetSlotInfo().Tags);
+		}
+	}
+}
+
+///  在客户端方面的"交换行为"-拖拽操作实质逻辑
+void UUI_SkillSlot::UpdateSwap(UUI_SkillSlot* MyInventorySlot)
+{
+	/* 1.2 客户端表现的效果.*/
+	if (MyInventorySlot) {
+		// 技能效果
+		{
+			// 先缓存 "右键拖拽Logo"的纹理和名字
+			UTexture2D* TmpTexture = MyInventorySlot->GetIcon();
+			//FName TmpTags = MyInventorySlot->GetSlotInfo().Tags;
+			FWidgetSlotInfo DraggedWidgetInfo = MyInventorySlot->GetSlotInfo();
+
+			// 给 "右键拖拽Logo" 重新写入
+			MyInventorySlot->SetIcon(GetIcon());
+			MyInventorySlot->GetSlotInfo() = DraggedWidgetInfo;
+
+			// 将自己的技能插槽信息更换为之前缓存的那一份
+			GetSlotInfo() = DraggedWidgetInfo;
+			SetIcon(TmpTexture);
+		}
+
+		// CD效果
+		{
+			FSlotBuild SlotBuildTmp = MyInventorySlot->SlotBuild;
+			MyInventorySlot->SlotBuild = this->SlotBuild;
+			this->SlotBuild = SlotBuildTmp;
+			this->StartUpdateCD();
+			MyInventorySlot->StartUpdateCD();
+			MyInventorySlot->ClearCD();
+			this->ClearCD();
+		}
+	}
 }
 
 /// 在服务端方面的"移动行为"-拖拽操作实质逻辑
@@ -330,8 +383,7 @@ void UUI_SkillSlot::UpdateMoveToByServer(UUI_SkillSlot* MyInventorySlot, AMMOARP
 void UUI_SkillSlot::UpdateMoveTo(UUI_SkillSlot* MyInventorySlot)
 {
 	/* 2.2 客户端表现 */
-	if (MyInventorySlot)
-	{
+	if (MyInventorySlot) {
 		// 技能效果
 		{
 			// 设置一下自身
