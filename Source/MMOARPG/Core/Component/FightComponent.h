@@ -48,7 +48,7 @@ public:
 	// 从技能池里找指定名字的GA.
 	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
 
-	// 从连招池子里提1个GA并激活.
+	// 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
 	UFUNCTION(BlueprintCallable)
 		bool Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
 
@@ -84,16 +84,13 @@ public:
 	void Reset();
 
 public:
-	// 放闪避技能. 广播至其他客户端
-	//UFUNCTION(NetMulticast, Reliable)
+	// 放闪避技能./* 以技能页或背包里配置的技能槽内的技能为准.*/
 	void DodgeSkill();// 放闪避技能; 广播至其他客户端
 
-// 放冲刺技能. 广播至其他客户端
-//UFUNCTION(NetMulticast, Reliable)
+	// 放冲刺技能/* 以技能页或背包里配置的技能槽内的技能为准.*/
 	void SprintSkill();// 放冲刺技能; 广播至其他客户端
 
-// 放冲刺2技能. 广播至其他客户端
-//UFUNCTION(NetMulticast, Reliable)
+	// 放冲刺2技能
 	//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
 
 	// 激活 受击技能

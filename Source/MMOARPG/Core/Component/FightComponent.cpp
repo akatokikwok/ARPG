@@ -95,15 +95,25 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
 	return nullptr;
 }
 
-// 从连招池子里提1个GA并激活.
+// 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
 bool UFightComponent::Attack_TriggerGA(const FName& InGAKey)
 {
-	if (InGAKey == TEXT("Player.Attack.ComboLinkage.Air")) {
-		if (!IsAir()) {
-			return false;
+	// 先确定是不是玩家执行的攻击
+	if (MMOARPGCharacterBase->IsA(AMMOARPGCharacter::StaticClass())) {
+		FName CurrentComboSkill = SkillSlotsTMap[(int32)EMMOARPGSkillType::COMBO_AIR_SKILL].SkillName;
+		if (InGAKey == CurrentComboSkill) {
+			if (!IsAir()) {
+				return false;
+			}
 		}
 	}
 	return TryActivateAbility(InGAKey, ComboAttacks);
+
+	//if (InGAKey == TEXT("Player.Attack.ComboLinkage.Air")) {
+	//	if (!IsAir()) {
+	//		return false;
+	//	}
+	//}
 }
 
 // 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
@@ -119,24 +129,26 @@ bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FNam
 	return false;
 }
 
-// 放闪避技能.
+// 放闪避技能./* 以技能页或背包里配置的技能槽内的技能为准.*/
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
-	Skill(TEXT("Player.Skill.Dodge"));
+	FName CurrentSkillName = SkillSlotsTMap[(int32)EMMOARPGSkillType::DODGE_SKILL].SkillName;// 从技能槽池子取出匹配的技能
+	if (!CurrentSkillName.IsNone()) {
+		Skill(CurrentSkillName);
+	}
 
-	// 	if (AbilitySystemComponent.IsValid()) {
-	// 		TryActivateAbility(TEXT("Player.Skill.Dodge"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Dodge" 的闪避GA
-	// 	}
+	//Skill(TEXT("Player.Skill.Dodge"));
 }
 
-// 放冲刺技能. 广播至其他客户端
+// 放冲刺技能/* 以技能页或背包里配置的技能槽内的技能为准.*/
 void UFightComponent::SprintSkill/*_Implementation*/()
 {
-	Skill(TEXT("Player.Skill.Sprint"));
+	FName CurrentSkillName = SkillSlotsTMap[(int32)EMMOARPGSkillType::SPRINT_SKILLS].SkillName;// 从技能槽池子取出匹配的技能
+	if (!CurrentSkillName.IsNone()) {
+		Skill(CurrentSkillName);
+	}
 
-	// 	if (AbilitySystemComponent.IsValid()) {
-	// 		TryActivateAbility(TEXT("Player.Skill.Sprint"), Skills);// 从Skills缓存池里激活名为"Player.Skill.Sprint" 的冲刺GA
-	// 	}
+	//Skill(TEXT("Player.Skill.Sprint"));
 }
 
 // 激活 受击技能
@@ -271,9 +283,9 @@ void UFightComponent::Released(int32 InSlotKeyNumber)
 	FName CurrentSKillComboName = SkillSlotsTMap[InSlotKeyNumber].SkillName;// 先取出匹配的技能槽里的技能
 
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
-// 		if (GEngine) {
-// 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("第%i个黑盒检测器释放"), AnyComboCheck.ComboIndex));
-// 		}
+ 		//if (GEngine) {
+ 		//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("第%i个黑盒检测器释放"), AnyComboCheck.ComboIndex));
+ 		//}
 		if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName) {// 必须匹配对应的COMBO,分空中和地面型
 			AnyComboCheck.Released();
 			break;

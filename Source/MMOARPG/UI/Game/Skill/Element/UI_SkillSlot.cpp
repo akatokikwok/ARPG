@@ -163,7 +163,18 @@ void UUI_SkillSlot::OnClickedWidget()
 
 void UUI_SkillSlot::OnReleasedClickedWidget()
 {
-
+	if (KeyNumber > 0) {
+		if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+			// 是否处于战斗状态下
+			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {
+				// 在服务端中止已激发的技能
+				InCharacter->ReleaseSKillAttackOnServer(KeyNumber);
+			}
+			else {
+				WarningPrint(LOCTEXT("ActionState_Key", "Must be in fight state."));
+			}
+		}
+	}
 }
 
 #pragma region 对外接口
