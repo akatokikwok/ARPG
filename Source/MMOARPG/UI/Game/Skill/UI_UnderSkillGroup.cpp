@@ -200,7 +200,7 @@ void UUI_UnderSkillGroup::SetBorderHeight(EMMOARPGSkillType InSkillType)
 			}
 			else {
 				InSkillSlot->SetVisibilityBorderHeight(false);
-				InSkillSlot->SetIsEnabled(false);
+				//InSkillSlot->SetIsEnabled(false);
 			}
 		}
 

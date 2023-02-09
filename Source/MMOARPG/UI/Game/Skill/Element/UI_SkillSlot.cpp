@@ -60,7 +60,7 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL;
 				KeyString = TEXT("R");
 				BindInput(TEXT("DropFromTheClouds"));
-				SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
+				//SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
 				break;
 			}
 			// 键位7,此键位只能存储 闪避类型技能
@@ -93,7 +93,7 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
 				KeyString = TEXT("F");
 				BindInput(TEXT("ConditionalSkill"));
-				SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
+				//SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
 				break;
 			}
 			// 键位11,此键位只能存储 冲刺型技能
@@ -357,9 +357,15 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					// 让拖拽Logo在过程中显示出来
 					MyInventorySlot->VisibleIcon();
 				}
-				return true;
+
+				bDrop = true;
 			}
 		}
+	}
+
+	// 松开的时候会 取消技能槽的高亮
+	if (AMMOARPGHUD* InMMOARPGHUD = GetHUD<AMMOARPGHUD>()) {
+		InMMOARPGHUD->ResetHeightDisplayDelegate.Broadcast();
 	}
 
 	return bDrop;
