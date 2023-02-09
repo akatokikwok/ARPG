@@ -2,6 +2,8 @@
 #include "../../UI/Game/UI_GameMain.h"
 #include "UMG/UI_ComboCount.h"
 #include "Manage/ComboCountManage.h"
+#include "SimpleDrawTextFunctionLibrary.h"
+#include "Actor/DrawText.h"
 
 AMMOARPGHUD::AMMOARPGHUD()
 {
@@ -34,4 +36,19 @@ void AMMOARPGHUD::PlayComboCount()
 {
 	// 构建出连打计数UI并同步执行UI表现
 	FComboCountManage::Get()->Play(GetWorld(), ComboCountClass);
+}
+
+// 该函数是为了解决打包好的项目在攻击角色的时候无法生成字体bug
+ADrawText* AMMOARPGHUD::SpawnDrawText(const FVector InLocation, const FString& InText, const FLinearColor& Color, float Percentage, EInfoAnimType Type /*= EInfoAnimType::TYPE_DEFAULT*/, int32 PrefixStyleID /*= -1*/, bool bBackground /*= false*/)
+{
+	if (DrawTextClass) {
+		// 该函数是为了解决打包好的项目在攻击角色的时候无法生成字体bug
+		return USimpleDrawTextFunctionLibrary::SpawnDrawTextByClass(
+			GetWorld(),
+			DrawTextClass,
+			InLocation,
+			InText, Color, Percentage, Type, PrefixStyleID, bBackground);
+	}
+
+	return nullptr;
 }

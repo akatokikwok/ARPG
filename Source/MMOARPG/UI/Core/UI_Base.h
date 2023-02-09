@@ -21,6 +21,15 @@ class MMOARPG_API UUI_Base : public UUserWidget
 public:
 
 protected:
+	template<class T>
+	T* GetHUD()
+	{
+		return GetWorld() != nullptr ?
+			(GetWorld()->GetFirstPlayerController() != nullptr ?
+			GetWorld()->GetFirstPlayerController()->GetHUD<T>() : nullptr)
+			: nullptr;
+	}
+
 	// API, 拿取Controller.
 	template<typename T>
 	T* GetPlayerController()

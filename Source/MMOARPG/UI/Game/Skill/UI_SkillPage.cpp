@@ -8,6 +8,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "Element/UI_SkillSlot.h"
 #include "../../../Core/Game/MMOARPGPlayerController.h"
+#include "../../../Core/Game/MMOARPGHUD.h"
 
 void UUI_SkillPage::NativeConstruct()
 {
@@ -25,6 +26,12 @@ void UUI_SkillPage::NativeConstruct()
 	
 	//
 	CloseButton->OnPressed.AddDynamic(this, &UUI_SkillPage::OnClose);
+
+	/** 在技能页里有2个HUD的公共事件(用来联系技能页与技能横框), 绑定回调 */
+	if (AMMOARPGHUD* InMMOARPGHUD = UUI_Base::GetHUD<AMMOARPGHUD>()) {
+		InMMOARPGHUD->BorderHeightDisplayDelegate.AddUObject(this, &UUI_SkillPage::SetBorderHeight);
+		InMMOARPGHUD->ResetHeightDisplayDelegate.AddUObject(this, &UUI_SkillPage::ResetBorderHeight);
+	}
 }
 
 void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
@@ -90,6 +97,17 @@ void UUI_SkillPage::UpdateSkillTable(const TArray<FName>& InSkillTags)
 	LayoutSlot(InSkillTags);
 }
 
+void UUI_SkillPage::CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InFunction)
+{
+	if (SlotArrayInventory) {
+		for (int32 i = 0; i < SlotArrayInventory->GetChildrenCount(); i++) {
+			if (InFunction(Cast<UUI_SkillSlot>(SlotArrayInventory->GetChildAt(i)))) {
+				break;
+			}
+		}
+	}
+}
+
 void UUI_SkillPage::OnClickedWidget()
 {
 	if (GetVisibility() == ESlateVisibility::Visible) {
@@ -103,4 +121,36 @@ void UUI_SkillPage::OnClickedWidget()
 void UUI_SkillPage::OnClose()
 {
 	SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UUI_SkillPage::SetBorderHeight(EMMOARPGSkillType InSkillType)
+{
+	CallSKillSlot([&](UUI_SkillSlot* InSkillSlot)->bool {
+		if (InSkillSlot) {
+			if (InSkillSlot->GetSlotInfo().SkillType == InSkillType ||
+				!InSkillSlot->GetSlotInfo().IsVaild()) {
+				InSkillSlot->SetVisibilityBorderHeight(true);
+				InSkillSlot->SetIsEnabled(true);
+			}
+			else {
+				InSkillSlot->SetVisibilityBorderHeight(false);
+				InSkillSlot->SetIsEnabled(false);
+			}
+		}
+
+		return false;
+		});
+}
+
+void UUI_SkillPage::ResetBorderHeight()
+{
+	CallSKillSlot(
+		[&](UUI_SkillSlot* InSkillSlot) {
+			if (InSkillSlot) {
+				InSkillSlot->SetVisibilityBorderHeight(false);
+				InSkillSlot->SetIsEnabled(true);
+			}
+
+			return false;
+		});
 }

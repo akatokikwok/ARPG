@@ -7,6 +7,7 @@
 #include "../../../Core/Game/MMOARPGPlayerController.h"
 #include "../../../Core/Game/Character/Core/MMOARPGCharacterBase.h"
 #include "MMOARPG/Core/Game/Abilities/MMOARPGGameplayAbility.h"
+#include "../../../Core/Game/MMOARPGHUD.h"
 
 void UUI_UnderSkillGroup::NativeConstruct()
 {
@@ -25,6 +26,12 @@ void UUI_UnderSkillGroup::NativeConstruct()
 	bShieldSkill.Fun.BindLambda([&]() {
 		ShieldSkillInput(true);
 		});
+
+	/** 在技能页里有2个HUD的公共事件(用来联系技能页与技能横框), 绑定回调 */
+	if (AMMOARPGHUD* InMMOARPGHUD = UUI_Base::GetHUD<AMMOARPGHUD>()) {
+		InMMOARPGHUD->BorderHeightDisplayDelegate.AddUObject(this, &UUI_UnderSkillGroup::SetBorderHeight);
+		InMMOARPGHUD->ResetHeightDisplayDelegate.AddUObject(this, &UUI_UnderSkillGroup::ResetBorderHeight);
+	}
 }
 
 void UUI_UnderSkillGroup::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -180,4 +187,41 @@ void UUI_UnderSkillGroup::ShieldSkillInput(bool bShield)
 
 	CallSKillSlot(SlotArrayA, HandleMethod);
 	CallSKillSlot(SlotArrayB, HandleMethod);
+}
+
+void UUI_UnderSkillGroup::SetBorderHeight(EMMOARPGSkillType InSkillType)
+{
+	auto TmpHandle = [&](UUI_SkillSlot* InSkillSlot) {
+		if (InSkillSlot) {
+			if (InSkillSlot->GetSkillType() == InSkillType ||
+				InSkillSlot->GetSkillType() == EMMOARPGSkillType::NONE_SKILLS) {
+				InSkillSlot->SetVisibilityBorderHeight(true);
+				InSkillSlot->SetIsEnabled(true);
+			}
+			else {
+				InSkillSlot->SetVisibilityBorderHeight(false);
+				InSkillSlot->SetIsEnabled(false);
+			}
+		}
+
+		return false;
+	};
+
+	CallSKillSlot(SlotArrayA, TmpHandle);
+	CallSKillSlot(SlotArrayB, TmpHandle);
+}
+
+// 处理高亮的接口, 复位高亮
+void UUI_UnderSkillGroup::ResetBorderHeight()
+{
+	auto TmpLambda = [&](UUI_SkillSlot* InSkillSlot) {
+		if (InSkillSlot) {
+			InSkillSlot->SetVisibilityBorderHeight(false);
+			InSkillSlot->SetIsEnabled(true);
+		}
+		return false;
+	};
+
+	CallSKillSlot(SlotArrayA, TmpLambda);
+	CallSKillSlot(SlotArrayB, TmpLambda);
 }

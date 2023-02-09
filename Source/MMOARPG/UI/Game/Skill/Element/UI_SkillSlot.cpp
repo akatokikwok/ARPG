@@ -7,6 +7,10 @@
 #include "../../../../Core/Game/Character/MMOARPGCharacter.h"
 #include "../UI_UnderSkillGroup.h"
 #include "MMOARPG/Core/Game/Abilities/MMOARPGAttributeSet.h"
+#include "Tip/UI_Tip.h"
+#include "../../../../Core/Game/MMOARPGHUD.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "ThreadManage.h"
 
 int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
@@ -108,6 +112,9 @@ void UUI_SkillSlot::NativeConstruct()
 		// 设置Key名称
 		UUI_Slot::SetKeyName(KeyString);
 	}
+
+	//创建提示
+	CreateTip();
 }
 
 void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -251,6 +258,11 @@ void UUI_SkillSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 
 				// 拖拽的时候 默认隐藏技能Logo
 				HiddenIcon();
+
+				/* 当识别到是拖拽行为的时候, 就可以产生技能槽的高亮了,而且必须强制匹配技能分型.*/
+				if (AMMOARPGHUD* InMMOARPGHUD = UUI_Base::GetHUD<AMMOARPGHUD>()) {
+					InMMOARPGHUD->BorderHeightDisplayDelegate.Broadcast(SlotInfo.SkillType);
+				}
 			}
 		}
 	}
@@ -351,6 +363,29 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 	}
 
 	return bDrop;
+}
+
+/** 鼠标刚接触本UI */
+void UUI_SkillSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+
+	// 重置Tip显示
+	ResetTipText();
+
+	// 有文本就显示tip没文本就关闭tip
+	if (IsText()) {
+		SetVisibilityTipWidget(true);
+	}
+	else {
+		SetVisibilityTipWidget(false);
+	}
+}
+
+/** 鼠标刚离开本UI */
+void UUI_SkillSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseLeave(InMouseEvent);
 }
 
 /// 在服务端方面的"交换行为"-拖拽操作实质逻辑
@@ -475,5 +510,72 @@ bool UUI_SkillSlot::IsCost()
 
 	return false;
 }
+
+#pragma region 关于Tip悬浮框的一些接口
+void UUI_SkillSlot::CreateTip()
+{
+	if (TipClass) {
+		if (UUI_Tip* InTip = CreateWidget<UUI_Tip>(GetWorld(), TipClass)) {
+			SetToolTip(InTip);
+		}
+	}
+}
+
+void UUI_SkillSlot::SetVisibilityTipWidget(bool bShow)
+{
+	if (UUI_Tip* InTip = Cast<UUI_Tip>(ToolTipWidget.Get())) {
+		if (bShow) {
+			InTip->SetVisibility(ESlateVisibility::Visible);
+		}
+		else {
+			InTip->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void UUI_SkillSlot::SetVisibilityBorderHeight(bool bShow)
+{
+	if (bShow) {
+		BorderHeight->SetVisibility(ESlateVisibility::Visible);
+	}
+	else {
+		BorderHeight->SetVisibility(ESlateVisibility::Hidden);
+	}}
+
+void UUI_SkillSlot::SetTipTextContent(const FText& InText)
+{
+	SlotInfo.Tip = InText;
+}
+
+void UUI_SkillSlot::SetTipText(const FText& InText)
+{
+	if (UUI_Tip* InTip = Cast<UUI_Tip>(ToolTipWidget.Get())) {
+		InTip->SetText(InText);
+	}
+}
+
+void UUI_SkillSlot::ResetTipText()
+{
+	SetTipText(SlotInfo.Tip);
+}
+
+void UUI_SkillSlot::HidTipWidget()
+{
+	SetVisibilityTipWidget(false);
+}
+
+void UUI_SkillSlot::ShowTipWidget()
+{
+	SetVisibilityTipWidget(true);
+}
+
+bool UUI_SkillSlot::IsText() const
+{
+	if (UUI_Tip* InTip = Cast<UUI_Tip>(ToolTipWidget.Get())) {
+		return InTip->IsText();
+	}
+	return false;
+}
+#pragma endregion 关于Tip悬浮框的一些接口
 
 #undef LOCTEXT_NAMESPACE

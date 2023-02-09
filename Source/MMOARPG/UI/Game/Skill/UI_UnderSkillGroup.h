@@ -61,6 +61,15 @@ protected:
 	// 更新横框内槽位数据和外观的入口
 	void UpdateSlot(const TArray<FName>& InSkillTags, TArray<FCharacterSkillTable*> InSkillTables, UHorizontalBox* InSlotArray, int32 InStart, int32 AppendSize, int32 InCharacterLevel);
 
+public:
+	// 设置横框内的某个技能槽高亮
+	UFUNCTION()
+		void SetBorderHeight(EMMOARPGSkillType InSkillType);
+
+	// 处理高亮的接口, 复位高亮
+	UFUNCTION()
+		void ResetBorderHeight();
+
 private:
 	// 刷新切换BOOL状态的结构
 	FResetBool bShieldSkill;
