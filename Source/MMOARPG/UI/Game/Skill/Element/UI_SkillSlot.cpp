@@ -28,64 +28,77 @@ void UUI_SkillSlot::NativeConstruct()
 		//映射键位
 		KeyNumber = ++PlayerSkillNumber;
 
+		// 绑定键位lambda
+		auto BindInput = [&](const FString& InPlayerSkillName/*这个按键行为的名字,例如ShotsFire开枪*/) {
+			GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*InPlayerSkillName, IE_Pressed, this, &UUI_Slot::OnClickedWidget);// 键鼠输入绑定回调
+			GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*InPlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);// 键鼠输入绑定回调
+		};
+
 		switch (PlayerSkillNumber) {
-			// 键位1~5均执行一段 通用技能逻辑
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
+			/* 键位1~5均执行一段 通用技能逻辑*/
+			case 1://GENERAL_SKILLS
+			case 2://GENERAL_SKILLS
+			case 3://GENERAL_SKILLS
+			case 4://GENERAL_SKILLS
+			case 5://GENERAL_SKILLS
 			{
+				// 设定技能分型
+				SkillType = EMMOARPGSkillType::GENERAL_SKILLS;
 				// 保存键位名字,从整形数字转化为字符
 				KeyString = FString::FromInt(KeyNumber);
-				// 屏幕打印按下了哪个键位
-				FString PlayerSkillName = FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber);
-				// 键鼠输入绑定回调
-				GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Pressed, this, &UUI_Slot::OnClickedWidget);
-				GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*PlayerSkillName, IE_Released, this, &UUI_Slot::OnReleasedClickedWidget);
+				// 绑定键位Lambda
+				BindInput(FString::Printf(TEXT("PlayerSkill_%i"), PlayerSkillNumber));
 				break;
 			}
 			// 键位6,此键位只能存储 从天而降类型技能
-			case 6:
+			case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
 			{
 				SkillType = EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL;
 				KeyString = TEXT("R");
+				BindInput(TEXT("DropFromTheClouds"));
+				SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
 				break;
 			}
 			// 键位7,此键位只能存储 闪避类型技能
-			case 7:
+			case (int32)EMMOARPGSkillType::DODGE_SKILL:
 			{
 				SkillType = EMMOARPGSkillType::DODGE_SKILL;
 				KeyString = TEXT("MR");
+				BindInput(TEXT("MouseRightClick"));
 				break;
 			}
 			// 键位8,此键位只能存储 地面连击类型技能
-			case 8:
+			case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
 			{
 				SkillType = EMMOARPGSkillType::COMBO_GROUND_SKILL;
 				KeyString = TEXT("ML");
+				BindInput(TEXT("MouseClick"));
 				break;
 			}
 			// 键位9,此键位只能存储 滞空连击技能
-			case 9:
+			case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
 			{
 				SkillType = EMMOARPGSkillType::COMBO_AIR_SKILL;
 				KeyString = TEXT("ML");
+				BindInput(TEXT("MouseClick"));
 				break;
 			}
 			// 键位10,此键位只能存储 条件类型技能
-			case 10:
+			case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
 			{
 				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
 				KeyString = TEXT("F");
-
+				BindInput(TEXT("ConditionalSkill"));
+				SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
 				break;
 			}
 			// 键位11,此键位只能存储 冲刺型技能
-			case 11:
+			case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
 			{
 				SkillType = EMMOARPGSkillType::SPRINT_SKILLS;
 				KeyString = TEXT("E");
+				BindInput(TEXT("Sprint"));
+
 				// 重置映射键位
 				PlayerSkillNumber = 0;
 				break;
@@ -234,7 +247,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 				/// /** I. 技能插槽交换行为 */
 				if (MyInventorySlot->GetSlotInfo().IsVaild() && this->GetSlotInfo().IsVaild()) {// 拖拽出来的插槽技能信息和 自己本身的插槽技能信息 名字都有意义
-					
+
 					if (MyInventorySlot->IsSkillTableSlot() && this->IsSkillTableSlot()) {// Page->Page
 						// 在客户端方面的"交换行为"-拖拽操作实质逻辑
 						UpdateSwap(MyInventorySlot);
@@ -267,7 +280,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 				}
 				/// /** II. 技能插槽移动; // 拖拽出来的有技能, 自己作为接收方没有技能,这种行为称之为技能移动 */
 				else if (MyInventorySlot->GetSlotInfo().IsVaild() && !this->GetSlotInfo().IsVaild()) {
-					
+
 					/** Page->Page */
 					if (MyInventorySlot->IsSkillTableSlot() && IsSkillTableSlot()) {// Page->Page
 						// 在客户端方面的"移动行为"-拖拽操作实质逻辑

@@ -11,8 +11,8 @@ enum class EMMOARPGSkillType : uint8
 {
 	// None, 0
 	NONE_SKILLS								UMETA(DisplayName = "None"),
-	// 1 2 3 4 5
-	GENERAL_SKILLS							UMETA(DisplayName = "General Skills"),
+	// 1 2 3 4 5通用技能,这里枚举强制赋值为5,即非从[1]开始,而是跳到了5
+	GENERAL_SKILLS = 5						UMETA(DisplayName = "General Skills"),
 	// 6 从天而降条件技能
 	DROP_FROM_THE_CLOUDS_SKILL				UMETA(DisplayName = "Drop From The Clouds"),
 	// 7 闪避技能 鼠标右键的那个闪避
