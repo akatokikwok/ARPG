@@ -79,6 +79,7 @@ void UUI_UnderSkillGroup::UpdateSlot(
 					if (InSkillTags[InMyRow].ToString() == InMMOGA->AbilityTags.ToStringSimple()) {// 找出名字一致的那一行
 						// 刷新这个skillslot
 						InSkillSlotWidget->Update(InSkillTags[InMyRow], SkillTmp->Icon, InMMOGA->CostValue("Mana", InCharacterLevel), SkillTmp->SkillType);
+						InSkillSlotWidget->SetTipTextContent(SkillTmp->SkillAttributeTip);
 						break;
 					}
 				}
@@ -111,6 +112,8 @@ void UUI_UnderSkillGroup::UpdateSlot(
 			InSlotArray,
 			[&](UUI_SkillSlot* InSkillSlot) ->bool {
 				if (InSkillSlot) {
+					InSkillSlot->ResetTipText();
+					
 					if (InSkillTags.IsValidIndex(Index)) {
 						/* 不相等则表明 客户端模拟的不正确,需由服务器去矫正 */
 						if (InSkillSlot->GetSlotInfo().Tags != InSkillTags[Index]) {
