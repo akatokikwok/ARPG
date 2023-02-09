@@ -74,14 +74,13 @@ public:
 	// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
 	FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAkey);
 
-	// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
-	/*UFUNCTION(NetMulticast, Reliable)*/
-	void Press();
-	// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
-	/*UFUNCTION(NetMulticast, Reliable)*/
-	void Released();
-	// 广播触发器Rest至其他客户端; 由服务器广播到其他的客户端.
-	/*UFUNCTION(NetMulticast, Reliable)*/
+	/** 连招黑盒检测器 激发; 需要1个SkillSlot的键位号 */
+	void Press(int32 InSlot);
+
+	/** Combo黑盒检测器 中止 */
+	void Released(int32 InSlotKeyNumber);
+
+	/** Combo黑盒检测器 复位 */
 	void Reset();
 
 public:
@@ -204,6 +203,10 @@ public:
 
 	// 解除持续恢复buff
 	void DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
+
+public:
+	// 检查分型为条件技能技能,需要1个技能槽键位号
+	bool CheckConditionSKill(int32 InSlot);
 
 	//////////////////////////////////////////////////////////////////////////
 

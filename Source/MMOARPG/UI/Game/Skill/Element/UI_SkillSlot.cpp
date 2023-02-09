@@ -124,6 +124,20 @@ void UUI_SkillSlot::OnClickedWidget()
 			if (!IsShieldSkill()) {// 是否 未屏蔽技能输入
 				if (IsCost()) {// 是否 足以消耗
 					if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+						/* 判断左键按下后的Combo技能是否执行生效.*/
+						if (KeyString == TEXT("ML")) {
+							if (SkillType == EMMOARPGSkillType::COMBO_AIR_SKILL) {
+								if (!InCharacter->IsAir()) {
+									return;
+								}
+							}
+							else if (SkillType == EMMOARPGSkillType::COMBO_GROUND_SKILL) {
+								if (InCharacter->IsAir()) {
+									return;
+								}
+							}
+						}
+						//
 						if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
 							// 服务端执行技能形式的技能攻击(需指定一个槽号)
 							InCharacter->SKillAttackOnServer(KeyNumber);

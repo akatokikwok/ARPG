@@ -124,22 +124,20 @@ public:
 	UFUNCTION(Server, Reliable)
 		void GetCharacterDataRequests();
 
-	// RPC在服务器, 左mouse按下后续
-	UFUNCTION(Server, Reliable)
-		void MouseLeftClick();
-	// RPC在服务器, 右mouse按下后续
-	UFUNCTION(Server, Reliable)
-		void MouseRightClick();
-	// RPC在服务器, 左mouse松开后续
-	UFUNCTION(Server, Reliable)
-		void MouseLeftClickReleased();
-	// RPC在服务器, 右mouse松开后续
-// 	UFUNCTION(Server, Reliable)
+	// 左mouse按下后续
+	void MouseLeftClick();
+
+	// 右mouse按下后续
+	void MouseRightClick();
+
+	//左mouse松开后续
+	void MouseLeftClickReleased();
+
+	// mouse松开后续
 	void MouseRightClickReleased();
 
 	// 按键冲刺, RPC在服务器.
-	UFUNCTION(Server, Reliable)
-		void Sprint();// 按键冲刺, RPC在服务器.
+	void Sprint();
 
 	/** 覆盖CombatInterface接口, 如若信号值设定2,则重置触发器黑盒. */
 	virtual void AnimSignal(int32 InSignal) override;
@@ -154,7 +152,7 @@ public:
 public:
 	// 处理人的血量; 覆写
 	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit = true) override;
-	
+
 	// 处理人的蓝量; 覆写
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue) override;
 
@@ -172,11 +170,15 @@ public:/// 关于GameMode可调用的一些技能与UI交互的接口
 
 	// 创建重生弹窗
 	UFUNCTION(Client, Reliable)
-	void CreateResurrectionWindowsClient();
+		void CreateResurrectionWindowsClient();
 
-	// 服务端执行技能形式的技能攻击(需指定一个槽号)
+	/// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
 	UFUNCTION(Server, Reliable)
-	void SKillAttackOnServer(int32 InSlot);
+		void SKillAttackOnServer(int32 InSlot);
+
+	/// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
+	UFUNCTION(Server, Reliable)
+		void ReleaseSKillAttackOnServer(int32 InSlot);
 
 	// 在客户端 更新技能表(SkillPage)-UI外观
 	UFUNCTION(Client, Reliable)
@@ -228,7 +230,7 @@ public:
 
 public:
 	// 初始化技能
- 	void InitSkill();
+	void InitSkill();
 
 private:
 	// 小接口: 将一组技能名字转化为服务器上更小格式的位
@@ -254,7 +256,7 @@ public:
 		void HandleCameraViewWhenNotInAirCombo();
 
 	//
-	UFUNCTION( BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void K2_HandleCameraViewWhenAirCombo();
 
 	//

@@ -577,3 +577,8 @@ void AMMOARPGCharacterBase::GetUp()
 		}
 	}
 }
+
+bool AMMOARPGCharacterBase::IsAir()
+{
+	return GetMovementComponent()->IsFalling();
+}

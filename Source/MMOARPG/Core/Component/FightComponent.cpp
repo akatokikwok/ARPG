@@ -239,13 +239,17 @@ FSimpleComboCheck* UFightComponent::GetSimpleComboInfo(const FName& InGAkey)
 		});
 }
 
-// 广播触发器Press至其他客户端; 由服务器广播到其他的客户端.
-void UFightComponent::Press()
+/** 连招黑盒检测器 激发; 需要1个SkillSlot的键位号 */
+void UFightComponent::Press(int32 InSlot)
 {
+	FName CurrentSKillComboName = SkillSlotsTMap[InSlot].SkillName;// 先取出匹配的技能槽里的技能
+
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
 		if (UMotionComponent::IsAir()) {// 在空中
-			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Air")) {// 放的技能是空中连击
+			if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName /*TEXT("Player.Attack.ComboLinkage.Air")*/) {// 放的技能是空中连击;// 必须匹配对应的COMBO,分空中和地面型
 				AnyComboCheck.Press();
+				
+				// 测试代码, 非正式, 调镜头操作
 				if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
 					InChar->HandleCameraViewWhenAirCombo();
 				}
@@ -253,7 +257,7 @@ void UFightComponent::Press()
 			}
 		}
 		else {// 在地面
-			if (AnyComboCheck.ComboKey_GA == TEXT("Player.Attack.ComboLinkage.Ground")) {// 放的是地面连击
+			if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName /*TEXT("Player.Attack.ComboLinkage.Ground")*/) {// 放的是地面连击// 必须匹配对应的COMBO,分空中和地面型
 				AnyComboCheck.Press();
 				break;
 			}
@@ -261,12 +265,21 @@ void UFightComponent::Press()
 	}
 }
 
-// 广播触发器Release至其他客户端; 由服务器广播到其他的客户端.
-void UFightComponent::Released()
+/** Combo黑盒检测器 中止 */
+void UFightComponent::Released(int32 InSlotKeyNumber)
 {
-	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
-		AnyComboCheck.Released();
+	FName CurrentSKillComboName = SkillSlotsTMap[InSlotKeyNumber].SkillName;// 先取出匹配的技能槽里的技能
 
+	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
+// 		if (GEngine) {
+// 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("第%i个黑盒检测器释放"), AnyComboCheck.ComboIndex));
+// 		}
+		if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName) {// 必须匹配对应的COMBO,分空中和地面型
+			AnyComboCheck.Released();
+			break;
+		}
+		
+		// 测试代码, 非正式, 调镜头操作
 		if (UMotionComponent::IsAir()) {// 在空中
 			AnyComboCheck.Released();
 			if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
@@ -276,7 +289,7 @@ void UFightComponent::Released()
 	}
 }
 
-// 复位所有的连击黑盒检测器
+/** Combo黑盒检测器 复位 */
 void UFightComponent::Reset()
 {
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
@@ -751,3 +764,11 @@ bool UFightComponent::MoveSkillSlot(int32 InASlot, int32 InBSlot)
 	return false;
 }
 #pragma endregion 技能槽及技能形式技能的接口
+
+
+// 检查分型为条件技能技能,需要1个技能槽键位号
+bool UFightComponent::CheckConditionSKill(int32 InSlot)
+{
+	
+	return false;
+}

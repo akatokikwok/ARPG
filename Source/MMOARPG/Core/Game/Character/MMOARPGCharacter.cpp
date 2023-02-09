@@ -31,11 +31,11 @@ void AMMOARPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AMMOARPGCharacter::MouseLeftClick);
-	PlayerInputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AMMOARPGCharacter::MouseRightClick);
-	PlayerInputComponent->BindAction("MouseClick", IE_Released, this, &AMMOARPGCharacter::MouseLeftClickReleased);
-	PlayerInputComponent->BindAction("MouseRightClick", IE_Released, this, &AMMOARPGCharacter::MouseRightClickReleased);
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMMOARPGCharacter::Sprint);// 冲刺
+	//PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AMMOARPGCharacter::MouseLeftClick);
+	//PlayerInputComponent->BindAction("MouseRightClick", IE_Pressed, this, &AMMOARPGCharacter::MouseRightClick);
+	//PlayerInputComponent->BindAction("MouseClick", IE_Released, this, &AMMOARPGCharacter::MouseLeftClickReleased);
+	//PlayerInputComponent->BindAction("MouseRightClick", IE_Released, this, &AMMOARPGCharacter::MouseRightClickReleased);
+	//PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMMOARPGCharacter::Sprint);// 冲刺
 
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMMOARPGCharacter::CharacterJump);// 跳
@@ -475,39 +475,44 @@ void AMMOARPGCharacter::GetCharacterDataRequests_Implementation()
 	}
 }
 
-// RPC在服务器, 左mouse按下后续
-void AMMOARPGCharacter::MouseLeftClick_Implementation()
+// 左mouse按下后续
+void AMMOARPGCharacter::MouseLeftClick()
 {
-	if (ActionState == ECharacterActionState::FIGHT_STATE) {// 仅在战斗姿态里.
-		// 广播COMBO触发器Press()至其他客户端.
-		GetFightComponent()->Press();
-	}
+	//if (ActionState == ECharacterActionState::FIGHT_STATE) {// 仅在战斗姿态里.
+	//	// 广播COMBO触发器Press()至其他客户端.
+	//	GetFightComponent()->Press();
+	//}
 }
 
-// RPC在服务器, 右mouse按下后续
-void AMMOARPGCharacter::MouseRightClick_Implementation()
+// 右mouse按下后续
+void AMMOARPGCharacter::MouseRightClick()
 {
+	if (IsDie()) {
+		return;
+	}
 	if (ActionState == ECharacterActionState::FIGHT_STATE || ActionState == ECharacterActionState::NORMAL_STATE) {
 		GetFightComponent()->DodgeSkill();
 	}
 }
 
-// RPC在服务器, 左mouse松开后续
-void AMMOARPGCharacter::MouseLeftClickReleased_Implementation()
+// 左mouse松开后续
+void AMMOARPGCharacter::MouseLeftClickReleased()
 {
-	// 广播COMBO触发器Release()至其他客户端.
-	GetFightComponent()->Released();
+
 }
 
-// RPC在服务器, 右mouse松开后续
-void AMMOARPGCharacter::MouseRightClickReleased/*_Implementation*/()
+// 右mouse松开后续
+void AMMOARPGCharacter::MouseRightClickReleased()
 {
 
 }
 
 // 按键后冲刺.
-void AMMOARPGCharacter::Sprint_Implementation()
+void AMMOARPGCharacter::Sprint()
 {
+	if (IsDie()) {
+		return;
+	}
 	if (ActionState == ECharacterActionState::FIGHT_STATE) {
 		GetFightComponent()->SprintSkill();
 	}
@@ -610,11 +615,103 @@ void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
 	}
 }
 
-/** 服务端执行技能形式的技能攻击(需指定一个槽号) */
-void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlot)
+/// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
+void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
 {
-	if (GetFightComponent()) {
-		GetFightComponent()->SKillAttack(InSlot);
+	// 死亡时无法释放技能
+	if (IsDie()) {
+		return;
+	}
+
+	switch (InSlotKeyNumber) {
+		/* 键位1~5都执行通用技能.*/
+		case 1://GENERAL_SKILLS
+		case 2://GENERAL_SKILLS
+		case 3://GENERAL_SKILLS
+		case 4://GENERAL_SKILLS
+		case 5://GENERAL_SKILLS
+		{
+			if (GetFightComponent()) {
+				GetFightComponent()->SKillAttack(InSlotKeyNumber);
+			}
+			break;
+		}
+		/* 键位6 从天而降分型.*/
+		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
+		{
+			if (GetFightComponent()) {
+				GetFightComponent()->SKillAttack(InSlotKeyNumber);
+			}
+			break;
+		}
+		/* 键位7 闪避分型--按下鼠标右键*/
+		case (int32)EMMOARPGSkillType::DODGE_SKILL:
+		{
+			MouseRightClick();
+			break;
+		}
+		/* 键位8和9 Combo分型--按下鼠标左键*/
+		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
+		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
+		{
+			if (ActionState == ECharacterActionState::FIGHT_STATE) {
+				GetFightComponent()->Press(InSlotKeyNumber);// 用传入的技能槽序号执行连击黑盒检测器激发
+			}
+			break;
+		}
+		/* 键位10 条件技能分型.*/
+		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
+		{
+			if (GetFightComponent()) {
+				if (GetFightComponent()->CheckConditionSKill(InSlotKeyNumber)) {
+					GetFightComponent()->SKillAttack(InSlotKeyNumber);
+				}
+			}
+			break;
+		}
+		/* 键位11 冲刺分型.*/
+		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
+		{
+			Sprint();
+			break;
+		}
+	}
+}
+
+/// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
+void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
+{
+	switch (InSlotKeyNumber) {
+		case 1:	//GENERAL_SKILLS
+		case 2:	//GENERAL_SKILLS
+		case 3:	//GENERAL_SKILLS
+		case 4:	//GENERAL_SKILLS
+		case 5:	//GENERAL_SKILLS
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::DODGE_SKILL:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
+		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
+		{
+			GetFightComponent()->Released(InSlotKeyNumber);// 中止 黑盒检测器
+			break;
+		}
+		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
+		{
+			break;
+		}
 	}
 }
 
@@ -813,12 +910,12 @@ void AMMOARPGCharacter::UpdateSkillAssembly()
 		MMOARPGAttributeSlotsToBits(SkillTagsName, ComboAttackTagsName, LimbsTagsName);
 
 		// 让GM去Request CS服务器的数据
-		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID, 
+		MMOARPGGameMode->UpdateSkillAssembly(UserID, this->ID,
 			SkillAssemblyString,
 			SkillTagsName,
 			ComboAttackTagsName,
 			LimbsTagsName
-			);
+		);
 	}
 }
 
