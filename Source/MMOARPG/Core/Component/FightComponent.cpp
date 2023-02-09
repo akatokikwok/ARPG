@@ -82,17 +82,29 @@ FGameplayAbilitySpecHandle UFightComponent::AddAbility(TSubclassOf<UGameplayAbil
 	return FGameplayAbilitySpecHandle();
 }
 
-// 从技能池里找指定名字的GA.
-UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey)
+// 从GA句柄池子里查匹配的技能
+UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbility(const FName& InKey, const TMap<FName, FGameplayAbilitySpecHandle>& InSpecMap)
 {
-	if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(InKey)) {
+	if (const FGameplayAbilitySpecHandle* InHandle = InSpecMap.Find(InKey)) {
 		if (AbilitySystemComponent.IsValid()) {
-			if (FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(*InHandle)) {
-				return Cast<UMMOARPGGameplayAbility>(Spec->Ability);
+			if (FGameplayAbilitySpec* ItsSpec = AbilitySystemComponent->FindAbilitySpecFromHandle(*InHandle)) {
+				return Cast<UMMOARPGGameplayAbility>(ItsSpec->Ability);
 			}
 		}
 	}
 	return nullptr;
+}
+
+// 从Skills 池子里找匹配的技能
+UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbilityForSkills(const FName& InKey)
+{
+	return GetGameplayAbility(InKey, Skills);
+}
+
+// 从ComboAttacks 池子里找匹配的技能
+UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbilityForCombos(const FName& InKey)
+{
+	return GetGameplayAbility(InKey, ComboAttacks);
 }
 
 // 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
@@ -350,7 +362,7 @@ void UFightComponent::RegisterComboAttack(const FName& InGAName)
 		FSimpleComboCheck& InComboAttackCheck = ComboAttackChecks.AddDefaulted_GetRef();// 往连击检测容器内手动构造1个
 		InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
 		InComboAttackCheck.ComboKey_GA = InGAName;
-		if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
+		if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbilityForCombos(InGAName)) {/*先按名字从ComboAttacks池子里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
 			InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
 		}
 		else {/*没找到GA就给个4段. */
@@ -676,9 +688,12 @@ void UFightComponent::DeserializationSkillAssembly(const FString& InString)
 
 			SingleBitAndOrderToTagName(EnumIndex, TagNameBit, SkillSlotsTMap[Key].SkillName);
 
-			// 按槽号提出Skill型的GA并保存其真实技能句柄
-			if (FGameplayAbilitySpecHandle* InHandle = Skills.Find(SkillSlotsTMap[Key].SkillName)) {
-				SkillSlotsTMap[Key].Handle = *InHandle;
+			// 对Skills池子和Combos池子 分别查找匹配的技能槽键位号,获取其GA句柄spec
+			if (FGameplayAbilitySpecHandle* InSkillHandle = Skills.Find(SkillSlotsTMap[Key].SkillName)) {
+				SkillSlotsTMap[Key].Handle = *InSkillHandle;
+			}
+			else if (FGameplayAbilitySpecHandle* InComboHandle = ComboAttacks.Find(SkillSlotsTMap[Key].SkillName)) {
+				SkillSlotsTMap[Key].Handle = *InComboHandle;
 			}
 		}
 	}

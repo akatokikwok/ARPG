@@ -45,9 +45,17 @@ public:
 	UFightComponent();
 	virtual void BeginPlay() override;
 
-	// 从技能池里找指定名字的GA.
-	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey);
+protected:
+	// 从GA句柄池子里查匹配的技能
+	UMMOARPGGameplayAbility* GetGameplayAbility(const FName& InKey, const TMap<FName, FGameplayAbilitySpecHandle>& InMap);
 
+	// 从Skills 池子里找匹配的技能
+	UMMOARPGGameplayAbility* GetGameplayAbilityForSkills(const FName& InKey);
+
+	// 从ComboAttacks 池子里找匹配的技能
+	UMMOARPGGameplayAbility* GetGameplayAbilityForCombos(const FName& InKey);
+
+public:
 	// 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
 	UFUNCTION(BlueprintCallable)
 		bool Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
@@ -58,12 +66,6 @@ public:
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
-	//// 往Skill池子里写入 从DTRow里查出来的指定名字的Skill形式攻击.
-	//void AddSkillAttack(const FName& InKey);
-
-	//// 往Skill池子里写入 从DTRow里查出来的指定名字的普攻连招.
-	//void AddComboAttack(const FName& InKey);
-
 protected:
 	/** 用指定GA去注册连招触发器黑盒. */
 	void RegisterComboAttack(const FName& InGAName);
@@ -73,6 +75,7 @@ protected:
 
 	// 添加并授权某技能. 返回技能实例的句柄.
 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
+
 public:
 	// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
 	FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAkey);
@@ -88,13 +91,10 @@ public:
 
 public:
 	// 放闪避技能./* 以技能页或背包里配置的技能槽内的技能为准.*/
-	void DodgeSkill();// 放闪避技能; 广播至其他客户端
+	void DodgeSkill();
 
 	// 放冲刺技能/* 以技能页或背包里配置的技能槽内的技能为准.*/
-	void SprintSkill();// 放冲刺技能; 广播至其他客户端
-
-	// 放冲刺2技能
-	//void Sprint2Skill();// 放冲刺2技能; 广播至其他客户端
+	void SprintSkill();
 
 	// 激活 受击技能
 	UFUNCTION(BlueprintCallable)
@@ -113,10 +113,6 @@ public:
 
 	// "单机版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
-
-	// 广播 "用一组GA注册连招黑盒"
-	/*UFUNCTION(NetMulticast, Reliable)*/
-// 		void RegisterComboAttackMulticast(const TArray<FName>& InGANames);
 
 public:
 	// 当血量变化时候处理
