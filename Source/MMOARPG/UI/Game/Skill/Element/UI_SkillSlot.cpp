@@ -28,6 +28,8 @@ void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetVisibilityBorderHeight(false);
+
 	if (bMappingKey) {
 		//映射键位
 		KeyNumber = ++PlayerSkillNumber;
