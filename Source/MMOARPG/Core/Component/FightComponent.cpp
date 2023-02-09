@@ -260,7 +260,7 @@ void UFightComponent::Press(int32 InSlot)
 		if (UMotionComponent::IsAir()) {// 在空中
 			if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName /*TEXT("Player.Attack.ComboLinkage.Air")*/) {// 放的技能是空中连击;// 必须匹配对应的COMBO,分空中和地面型
 				AnyComboCheck.Press();
-				
+
 				// 测试代码, 非正式, 调镜头操作
 				if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
 					InChar->HandleCameraViewWhenAirCombo();
@@ -283,14 +283,14 @@ void UFightComponent::Released(int32 InSlotKeyNumber)
 	FName CurrentSKillComboName = SkillSlotsTMap[InSlotKeyNumber].SkillName;// 先取出匹配的技能槽里的技能
 
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
- 		//if (GEngine) {
- 		//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("第%i个黑盒检测器释放"), AnyComboCheck.ComboIndex));
- 		//}
+		//if (GEngine) {
+		//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("第%i个黑盒检测器释放"), AnyComboCheck.ComboIndex));
+		//}
 		if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName) {// 必须匹配对应的COMBO,分空中和地面型
 			AnyComboCheck.Released();
 			break;
 		}
-		
+
 		// 测试代码, 非正式, 调镜头操作
 		if (UMotionComponent::IsAir()) {// 在空中
 			AnyComboCheck.Released();
@@ -331,18 +331,31 @@ void UFightComponent::RegisterGameplayAbility(const TArray<FName>& InGANames, EM
 	}
 }
 
+// 核验一组连招黑盒检测器内是否有匹配的combo
+bool UFightComponent::ComboChecksContains(const FName& InGAName)
+{
+	if (ComboAttackChecks.FindByPredicate([&](const FSimpleComboCheck& InComboChecker) {
+		return InComboChecker.ComboKey_GA == InGAName;
+		})) {
+		return true;
+	}
+	return false;
+}
+
 /** 用1个GA去注册1个连招黑盒. */
 void UFightComponent::RegisterComboAttack(const FName& InGAName)
 {
-	FSimpleComboCheck& InComboAttackCheck = ComboAttackChecks.AddDefaulted_GetRef();// 往连击检测容器内手动构造1个
-
-	InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
-	InComboAttackCheck.ComboKey_GA = InGAName;
-	if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
-		InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
-	}
-	else {/*没找到GA就给个4段. */
-		InComboAttackCheck.MaxIndex = 4;
+	if (!ComboChecksContains(InGAName)) {// 若这组黑盒内不包含匹配名字的COMBO技能
+		
+		FSimpleComboCheck& InComboAttackCheck = ComboAttackChecks.AddDefaulted_GetRef();// 往连击检测容器内手动构造1个
+		InComboAttackCheck.Character_CombatInterface = MMOARPGCharacterBase.Get();
+		InComboAttackCheck.ComboKey_GA = InGAName;
+		if (UMMOARPGGameplayAbility* GameplayAbility = GetGameplayAbility(InGAName)) {/*先按名字从技能池里找GA,并把触发器的段数注册成GA里蒙太奇段数.*/
+			InComboAttackCheck.MaxIndex = GameplayAbility->GetCompositeSectionsNumber();
+		}
+		else {/*没找到GA就给个4段. */
+			InComboAttackCheck.MaxIndex = 4;
+		}
 	}
 }
 
@@ -351,6 +364,18 @@ void UFightComponent::RegisterComboAttack(const TArray<FName>& InGANames)
 {
 	for (auto& GATag : InGANames) {
 		RegisterComboAttack(GATag);
+	}
+}
+
+/** 连击黑盒卸除; 黑盒数组里移除指定 combo技能的黑盒 */
+void UFightComponent::UnregisterComboAttack(const FName& Key)
+{
+	if (ComboChecksContains(Key)) {// 核验一组连招黑盒检测器内包含有匹配的combo技能
+		FSimpleComboCheck CheckerNeedToRemove;
+		CheckerNeedToRemove.ComboKey_GA = Key;
+
+		/* 因为黑盒内重载了== 操作符, 所以可以支持真正意义上的移除*/
+		ComboAttackChecks.Remove(CheckerNeedToRemove);// 黑盒数组移除指定元素
 	}
 }
 
@@ -489,7 +514,7 @@ void FMMOARPGSkillSlot::Reset()
 }
 
 #pragma region 关于真正GA池子的一些操作函数
-/** 真正技能缓存池里注册并装配 技能表的指定名字的技能 */
+/** Skills池子里注册元素(元素来之人物DT技能表) */
 FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
 {
 	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
@@ -503,6 +528,20 @@ FGameplayAbilitySpecHandle UFightComponent::AddSkill(const FName& InNameTag)
 	return FGameplayAbilitySpecHandle();// 否则返回空技能句柄
 }
 
+/** ComboAttacks池子里注册元素(元素来自人物DT技能表) */
+FGameplayAbilitySpecHandle UFightComponent::AddComboAttacks(const FName& InTags)
+{
+	if (AMMOARPGGameState* InGameState = GetWorld()->GetGameState<AMMOARPGGameState>()) {
+		if (FCharacterSkillTable* InSkillTable = InGameState->GetCharacterSkillTable(InTags, MMOARPGCharacterBase->GetID())) {
+			if (!ComboAttacks.Contains(InTags)) {
+				ComboAttacks.Add(InTags, AddAbility(InSkillTable->GameplayAbility));
+				return ComboAttacks[InTags];
+			}
+		}
+	}
+	return FGameplayAbilitySpecHandle();
+}
+
 /** 从总缓存池内移除指定TagName的技能 */
 void UFightComponent::RemoveSkill(const FName& InNameTag)
 {
@@ -511,6 +550,17 @@ void UFightComponent::RemoveSkill(const FName& InNameTag)
 		this->ClearAbility(Skills[InNameTag]);
 		// 移除"Skills容器" 里的一组pair
 		Skills.Remove(InNameTag);
+	}
+}
+
+/** 移除 ComboAttacks这个池子里的某个技能 */
+void UFightComponent::RemoveComboAttacks(const FName& InGAName)
+{
+	if (ComboAttacks.Contains(InGAName)) {
+		ClearAbility(ComboAttacks[InGAName]);
+
+		//移除我们的Map
+		ComboAttacks.Remove(InGAName);
 	}
 }
 
@@ -657,7 +707,7 @@ void UFightComponent::ActivateRecoveryEffect(TSubclassOf<UGameplayEffect> InGame
 			EffectContext.AddSourceObject(UMotionComponent::MMOARPGCharacterBase.Get());
 
 			// 2.用入参构建1个GE实例并应用
-			FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InGameplayEffect, 
+			FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(InGameplayEffect,
 				MMOARPGCharacterBase->GetCharacterLevel(), EffectContext);
 			if (EffectSpecHandle.IsValid()) {
 				AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), AbilitySystemComponent.Get());
@@ -709,27 +759,45 @@ bool UFightComponent::AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkil
 	return false;
 }
 
-/** 用入参组一份技能槽数据并注册至Skill槽容器 */
-bool UFightComponent::AddSkillSlot(int32 InSlot, const FName& InSkillNameTag)
+/** 往1个技能槽内存入技能数据 */
+bool UFightComponent::AddSkillSlot(int32 InSlotKeyNumber, const FName& InSkillNameTag)
 {
-	// 用入参槽号和技能名字 "填充1份实际的技能槽数据"
 	FMMOARPGSkillSlot SkillSlot;
-	SkillSlot.Handle = AddSkill(InSkillNameTag);
+	EMMOARPGSkillType SkillType = (EMMOARPGSkillType)InSlotKeyNumber;
+
+	if (SkillType == EMMOARPGSkillType::COMBO_GROUND_SKILL || SkillType == EMMOARPGSkillType::COMBO_AIR_SKILL) {
+		// 把技能槽的技能实例设为ComboAttacks池子的技能实例
+		SkillSlot.Handle = AddComboAttacks(InSkillNameTag);
+		// 注册连击
+		RegisterComboAttack(InSkillNameTag);
+	}
+	else {// 非COMBO分型的, 则继续添加技能
+		SkillSlot.Handle = AddSkill(InSkillNameTag);
+	}
 	SkillSlot.SkillName = InSkillNameTag;
 
 	// 往SkillMap里注册 刚才那份技能槽数据
-	return this->AddSkillSlot(InSlot, SkillSlot);
+	return this->AddSkillSlot(InSlotKeyNumber, SkillSlot);
 }
 
 /** 移除SkillTMap的技能节点并查询是否成功 */
-bool UFightComponent::RemoveSkillSlot(int32 InSlot)
+bool UFightComponent::RemoveSkillSlot(int32 InSlotKeyNumber)
 {
-	if (SkillSlotsTMap.Contains(InSlot)) {
-		// 先移除真实技能
-		RemoveSkill(SkillSlotsTMap[InSlot].SkillName);
+	if (SkillSlotsTMap.Contains(InSlotKeyNumber)) {
+		EMMOARPGSkillType SkillType = (EMMOARPGSkillType)InSlotKeyNumber;
+		if (SkillType == EMMOARPGSkillType::COMBO_GROUND_SKILL || SkillType == EMMOARPGSkillType::COMBO_AIR_SKILL) {
+			/* 移除ComboAttacks这个池子里的指定键号技能.*/
+			RemoveComboAttacks(SkillSlotsTMap[InSlotKeyNumber].SkillName);
 
-		// 再移除技能节点(指定槽位给个空,视为移除)
-		SkillSlotsTMap[InSlot] = FMMOARPGSkillSlot();
+			/* 连击黑盒卸除; 黑盒数组里移除指定 combo技能的黑盒 */
+			UnregisterComboAttack(SkillSlotsTMap[InSlotKeyNumber].SkillName);
+		}
+		else {// 非Combo型, 比如是Skills型的
+			RemoveSkill(SkillSlotsTMap[InSlotKeyNumber].SkillName);// 移除真实技能
+		}
+
+		// 这个特定的技能槽位再被置空
+		SkillSlotsTMap[InSlotKeyNumber] = FMMOARPGSkillSlot();
 		return true;
 	}
 	return false;
@@ -781,6 +849,6 @@ bool UFightComponent::MoveSkillSlot(int32 InASlot, int32 InBSlot)
 // 检查分型为条件技能技能,需要1个技能槽键位号
 bool UFightComponent::CheckConditionSKill(int32 InSlot)
 {
-	
+
 	return false;
 }

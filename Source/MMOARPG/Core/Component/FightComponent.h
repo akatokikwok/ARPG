@@ -68,6 +68,9 @@ protected:
 	/** 用指定GA去注册连招触发器黑盒. */
 	void RegisterComboAttack(const FName& InGAName);
 
+	/** 连击黑盒卸除; 黑盒数组里移除指定 combo技能的黑盒 */
+	void UnregisterComboAttack(const FName& Key);
+
 	// 添加并授权某技能. 返回技能实例的句柄.
 	FGameplayAbilitySpecHandle AddAbility(TSubclassOf<UGameplayAbility> InNewAbility);
 public:
@@ -104,6 +107,9 @@ public:
 public:
 	// 注册各部分技能(按形式来源)
 	void RegisterGameplayAbility(const TArray<FName>& InGANames/*一组技能名*/, EMMOARPGGameplayAbilityType InGASrcEnum/*技能形式来源*/);
+
+	// 核验一组连招黑盒检测器内是否有匹配的combo技能
+	bool ComboChecksContains(const FName& InGAName);
 
 	// "单机版" 用一组GA去注册1个连招黑盒
 	void RegisterComboAttack(const TArray<FName>& InGANames);
@@ -165,11 +171,17 @@ public:
 	bool MoveSkillSlot(int32 InASlot, int32 InBSlot);
 
 public:
-	/** 往总技能缓存池里装备1个指定名字的GA并返回它 */
+	/** Skills池子里注册元素(元素来之人物DT技能表) */
 	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
+
+	/** ComboAttacks池子里注册元素(元素来自人物DT技能表) */
+	FGameplayAbilitySpecHandle AddComboAttacks(const FName& InTags);
 
 	/** 在横框, 移除指定槽号的旧技能并添加新技能 */
 	bool RemoveSkillSlot(int32 InSlot, const FName& InSkillName);
+
+	/** 移除 ComboAttacks这个池子里的某个技能 */
+	void RemoveComboAttacks(const FName& InTags);
 
 protected:
 	/** 从总缓存池内移除指定TagName的技能 */

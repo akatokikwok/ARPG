@@ -45,3 +45,9 @@ public:
 	UPROPERTY()
 		FName ComboKey_GA;
 };
+
+// 判断2个黑盒检测器是否相等
+inline bool operator==(const FSimpleComboCheck& L, const FSimpleComboCheck& R)
+{
+	return L.ComboKey_GA == R.ComboKey_GA;
+}
