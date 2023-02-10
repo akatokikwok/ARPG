@@ -159,6 +159,10 @@ public:
 	//
 	bool IsText()const;
 
+public:
+	// 控制条件型技能的 技能槽UI数据(在一段时长内)
+	void UpdateConditionalSkillSlot(float InStartPos, float InEndPos)
+
 protected:
 	// 映射的键位号码
 	static int32 PlayerSkillNumber;

@@ -20,6 +20,9 @@ void UUI_UnderSkillGroup::NativeConstruct()
 
 		// 为委托"更新技能CD"注册UI上的回调
 		InPlayerController->UpdateSkillCooldownDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateSkillCD);
+
+		// 为委托"释放条件型技能" 绑定回调
+		InPlayerController->ConditionalSkillsDelegate.BindUObject(this, &UUI_UnderSkillGroup::UpdateConditionalSkillsUI);
 	}
 
 	// 屏蔽输入的计时代理
@@ -113,7 +116,7 @@ void UUI_UnderSkillGroup::UpdateSlot(
 			[&](UUI_SkillSlot* InSkillSlot) ->bool {
 				if (InSkillSlot) {
 					InSkillSlot->ResetTipText();
-					
+
 					if (InSkillTags.IsValidIndex(Index)) {
 						/* 不相等则表明 客户端模拟的不正确,需由服务器去矫正 */
 						if (InSkillSlot->GetSlotInfo().Tags != InSkillTags[Index]) {
@@ -127,6 +130,35 @@ void UUI_UnderSkillGroup::UpdateSlot(
 					}
 				}
 				Index++;// 计数迭代
+				return false;
+			});
+	}
+}
+
+// 回调:绑定 委托"释放条件型技能"
+void UUI_UnderSkillGroup::UpdateConditionalSkillsUI(FName InGATag, float InStartPos, float InPersistLength, float InTotalTimeLength)
+{
+	if (InGATag.IsValid()) {
+		CallSKillSlot(SlotArrayB,/* 给UI上偏下面一组的横框.*/
+			[&](UUI_SkillSlot* InSkillSlot) ->bool {
+				if (InSkillSlot) {
+					if (InSkillSlot->GetSlotInfo().GameplayAbility != nullptr) {
+						/*  */
+						if (InSkillSlot->GetSlotInfo().GameplayAbility->ConditionalActivationTags.HasTag(FGameplayTag::RequestGameplayTag(InGATag))) {
+							if (InSkillSlot->IsCost()) {
+								if (InSkillSlot->IsCooldown()) {
+									float EndPos = InStartPos + InPersistLength;// 开始时间点 + 持续时段长 == 结束时间点
+									if (EndPos >= (InTotalTimeLength - 0.08f)) {// 限制播放的结束点 超过 总时长
+										EndPos = InTotalTimeLength - 0.08f;
+									}
+									// 控制条件型技能的 技能槽UI表现(在一段时长内)
+									InSkillSlot->UpdateConditionalSkillSlot(InStartPos, EndPos);
+								}
+							}
+							return true;
+						}
+					}
+				}
 				return false;
 			});
 	}

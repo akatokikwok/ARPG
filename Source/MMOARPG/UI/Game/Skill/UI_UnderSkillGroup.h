@@ -61,6 +61,9 @@ protected:
 	// 更新横框内槽位数据和外观的入口
 	void UpdateSlot(const TArray<FName>& InSkillTags, TArray<FCharacterSkillTable*> InSkillTables, UHorizontalBox* InSlotArray, int32 InStart, int32 AppendSize, int32 InCharacterLevel);
 
+	// 回调:绑定 委托"释放条件型技能"
+	void UpdateConditionalSkillsUI(FName InTag, float InStartPos, float InLength, float InTotalTimeLength);
+
 public:
 	// 设置横框内的某个技能槽高亮
 	UFUNCTION()

@@ -640,4 +640,18 @@ bool UUI_SkillSlot::IsText() const
 }
 #pragma endregion 关于Tip悬浮框的一些接口
 
+// 控制条件型技能的 技能槽UI数据(在一段时长内)
+void UUI_SkillSlot::UpdateConditionalSkillSlot(float InStartPos, float InEndPos)
+{
+	GThread::Get()->GetCoroutines().BindLambda(InStartPos, [&]() {
+		bWaitUntil = true;
+		UUI_SlotElement::SlotIcon->SetIsEnabled(true);
+		});
+
+	GThread::Get()->GetCoroutines().BindLambda(InEndPos, [&]() {
+		bWaitUntil = false;
+		UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+		});
+}
+
 #undef LOCTEXT_NAMESPACE
