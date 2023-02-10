@@ -181,7 +181,7 @@ void UMMOARPGGameplayAbility::CommitAbilityConditionalSkills(const FGameplayAbil
 		// 限制开始的位置必须小于蒙太奇总长度
 		float Length = MontageToPlay->GetPlayLength();
 		if (ConditionalSkillStartPos >= Length) {
-			//check(0);
+			check(0);
 			return;
 		}
 
