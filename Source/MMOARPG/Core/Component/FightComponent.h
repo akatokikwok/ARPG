@@ -165,7 +165,6 @@ public:
 
 	/** 移动技能并查询是否成功 */
 	bool MoveSkillSlot(int32 InASlot, int32 InBSlot);
-
 public:
 	/** Skills池子里注册元素(元素来之人物DT技能表) */
 	FGameplayAbilitySpecHandle AddSkill(const FName& InNameTag);
@@ -209,8 +208,15 @@ public:
 	// 解除持续恢复buff
 	void DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> InGameplayEffect);
 
+protected:
+	// 提出Skills池子里活跃标签的GA
+	UMMOARPGGameplayAbility* GetGameplayAbilityActiveTagBySkill();
+
+	// 给键位号, 去技能槽池子里找匹配的元素
+	FMMOARPGSkillSlot* FindSkillSlot(int32 InSlotKeyNum);
+
 public:
-	// 检查分型为条件技能技能,需要1个技能槽键位号
+	/** 槽位的活跃标签数据验证 ,需要1个技能槽键位号 */
 	bool CheckConditionSKill(int32 InSlot);
 
 	//////////////////////////////////////////////////////////////////////////

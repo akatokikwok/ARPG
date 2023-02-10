@@ -860,10 +860,35 @@ bool UFightComponent::MoveSkillSlot(int32 InASlot, int32 InBSlot)
 }
 #pragma endregion 技能槽及技能形式技能的接口
 
-
-// 检查分型为条件技能技能,需要1个技能槽键位号
-bool UFightComponent::CheckConditionSKill(int32 InSlot)
+// 提出Skills池子里活跃标签的GA
+UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbilityActiveTagBySkill()
 {
+	if (const FGameplayTagContainer* InTagContainer = AbilitySystemComponent->GetCurrentActiveSkillTags()) {
+		return GetGameplayAbilityForSkills(*(InTagContainer->ToStringSimple()));
+	}
+	return nullptr;
+}
 
+// 给键位号, 去技能槽池子里找匹配的元素
+FMMOARPGSkillSlot* UFightComponent::FindSkillSlot(int32 InSlotKeyNum)
+{
+	if (SkillSlotsTMap.Contains(InSlotKeyNum)) {
+		return SkillSlotsTMap.Find(InSlotKeyNum);
+	}
+	return nullptr;
+}
+
+/** 槽位的活跃标签数据验证 ,需要1个技能槽键位号 */
+bool UFightComponent::CheckConditionSKill(int32 InSlotKeyNumber)
+{
+	if (FMMOARPGSkillSlot* InSkillSlot = FindSkillSlot(InSlotKeyNumber)) {
+		if (InSkillSlot->IsVaild()) {
+			// 从Skills池子里找 这个槽位匹配的GA
+			if (UMMOARPGGameplayAbility* InMMOARPGGameplayAbility = GetGameplayAbilityForSkills(InSkillSlot->SkillName)) {
+				// 核验这个GA是否位于 条件分型标签组里是否有活跃的标签
+				return InMMOARPGGameplayAbility->ConditionalActivationTags.HasAny(*(AbilitySystemComponent->GetCurrentActiveSkillTags()));
+			}
+		}
+	}
 	return false;
 }

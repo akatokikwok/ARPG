@@ -663,7 +663,9 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber
 		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
 		{
 			if (GetFightComponent()) {
+				/** 这里需要做一步 基础的槽位活跃标签数据验证 */
 				if (GetFightComponent()->CheckConditionSKill(InSlotKeyNumber)) {
+					// 验证有活跃标签组才允许实施技能(非Combo型)
 					GetFightComponent()->SKillAttack(InSlotKeyNumber);
 				}
 			}
