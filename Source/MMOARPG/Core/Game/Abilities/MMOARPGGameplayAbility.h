@@ -64,4 +64,9 @@ public:
 	// 缓存池: 由一个GA诱发带来的一组buff.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = GameplayEffects)
 		TMap<FGameplayTag, FMMOARPGGameplayEffects> EffectMap;
+
+public:
+	// 条件分型技能的 条件标签组
+	UPROPERTY(EditDefaultsOnly, Category = "Tags", meta = (Categories = "OwnedTagsCategory"))
+		FGameplayTagContainer ConditionalActivationTags;// 条件型技能的 条件标签组
 };

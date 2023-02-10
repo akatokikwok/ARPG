@@ -15,4 +15,19 @@ public:
 
 	/** Plays a montage and handles replication and prediction based on passed in ability/activation info */
 	virtual float PlayMontage(UGameplayAbility* AnimatingAbility, FGameplayAbilityActivationInfo ActivationInfo, UAnimMontage* NewAnimMontage, float InPlayRate, FName StartSectionName = NAME_None, float StartTimeSeconds = 0.0f);
+
+public:
+	// 设定当前游戏中 "活跃的GAS标签"
+	void SetCurrentActiveSkillTags(FGameplayTagContainer& InGameplayTagContainer) { CurrentActiveSkillTags = InGameplayTagContainer; }
+
+	// 获取到 当前游戏中 "活跃的GAS标签"
+	const FGameplayTagContainer* GetCurrentActiveSkillTags()const { return &CurrentActiveSkillTags; }
+
+	// 复位 当前游戏中 "活跃的GAS标签"
+	void ResetCurrentActiveSkillTags() { CurrentActiveSkillTags.Reset(); }
+
+protected:
+	// 当前游戏进行中活跃的GAS标签
+	UPROPERTY()
+		FGameplayTagContainer CurrentActiveSkillTags;// 当前游戏进行中活跃的GAS标签
 };
