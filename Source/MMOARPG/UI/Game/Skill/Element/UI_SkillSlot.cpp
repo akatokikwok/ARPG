@@ -417,7 +417,7 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 			}
 		}
 	}
-
+	
 	// 松开的时候会 取消技能槽的高亮
 	if (AMMOARPGHUD* InMMOARPGHUD = GetHUD<AMMOARPGHUD>()) {
 		InMMOARPGHUD->ResetHeightDisplayDelegate.Broadcast();
