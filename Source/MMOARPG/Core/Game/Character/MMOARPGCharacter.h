@@ -263,6 +263,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void K2_HandleCameraViewWhenNotInAirCombo();
 
+public:
+	/** 播放条件技能(在客户端) */
+	UFUNCTION(Client, Reliable)
+		void ConditionalSkillsOnClient(const FName& InName, float InStartPos, float InLength, float InTotalTimeLength);
+
 	/// //////////////////////////////////////////////////////////////////////////
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

@@ -11,6 +11,8 @@ class MMOARPG_API UMMOARPGGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 public:
 	UMMOARPGGameplayAbility();
+	// Override EndAbility
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 public:// Cpp版. 调用蓝图版的
 	UFUNCTION()
@@ -55,6 +57,15 @@ protected:
 	// 在客户端更新CD
 	void CallUpdateCooldownOnClient();
 
+	// 注册 活跃标签组
+	void RegisterActiveSkillTag();
+
+	// 卸除 活跃标签组
+	void UnregisterActiveSkillTag();
+
+	// 提交条件分型的技能(对其蒙太奇做出播放时长的控制与处理)
+	virtual void CommitAbilityConditionalSkills(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 播哪个蒙太奇.
@@ -69,4 +80,12 @@ public:
 	// 条件分型技能的 条件标签组
 	UPROPERTY(EditDefaultsOnly, Category = "Tags", meta = (Categories = "OwnedTagsCategory"))
 		FGameplayTagContainer ConditionalActivationTags;// 条件型技能的 条件标签组
+
+	// 条件型技能 蒙太奇的起始位置
+	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
+		float ConditionalSkillStartPos;// 条件型技能 蒙太奇的起始位置
+
+	// 条件型技能 蒙太奇的起效果的持续时长
+	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
+		float ConditionalSkillDuration;// 条件型技能 蒙太奇的起效果的持续时长
 };

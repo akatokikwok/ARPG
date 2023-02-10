@@ -919,4 +919,13 @@ void AMMOARPGCharacter::UpdateSkillAssembly()
 	}
 }
 
+/** 播放条件技能(在客户端) */
+void AMMOARPGCharacter::ConditionalSkillsOnClient_Implementation(const FName& InName, float InStartPos, float InLength, float InTotalTimeLength)
+{
+	if (AMMOARPGPlayerController* InPlayerController = Cast<AMMOARPGPlayerController>(GetController())) {
+		// 触发 "释放条件型技能"委托
+		InPlayerController->ConditionalSkillsDelegate.ExecuteIfBound(InName, InStartPos, InLength, InTotalTimeLength);
+	}
+}
+
 #undef LOCTEXT_NAMESPACE

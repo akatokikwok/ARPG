@@ -1,13 +1,23 @@
 ﻿#include "MMOARPGGameplayAbility.h"
+#include "MMOARPGAbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilityTask/AbilityTask_PMAWDamageEvent.h"
 #include "AbilitySystemComponent.h"
 #include "../MMOARPGPlayerController.h"
-#include "../Character/Core/MMOARPGCharacterBase.h"
+#include "../Character/MMOARPGCharacter.h"
 
 UMMOARPGGameplayAbility::UMMOARPGGameplayAbility()
+	: ConditionalSkillStartPos(0.1f)
+	, ConditionalSkillDuration(0.3f)
 {
 
+}
+
+void UMMOARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	UnregisterActiveSkillTag();// 卸除活跃标签组
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UMMOARPGGameplayAbility::OnCompleted()
@@ -145,6 +155,44 @@ void UMMOARPGGameplayAbility::CallUpdateCooldownOnClient()
 					// 让controller通知客户端更新CD
 					InPlayerController->CallUpdateCooldownOnClient(*(this->AbilityTags).ToStringSimple(), CDValue);
 				}
+			}
+		}
+	}
+}
+
+void UMMOARPGGameplayAbility::RegisterActiveSkillTag()
+{
+	if (UMMOARPGAbilitySystemComponent* InMMOARPGCompent = Cast<UMMOARPGAbilitySystemComponent>(CurrentActorInfo->AbilitySystemComponent)) {
+		InMMOARPGCompent->SetCurrentActiveSkillTags(UGameplayAbility::AbilityTags);// 本技能的标签 给注册进活跃组里
+	}
+}
+
+void UMMOARPGGameplayAbility::UnregisterActiveSkillTag()
+{
+	if (UMMOARPGAbilitySystemComponent* InMMOARPGCompent = Cast<UMMOARPGAbilitySystemComponent>(CurrentActorInfo->AbilitySystemComponent)) {
+		InMMOARPGCompent->ResetCurrentActiveSkillTags();
+	}
+}
+
+// 提交条件分型的技能(对其蒙太奇做出播放时长的控制与处理)
+void UMMOARPGGameplayAbility::CommitAbilityConditionalSkills(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	if (this->MontageToPlay != nullptr && ConditionalActivationTags.IsValid()) {
+		// 限制开始的位置必须小于蒙太奇总长度
+		float Length = MontageToPlay->GetPlayLength();
+		if (ConditionalSkillStartPos >= Length) {
+			//check(0);
+			return;
+		}
+
+		if (Length != 0.f) {
+			if (AMMOARPGCharacter* InMMOChar = Cast<AMMOARPGCharacter>(ActorInfo->AvatarActor)) {// ASC作用到的pawn
+				// 播放条件技能(在客户端)
+				InMMOChar->ConditionalSkillsOnClient(*AbilityTags.ToStringSimple(),// 本技能名字
+					this->ConditionalSkillStartPos,// 条件型技能 蒙太奇的起始位置
+					this->ConditionalSkillDuration,// 条件型技能 蒙太奇的起效果的持续时长
+					Length// 蒙太奇总时长
+				);
 			}
 		}
 	}
