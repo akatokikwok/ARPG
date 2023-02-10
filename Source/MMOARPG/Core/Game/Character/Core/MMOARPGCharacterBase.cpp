@@ -9,6 +9,7 @@
 #include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
 #include "../../../Common/MMOARPGGameInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -581,4 +582,9 @@ void AMMOARPGCharacterBase::GetUp()
 bool AMMOARPGCharacterBase::IsAir()
 {
 	return GetMovementComponent()->IsFalling();
+}
+
+float AMMOARPGCharacterBase::GetCapsuleHalfHeight() const
+{
+	return GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 }

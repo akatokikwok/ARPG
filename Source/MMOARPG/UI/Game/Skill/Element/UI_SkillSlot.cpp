@@ -20,6 +20,7 @@ UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, bMappingKey(false)
 	, KeyNumber(INDEX_NONE)
+	, bWaitUntil(true)
 {
 	SkillType = EMMOARPGSkillType::NONE_SKILLS;
 }
@@ -62,7 +63,8 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL;
 				KeyString = TEXT("R");
 				BindInput(TEXT("DropFromTheClouds"));
-				//SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
+				UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+				bWaitUntil = false;
 				break;
 			}
 			// 键位7,此键位只能存储 闪避类型技能
@@ -95,7 +97,8 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::CONDITIONAL_SKILLS;
 				KeyString = TEXT("F");
 				BindInput(TEXT("ConditionalSkill"));
-				//SlotIcon->SetIsEnabled(false);// 默认关闭我们的图标显示
+				UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+				bWaitUntil = false;
 				break;
 			}
 			// 键位11,此键位只能存储 冲刺型技能
@@ -122,50 +125,100 @@ void UUI_SkillSlot::NativeConstruct()
 void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	/** 条件技能分型射线判断. */
+	if (SkillType == EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL) {// 条件技能-从天而降
+		if (this->SlotInfo.IsVaild()) {// 技能槽内有技能
+			/* 打射线操作.*/
+			if (AMMOARPGCharacterBase* InCharacter = GetPawn<AMMOARPGCharacterBase>()) {
+				if (IsCooldown()) {// 是否在CD中
+					if (IsCost()) {// 是否负担得起发动技能的消耗(蓝是否足够)
+						
+						// 准备开始和结束的位置
+						FVector StartPos = InCharacter->GetActorLocation();
+						float HalfHeight = InCharacter->GetCapsuleHalfHeight();
+						StartPos.Z -= HalfHeight;
+						FVector Dir = -InCharacter->GetActorUpVector();
+						FVector EndPos = StartPos + (Dir * 4000.f);
+
+						// 准备好射线的内容
+						FHitResult HitResult;
+						TArray<AActor*> ActorsToIgnore = { InCharacter };
+
+						// 打射线
+						UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartPos, EndPos,
+							ETraceTypeQuery::TraceTypeQuery1, true, ActorsToIgnore,
+							EDrawDebugTrace::Type::None,
+							HitResult, true);
+
+						if (HitResult.bBlockingHit) {
+							float ChestDistance = FVector::Distance(StartPos, HitResult.Location);
+							if (ChestDistance > 60.f) {
+								UUI_SlotElement::SlotIcon->SetIsEnabled(true);
+								bWaitUntil = true;
+							}
+							else {
+								UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+								bWaitUntil = false;
+							}
+							//打印
+							//	Print(FString::SanitizeFloat(ChestDistance));
+						}
+						else {
+							UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+							bWaitUntil = false;
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void UUI_SkillSlot::OnClickedWidget()
 {
 	UUI_Base::Print(FString::FromInt(KeyNumber));
 
-	if (KeyNumber > 0) {
-		if (UUI_Slot::IsCooldown()) {// 是否 在处在CD中
-			if (!IsShieldSkill()) {// 是否 未屏蔽技能输入
-				if (IsCost()) {// 是否 足以消耗
-					if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
-						/* 判断左键按下后的Combo技能是否执行生效.*/
-						if (KeyString == TEXT("ML")) {
-							if (SkillType == EMMOARPGSkillType::COMBO_AIR_SKILL) {
-								if (!InCharacter->IsAir()) {
-									return;
+	if (UWidget::bIsEnabled == true && bWaitUntil == true) {// 控件可以接触可以交互
+		if (KeyNumber > 0) {
+			if (UUI_Slot::IsCooldown()) {// 是否 在处在CD中
+				if (!IsShieldSkill()) {// 是否 未屏蔽技能输入
+					if (IsCost()) {// 是否 足以消耗
+						if (AMMOARPGCharacter* InCharacter = GetWorld()->GetFirstPlayerController()->GetPawn<AMMOARPGCharacter>()) {
+							/* 判断左键按下后的Combo技能是否执行生效.*/
+							if (KeyString == TEXT("ML")) {
+								if (SkillType == EMMOARPGSkillType::COMBO_AIR_SKILL) {
+									if (!InCharacter->IsAir()) {
+										return;
+									}
+								}
+								else if (SkillType == EMMOARPGSkillType::COMBO_GROUND_SKILL) {
+									if (InCharacter->IsAir()) {
+										return;
+									}
 								}
 							}
-							else if (SkillType == EMMOARPGSkillType::COMBO_GROUND_SKILL) {
-								if (InCharacter->IsAir()) {
-									return;
-								}
+							//
+							if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
+								// 服务端执行技能形式的技能攻击(需指定一个槽号)
+								InCharacter->SKillAttackOnServer(KeyNumber);
 							}
-						}
-						//
-						if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
-							// 服务端执行技能形式的技能攻击(需指定一个槽号)
-							InCharacter->SKillAttackOnServer(KeyNumber);
-						}
-						else {
-							// 警示 未进入战斗姿态
-							UUI_Base::WarningPrint(LOCTEXT("ActionState_Key", "Must be in fight state."));
+							else {
+								// 警示 未进入战斗姿态
+								UUI_Base::WarningPrint(LOCTEXT("ActionState_Key", "Must be in fight state."));
+							}
 						}
 					}
-				}
-				else {
-					// 警示 技能不满足足以消耗的条件
-					UUI_Base::WarningPrint(LOCTEXT("Cost_Key", "Mana deficiency."));
+					else {
+						// 警示 技能不满足足以消耗的条件
+						UUI_Base::WarningPrint(LOCTEXT("Cost_Key", "Mana deficiency."));
+					}
 				}
 			}
-		}
-		else {
-			// 警示 本技能尚且处于冷却中
-			UUI_Base::WarningPrint(LOCTEXT("CD_Key", "This skill is not ready yet."));
+			else {
+				// 警示 本技能尚且处于冷却中
+				UUI_Base::WarningPrint(LOCTEXT("CD_Key", "This skill is not ready yet."));
+			}
 		}
 	}
 }
@@ -548,7 +601,8 @@ void UUI_SkillSlot::SetVisibilityBorderHeight(bool bShow)
 	}
 	else {
 		BorderHeight->SetVisibility(ESlateVisibility::Hidden);
-	}}
+	}
+}
 
 void UUI_SkillSlot::SetTipTextContent(const FText& InText)
 {
