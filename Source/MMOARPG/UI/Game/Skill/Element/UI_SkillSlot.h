@@ -9,6 +9,7 @@
 class UImage;
 class UButton;
 class AMMOARPGCharacter;
+class UMMOARPGGameplayAbility;
 
 /**
  * 技能槽数据
@@ -19,12 +20,15 @@ struct FWidgetSlotInfo
 		: Tags(NAME_None)
 		, Cost(0.f)
 		, SkillType(EMMOARPGSkillType::NONE_SKILLS)
+		, GameplayAbility(nullptr)
 	{}
 
 	FName Tags;// 技能名字
 	float Cost;// 技能消耗量
 	EMMOARPGSkillType SkillType;// 技能分类类型
 	FText Tip;// 介绍技能槽的Tip框
+
+	UMMOARPGGameplayAbility* GameplayAbility;// 槽内持有的GA
 
 	// 技能名是否有意义
 	bool IsVaild() const { return Tags != NAME_None; };
@@ -36,6 +40,7 @@ struct FWidgetSlotInfo
 		Cost = 0.f;
 		SkillType = EMMOARPGSkillType::NONE_SKILLS;
 		Tip = FText::GetEmpty();// 该内容在交换的时候会拷贝，因为在客户端，消耗的性能是可以忽略的
+		GameplayAbility = nullptr;
 	}
 };
 
@@ -161,7 +166,7 @@ public:
 
 public:
 	// 控制条件型技能的 技能槽UI数据(在一段时长内)
-	void UpdateConditionalSkillSlot(float InStartPos, float InEndPos)
+	void UpdateConditionalSkillSlot(float InStartPos, float InEndPos);
 
 protected:
 	// 映射的键位号码
