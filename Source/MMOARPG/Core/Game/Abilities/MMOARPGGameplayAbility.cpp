@@ -177,7 +177,7 @@ void UMMOARPGGameplayAbility::UnregisterActiveSkillTag()
 // 提交条件分型的技能(对其蒙太奇做出播放时长的控制与处理)
 void UMMOARPGGameplayAbility::CommitAbilityConditionalSkills(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	if (this->MontageToPlay != nullptr && ConditionalActivationTags.IsValid()) {
+	if (this->MontageToPlay != nullptr /*&& ConditionalActivationTags.IsValid()*/) {
 		// 限制开始的位置必须小于蒙太奇总长度
 		float Length = MontageToPlay->GetPlayLength();
 		if (ConditionalSkillStartPos >= Length) {

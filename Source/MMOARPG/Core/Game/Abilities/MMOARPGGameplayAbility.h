@@ -77,15 +77,15 @@ public:
 		TMap<FGameplayTag, FMMOARPGGameplayEffects> EffectMap;
 
 public:
-	// 条件分型技能的 条件标签组
+	// 本技能成功释放之前需要依赖的条件标签组 (蓝图可配置)
 	UPROPERTY(EditDefaultsOnly, Category = "Tags", meta = (Categories = "OwnedTagsCategory"))
-		FGameplayTagContainer ConditionalActivationTags;// 条件型技能的 条件标签组
+		FGameplayTagContainer ConditionalActivationTags;// 本技能成功释放之前需要依赖的条件标签组 (蓝图可配置)
 
-	// 条件型技能 蒙太奇的起始位置
+	// 条件型技能 蒙太奇的起始位置(蓝图可配置)
 	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
 		float ConditionalSkillStartPos;// 条件型技能 蒙太奇的起始位置
 
-	// 条件型技能 蒙太奇的起效果的持续时长
+	// 条件型技能 蒙太奇的起效果的持续时长(蓝图可配置)
 	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
 		float ConditionalSkillDuration;// 条件型技能 蒙太奇的起效果的持续时长
 };

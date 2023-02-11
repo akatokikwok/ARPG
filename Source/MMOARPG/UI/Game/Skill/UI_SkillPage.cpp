@@ -5,7 +5,7 @@
 #include "Blueprint/DragDropOperation.h"
 #include "../../../Core/Game/MMOARPGGameState.h"
 #include "../../../Core/Game/Character/Core/MMOARPGCharacterBase.h"
-#include "Abilities/GameplayAbility.h"
+#include "../../../Core/Game/Abilities/MMOARPGGameplayAbility.h"
 #include "Element/UI_SkillSlot.h"
 #include "../../../Core/Game/MMOARPGPlayerController.h"
 #include "../../../Core/Game/MMOARPGHUD.h"
@@ -75,10 +75,11 @@ void UUI_SkillPage::LayoutSlot(const TArray<FName>& InKeys)
 								// 初始化表
 								if (AllowSkillTableRows.IsValidIndex(Index)) {
 									if (AllowSkillTableRows[Index]->GameplayAbility) {
-										if (UGameplayAbility* InGameplayAbility = Cast<UGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
+										if (UMMOARPGGameplayAbility* InGameplayAbility = Cast<UMMOARPGGameplayAbility>(AllowSkillTableRows[Index]->GameplayAbility->GetDefaultObject())) {// 技能信息行里的技能若确认存在
 											FString TagName = InGameplayAbility->AbilityTags.ToStringSimple();
 											SlotWidget->Update(*TagName, AllowSkillTableRows[Index]->Icon, 0.f, AllowSkillTableRows[Index]->SkillType);
-											SlotWidget->SetTipTextContent(AllowSkillTableRows[Index]->SkillAttributeTip);
+											SlotWidget->SetTipTextContent(AllowSkillTableRows[Index]->SkillAttributeTip);// 设置一下本槽位的 富文本悬浮提示
+											SlotWidget->UpdateGameplayAbility(InGameplayAbility);// 设定一下本槽位的 生效的GA
 										}
 									}
 								}

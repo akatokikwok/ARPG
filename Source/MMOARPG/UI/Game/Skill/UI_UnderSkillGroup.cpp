@@ -77,12 +77,13 @@ void UUI_UnderSkillGroup::UpdateSlot(
 	auto UpdateSlotWidgetLambda = [&](int32 InMyRow, UUI_SkillSlot* InSkillSlotWidget) ->void {
 		if (InSkillTags.IsValidIndex(InMyRow)) {
 			// 检索所有 匹配的技能行
-			for (auto& SkillTmp : InSkillTables) {
-				if (UMMOARPGGameplayAbility* InMMOGA = Cast<UMMOARPGGameplayAbility>(SkillTmp->GameplayAbility->GetDefaultObject())) {
+			for (auto& SkillTmpRow : InSkillTables) {
+				if (UMMOARPGGameplayAbility* InMMOGA = Cast<UMMOARPGGameplayAbility>(SkillTmpRow->GameplayAbility->GetDefaultObject())) {
 					if (InSkillTags[InMyRow].ToString() == InMMOGA->AbilityTags.ToStringSimple()) {// 找出名字一致的那一行
 						// 刷新这个skillslot
-						InSkillSlotWidget->Update(InSkillTags[InMyRow], SkillTmp->Icon, InMMOGA->CostValue("Mana", InCharacterLevel), SkillTmp->SkillType);
-						InSkillSlotWidget->SetTipTextContent(SkillTmp->SkillAttributeTip);
+						InSkillSlotWidget->Update(InSkillTags[InMyRow], SkillTmpRow->Icon, InMMOGA->CostValue("Mana", InCharacterLevel), SkillTmpRow->SkillType);
+						InSkillSlotWidget->SetTipTextContent(SkillTmpRow->SkillAttributeTip);// 设置一下本槽位的 富文本悬浮提示
+						InSkillSlotWidget->UpdateGameplayAbility(InMMOGA);// 设定一下本槽位的 生效的GA
 						break;
 					}
 				}
@@ -143,7 +144,7 @@ void UUI_UnderSkillGroup::UpdateConditionalSkillsUI(FName InGATag, float InStart
 			[&](UUI_SkillSlot* InSkillSlot) ->bool {
 				if (InSkillSlot) {
 					if (InSkillSlot->GetSlotInfo().GameplayAbility != nullptr) {
-						/*  */
+						/* 检查传入的GA是不是包含在 条件标签组里 */
 						if (InSkillSlot->GetSlotInfo().GameplayAbility->ConditionalActivationTags.HasTag(FGameplayTag::RequestGameplayTag(InGATag))) {
 							if (InSkillSlot->IsCost()) {
 								if (InSkillSlot->IsCooldown()) {
@@ -215,7 +216,10 @@ void UUI_UnderSkillGroup::ShieldSkillInput(bool bShield)
 {
 	auto HandleMethod = [&](UUI_SkillSlot* InSkillSlot) ->bool {
 		if (InSkillSlot) {
-			InSkillSlot->SetIsEnabled(bShield);
+			if (InSkillSlot->GetSkillType() != EMMOARPGSkillType::CONDITIONAL_SKILLS ||
+				InSkillSlot->GetSkillType() != EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL) {// 条件技能/从天而降型技能 的发动逻辑是例外情况
+				InSkillSlot->SetIsEnabled(bShield);
+			}
 		}
 		return false;
 	};

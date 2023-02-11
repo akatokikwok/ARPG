@@ -885,7 +885,7 @@ bool UFightComponent::CheckConditionSKill(int32 InSlotKeyNumber)
 		if (InSkillSlot->IsVaild()) {
 			// 从Skills池子里找 这个槽位匹配的GA
 			if (UMMOARPGGameplayAbility* InMMOARPGGameplayAbility = GetGameplayAbilityForSkills(InSkillSlot->SkillName)) {
-				// 核验这个GA是否位于 条件分型标签组里是否有活跃的标签
+				// 再进一步检查 这个GA的条件标签是否匹配了 活跃标签组
 				return InMMOARPGGameplayAbility->ConditionalActivationTags.HasAny(*(AbilitySystemComponent->GetCurrentActiveSkillTags()));
 			}
 		}

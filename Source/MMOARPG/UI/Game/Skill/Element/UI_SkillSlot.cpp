@@ -654,4 +654,10 @@ void UUI_SkillSlot::UpdateConditionalSkillSlot(float InStartPos, float InEndPos)
 		});
 }
 
+// 设定技能槽内的GA
+void UUI_SkillSlot::UpdateGameplayAbility(UMMOARPGGameplayAbility* InGameplayAbility)
+{
+	SlotInfo.GameplayAbility = InGameplayAbility;
+}
+
 #undef LOCTEXT_NAMESPACE
