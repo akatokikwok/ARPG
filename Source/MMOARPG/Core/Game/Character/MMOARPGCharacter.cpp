@@ -615,108 +615,6 @@ void AMMOARPGCharacter::CreateResurrectionWindowsClient_Implementation()
 	}
 }
 
-/// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
-void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
-{
-	// 死亡时无法释放技能
-	if (IsDie()) {
-		return;
-	}
-
-	switch (InSlotKeyNumber) {
-		/* 键位1~5都执行通用技能.*/
-		case 1://GENERAL_SKILLS
-		case 2://GENERAL_SKILLS
-		case 3://GENERAL_SKILLS
-		case 4://GENERAL_SKILLS
-		case 5://GENERAL_SKILLS
-		{
-			if (GetFightComponent()) {
-				GetFightComponent()->SKillAttack(InSlotKeyNumber);
-			}
-			break;
-		}
-		/* 键位6 从天而降分型.*/
-		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
-		{
-			if (GetFightComponent()) {
-				GetFightComponent()->SKillAttack(InSlotKeyNumber);
-			}
-			break;
-		}
-		/* 键位7 闪避分型--按下鼠标右键*/
-		case (int32)EMMOARPGSkillType::DODGE_SKILL:
-		{
-			MouseRightClick();
-			break;
-		}
-		/* 键位8和9 Combo分型--按下鼠标左键*/
-		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
-		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
-		{
-			if (ActionState == ECharacterActionState::FIGHT_STATE) {
-				GetFightComponent()->Press(InSlotKeyNumber);// 用传入的技能槽序号执行连击黑盒检测器激发
-			}
-			break;
-		}
-		/* 键位10 条件技能分型.*/
-		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
-		{
-			if (GetFightComponent()) {
-				/** 这里需要做一步 基础的槽位活跃标签数据验证 */
-				if (GetFightComponent()->CheckConditionSKill(InSlotKeyNumber)) {
-					// 验证有活跃标签组才允许实施技能(非Combo型)
-					GetFightComponent()->SKillAttack(InSlotKeyNumber);
-				}
-			}
-			break;
-		}
-		/* 键位11 冲刺分型.*/
-		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
-		{
-			Sprint();
-			break;
-		}
-	}
-}
-
-/// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
-void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
-{
-	switch (InSlotKeyNumber) {
-		case 1:	//GENERAL_SKILLS
-		case 2:	//GENERAL_SKILLS
-		case 3:	//GENERAL_SKILLS
-		case 4:	//GENERAL_SKILLS
-		case 5:	//GENERAL_SKILLS
-		{
-			break;
-		}
-		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
-		{
-			break;
-		}
-		case (int32)EMMOARPGSkillType::DODGE_SKILL:
-		{
-			break;
-		}
-		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
-		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
-		{
-			GetFightComponent()->Released(InSlotKeyNumber);// 中止 黑盒检测器
-			break;
-		}
-		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
-		{
-			break;
-		}
-		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
-		{
-			break;
-		}
-	}
-}
-
 // 在客户端 更新技能表(SkillPage)-UI外观
 void AMMOARPGCharacter::UpdateSkillTableOnClient_Implementation(const TArray<FName>& InSkillTags)
 {
@@ -929,5 +827,109 @@ void AMMOARPGCharacter::ConditionalSkillsOnClient_Implementation(const FName& In
 		InPlayerController->ConditionalSkillsDelegate.ExecuteIfBound(InName, InStartPos, InLength, InTotalTimeLength);
 	}
 }
+
+#pragma region 技能槽的分型与案件系统逻辑块
+/// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
+void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
+{
+	// 死亡时无法释放技能
+	if (IsDie()) {
+		return;
+	}
+
+	switch (InSlotKeyNumber) {
+		/* 键位1~5都执行通用技能.*/
+		case 1://GENERAL_SKILLS
+		case 2://GENERAL_SKILLS
+		case 3://GENERAL_SKILLS
+		case 4://GENERAL_SKILLS
+		case 5://GENERAL_SKILLS
+		{
+			if (GetFightComponent()) {
+				GetFightComponent()->SKillAttack(InSlotKeyNumber);
+			}
+			break;
+		}
+		/* 键位6 从天而降分型.*/
+		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
+		{
+			if (GetFightComponent()) {
+				GetFightComponent()->SKillAttack(InSlotKeyNumber);
+			}
+			break;
+		}
+		/* 键位7 闪避分型--按下鼠标右键*/
+		case (int32)EMMOARPGSkillType::DODGE_SKILL:
+		{
+			MouseRightClick();
+			break;
+		}
+		/* 键位8和9 Combo分型--按下鼠标左键*/
+		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
+		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
+		{
+			if (ActionState == ECharacterActionState::FIGHT_STATE) {
+				GetFightComponent()->Press(InSlotKeyNumber);// 用传入的技能槽序号执行连击黑盒检测器激发
+			}
+			break;
+		}
+		/* 键位10 条件技能分型.*/
+		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
+		{
+			if (GetFightComponent()) {
+				/** 这里需要做一步 基础的槽位活跃标签数据验证 */
+				if (GetFightComponent()->CheckConditionSKill(InSlotKeyNumber)) {
+					// 验证有活跃标签组才允许实施技能(非Combo型)
+					GetFightComponent()->SKillAttack(InSlotKeyNumber);
+				}
+			}
+			break;
+		}
+		/* 键位11 冲刺分型.*/
+		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
+		{
+			Sprint();
+			break;
+		}
+	}
+}
+
+/// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
+void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
+{
+	switch (InSlotKeyNumber) {
+		case 1:	//GENERAL_SKILLS
+		case 2:	//GENERAL_SKILLS
+		case 3:	//GENERAL_SKILLS
+		case 4:	//GENERAL_SKILLS
+		case 5:	//GENERAL_SKILLS
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::DODGE_SKILL:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::COMBO_GROUND_SKILL:
+		case (int32)EMMOARPGSkillType::COMBO_AIR_SKILL:
+		{
+			GetFightComponent()->Released(InSlotKeyNumber);// 中止 黑盒检测器
+			break;
+		}
+		case (int32)EMMOARPGSkillType::CONDITIONAL_SKILLS:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
+		{
+			break;
+		}
+	}
+}
+#pragma endregion 技能槽的分型与案件系统逻辑块
 
 #undef LOCTEXT_NAMESPACE

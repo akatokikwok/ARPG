@@ -81,11 +81,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Tags", meta = (Categories = "OwnedTagsCategory"))
 		FGameplayTagContainer ConditionalActivationTags;// 本技能成功释放之前需要依赖的条件标签组 (蓝图可配置)
 
-	// 条件型技能 蒙太奇的起始位置(蓝图可配置)
+	// 需要让本技能在蒙太奇播放时蒙太奇起始点, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的蒙太奇起始点 第1.4s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
 	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
-		float ConditionalSkillStartPos;// 条件型技能 蒙太奇的起始位置
+		float ConditionalSkillStartPos;	// 需要让本技能在蒙太奇播放时蒙太奇起始点, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的蒙太奇起始点 第1.4s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
 
-	// 条件型技能 蒙太奇的起效果的持续时长(蓝图可配置)
+	// 需要让本技能在蒙太奇播放时持续生效时长, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的持续时长, 持续0.5s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
 	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
-		float ConditionalSkillDuration;// 条件型技能 蒙太奇的起效果的持续时长
+		float ConditionalSkillDuration;	// 需要让本技能在蒙太奇播放时持续生效时长, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的持续时长, 持续0.5s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
 };

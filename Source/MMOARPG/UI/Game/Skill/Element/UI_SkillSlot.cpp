@@ -646,11 +646,13 @@ void UUI_SkillSlot::UpdateConditionalSkillSlot(float InStartPos, float InEndPos)
 	GThread::Get()->GetCoroutines().BindLambda(InStartPos, [&]() {
 		bWaitUntil = true;
 		UUI_SlotElement::SlotIcon->SetIsEnabled(true);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::White, TEXT("可以启用按钮"));
 		});
 
 	GThread::Get()->GetCoroutines().BindLambda(InEndPos, [&]() {
 		bWaitUntil = false;
 		UUI_SlotElement::SlotIcon->SetIsEnabled(false);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, TEXT("可以关闭按钮"));
 		});
 }
 
