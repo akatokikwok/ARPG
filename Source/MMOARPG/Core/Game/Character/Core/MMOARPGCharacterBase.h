@@ -279,6 +279,13 @@ public:
 	// 拿取人的胶囊体半径
 	float GetCapsuleHalfHeight() const;
 	
+	// 处理顿帧效果
+	void DaytonFrame(float InDuration);
+
+protected:
+	// 设置顿帧
+	void SetDaytonFrame(bool bDaytonFrame);
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.

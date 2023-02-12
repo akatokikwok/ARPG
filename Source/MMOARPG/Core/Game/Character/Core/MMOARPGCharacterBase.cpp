@@ -588,3 +588,19 @@ float AMMOARPGCharacterBase::GetCapsuleHalfHeight() const
 {
 	return GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 }
+
+void AMMOARPGCharacterBase::SetDaytonFrame(bool bDaytonFrame)
+{
+	if (APlayerController* InPlayerController = Cast<APlayerController>(GetController())) {
+		InPlayerController->SetPause(bDaytonFrame);
+	}
+}
+
+void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
+{
+	SetDaytonFrame(true);
+
+	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
+		SetDaytonFrame(false);
+		});
+}
