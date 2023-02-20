@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "ComboSkillHitCollision.generated.h"
 
+class ACharacter;
+
 /**
  * 一切hitbox的基类.
  * 生成的碰撞actor,用于普攻攻击时候检测.
@@ -44,6 +46,9 @@ public:
 	// 设定一组buff名字
 	void SetBuffs(const TArray<FName>& InBuffs) { Buffs = InBuffs; }
 
+	// 核验给定的pawn已被攻击过
+	bool IsExist(ACharacter* InNewTarget) const;
+
 protected:
 	// 受击ID.
 	UPROPERTY()
@@ -52,4 +57,8 @@ protected:
 	// 由技能施加的一组buff名称.
 	UPROPERTY()
 		TArray<FName> Buffs;
+
+	// 已攻击过的目标们
+	UPROPERTY()
+	TArray<TWeakObjectPtr<ACharacter>> AttackedTarget;
 };
