@@ -892,3 +892,28 @@ bool UFightComponent::CheckConditionSKill(int32 InSlotKeyNumber)
 	}
 	return false;
 }
+
+// 通过标签添加闪避诱发的霸体效果BUFF
+void UFightComponent::ApplyDodgeEffect()
+{
+	if (FMMOARPGSkillSlot* InMMOARPGSkillSlot = FindSkillSlot((int32)EMMOARPGSkillType::DODGE_SKILL)) {
+		// 对应键位查找到的闪避技能GA名称合法
+		if (InMMOARPGSkillSlot->IsVaild()) {
+ 			if (UMMOARPGGameplayAbility* InGA = GetGameplayAbilityForSkills(InMMOARPGSkillSlot->SkillName)) {// 此skills池子里提取技能
+ 				for (auto& AnyMMOGEPak : InGA->EffectMap) {// 查询由本GA诱发的一组buff
+ 					const static FName HitTag = TEXT("Player.Buff.Damage");
+ 					if (!AnyMMOGEPak.Key.MatchesTag(FGameplayTag::RequestGameplayTag(HitTag))) {// 排除掉受击,受击的时候不能躲避
+						/** 给自己本人的ASC应用BUFF效果 */
+						for (TSubclassOf<UGameplayEffect>& TargetEffectTmp : AnyMMOGEPak.Value.TargetEffectClasses) {
+							AbilitySystemComponent->ApplyGameplayEffectToSelf(
+								Cast<UGameplayEffect>(TargetEffectTmp->GetDefaultObject()),
+ 								MMOARPGCharacterBase->GetCharacterLevel(),
+ 								AbilitySystemComponent->MakeEffectContext()
+							);
+ 						}
+ 					}
+ 				}
+ 			}
+		}
+	}
+}

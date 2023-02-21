@@ -507,7 +507,8 @@ void AMMOARPGCharacterBase::EnableGravityMulticast_Implementation(float bDelayTi
 void AMMOARPGCharacterBase::PlayResidualShadowMulticast_Implementation()
 {
 	if (GetLocalRole() == ENetRole::ROLE_Authority) {
-
+		// 需要在服务端应用那些由闪避技能诱发的buff(如霸体效果)
+		ApplyDodgeEffect();
 	}
 	else {
 		// 仅在客户端生成闪避残影
@@ -658,4 +659,12 @@ FName AMMOARPGCharacterBase::DodgeTags()
 		return InSkillSlot->SkillName;
 	}
 	return NAME_None;
+}
+
+// 应用由闪避技能诱发出来的buff(比如闪避诱发了自身的霸体效果)
+void AMMOARPGCharacterBase::ApplyDodgeEffect()
+{
+	if (FightComponent) {
+		FightComponent->ApplyDodgeEffect();
+	}
 }

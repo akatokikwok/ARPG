@@ -219,6 +219,9 @@ public:
 	/** 槽位的活跃标签数据验证 ,需要1个技能槽键位号 */
 	bool CheckConditionSKill(int32 InSlot);
 
+	// 通过标签添加闪避诱发的霸体效果BUFF
+	void ApplyDodgeEffect();
+
 	//////////////////////////////////////////////////////////////////////////
 
 private:
