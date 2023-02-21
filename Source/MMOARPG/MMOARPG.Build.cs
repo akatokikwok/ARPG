@@ -30,8 +30,7 @@ public class MMOARPG : ModuleRules
             "SimpleNumericalDeductionRuntime",
             "SimplePopup",
             "SimpleRuntimeGamePrinting",
-            "Niagara"
-
+            "Niagara",
         });
 	}
 }

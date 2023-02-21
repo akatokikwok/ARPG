@@ -1,15 +1,25 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "MMOARPGCharacterBase.h"
 #include "../../MMOARPGGameState.h"
-#include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
+#include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "../../../Component/FlyComponent.h"
+#include "../../../Component/SwimmingComponent.h"
+#include "../../../Component/ClimbingComponent.h"
+#include "../../../Component/FightComponent.h"
+#include "../../Abilities/MMOARPGAttributeSet.h"
 #include "SimpleDrawTextFunctionLibrary.h"
 #include "ThreadManage.h"
-#include "Components/WidgetComponent.h"
 #include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
 #include "../../../Common/MMOARPGGameInstance.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "../../MMOARPGPlayerState.h"
+#include "../../MMOARPGHUD.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -116,7 +126,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 	// 客户端/服务端都应执行如下逻辑:
 	if (GetWorld()) {
 		if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-			// 把GS里的动画数据解算到Character身上.
+// 把GS里的动画数据解算到Character身上.
 			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
 				this->AnimTable = InAnimRowData;
 			}
@@ -129,8 +139,8 @@ void AMMOARPGCharacterBase::BeginPlay()
 			}
 		}
 		else {/* 位于服务器上*/
-			
-			// 激活持续恢复buff,运行在协程中
+
+	  // 激活持续恢复buff,运行在协程中
 			GThread::Get()->GetCoroutines().BindLambda(0.5f,
 				[&]() ->void {
 					ActivateRecoveryEffect();
@@ -494,6 +504,17 @@ void AMMOARPGCharacterBase::EnableGravityMulticast_Implementation(float bDelayTi
 	}
 }
 
+void AMMOARPGCharacterBase::PlayResidualShadowMulticast_Implementation()
+{
+	if (GetLocalRole() == ENetRole::ROLE_Authority) {
+
+	}
+	else {
+		// 仅在客户端生成闪避残影
+		SpawnResidualShadowActor();
+	}
+}
+
 // 授予击杀本人物的奖励Buff
 void AMMOARPGCharacterBase::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun)
 {
@@ -603,4 +624,17 @@ void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
 	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
 		SetDaytonFrame(false);
 		});
+}
+
+bool AMMOARPGCharacterBase::SpawnResidualShadowActor()
+{
+	// 使用BP Library生成1个闪避残影
+	if (USimpleCombatBPLibrary::SpawnResidualShadow(
+		GetWorld(), ResidualShadowActorClass, GetMesh(),
+		-GetCapsuleComponent()->GetScaledCapsuleHalfHeight(),
+		GetActorLocation(),
+		GetActorRotation(), 1.5f) != nullptr) {
+		return true;
+	}
+	return false;
 }

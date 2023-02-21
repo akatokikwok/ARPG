@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Actor/ResidualShadowActor.h"
 #include "SimpleCombatBPLibrary.generated.h"
 class UUI_ComboCount;
 
@@ -24,7 +25,7 @@ class UUI_ComboCount;
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
 UCLASS()
-class USimpleCombatBPLibrary : public UBlueprintFunctionLibrary
+class SIMPLECOMBAT_API USimpleCombatBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 public:
@@ -35,4 +36,8 @@ public:
 	// 销毁连打计数单例; 目的是为了防止第二次打开插件崩溃
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "CombatText_Destroy", Category = "Combat"))
 		static void ComboTextDestroy();
+	
+	/** 负责产生闪避残影的BP接口 */
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "ResidualShadow", Category = "Combat", WorldContext = WorldContextObject))
+		static AResidualShadowActor* SpawnResidualShadow(UObject* WorldContextObject, TSubclassOf<AResidualShadowActor>ResidualShadowActorClass, USkeletalMeshComponent* InComponentToCopy, float InZOffset, const FVector& Location, const FRotator& InRot, float InLiftTime = 1.f);
 };

@@ -17,9 +17,11 @@
 #include "../../Abilities/MMOARPGAttributeSet.h"
 #include "MMOARPGType.h"
 #include "../../../../MMOARPGGameMethod.h"
+#include "SimpleCombatBPLibrary.h"
 #include "MMOARPGCharacterBase.generated.h"
 class UWidgetComponent;
 class UWidget;
+class AResidualShadowActor;
 
 /**
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
@@ -244,6 +246,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void EnableGravityMulticast(float bDelayTime);
 
+	// 给人生成出闪避残影(Multicast)
+	UFUNCTION(NetMulticast, Reliable)
+		void PlayResidualShadowMulticast();
+
 public:
 	// 授予击杀本人物的奖励Buff
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
@@ -286,6 +292,10 @@ protected:
 	// 设置顿帧
 	void SetDaytonFrame(bool bDaytonFrame);
 
+public:
+	// 给pawn生成闪避残影Actor
+	bool SpawnResidualShadowActor();
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
@@ -299,6 +309,10 @@ protected:
 	// 一组持续恢复buff
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
 		TArray<TSubclassOf<UGameplayEffect>> RecoveryEffect;
+
+	// pawn可能会在战斗中生成的闪避残影
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|ResidualShadow")
+		TSubclassOf<AResidualShadowActor> ResidualShadowActorClass;
 
 protected:
 	// 人物动作状态.

@@ -26,6 +26,7 @@ public class SimpleCombat : ModuleRules
 			new string[]
 			{
 				"Core",
+				"USDSchemas",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,7 +39,8 @@ public class SimpleCombat : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"UMG"
+				"UMG",
+				
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
