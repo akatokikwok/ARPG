@@ -36,42 +36,59 @@ void AMMOARPGBoxHit::HandleDamage(
 			if (AMMOARPGCharacterBase* InTarget = Cast<AMMOARPGCharacterBase>(OtherActor)) {// 只承认只接收与人形态的生物hitbox关联.
 				if (InTarget->GetCharacterType() != InPawnSelf->GetCharacterType() || 1) {/* 防止同类人打同类人. 0代表卡PVP开关. */
 
-					if (!InTarget->IsDie()) {/* 防止敌人死亡后还能被用户攻击.*/
-						
-						// 已被攻击过
+					/* 仅在服务器上执行.*/
+					if (InTarget->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer) == true) {
+
+						// 已死亡的对象不可以再被攻击
+						if (InTarget->IsDie()) {
+							return;
+						}
+
+						// 已被攻击过的对象不可以被二次攻击产生伤害,仅允许一次.
 						if (AHitCollision::IsExist(InTarget)) {
 							return;
 						}
 
-						/* 仅在服务器上执行.*/
-						if (InTarget->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer) == true) {
-							
-							// 不论挨打者是否死亡都需要传递受击ID, 注册目标的受击序号.
-							InTarget->SetHitID(GetHitID());
+						// 不论挨打者是否死亡都需要传递受击ID, 注册目标的受击序号.
+						InTarget->SetHitID(GetHitID());
 
-							/** 组1个游玩事件参数. */
-							FGameplayEventData EventData;
-							EventData.Instigator = GetInstigator();// 施法者
-							EventData.Target = OtherActor;// 攻击目标,打到谁了
+						/** 组1个游玩事件参数. */
+						FGameplayEventData EventData;
+						EventData.Instigator = GetInstigator();// 施法者
+						EventData.Target = OtherActor;// 攻击目标,打到谁了
 
-							// 处理任意一个buff, 给所有与刀刃接触到的有效敌人对象（带有GameplayAbilityComponent）添加GATag.
-							for (auto& Tmp : AHitCollision::Buffs) {
-								/** 接收到伤害时候,会把伤害信息用此API把伤害事件与Tag传出去,传至GA::基类里的AbilityTask_PMAWDamage里 */
-								/** 在数据上 专门处理受击, 击伤 */
-								UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-									GetInstigator(),
-									/*FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")),*/
-									FGameplayTag::RequestGameplayTag(Tmp),
-									EventData
-								);
+						// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
+						FName InDodgeTag = InTarget->DodgeTags();
+						// 对象被攻击打到的时候如果这个对象处于闪避技能状态下,则会播放闪避残影
+						if (!InDodgeTag.IsNone() && InTarget->IsExitActiveTag(InDodgeTag)) {
+							InTarget->PlayResidualShadowMulticast();
+						}
+						// 对方没躲闪,就向其注册1个击中标签和注册击中EventData.
+						else {
+							if (!AHitCollision::Buffs.IsEmpty()) {
+								// 处理任意一个buff, 给所有与刀刃接触到的有效敌人对象（带有GameplayAbilityComponent）添加GATag.
+								for (auto& AnyBuffName : AHitCollision::Buffs) {
+									/** 接收到伤害时候,会把伤害信息用此API把伤害事件与Tag传出去,传至GA::基类里的AbilityTask_PMAWDamage里 */
+									/** 在数据上 专门处理受击, 击伤 */
+									UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+										GetInstigator(),
+										FGameplayTag::RequestGameplayTag(AnyBuffName),/* 默认会在蒙太奇蓝图里配置1个连击标签 FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage")),*/
+										EventData);
+								}
 							}
-// 							static const FName Player_State_Hit_Box_Name(TEXT("Character.State.Hit"));
-// 							UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetInstigator(), FGameplayTag::RequestGameplayTag(Player_State_Hit_Box_Name), EventData);
+							else if (!AHitCollision::BuffTags.IsEmpty()) //BuffTags
+							{
+								for (auto& AnyBuffGASTag : BuffTags) {
+									UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetInstigator(), AnyBuffGASTag, EventData);
+								}
+							}
+							//static const FName Player_State_Hit_Box_Name(TEXT("Character.State.Hit"));
+							//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetInstigator(), FGameplayTag::RequestGameplayTag(Player_State_Hit_Box_Name), EventData);
 						}
 					}
-
-					Super::HandleDamage(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 				}
+
+				Super::HandleDamage(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 			}
 		}
 	}

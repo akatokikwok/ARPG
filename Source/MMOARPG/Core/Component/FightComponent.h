@@ -212,10 +212,10 @@ protected:
 	// 提出Skills池子里活跃标签的GA
 	UMMOARPGGameplayAbility* GetGameplayAbilityActiveTagBySkill();
 
+public:
 	// 给键位号, 去技能槽池子里找匹配的元素
 	FMMOARPGSkillSlot* FindSkillSlot(int32 InSlotKeyNum);
 
-public:
 	/** 槽位的活跃标签数据验证 ,需要1个技能槽键位号 */
 	bool CheckConditionSKill(int32 InSlot);
 

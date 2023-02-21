@@ -293,8 +293,14 @@ protected:
 	void SetDaytonFrame(bool bDaytonFrame);
 
 public:
+	// 人物是否处于某种活跃标签的状态(即判断人现在放了哪个技能,身上有什么标签作为状态识别)
+	bool IsExitActiveTag(const FName& InTag);
+
 	// 给pawn生成闪避残影Actor
 	bool SpawnResidualShadowActor();
+
+	// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
+	FName DodgeTags();
 
 	/// //////////////////////////////////////////////////////////////////////////
 protected:

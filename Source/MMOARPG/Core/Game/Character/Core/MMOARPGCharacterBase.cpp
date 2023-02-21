@@ -617,6 +617,7 @@ void AMMOARPGCharacterBase::SetDaytonFrame(bool bDaytonFrame)
 	}
 }
 
+// 设置顿帧
 void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
 {
 	SetDaytonFrame(true);
@@ -626,6 +627,16 @@ void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
 		});
 }
 
+// 人物是否处于某种活跃标签的状态(即判断人现在放了哪个技能,身上有什么标签作为状态识别)
+bool AMMOARPGCharacterBase::IsExitActiveTag(const FName& InGASTag)
+{
+	if (const FGameplayTagContainer* ActiveTags = AbilitySystemComponent->GetCurrentActiveSkillTags()) {
+		return ActiveTags->HasAny(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InGASTag)));
+	}
+	return false;
+}
+
+// 给pawn生成闪避残影Actor
 bool AMMOARPGCharacterBase::SpawnResidualShadowActor()
 {
 	// 使用BP Library生成1个闪避残影
@@ -637,4 +648,14 @@ bool AMMOARPGCharacterBase::SpawnResidualShadowActor()
 		return true;
 	}
 	return false;
+}
+
+// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
+FName AMMOARPGCharacterBase::DodgeTags()
+{
+	// 给配装了闪避GA的 那个UI上对应的键位号, 去技能槽池子里找匹配的闪避GA
+	if (FMMOARPGSkillSlot* InSkillSlot = FightComponent->FindSkillSlot((int32)EMMOARPGSkillType::DODGE_SKILL)) {
+		return InSkillSlot->SkillName;
+	}
+	return NAME_None;
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "ComboSkillHitCollision.generated.h"
 
 class ACharacter;
@@ -43,8 +44,11 @@ public:
 	void SetHitID(int32 InNewHit) { HitID = InNewHit; }
 	// 拿取受击ID
 	const int32 GetHitID() const { return HitID; }
-	// 设定一组buff名字
-	void SetBuffs(const TArray<FName>& InBuffs) { Buffs = InBuffs; }
+
+	// 设定一组buff名字(FName型)
+	void SetBuffs(const TArray<FName>& InBuffNames) { Buffs = InBuffNames; }
+	// 设定一组buff名字(FGameplayTag型)
+	void SetBuffs(const TArray<FGameplayTag>& InBuffTags) { BuffTags = InBuffTags; }
 
 	// 核验给定的pawn已被攻击过
 	bool IsExist(ACharacter* InNewTarget) const;
@@ -54,9 +58,13 @@ protected:
 	UPROPERTY()
 		int32 HitID;// 受击ID.
 	
-	// 由技能施加的一组buff名称.
+	// 由技能施加的一组buff名称(FName型).
 	UPROPERTY()
 		TArray<FName> Buffs;
+
+	// 由技能施加的一组buff名称(Tag型).
+	UPROPERTY()
+		TArray<FGameplayTag> BuffTags;
 
 	// 已攻击过的目标们
 	UPROPERTY()

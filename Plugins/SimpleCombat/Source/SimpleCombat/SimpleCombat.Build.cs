@@ -26,7 +26,10 @@ public class SimpleCombat : ModuleRules
 			new string[]
 			{
 				"Core",
-				"USDSchemas",
+				"GameplayTags",
+                "GameplayAbilities",
+                "Niagara",
+                "USDSchemas",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
