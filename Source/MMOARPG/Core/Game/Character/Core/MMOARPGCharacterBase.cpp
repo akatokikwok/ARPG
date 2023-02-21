@@ -668,3 +668,9 @@ void AMMOARPGCharacterBase::ApplyDodgeEffect()
 		FightComponent->ApplyDodgeEffect();
 	}
 }
+
+// 检查已激活的活跃Buff里是否匹配给定标签
+bool AMMOARPGCharacterBase::IsActiveGameplayEffectTags(const FName& InTag)
+{
+	return AbilitySystemComponent->IsActiveGameplayEffectTags(FGameplayTag::RequestGameplayTag(InTag));
+}

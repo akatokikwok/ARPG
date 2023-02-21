@@ -39,3 +39,22 @@ float UMMOARPGAbilitySystemComponent::PlayMontage(UGameplayAbility* InAnimatingA
 
 	return INDEX_NONE;
 }
+
+// 检查已激活的活跃Buff里是否匹配给定标签
+bool UMMOARPGAbilitySystemComponent::IsActiveGameplayEffectTags(const FGameplayTag& InTag)
+{
+	// 拿到所有已激活GE的handle
+	TArray<FActiveGameplayEffectHandle> GAHandle = UAbilitySystemComponent::ActiveGameplayEffects.GetAllActiveEffectHandles();
+	// 扫描任意已激活的handle(实际上会转化为扫描GE)
+	for (auto& Tmp : GAHandle) {
+		if (FActiveGameplayEffect* InActiveGameplayEffect = ActiveGameplayEffects.GetActiveGameplayEffect(Tmp)) {
+			if (const UGameplayEffect* InDef = InActiveGameplayEffect->Spec.Def) {
+				// 查被激活的活跃GE资产标签是否匹配给定标签
+				if (InDef->InheritableGameplayEffectTags.CombinedTags.HasTag(InTag)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}

@@ -304,6 +304,9 @@ public:
 
 	// 应用由闪避技能诱发出来的buff(比如闪避诱发了自身的霸体效果)
 	void ApplyDodgeEffect();
+	
+	// 检查已激活的活跃Buff里是否匹配给定标签
+	bool IsActiveGameplayEffectTags(const FName& InTag);
 
 	/// //////////////////////////////////////////////////////////////////////////
 protected:

@@ -26,6 +26,9 @@ public:
 	// 复位 当前游戏中 "活跃的GAS标签"
 	void ResetCurrentActiveSkillTags() { CurrentActiveSkillTags.Reset(); }
 
+	// 检查已激活的活跃Buff里是否匹配给定标签
+	bool IsActiveGameplayEffectTags(const FGameplayTag& InTag);
+
 protected:
 	// 当前游戏进行中活跃的GAS标签
 	UPROPERTY()
