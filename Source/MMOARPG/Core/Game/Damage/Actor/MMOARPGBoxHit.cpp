@@ -49,6 +49,13 @@ void AMMOARPGBoxHit::HandleDamage(
 							return;
 						}
 
+						// 检查欲攻击的对象 已激活霸体效果
+						if (InTarget->IsActiveGameplayEffectTags(TEXT("Player.Buff.SuperArmor"))) {
+							// 播放霸体效果
+							GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Orange, TEXT("玩家处于闪避霸体状态,敌人或者野怪攻击不会对其造成伤害!"));
+							return;
+						}
+
 						// 不论挨打者是否死亡都需要传递受击ID, 注册目标的受击序号.
 						InTarget->SetHitID(GetHitID());
 
