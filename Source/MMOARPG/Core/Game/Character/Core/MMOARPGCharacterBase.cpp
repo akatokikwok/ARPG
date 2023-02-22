@@ -516,6 +516,18 @@ void AMMOARPGCharacterBase::PlayResidualShadowMulticast_Implementation()
 	}
 }
 
+// 播放慢动作/子弹时间效果(仅客户端)
+void AMMOARPGCharacterBase::PlaySlowMotionOnClient_Implementation(float InDuration, float InSpeed)
+{
+	// 先设定一下全局时间膨胀倍率
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), InSpeed);
+
+	// 持续一段时长后, 时间膨胀复位.
+	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+		});
+}
+
 // 授予击杀本人物的奖励Buff
 void AMMOARPGCharacterBase::RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun)
 {

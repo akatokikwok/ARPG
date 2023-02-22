@@ -250,6 +250,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void PlayResidualShadowMulticast();
 
+	// 播放慢动作/子弹时间效果(仅客户端)
+	UFUNCTION(Client, Reliable)
+		void PlaySlowMotionOnClient(float InDuration, float InSpeed);
+
 public:
 	// 授予击杀本人物的奖励Buff
 	virtual void RewardEffect(float InNewLevel, TSubclassOf<UGameplayEffect> InNewRewardBuff, TFunction<void()> InFun);
