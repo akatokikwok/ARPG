@@ -30,6 +30,7 @@ public class SimpleCombat : ModuleRules
                 "GameplayAbilities",
                 "Niagara",
                 "USDSchemas",
+				"GameplayCameras",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
