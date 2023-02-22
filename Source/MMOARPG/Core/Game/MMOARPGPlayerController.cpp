@@ -5,10 +5,14 @@
 #include "MMOARPGPlayerState.h"
 #include "../../MMOARPGGameMethod.h"
 #include "MMOARPGGameMode.h"
+#include "Object/Camera/ComboPlayerCameraManager.h"
 
 AMMOARPGPlayerController::AMMOARPGPlayerController()
 {
 	bShowMouseCursor = false;
+
+	// 本控制器的相机管理类设定为1个连击相机管理器.
+	PlayerCameraManagerClass = AComboPlayerCameraManager::StaticClass();
 }
 
 void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacterID)

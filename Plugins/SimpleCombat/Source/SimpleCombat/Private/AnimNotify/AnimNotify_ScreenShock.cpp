@@ -13,6 +13,7 @@ UAnimNotify_ScreenShock::UAnimNotify_ScreenShock(const FObjectInitializer& Objec
 	, PlaySpace(ECameraShakePlaySpace::CameraLocal)// 播放坐标空间
 	, UserPlaySpaceRot(FRotator::ZeroRotator)
 {
+	// 主动构造出1个根震动模式,是柏林噪声形
 	RootShakePattern = static_cast<UPerlinNoiseCameraShakePattern*>(ObjectInitializer.CreateDefaultSubobject(
 		this,
 		TEXT("RootShakePattern"),
@@ -37,16 +38,17 @@ void UAnimNotify_ScreenShock::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 			if (APlayerController* InPlayerController = Cast<APlayerController>(InCharacter->GetController())) {
 				if (InPlayerController->PlayerCameraManager != nullptr) {// 拿到相机manager
 					if (!bCustomShockClass) {/* 未启用自定义震动模式 */
-						
+
 						// 确保设定了震荡根模式(例如)是正弦波振荡，柏林噪声，或FBX动画
 						if (!RootShakePattern) {
 							return;
 						}
 						// 
 						if (AComboPlayerCameraManager* ComboCamManager = Cast<AComboPlayerCameraManager>(InPlayerController->PlayerCameraManager)) {
+							/* 执行combo相机管理器震动. */
 							if (UCameraShakeBase* InShakeBase = ComboCamManager->PlayCameraShake(
 								UComboCameraShake::StaticClass(),
-								FOnInitializeCameraShake::CreateUObject(this, &UAnimNotify_ScreenShock::InitializeCameraShake),
+								FOnInitializeCameraShake::CreateUObject(this, &UAnimNotify_ScreenShock::InitializeCameraShake),// 相机震动注册1个回调
 								Scale,
 								PlaySpace,
 								UserPlaySpaceRot)) {

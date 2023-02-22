@@ -23,6 +23,7 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 protected:
+	// 回调,用于注册FOnInitializeCameraShake这个事件
 	void InitializeCameraShake(UCameraShakeBase* InCameraShakeBase);
 
 protected:
