@@ -56,13 +56,6 @@ protected:
 	UMMOARPGGameplayAbility* GetGameplayAbilityForCombos(const FName& InKey);
 
 public:
-	// 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
-	UFUNCTION(BlueprintCallable)
-		bool Attack_TriggerGA(const FName& InKey);// 放GA: 普攻.
-
-	// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
-	bool TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap);
-
 	// 往Skill池子里写入 从DTRow里查出来的指定名字的形式攻击.
 	void AddMMOARPGGameplayAbility_ToSkillpool(const FName& InKey_GAName, EMMOARPGGameplayAbilityType GAType = EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK);
 
@@ -144,15 +137,22 @@ public:
 	void GetLimbsTagsName(TArray<FName>& OutNames);
 
 public:
-	// 从Combos缓存GA池子里激活某个技能(空中型)
-	UFUNCTION(BlueprintCallable)
-		bool Attack(const FName& InKey);
+	/** 核心接口; 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败. */
+	bool TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap);
 
-	// 从Skills缓存GA池子里激活某个技能
+	// 暂停使用, 旧接口
+	UFUNCTION(BlueprintCallable)
+		bool Combo(const FName& InKey);
+
+	// 释放Combo来源型技能,从Combos缓存池里, 会判断释放是否成功
+	UFUNCTION(BlueprintCallable)
+		bool Attack_Combo(const FName& InKey);// 放GA: 普攻.
+
+	// 释放Skill来源型技能,从Skills缓存池里, 会判断释放是否成功
 	UFUNCTION(BlueprintCallable)
 		bool Skill(const FName& InKey);
 
-	// 从肢体型缓存GA池里激活某个技能
+	// 释放Limb来源型技能,从Limbs缓存池里, 会判断释放是否成功
 	UFUNCTION(BlueprintCallable)
 		bool Limb(const FName& InKey);
 
@@ -232,10 +232,10 @@ public:
 	void ApplyDodgeEffect();
 
 	// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
-	void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
+	virtual void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
 
 	// 让指定GE BUFF效果应用至自身ASC
-	void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
+	virtual void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -258,7 +258,7 @@ public:
 
 	// 本角色是否被挑飞
 	UPROPERTY()
-	bool bPickFly = false;
+		bool bPickFly = false;
 
 protected:
 	// 技能(如冲刺,躲闪)缓存池,  1个名字对应1个GA句柄

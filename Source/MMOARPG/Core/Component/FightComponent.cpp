@@ -80,34 +80,6 @@ UMMOARPGGameplayAbility* UFightComponent::GetGameplayAbilityForCombos(const FNam
 	return GetGameplayAbility(InKey, ComboAttacks);
 }
 
-// 激活指定名字的技能GA (Combo连击型, 与鼠标按键有关联)
-bool UFightComponent::Attack_TriggerGA(const FName& InGAKey)
-{
-	// 先确定是不是玩家执行的攻击
-	if (MMOARPGCharacterBase->IsA(AMMOARPGCharacter::StaticClass())) {
-		FName CurrentComboSkill = SkillSlotsTMap[(int32)EMMOARPGSkillType::COMBO_AIR_SKILL].SkillName;
-		if (InGAKey == CurrentComboSkill) {
-			if (!IsAir()) {
-				return false;
-			}
-		}
-	}
-	return TryActivateAbility(InGAKey, ComboAttacks);
-}
-
-// 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败
-bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap)
-{
-	// 检查弱指针ASC是否被破坏.
-	if (AbilitySystemComponent.IsValid()) {
-		if (const FGameplayAbilitySpecHandle* Handle = InMap.Find(InTagName)) {
-			AbilitySystemComponent->TryActivateAbility(*Handle);
-			return true;
-		}
-	}
-	return false;
-}
-
 // 放闪避技能./* 以技能页或背包里配置的技能槽内的技能为准.*/
 void UFightComponent::DodgeSkill/*_Implementation*/()
 {
@@ -131,7 +103,7 @@ void UFightComponent::Hit()
 {
 	if (AbilitySystemComponent.IsValid()) {
 		static const FName Player_State_Hit_Name(TEXT("Player.State.Hit"));
-		TryActivateAbility(Player_State_Hit_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Hit的受击GA
+		Limb(Player_State_Hit_Name);// 从肢体缓存池里激活名为Player.State.Hit的受击GA
 	}
 }
 
@@ -139,8 +111,8 @@ void UFightComponent::Hit()
 void UFightComponent::Die()
 {
 	if (AbilitySystemComponent.IsValid()) {
-		static const FName Character_State_Die_Name(TEXT("Player.State.Die"));
-		TryActivateAbility(Character_State_Die_Name, Limbs);// 从肢体缓存池里激活名为Player.State.Die的死亡GA
+		static const FName Player_State_Die_Name(TEXT("Player.State.Die"));
+		Limb(Player_State_Die_Name);// 从肢体缓存池里激活名为Player.State.Die的死亡GA
 	}
 }
 
@@ -640,33 +612,56 @@ void UFightComponent::DeactivationRecoveryEffect(TSubclassOf<UGameplayEffect> In
 
 //////////////////////////////////////////////////////////////////////////
 
-#pragma region 激活三个句柄池子里的GA真正的内部接口
-// 从Combos缓存GA池子里激活某个技能(空中型)
-bool UFightComponent::Attack(const FName& InKey)
+#pragma region 核心内部接口; 可用来激活底层的三个句柄池子里的GA
+
+/** 核心接口; 从某种GA缓存池里提出给定名字的GA并激活它, 可能会激活失败. */
+bool UFightComponent::TryActivateAbility(const FName& InTagName, const TMap<FName, FGameplayAbilitySpecHandle>& InMap)
+{
+	// 检查弱指针ASC是否被破坏.
+	if (AbilitySystemComponent.IsValid()) {
+		if (const FGameplayAbilitySpecHandle* Handle = InMap.Find(InTagName)) {
+			AbilitySystemComponent->TryActivateAbility(*Handle);
+			return true;
+		}
+	}
+	return false;
+}
+
+// 旧接口, 暂停使用
+bool UFightComponent::Combo(const FName& InKey)
+{
+	//...
+	return false;
+}
+
+// 释放Combo来源型技能,从Combos缓存池里, 会判断释放是否成功
+bool UFightComponent::Attack_Combo(const FName& InGAName)
 {
 	if (MMOARPGCharacterBase->IsA(AMMOARPGCharacter::StaticClass())) {// 强制只承认AMMOARPGCharacter型的pawn
-		FName CurrentSKillName = SkillSlotsTMap[(int32)EMMOARPGSkillType::COMBO_AIR_SKILL].SkillName;// 先取出技能槽内空中连打键位的GA
-		if (InKey == CurrentSKillName) {
+		/* 排除一些不适用的空中连击情形,这些情形会释放GA失败*/
+		FName CurrentSKillName = SkillSlotsTMap[(int32)EMMOARPGSkillType::COMBO_AIR_SKILL].SkillName;
+		if (InGAName == CurrentSKillName) {
 			if (!UMotionComponent::IsAir()) {
 				return false;
 			}
 		}
 	}
-	return TryActivateAbility(InKey, ComboAttacks);
+	/* 其余大多数情况,直接释放COMBO连击GA. */
+	return TryActivateAbility(InGAName, ComboAttacks);
 }
 
-// 从Skills缓存GA池子里激活某个技能
+// 释放Skill来源型技能,从Skills缓存池里, 会判断释放是否成功
 bool UFightComponent::Skill(const FName& InKey)
 {
 	return TryActivateAbility(InKey, Skills);
 }
 
-// 从肢体型缓存GA池里激活某个技能
+// 释放Limb来源型技能,从Limbs缓存池里, 会判断释放是否成功
 bool UFightComponent::Limb(const FName& InKey)
 {
 	return TryActivateAbility(InKey, Limbs);
 }
-#pragma endregion 激活三个句柄池子里的GA真正的内部接口
+#pragma endregion  核心内部接口; 可用来激活底层的三个句柄池子里的GA
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -841,14 +836,14 @@ void UFightComponent::ApplyDodgeEffect()
 void UFightComponent::ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InMMOGAType, const FName& InName)
 {
 	switch (InMMOGAType) {
+		case EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK:
+		{
+			Attack_Combo(InName);
+			break;
+		}
 		case EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_SKILLATTACK:
 		{
 			Skill(InName);
-			break;
-		}
-		case EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_COMBOATTACK:
-		{
-			Attack(InName);
 			break;
 		}
 		case EMMOARPGGameplayAbilityType::GAMEPLAYABILITY_LIMBS:

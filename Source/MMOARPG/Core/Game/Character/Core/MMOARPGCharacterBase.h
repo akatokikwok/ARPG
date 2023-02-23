@@ -313,10 +313,10 @@ public:
 	bool IsActiveGameplayEffectTags(const FName& InTag);
 
 	// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
-	void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
+	virtual void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
 
 	// 让指定GE BUFF效果应用至自身ASC
-	void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
+	virtual void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
 
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
