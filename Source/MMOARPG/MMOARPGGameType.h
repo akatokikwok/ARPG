@@ -63,12 +63,13 @@ enum class ECharacterType : uint8
 };
 
 // 攻击形式来源枚举.
-enum EMMOARPGGameplayAbilityType
+UENUM(BlueprintType)
+enum class EMMOARPGGameplayAbilityType : uint8
 {
-	GAMEPLAYABILITY_NONE,// 
-	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
-	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
-	GAMEPLAYABILITY_LIMBS,// 肢体动作的技能或能力状态;  例如死亡, 挨打
+	GAMEPLAYABILITY_NONE			UMETA(DisplayName = "None"),// 
+	GAMEPLAYABILITY_SKILLATTACK		UMETA(DisplayName = "SkillAttack"),// 从属技能形式的攻击.
+	GAMEPLAYABILITY_COMBOATTACK		UMETA(DisplayName = "ComboAttack"),// 从属combo形式的攻击.
+	GAMEPLAYABILITY_LIMBS			UMETA(DisplayName = "Limbs"),// 肢体动作的技能或能力状态;  例如死亡, 挨打
 };
 
 /* 人物行为姿态.*/

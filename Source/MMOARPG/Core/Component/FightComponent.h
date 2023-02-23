@@ -144,12 +144,21 @@ public:
 	void GetLimbsTagsName(TArray<FName>& OutNames);
 
 public:
-	// 释放技能形式的攻击(非连招普攻)
-	bool SKillAttack(int32 InSlot);
+	// 从Combos缓存GA池子里激活某个技能(空中型)
+	UFUNCTION(BlueprintCallable)
+		bool Attack(const FName& InKey);
 
-	// 技能形式的技能是否可以释放
+	// 从Skills缓存GA池子里激活某个技能
 	UFUNCTION(BlueprintCallable)
 		bool Skill(const FName& InKey);
+
+	// 从肢体型缓存GA池里激活某个技能
+	UFUNCTION(BlueprintCallable)
+		bool Limb(const FName& InKey);
+
+public:
+	// 让指定键号的技能槽放出对应的Skill型(非COMBO/LIMB)技能.
+	bool SKillAttack(int32 InSlotKeyNumber);
 
 	/** 往Skill槽容器注册1份 技能槽数据 (并判断操作是否成功) */
 	bool AddSkillSlot(int32 InSlot, const FMMOARPGSkillSlot& InSkillSlot);
@@ -221,6 +230,12 @@ public:
 
 	// 通过标签添加闪避诱发的霸体效果BUFF
 	void ApplyDodgeEffect();
+
+	// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
+	void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
+
+	// 让指定GE BUFF效果应用至自身ASC
+	void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
 
 	//////////////////////////////////////////////////////////////////////////
 

@@ -686,3 +686,19 @@ bool AMMOARPGCharacterBase::IsActiveGameplayEffectTags(const FName& InTag)
 {
 	return AbilitySystemComponent->IsActiveGameplayEffectTags(FGameplayTag::RequestGameplayTag(InTag));
 }
+
+// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
+void AMMOARPGCharacterBase::ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InMMOGameplayAbilityType, const FName& InName)
+{
+	if (FightComponent) {
+		FightComponent->ExecuteGameplayAbility(InMMOGameplayAbilityType, InName);
+	}
+}
+
+// 让指定GE BUFF效果应用至自身ASC
+void AMMOARPGCharacterBase::ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect)
+{
+	if (FightComponent) {
+		FightComponent->ExecuteGameplayEffect(InGameplayEffect);
+	}
+}

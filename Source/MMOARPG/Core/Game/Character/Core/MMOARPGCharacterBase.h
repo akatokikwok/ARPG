@@ -312,6 +312,12 @@ public:
 	// 检查已激活的活跃Buff里是否匹配给定标签
 	bool IsActiveGameplayEffectTags(const FName& InTag);
 
+	// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
+	void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
+
+	// 让指定GE BUFF效果应用至自身ASC
+	void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
