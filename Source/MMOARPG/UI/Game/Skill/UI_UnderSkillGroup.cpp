@@ -53,9 +53,12 @@ void UUI_UnderSkillGroup::LayoutSlot(const TArray<FName>& InSkillTags)
 				TArray<FCharacterSkillTable*> SkillTables;// 主角身上的所有技能
 				int32 CharacterID = InCharacterBase->GetID();
 				if (InGameState->GetCharacterSkillsTables(CharacterID, SkillTables)) {// 能提取出主角身上的所有技能
+					// 有2排技能,第一排放通用技能, 第二排放定制化的技能
+					int32 ASize = (int32)EMMOARPGSkillType::GENERAL_SKILLS;
+					int32 BSize = ((int32)EMMOARPGSkillType::MAX_SKILLS - 2) - ASize;
 
-					UpdateSlot(InSkillTags, SkillTables, SlotArrayA, 0, 5, InCharacterBase->GetCharacterLevel());
-					UpdateSlot(InSkillTags, SkillTables, SlotArrayB, 5, 6, InCharacterBase->GetCharacterLevel());
+					UpdateSlot(InSkillTags, SkillTables, SlotArrayA, 0, ASize, InCharacterBase->GetCharacterLevel());
+					UpdateSlot(InSkillTags, SkillTables, SlotArrayB, ASize, BSize, InCharacterBase->GetCharacterLevel());
 				}
 			}
 		}

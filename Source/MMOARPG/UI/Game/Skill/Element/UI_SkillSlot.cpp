@@ -107,6 +107,13 @@ void UUI_SkillSlot::NativeConstruct()
 				SkillType = EMMOARPGSkillType::SPRINT_SKILLS;
 				KeyString = TEXT("E");
 				BindInput(TEXT("Sprint"));
+				break;
+			}
+			case (int32)EMMOARPGSkillType::BLOCKING_SKILL:
+			{
+				SkillType = EMMOARPGSkillType::BLOCKING_SKILL;
+				KeyString = TEXT("Alt");
+				BindInput(TEXT("Alt"));
 
 				// 重置映射键位
 				PlayerSkillNumber = 0;

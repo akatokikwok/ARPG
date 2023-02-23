@@ -25,8 +25,12 @@ enum class EMMOARPGSkillType : uint8
 	CONDITIONAL_SKILLS						UMETA(DisplayName = "Conditional skills"),
 	// 11 冲刺技能
 	SPRINT_SKILLS							UMETA(DisplayName = "Sprint Skill"),
+	// 12 格挡技能
+	BLOCKING_SKILL							UMETA(DisplayName = "Blocking Skill"),
 	// 其他件技能,诸如死亡/受击那种状态技能
 	OTHER_SKILLS							UMETA(DisplayName = "Other skills"),
+	// 这个属性主要是用来做所有技能枚举计数的
+	MAX_SKILLS,
 };
 
 /**

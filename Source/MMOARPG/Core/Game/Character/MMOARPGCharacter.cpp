@@ -891,6 +891,14 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber
 			Sprint();
 			break;
 		}
+		/*键位12 格挡分型. */
+		case (int32)EMMOARPGSkillType::BLOCKING_SKILL:
+		{
+			if (GetFightComponent()) {
+				GetFightComponent()->SKillAttack(InSlotKeyNumber);
+			}
+			break;
+		}
 	}
 }
 
@@ -925,6 +933,10 @@ void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKe
 			break;
 		}
 		case (int32)EMMOARPGSkillType::SPRINT_SKILLS:
+		{
+			break;
+		}
+		case (int32)EMMOARPGSkillType::BLOCKING_SKILL:
 		{
 			break;
 		}
