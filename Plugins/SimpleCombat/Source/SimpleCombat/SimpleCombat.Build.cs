@@ -31,12 +31,21 @@ public class SimpleCombat : ModuleRules
                 "Niagara",
                 "USDSchemas",
 				"GameplayCameras",
+				"Niagara",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
-			
-		
-		PrivateDependencyModuleNames.AddRange(
+        
+		if (Target.bBuildEditor == true)
+        {
+            PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                    "Persona"
+            });
+        }
+
+        PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"CoreUObject",
