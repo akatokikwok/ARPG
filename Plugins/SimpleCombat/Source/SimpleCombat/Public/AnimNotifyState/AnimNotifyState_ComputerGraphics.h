@@ -7,7 +7,7 @@
 #include "AnimNotifyState_ComputerGraphics.generated.h"
 
 /**
- *
+ * AnimeNotifyState: 镜头跳转与环绕(可用于奥义大招).
  */
 UCLASS(meta = (DisplayName = "ComputerGraphics"))
 class SIMPLECOMBAT_API UAnimNotifyState_ComputerGraphics : public UAnimNotifyState
