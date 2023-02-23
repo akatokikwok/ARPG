@@ -23,4 +23,5 @@ FCharacterAttributeTable::FCharacterAttributeTable()
 	ComboAttackTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.Attack.ComboLinkage.Ground")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Die")));
 	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Hit")));
+	LimbsTags.Add(FGameplayTag::RequestGameplayTag(TEXT("Player.State.Stun")));
 }
