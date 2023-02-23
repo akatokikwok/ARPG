@@ -644,6 +644,7 @@ void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
 bool AMMOARPGCharacterBase::IsExitActiveTag(const FName& InGASTag)
 {
 	if (const FGameplayTagContainer* ActiveTags = AbilitySystemComponent->GetCurrentActiveSkillTags()) {
+		// hasAny表示所有都选中,而非精确匹配至某一个
 		return ActiveTags->HasAny(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InGASTag)));
 	}
 	return false;

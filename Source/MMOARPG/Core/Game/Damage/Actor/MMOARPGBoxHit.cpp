@@ -66,11 +66,29 @@ void AMMOARPGBoxHit::HandleDamage(
 
 						// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
 						FName InDodgeTag = InTarget->DodgeTags();
-						// 对象被攻击打到的时候如果这个对象处于闪避技能状态下,则会播放闪避残影
+						/// 对象被攻击打到的时候如果这个对象处于闪避技能状态下,则会播放闪避残影
 						if (!InDodgeTag.IsNone() && InTarget->IsExitActiveTag(InDodgeTag)) {
 							InTarget->PlayResidualShadowMulticast();
 						}
-						// 对方没躲闪,就向其注册1个击中标签和注册击中EventData.
+						/// 发现对方发动了格挡
+						else if (InTarget->IsExitActiveTag(TEXT("Player.Skill.Block"))) {
+							// 注册专属的格挡受击ID:10
+							InTarget->SetHitID(10);
+
+							// 需要振刀
+							if (true) {
+								
+							}
+
+							// 播放被攻击目标的子弹时间效果(如树怪攻击人造成伤害盒子,人发动格挡, 人放慢动作,持续零点几秒.
+							// "Player.Skill.Block"被传递给回调 UMMOARPGGameplayAbility::OnDamageGameplayEvent(FGameplayTag InGameplayTag, FGameplayEventData Payload)
+							// 然后把此格挡tag关联的蓝图内的Block1Buff生效,继而诱发GEEC,放慢时间生效
+							UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(InTarget, FGameplayTag::RequestGameplayTag(TEXT("Player.Skill.Block")), EventData);
+
+							// 对方格挡了, 也需要播对方格挡受击的动画效果
+							InTarget->PlayHit();
+						}
+						/// 对方没躲闪,就向其注册1个击中标签和注册击中EventData.
 						else {
 							if (!AHitCollision::Buffs.IsEmpty()) {
 								// 处理任意一个buff, 给所有与刀刃接触到的有效敌人对象（带有GameplayAbilityComponent）添加GATag.
