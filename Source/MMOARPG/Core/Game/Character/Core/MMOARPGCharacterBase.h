@@ -129,6 +129,9 @@ public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetUpgradeRewardEffect() { return UpgradeRewardEffect; }
 	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
+	// 获取是否启用了振刀信号
+	FORCEINLINE bool IsVibratingKnife() const { return bVibratingKnife; }
+
 
 	// 检查本角色是否被挑飞
 	bool IsPickFly();
@@ -288,7 +291,7 @@ public:
 
 	// 拿取人的胶囊体半径
 	float GetCapsuleHalfHeight() const;
-	
+
 	// 处理顿帧效果
 	void DaytonFrame(float InDuration);
 
@@ -308,7 +311,7 @@ public:
 
 	// 应用由闪避技能诱发出来的buff(比如闪避诱发了自身的霸体效果)
 	void ApplyDodgeEffect();
-	
+
 	// 检查已激活的活跃Buff里是否匹配给定标签
 	bool IsActiveGameplayEffectTags(const FName& InTag);
 
@@ -364,4 +367,8 @@ protected:
 
 	// 计时: 复位血条UI
 	FResetBool bResetWidget;
+
+	// 振刀启用
+	UPROPERTY()
+		bool bVibratingKnife;
 };

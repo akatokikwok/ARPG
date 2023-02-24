@@ -29,6 +29,8 @@ public:
 	 * 7 和 8 设定为播 死亡蒙太奇的哪个section.
 	 * 9 10 表示激活挑飞 和禁用挑飞(落地)
 	 * 11 是在异常状态结束后人物起身
+	 * 15 是振刀启用
+	 * 16 是振刀结束
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify")
 		int32 SignalValue;

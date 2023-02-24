@@ -54,6 +54,9 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	bResetWidget.Fun.BindLambda([&]() {
 		HideWidget();
 		});
+
+	// 振刀信号默认关闭
+	bVibratingKnife = false;
 }
 
 void AMMOARPGCharacterBase::HideWidget()
@@ -244,6 +247,12 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	}
 	else if (InSignal == 11) {// 11 是起身
 		GetUp();
+	}
+	else if (InSignal == 15) {//开始振刀
+		bVibratingKnife = true;
+	}
+	else if (InSignal == 16) {//结束振刀
+		bVibratingKnife = false;
 	}
 }
 

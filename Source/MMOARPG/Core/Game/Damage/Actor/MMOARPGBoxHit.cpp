@@ -75,9 +75,10 @@ void AMMOARPGBoxHit::HandleDamage(
 							// 注册专属的格挡受击ID:10
 							InTarget->SetHitID(10);
 
-							// 需要振刀
-							if (true) {
-								
+							// 攻击对方,对方开启格挡振刀信号, 则自己会被振刀反馈
+							if (InTarget->IsVibratingKnife()) {
+								InPawnSelf->SetHitID(2);// 临时设定section为2的后退踉跄受击
+								InPawnSelf->PlayHit();// 播放受击
 							}
 
 							// 播放被攻击目标的子弹时间效果(如树怪攻击人造成伤害盒子,人发动格挡, 人放慢动作,持续零点几秒.
