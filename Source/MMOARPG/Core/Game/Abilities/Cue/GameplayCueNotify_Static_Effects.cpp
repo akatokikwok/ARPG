@@ -19,8 +19,10 @@ void UGameplayCueNotify_Static_Effects::HandleGameplayCue(AActor* MyTarget, EGam
 			case EGameplayCueEvent::OnActive:
 			case EGameplayCueEvent::Executed:
 			{
+				// 传统粒子
 				if (EmitterTemplate) {
 					UParticleSystemComponent* InParticleSystemComponent = NULL;
+					// 是否要附加到玩家身上
 					if (bAttach) {
 						InParticleSystemComponent = UGameplayStatics::SpawnEmitterAttached(
 							EmitterTemplate,
@@ -33,7 +35,6 @@ void UGameplayCueNotify_Static_Effects::HandleGameplayCue(AActor* MyTarget, EGam
 					}
 					else {
 						FTransform Transform = MyTarget->GetActorTransform();
-
 						Transform.SetLocation(Transform.GetLocation() + MyTarget->GetActorForwardVector() * PositionOffset);
 						Transform.SetRotation((Transform.GetRotation().Rotator() + RotatorOffset).Quaternion());
 
@@ -42,14 +43,15 @@ void UGameplayCueNotify_Static_Effects::HandleGameplayCue(AActor* MyTarget, EGam
 							EmitterTemplate, Transform);
 					}
 
+					// 顺带设置一下CUE的存续时长
 					if (InParticleSystemComponent) {
-						InParticleSystemComponent->SetFloatParameter(
-							DurationName,
-							Parameters.RawMagnitude);
+						InParticleSystemComponent->SetFloatParameter(DurationName, Parameters.RawMagnitude);
 					}
 				}
+				// 奶瓜
 				else if (NiagaraTemplate) {
 					UNiagaraComponent* InNiagaraComponent = NULL;
+					// 是否要附加到玩家身上
 					if (bAttach) {
 						InNiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 							NiagaraTemplate,
@@ -68,10 +70,9 @@ void UGameplayCueNotify_Static_Effects::HandleGameplayCue(AActor* MyTarget, EGam
 							MyTarget->GetActorRotation() + RotatorOffset);
 					}
 
+					// 顺带设置一下CUE的存续时长
 					if (InNiagaraComponent) {
-						InNiagaraComponent->SetFloatParameter(
-							DurationName,
-							Parameters.RawMagnitude);
+						InNiagaraComponent->SetFloatParameter(DurationName, Parameters.RawMagnitude);
 					}
 				}
 				break;
