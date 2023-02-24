@@ -53,7 +53,7 @@ int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
 float UMMOARPGGameplayAbility::CostValue(const FString& InCostName, float InLevel)
 {
 	if (UGameplayEffect* InCostBuff = GetCostGameplayEffect()) {// 找到会执行消耗的buff
-		
+
 		for (auto& Modifier : InCostBuff->Modifiers) {// 检索一系列modifier,这些modifier可能是血 蓝 耐力之类
 			if (Modifier.Attribute.GetName() == InCostName) {// 找到入参指定的那个modifier名字,比如对耗蓝感兴趣
 				float InValue = 0.f;
@@ -97,48 +97,59 @@ UAbilityTask_PlayMontageAndWait* UMMOARPGGameplayAbility::PlayMontageAnim(FName 
 }
 
 // <UAbilityTask_PNAWDamageEvent>节点 受击委托绑定的回调.
+// 回调, 专门负责解析传入的事件标签和事件数据
 // 接收BoxHit那边SendGameplayEventToActor这个API传过来的伤害事件与标签组
 // 虚方法,允许派生类的GA覆写
 void UMMOARPGGameplayAbility::OnDamageGameplayEvent(FGameplayTag InGameplayTag, FGameplayEventData Payload)
 {
-	/** I: 先从GA-Map里按名字找出 MMO-GE组 */
-	if (FMMOARPGGameplayEffects* InEffectArray = EffectMap.Find(InGameplayTag)) {// 以传入标签为依据, 查找缓存池里的 GE群集.
-		FMMOARPGGameplayEffectSpec MMOGE_Pak;// 待注册的"MMO-GE包"
-		///  待注册的"MMO-GE包"填充逻辑 与 施击和受击具体注册逻辑与编排顺序.
+	/** 一个事件标签对应 一组MMOBUFF, 用给定事件tag查询 */
+	if (FMMOARPGGameplayEffects* InEffectArray = EffectMap.Find(InGameplayTag)) {
+		
+		/* 有一份Buff实例包待填充. */
+		FMMOARPGGameplayEffectSpec MMOSpec_Pak;
+		///  待注册的"BUFF-SPEC包"填充逻辑 与 施击和受击具体注册逻辑与编排顺序.
+		/// 本质上就是为FMMOARPGGameplayEffectSpec类型的BUFF-SPEC包填充属性和数据, 然后再应用GE至Target
 		{
-			/** II: 填充MMO-GE包的 目标数据handle; 来源是Payload这个事件数据. */
-			// new一个受击的伤害承受者; 使用GAS框架里推荐的 FGameplayAbilityTargetData_ActorArray
+			/** 1. new 1个buff作用对象的ActorArray, 视业务情况而填充; 使用GAS框架里推荐的 FGameplayAbilityTargetData_ActorArray */
 			FGameplayAbilityTargetData_ActorArray* NewTargetData_ActorArray = new FGameplayAbilityTargetData_ActorArray();
-			// 用入参-伤害事件去填充 受击者的字段.
-			NewTargetData_ActorArray->TargetActorArray.Add(const_cast<AActor*>(Payload.Target));
-			// 再用写入完成的受击者去填充 单个GE的TargetHandleData.
-			MMOGE_Pak.TargetHandleData.Add(NewTargetData_ActorArray);
 
-			/** II: 扫描 MMO-GE组里所有的GE.*/
-			for (auto& Tmp : InEffectArray->TargetEffectClasses) {
-				// 2.1 先用扫描出的单个GE 构建1个空GE句柄.
-				FGameplayEffectSpecHandle NewHandle_GE =
-					GetAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(Tmp, 1, MakeEffectContext(CurrentSpecHandle, CurrentActorInfo));
-				// 2.2 赠送GASepc的技能Tag给一份给 空GE句柄; 再用新建的GE句柄填充MMO-GE包
-				if (NewHandle_GE.IsValid()) {
-					// 再拿取当前释放的GA实例.
-					FGameplayAbilitySpec* AbilitySpec =
-						GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromHandle(CurrentSpecHandle);
+			/** 2: 扫描所有MMOGE (每份MMOGE有自己的释放类型和本真GE).*/
+			for (FMMOARPGGameplayEffect& AnyMMOGE : InEffectArray->MMOGEs) {
+
+				/* 2.1 按作用类型填充ActorArray, 加工好的ActorArray再填进BUFF-SPEC包.*/
+				if (AnyMMOGE.GameplayEffectUseType == EGameplayEffectUseType::RELEASE_OWN_COLLISION) {// 判断是给自己的被动buff
+					NewTargetData_ActorArray->TargetActorArray.Add(const_cast<AActor*>(Payload.Instigator));
+					MMOSpec_Pak.TargetHandleData.Add(NewTargetData_ActorArray);
+				}
+				else if (AnyMMOGE.GameplayEffectUseType == EGameplayEffectUseType::RELEASE_TARGET_COLLISION) {// 判断是给他人的被动buff
+					NewTargetData_ActorArray->TargetActorArray.Add(const_cast<AActor*>(Payload.Target));
+					MMOSpec_Pak.TargetHandleData.Add(NewTargetData_ActorArray);
+				}
+				else {
+					break;
+				}
+
+				/* 2.2 用每份MMOGE 以及当前GAspec 构建各自的GAS-GE句柄. */
+				FGameplayEffectSpecHandle MMOGEHandle = GetAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(AnyMMOGE.EffectClass, 1, MakeEffectContext(CurrentSpecHandle, CurrentActorInfo));
+
+				/* 2.3 赠送GASepc的技能Tag给一份给 空GE句柄; 再用新建的GE句柄填充MMO-GE包. */
+				if (MMOGEHandle.IsValid()) {
+					// 先提取本GA的spec
+					FGameplayAbilitySpec* AbilitySpec = GetAbilitySystemComponentFromActorInfo()->FindAbilitySpecFromHandle(CurrentSpecHandle);
 					// 把挂在GA实例上的Tag赠送一份给GE实例
-					ApplyAbilityTagsToGameplayEffectSpec(*NewHandle_GE.Data.Get(), AbilitySpec);
-					// 做值结束后填充GE包.
+					UGameplayAbility::ApplyAbilityTagsToGameplayEffectSpec(*MMOGEHandle.Data.Get(), AbilitySpec);
+					// Buff-Spec包被注册另外一些数据
 					if (AbilitySpec) {
-						NewHandle_GE.Data->SetByCallerTagMagnitudes = AbilitySpec->SetByCallerTagMagnitudes;// 用GA的标签量级填充GE的标签量级
-						MMOGE_Pak.TargetEffectSpecs.Add(NewHandle_GE);// 填充GE包.
+						MMOGEHandle.Data->SetByCallerTagMagnitudes = AbilitySpec->SetByCallerTagMagnitudes;// 用GA的标签量级填充GE的标签量级
+						MMOSpec_Pak.TargetEffectSpecs.Add(MMOGEHandle);
 					}
 				}
 			}
-			//
 		}
 
-		/** III: 做完值的GE包里提取出所有GE (伤害GE)应用给敌人. */
-		for (auto& Tmp : MMOGE_Pak.TargetEffectSpecs) {
-			TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles = K2_ApplyGameplayEffectSpecToTarget(Tmp, MMOGE_Pak.TargetHandleData);
+		/** 3: 做完值的BUFF-SPEC包里提取出所有GE (伤害GE)应用给敌人. */
+		for (FGameplayEffectSpecHandle& GEHandle : MMOSpec_Pak.TargetEffectSpecs) {
+			TArray<FActiveGameplayEffectHandle> ActiveGameplayEffectHandles = K2_ApplyGameplayEffectSpecToTarget(GEHandle, MMOSpec_Pak.TargetHandleData);
 		}
 	}
 }
