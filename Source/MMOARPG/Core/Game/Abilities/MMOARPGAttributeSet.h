@@ -82,6 +82,9 @@ protected:
 	// Rep最大耐力值
 	UFUNCTION()
 		virtual void OnRep_MaxStaminaValue(const FGameplayAttributeData& OldValue);
+	// Rep CD
+	UFUNCTION()
+		virtual void OnRep_CDValue(const FGameplayAttributeData& OldValue);
 
 protected:
 	// 工具方法:
@@ -93,7 +96,7 @@ protected:
 
 public:
 	// 属性同步; 属性在服务器发生变化时，对应的客户端自动调用OnRep函数.
-	UPROPERTY(BlueprintReadOnly, Category = "Level", ReplicatedUsing = OnRep_Level)
+		UPROPERTY(BlueprintReadOnly, Category = "Level", ReplicatedUsing = OnRep_Level)
 		FGameplayAttributeData Level;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, Level)
 
@@ -161,9 +164,15 @@ public:
 		UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_StaminaValue)
 		FGameplayAttributeData StaminaValue;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, StaminaValue)
-		
+
 		// 最大耐力值
 		UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxStaminaValue)
 		FGameplayAttributeData MaxStaminaValue;
 	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, MaxStaminaValue)
+
+protected:
+	// CD, 临时的,不需要上传或者同步储存
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_CDValue)
+		FGameplayAttributeData CD;
+	PROPERTY_FUNCTION_REGISTRATION(UMMOARPGAttributeSet, CD)
 };

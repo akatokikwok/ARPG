@@ -31,7 +31,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GA")
 		UNiagaraSystem* NiagaraTemplate;
 
-	// 需要特效的生命值名字
+	// 需要指定的特效里的那个对外暴露的参数名字.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GA")
 		FName DurationName;
 

@@ -360,3 +360,8 @@ void UMMOARPGAttributeSet::OnRep_MaxStaminaValue(const FGameplayAttributeData& O
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxStaminaValue, OldValue);
 }
+
+void UMMOARPGAttributeSet::OnRep_CDValue(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, CD, OldValue);
+}
