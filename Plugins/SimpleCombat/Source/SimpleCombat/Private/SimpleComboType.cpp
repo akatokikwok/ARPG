@@ -1,5 +1,31 @@
 ﻿#include "../Public/SimpleComboType.h"
 #include "CombatInterface/SimpleCombatInterface.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+FContinuousReleaseSpell::FContinuousReleaseSpell()
+	: ContinuousReleaseSpellIndex(INDEX_NONE)
+	, BuffPtr(NULL)
+{
+
+}
+
+void FContinuousReleaseSpell::Press()
+{
+	if (ContinuousReleaseSpellIndex == INDEX_NONE) {
+		ContinuousReleaseSpellIndex++;
+	}
+}
+
+void FContinuousReleaseSpell::Released()
+{
+	ContinuousReleaseSpellIndex = 2;
+}
+
+void FContinuousReleaseSpell::Reset()
+{
+	ContinuousReleaseSpellIndex = INDEX_NONE;
+}
 
 FSimpleComboCheck::FSimpleComboCheck()
 	: ComboIndex(INDEX_NONE)
@@ -17,7 +43,7 @@ void FSimpleComboCheck::UpdateComboIndex()
 	check(MaxIndex > 0);
 	ComboIndex++;
 	if (ComboIndex > MaxIndex) {// 溢出则重置段号.
-		ComboIndex = 1; 
+		ComboIndex = 1;
 	}
 }
 
@@ -47,3 +73,25 @@ void FSimpleComboCheck::Reset()
 	ComboIndex = INDEX_NONE;// 还原连招段号.
 }
 
+namespace SimpleComboType
+{
+	FVector GetCurrentCharacterDirection(ACharacter* InCharacter, const FVector& InDirectionForce)
+	{
+		FVector V = FVector::ZeroVector;
+		if (InCharacter) {
+			if (InDirectionForce.X != 0.f) {
+				V += InCharacter->GetActorForwardVector() * InDirectionForce.X;
+			}
+
+			if (InDirectionForce.Y != 0.f) {
+				V += InCharacter->GetActorRightVector() * InDirectionForce.Y;
+			}
+
+			if (InDirectionForce.Z != 0.f) {
+				V += InCharacter->GetActorUpVector() * InDirectionForce.Z;
+			}
+		}
+
+		return V;
+	}
+}

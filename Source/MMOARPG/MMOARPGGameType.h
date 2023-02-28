@@ -33,6 +33,14 @@ enum class EMMOARPGSkillType : uint8
 	MAX_SKILLS,
 };
 
+// 技能释放行为类型
+UENUM(BlueprintType)
+enum class EMMOARPGSkillReleaseType : uint8
+{
+	UNSUSTAINABLE   UMETA(DisplayName = "Unsustainable Release Spell"),
+	CONTINUOUS		UMETA(DisplayName = "Continuous Release Spell"),
+};
+
 /**
  * 弹窗消息类型枚举
  */
