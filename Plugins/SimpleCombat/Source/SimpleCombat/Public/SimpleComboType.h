@@ -35,7 +35,7 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = ContinuousReleaseSpell)
-		int32 ContinuousReleaseSpellIndex;
+		int32 ContinuousReleaseSpellIndex;// 持续施法计数
 
 	UPROPERTY(EditDefaultsOnly, Category = ContinuousReleaseSpell)
 		UAnimMontage* AnimMontage;

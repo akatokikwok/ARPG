@@ -19,11 +19,13 @@ void FContinuousReleaseSpell::Press()
 
 void FContinuousReleaseSpell::Released()
 {
+	// 设定为2号即认为是释放
 	ContinuousReleaseSpellIndex = 2;
 }
 
 void FContinuousReleaseSpell::Reset()
 {
+	// 持续施法复位
 	ContinuousReleaseSpellIndex = INDEX_NONE;
 }
 
