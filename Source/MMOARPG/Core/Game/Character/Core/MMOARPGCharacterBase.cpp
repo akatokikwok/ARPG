@@ -581,6 +581,7 @@ void AMMOARPGCharacterBase::PlaySlowMotionOnClient_Implementation(float InDurati
 // 持续施法消耗 (广播至任意客户端)
 void AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast_Implementation()
 {
+	// 认为黑盒设置为2号就是执行持续施法
 	if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
 		ReleaseSpell->ContinuousReleaseSpellIndex = 2;
 	}

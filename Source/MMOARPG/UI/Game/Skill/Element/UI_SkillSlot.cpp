@@ -11,10 +11,20 @@
 #include "../../../../Core/Game/MMOARPGHUD.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "ThreadManage.h"
+#include "../../../../Core/Game/Abilities/Skill/GameplayAbility_ContinuousSpell.h"
 
 int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
 #define LOCTEXT_NAMESPACE "UUI_SkillSlot"
+
+EMMOARPGSkillReleaseType FWidgetSlotInfo::GetReleaseType()
+{
+	if (GameplayAbility) {
+		return (EMMOARPGSkillReleaseType)GameplayAbility->IsA(UGameplayAbility_ContinuousSpell::StaticClass());
+	}
+
+	return EMMOARPGSkillReleaseType::UNSUSTAINABLE;
+}
 
 UUI_SkillSlot::UUI_SkillSlot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -208,7 +218,7 @@ void UUI_SkillSlot::OnClickedWidget()
 							//
 							if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {// 仅当进入战斗行为状态
 								// 服务端执行技能形式的技能攻击(需指定一个槽号)
-								InCharacter->SKillAttackOnServer(KeyNumber);
+								InCharacter->SKillAttackOnServer(KeyNumber, SlotInfo.GetReleaseType());
 							}
 							else {
 								// 警示 未进入战斗姿态
@@ -237,7 +247,7 @@ void UUI_SkillSlot::OnReleasedClickedWidget()
 			// 是否处于战斗状态下
 			if (InCharacter->GetActionState() == ECharacterActionState::FIGHT_STATE) {
 				// 在服务端中止已激发的技能
-				InCharacter->ReleaseSKillAttackOnServer(KeyNumber);
+				InCharacter->ReleaseSKillAttackOnServer(KeyNumber, SlotInfo.GetReleaseType());
 			}
 			else {
 				WarningPrint(LOCTEXT("ActionState_Key", "Must be in fight state."));

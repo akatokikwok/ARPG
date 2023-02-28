@@ -33,6 +33,9 @@ struct FWidgetSlotInfo
 	// 技能名是否有意义
 	bool IsVaild() const { return Tags != NAME_None; };
 
+	// 获取槽内技能的释放类型(持续施法还是点按)
+	EMMOARPGSkillReleaseType GetReleaseType();
+
 	// 技能槽内所有属性全部复位
 	void Reset()
 	{

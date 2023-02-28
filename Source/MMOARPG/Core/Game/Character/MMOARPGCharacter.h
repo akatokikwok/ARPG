@@ -174,11 +174,11 @@ public:/// 关于GameMode可调用的一些技能与UI交互的接口
 
 	/// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
 	UFUNCTION(Server, Reliable)
-		void SKillAttackOnServer(int32 InSlot);
+		void SKillAttackOnServer(int32 InSlot, EMMOARPGSkillReleaseType InReleaseType);
 
 	/// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
 	UFUNCTION(Server, Reliable)
-		void ReleaseSKillAttackOnServer(int32 InSlot);
+		void ReleaseSKillAttackOnServer(int32 InSlot, EMMOARPGSkillReleaseType InReleaseType);
 
 	// 在客户端 更新技能表(SkillPage)-UI外观
 	UFUNCTION(Client, Reliable)

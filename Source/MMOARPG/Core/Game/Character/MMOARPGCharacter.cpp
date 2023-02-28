@@ -830,7 +830,7 @@ void AMMOARPGCharacter::ConditionalSkillsOnClient_Implementation(const FName& In
 
 #pragma region 技能槽的分型与案件系统逻辑块
 /// /** 服务端执行技能形式的技能攻击(需指定一个技能槽序号) */
-void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
+void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber, EMMOARPGSkillReleaseType InReleaseType)
 {
 	// 死亡时无法释放技能
 	if (IsDie()) {
@@ -903,7 +903,7 @@ void AMMOARPGCharacter::SKillAttackOnServer_Implementation(int32 InSlotKeyNumber
 }
 
 /// /** 服务端停止 技能形式的技能攻击(需指定一个技能槽序号) */
-void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKeyNumber)
+void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKeyNumber, EMMOARPGSkillReleaseType InReleaseType)
 {
 	switch (InSlotKeyNumber) {
 		case 1:	//GENERAL_SKILLS
@@ -912,6 +912,18 @@ void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKe
 		case 4:	//GENERAL_SKILLS
 		case 5:	//GENERAL_SKILLS
 		{
+			/* 松开键位的时候,需要核验一下本槽内技能的释放类型是否是持续施法而非点按 */
+			if (InReleaseType == EMMOARPGSkillReleaseType::CONTINUOUS) {
+				// 拿持续施法检测黑盒
+				if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
+					// 判定服务器Index
+					if (ReleaseSpell->ContinuousReleaseSpellIndex != INDEX_NONE) {
+						// 通知所有端广播
+						AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast();
+					}
+				}
+			}
+
 			break;
 		}
 		case (int32)EMMOARPGSkillType::DROP_FROM_THE_CLOUDS_SKILL:
