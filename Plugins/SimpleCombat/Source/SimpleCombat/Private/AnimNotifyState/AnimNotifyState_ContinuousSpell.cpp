@@ -10,11 +10,10 @@ void UAnimNotifyState_ContinuousSpell::NotifyBegin(USkeletalMeshComponent* MeshC
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
 	if (MeshComp->GetOuter() && MeshComp->GetOuter()->GetWorld()) {
-		if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {
-			if (FContinuousReleaseSpell* InSpell = InCharacter->GetContinuousReleaseSpell()) {
-				if (InSpell->ContinuousReleaseSpellIndex == 0 ||
-					InSpell->ContinuousReleaseSpellIndex == INDEX_NONE) {
-					// 进入下一个循环
+		if (ISimpleComboInterface* InCharacter = Cast<ISimpleComboInterface>(MeshComp->GetOuter())) {// 人必须继承了战斗接口
+			if (FContinuousReleaseSpell* InSpell = InCharacter->GetContinuousReleaseSpell()) {// 取得持续施法黑盒
+				if (InSpell->ContinuousReleaseSpellIndex == 0 || InSpell->ContinuousReleaseSpellIndex == INDEX_NONE) {
+					// 进入下一个循环或者刚开始,这两种情形, 会设定一下持续施法号为 section 1
 					InSpell->ContinuousReleaseSpellIndex = 1;
 				}
 			}
@@ -38,9 +37,7 @@ void UAnimNotifyState_ContinuousSpell::NotifyEnd(USkeletalMeshComponent* MeshCom
 					FName SectionName = *FString::FromInt(InSpell->ContinuousReleaseSpellIndex);
 					if (ACharacter* InCharacter = Cast<ACharacter>(MeshComp->GetOuter())) {
 						if (InSpell->ContinuousReleaseSpellIndex == 2) {
-							InCharacter->PlayAnimMontage(
-								InSpell->AnimMontage, 1.f,
-								SectionName);
+							InCharacter->PlayAnimMontage(InSpell->AnimMontage, 1.f,	SectionName);
 						}
 						else {
 							if (InCharacter->GetMesh()) {

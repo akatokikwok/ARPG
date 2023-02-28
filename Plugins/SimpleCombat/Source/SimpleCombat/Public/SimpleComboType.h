@@ -35,10 +35,10 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = ContinuousReleaseSpell)
-		int32 ContinuousReleaseSpellIndex;// 持续施法计数
+		int32 ContinuousReleaseSpellIndex;// 持续施法计数, 对应持续施法技能的section号
 
 	UPROPERTY(EditDefaultsOnly, Category = ContinuousReleaseSpell)
-		UAnimMontage* AnimMontage;
+		UAnimMontage* AnimMontage;// 那个需要在某个section里持续放的蒙太奇
 
 	class ISimpleComboInterface* Character;
 

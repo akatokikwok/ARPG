@@ -1,6 +1,8 @@
 ﻿#include "MMOARPGAbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "../Character/Core/MMOARPGCharacterBase.h"
+#include "Skill/GameplayAbility_ContinuousSpell.h"
+
 
 UMMOARPGAbilitySystemComponent::UMMOARPGAbilitySystemComponent()
 {
@@ -20,13 +22,17 @@ float UMMOARPGAbilitySystemComponent::PlayMontage(UGameplayAbility* InAnimatingA
 {
 	if (AbilityActorInfo.IsValid() && NewAnimMontage) {
 		if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(AbilityActorInfo->OwnerActor)) {
+			
+			// 先获取这个GA的释放行为类型(是持续施法还是点按)
+			EMMOARPGSkillReleaseType ReleaseType = (EMMOARPGSkillReleaseType)InAnimatingAbility->IsA(UGameplayAbility_ContinuousSpell::StaticClass());
+
 			if (IsOwnerActorAuthoritative()) {
-				// 服务器上 广播蒙太奇动画.
-				InCharacterBase->MontagePlayOnMulticast(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName);
+				// 服务器上 广播蒙太奇动画; 注意需要判别并传入施法类型.
+				InCharacterBase->MontagePlayOnMulticast(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName, ReleaseType);
 			}
 			else {
-				// 客户端上 RPC服务器广播蒙太奇动画.
-				InCharacterBase->MontagePlayOnServer(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName);
+				// 客户端上 RPC服务器广播蒙太奇动画; 注意需要判别并传入施法类型.
+				InCharacterBase->MontagePlayOnServer(NewAnimMontage, InPlayRate, StartTimeSeconds, true, StartSectionName, ReleaseType);
 			}
 
 			// 手动注册一个当前的蒙太奇

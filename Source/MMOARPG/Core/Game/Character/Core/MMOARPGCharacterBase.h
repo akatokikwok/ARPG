@@ -234,7 +234,7 @@ public:/// 技能相关
 public:
 	// 播放蒙太奇动画(服务端)
 	UFUNCTION(Server, Reliable)
-		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None);
+		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None, EMMOARPGSkillReleaseType ReleaseType = EMMOARPGSkillReleaseType::UNSUSTAINABLE);
 
 	// 中断蒙太奇
 	UFUNCTION(NetMulticast, Reliable)

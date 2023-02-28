@@ -500,7 +500,7 @@ void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
 	}
 }
 
-void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/)
+void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/, EMMOARPGSkillReleaseType ReleaseType)
 {
 	if (InNewAnimMontage) {
 		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InTimeToStartMontageAt, bStopAllMontages, InStartSectionName);
@@ -525,10 +525,10 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 				}
 			}
 
-			//本地保存持续施法
+			// 针对施法类型是持续施法型的,则保存一份section内的动画
 			if (ReleaseType == EMMOARPGSkillReleaseType::CONTINUOUS) {
 				if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
-					//保存一份
+					// 保存一份
 					InReleaseSpell->AnimMontage = InNewAnimMontage;
 				}
 			}

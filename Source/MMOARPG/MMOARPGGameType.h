@@ -37,7 +37,9 @@ enum class EMMOARPGSkillType : uint8
 UENUM(BlueprintType)
 enum class EMMOARPGSkillReleaseType : uint8
 {
+	// 点按释放
 	UNSUSTAINABLE   UMETA(DisplayName = "Unsustainable Release Spell"),
+	// 持续按压后释放
 	CONTINUOUS		UMETA(DisplayName = "Continuous Release Spell"),
 };
 
