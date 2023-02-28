@@ -6,6 +6,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MMOARPG/MMOARPGGameType.h"
 #include "../../../Component/FlyComponent.h"
 #include "../../../Component/SwimmingComponent.h"
 #include "../../../Component/ClimbingComponent.h"
@@ -107,7 +108,6 @@ float AMMOARPGCharacterBase::GetCharacterExp()
 
 	return 0.f;
 }
-
 
 void AMMOARPGCharacterBase::UpdateLevel(float InLevel)
 {
@@ -254,6 +254,31 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	else if (InSignal == 16) {//结束振刀
 		bVibratingKnife = false;
 	}
+	else if (InSignal == 20)// 持续施法以耗蓝为主
+	{
+		if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+			if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
+				if (UGameplayEffect* InEffect = Cast<UGameplayEffect>(InReleaseSpell->BuffPtr)) {
+					float OutMagnitude = 0.f;
+					for (auto& Tmp : InEffect->Modifiers) {
+						if (Tmp.Attribute.AttributeName == TEXT("Mana")) {
+							Tmp.ModifierMagnitude.GetStaticMagnitudeIfPossible(GetCharacterLevel(), OutMagnitude);
+							break;
+						}
+					}
+
+					OutMagnitude = FMath::Abs(OutMagnitude);
+
+					if (GetCharacterMana() < OutMagnitude) {
+						ContinuousReleaseSpellEndOnMulticast();
+					}
+				}
+				else {
+					ContinuousReleaseSpellEndOnMulticast();
+				}
+			}
+		}
+	}
 }
 
 // 用1行DTR属性 注册更新AttributeSet指针数据
@@ -375,6 +400,14 @@ struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo(const FName&
 	return GetFightComponent()->GetSimpleComboInfo(InGAKey);
 }
 
+struct FContinuousReleaseSpell* AMMOARPGCharacterBase::GetContinuousReleaseSpell()
+{
+	if (GetFightComponent()) {
+		return GetFightComponent()->GetContinuousReleaseSpell();
+	}
+	return nullptr;
+}
+
 // 广播 刷新最新的人物GAS属性集.
 void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
 {
@@ -480,7 +513,7 @@ void AMMOARPGCharacterBase::StopAnimMontageOnMulticast_Implementation()
 }
 
 // 让动画实例播1个蒙太奇的指定section
-void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/)
+void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/, EMMOARPGSkillReleaseType ReleaseType)
 {
 	if (GetMesh() && InNewAnimMontage) {
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance()) {
@@ -489,6 +522,14 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 				// Start at a given Section.
 				if (InStartSectionName != NAME_None) {
 					AnimInstance->Montage_JumpToSection(InStartSectionName, InNewAnimMontage);
+				}
+			}
+
+			//本地保存持续施法
+			if (ReleaseType == EMMOARPGSkillReleaseType::CONTINUOUS) {
+				if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
+					//保存一份
+					InReleaseSpell->AnimMontage = InNewAnimMontage;
 				}
 			}
 		}
@@ -535,6 +576,14 @@ void AMMOARPGCharacterBase::PlaySlowMotionOnClient_Implementation(float InDurati
 	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 		});
+}
+
+// 持续施法消耗 (广播至任意客户端)
+void AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast_Implementation()
+{
+	if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
+		ReleaseSpell->ContinuousReleaseSpellIndex = 2;
+	}
 }
 
 // 授予击杀本人物的奖励Buff

@@ -181,6 +181,9 @@ public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
 	virtual struct FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAKey) override;
 
+	// 获取人物的持续施法消耗黑盒
+	virtual struct FContinuousReleaseSpell* GetContinuousReleaseSpell() override;
+
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
@@ -239,7 +242,7 @@ public:
 
 	// 播放蒙太奇动画(被广播客户端)
 	UFUNCTION(NetMulticast, Reliable)
-		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None);
+		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None, EMMOARPGSkillReleaseType ReleaseType = EMMOARPGSkillReleaseType::UNSUSTAINABLE);
 
 	// 广播起身动画
 	UFUNCTION(NetMulticast, Reliable)
@@ -256,6 +259,10 @@ public:
 	// 播放慢动作/子弹时间效果(仅客户端)
 	UFUNCTION(Client, Reliable)
 		void PlaySlowMotionOnClient(float InDuration, float InSpeed);
+
+	// 持续施法消耗 (广播至任意客户端)
+	UFUNCTION(NetMulticast, Reliable)
+		void ContinuousReleaseSpellEndOnMulticast();
 
 public:
 	// 授予击杀本人物的奖励Buff

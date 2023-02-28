@@ -146,6 +146,12 @@ FSimpleComboCheck* UFightComponent::GetSimpleComboInfo(const FName& InGAkey)
 		});
 }
 
+// 获取持续施法黑盒
+FContinuousReleaseSpell* UFightComponent::GetContinuousReleaseSpell()
+{
+	return &ContinuousReleaseSpell;
+}
+
 /** 连招黑盒检测器 激发; 需要1个SkillSlot的键位号 */
 void UFightComponent::Press(int32 InSlot)
 {
@@ -156,10 +162,10 @@ void UFightComponent::Press(int32 InSlot)
 			if (AnyComboCheck.ComboKey_GA == CurrentSKillComboName /*TEXT("Player.Attack.ComboLinkage.Air")*/) {// 放的技能是空中连击;// 必须匹配对应的COMBO,分空中和地面型
 				AnyComboCheck.Press();
 
-				// 测试代码, 非正式, 调镜头操作
-				if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
-					InChar->HandleCameraViewWhenAirCombo();
-				}
+// 				// 测试代码, 非正式, 调镜头操作
+// 				if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+// 					InChar->HandleCameraViewWhenAirCombo();
+// 				}
 				break;
 			}
 		}
@@ -183,22 +189,26 @@ void UFightComponent::Released(int32 InSlotKeyNumber)
 			break;
 		}
 
-		// 测试代码, 非正式, 调镜头操作
-		if (UMotionComponent::IsAir()) {// 在空中
-			AnyComboCheck.Released();
-			if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
-				InChar->HandleCameraViewWhenNotInAirCombo();
-			}
-		}
+// 		// 测试代码, 非正式, 调镜头操作
+// 		if (UMotionComponent::IsAir()) {// 在空中
+// 			AnyComboCheck.Released();
+// 			if (AMMOARPGCharacter* InChar = Cast<AMMOARPGCharacter>(MMOARPGCharacterBase)) {
+// 				InChar->HandleCameraViewWhenNotInAirCombo();
+// 			}
+// 		}
 	}
 }
 
-/** Combo黑盒检测器 复位 */
+/** 牵扯到所有技能黑盒的全部 复位(如连招、持续施法) */
 void UFightComponent::Reset()
 {
+	// 所有连击黑盒复位
 	for (FSimpleComboCheck& AnyComboCheck : ComboAttackChecks) {
 		AnyComboCheck.Reset();
 	}
+
+	// 持续施法黑盒复位
+	ContinuousReleaseSpell.Reset();
 }
 
 // 注册各部分技能(按形式来源)

@@ -73,13 +73,16 @@ public:
 	// 从一组连击黑盒检测器(空中, 地面)里按技能名获取对应的黑盒检测器
 	FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAkey);
 
+	// 获取持续施法黑盒
+	FContinuousReleaseSpell* GetContinuousReleaseSpell();
+
 	/** 连招黑盒检测器 激发; 需要1个SkillSlot的键位号 */
 	void Press(int32 InSlot);
 
 	/** Combo黑盒检测器 中止 */
 	void Released(int32 InSlotKeyNumber);
 
-	/** Combo黑盒检测器 复位 */
+	/** 牵扯到所有技能黑盒的全部 复位(如连招、持续施法) */
 	void Reset();
 
 public:
@@ -250,6 +253,10 @@ private:
 	// 一组Combo形式的攻击 黑盒触发器(包含空中连击, 地面连击)
 	UPROPERTY()
 		TArray<FSimpleComboCheck> ComboAttackChecks;
+
+	// 1个持续施法消耗黑盒
+	UPROPERTY()
+		FContinuousReleaseSpell ContinuousReleaseSpell;
 
 public:
 	// 受击ID
