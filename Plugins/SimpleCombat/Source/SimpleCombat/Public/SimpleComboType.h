@@ -10,13 +10,20 @@ class UAnimMontage;
 UENUM(BlueprintType)
 enum class EHitCollisionType :uint8
 {
-	HITCOLLISIONTYPE_SHORT_RANGE_ATTACK UMETA(DisplayName = "Short range attack"),		//近程攻击
-	HITCOLLISIONTYPE_DIRECT_LINE 		UMETA(DisplayName = "Direct Line"),				//无障碍直线攻击
-	HITCOLLISIONTYPE_LINE				UMETA(DisplayName = "Line"),					//非跟踪类型，类似手枪子弹；
-	HITCOLLISIONTYPE_TRACK_LINE			UMETA(DisplayName = "Track Line"),				//跟踪类型
-	HITCOLLISIONTYPE_RANGE_LINE			UMETA(DisplayName = "Range Line"),				//范围伤害，丢手雷；
-	HITCOLLISIONTYPE_RANGE				UMETA(DisplayName = "Range"),					//范围伤害，类似自爆；
-	HITCOLLISIONTYPE_CHAIN				UMETA(DisplayName = "Chain"),					//链条类型，持续伤害类型;
+	// 近程攻击
+	HITCOLLISIONTYPE_SHORT_RANGE_ATTACK UMETA(DisplayName = "Short range attack"),		
+	// 无障碍直线攻击
+	HITCOLLISIONTYPE_DIRECT_LINE 		UMETA(DisplayName = "Direct Line"),				
+	// 非跟踪类型，类似手枪子弹；
+	HITCOLLISIONTYPE_LINE				UMETA(DisplayName = "Line"),					
+	// 追踪类型的伤害:如持续施法射出抛物线法球
+	HITCOLLISIONTYPE_TRACK_LINE			UMETA(DisplayName = "Track Line"),				
+	// 范围伤害，丢手雷；
+	HITCOLLISIONTYPE_RANGE_LINE			UMETA(DisplayName = "Range Line"),				
+	// 范围伤害，类似自爆；
+	HITCOLLISIONTYPE_RANGE				UMETA(DisplayName = "Range"),					
+	// 链条类型，持续伤害类型;
+	HITCOLLISIONTYPE_CHAIN				UMETA(DisplayName = "Chain"),					
 };
 
 
