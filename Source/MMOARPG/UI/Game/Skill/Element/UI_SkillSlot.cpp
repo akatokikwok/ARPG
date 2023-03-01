@@ -4,6 +4,7 @@
 #include "Components/Image.h"
 #include "DragDrop/UI_ICODragDrog.h"
 #include "Styling/SlateBrush.h"
+#include "MMOARPG\Core\Game\Abilities\MMOARPGGameplayAbility.h"
 #include "../../../../Core/Game/Character/MMOARPGCharacter.h"
 #include "../UI_UnderSkillGroup.h"
 #include "MMOARPG/Core/Game/Abilities/MMOARPGAttributeSet.h"
@@ -19,7 +20,7 @@ int32 UUI_SkillSlot::PlayerSkillNumber = 0;
 
 EMMOARPGSkillReleaseType FWidgetSlotInfo::GetReleaseType()
 {
-	if (GameplayAbility) {
+	if (GameplayAbility) {// 仅当槽位内配置了技能的时候
 		return (EMMOARPGSkillReleaseType)GameplayAbility->IsA(UGameplayAbility_ContinuousSpell::StaticClass());
 	}
 
@@ -407,7 +408,8 @@ bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 					else if (MyInventorySlot->GetSlotInfo().SkillType != EMMOARPGSkillType::NONE_SKILLS) {
 
 						if ((MyInventorySlot->GetSlotInfo().SkillType == this->SkillType && MyInventorySlot->IsSkillTableSlot()) ||// 从Page->Slot;
-							(this->IsSkillTableSlot() && this->SkillType == EMMOARPGSkillType::NONE_SKILLS)) {// 从Slot->Page
+							(this->IsSkillTableSlot() && this->SkillType == EMMOARPGSkillType::NONE_SKILLS) ||// 从Slot->Page
+							MyInventorySlot->GetSlotInfo().SkillType == this->SkillType && this->SkillType == EMMOARPGSkillType::GENERAL_SKILLS) {// 从Slot->Slot
 							// 在服务端方面的"移动行为"-拖拽操作实质逻辑
 							UpdateMoveToByServer(MyInventorySlot, InCharacter);
 							// 在客户端方面的"移动行为"-拖拽操作实质逻辑
