@@ -5,7 +5,7 @@
 
 FContinuousReleaseSpell::FContinuousReleaseSpell()
 	: ContinuousReleaseSpellIndex(INDEX_NONE)
-	, BuffPtr(NULL)
+	, BuffPtrObj(NULL)
 {
 
 }

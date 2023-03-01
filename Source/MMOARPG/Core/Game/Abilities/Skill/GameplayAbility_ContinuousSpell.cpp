@@ -7,10 +7,11 @@ void UGameplayAbility_ContinuousSpell::ActivateAbility(const FGameplayAbilitySpe
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// 注册消耗
+	// 当发动持续施法GA的时候, 要注册黑盒里的消耗
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
 		if (FContinuousReleaseSpell* InReleaseSpell = InCharacterBase->GetContinuousReleaseSpell()) {
-			InReleaseSpell->BuffPtr = GetCostGameplayEffect();
+			// 设定黑盒内的消耗buff为这张GA里配置的cost buff
+			InReleaseSpell->BuffPtrObj = this->GetCostGameplayEffect();
 		}
 	}
 }

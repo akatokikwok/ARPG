@@ -36,9 +36,11 @@ void UAnimNotifyState_ContinuousSpell::NotifyEnd(USkeletalMeshComponent* MeshCom
 				if (InSpell->AnimMontage) {
 					FName SectionName = *FString::FromInt(InSpell->ContinuousReleaseSpellIndex);
 					if (ACharacter* InCharacter = Cast<ACharacter>(MeshComp->GetOuter())) {
+						// 计数为2的时候, 即可以视作是中断持续施法, 具体行为是播放 2号section的动画(End)
 						if (InSpell->ContinuousReleaseSpellIndex == 2) {
 							InCharacter->PlayAnimMontage(InSpell->AnimMontage, 1.f,	SectionName);
 						}
+						// 核验计数为1或者0, 即可以视作是保持持续施法或者是前摇动作, 具体行为是跳转过去1 并Loop
 						else {
 							if (InCharacter->GetMesh()) {
 								if (UAnimInstance* InAnimInstance = InCharacter->GetMesh()->GetAnimInstance()) {

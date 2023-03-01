@@ -918,7 +918,7 @@ void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKe
 				if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
 					// 判定服务器Index
 					if (ReleaseSpell->ContinuousReleaseSpellIndex != INDEX_NONE) {
-						// 通知所有端广播
+						// 通知所有端广播, 勒令中断持续施法,直接跳转至2,不再是循环的1
 						AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast();
 					}
 				}

@@ -256,25 +256,26 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	}
 	else if (InSignal == 20)// 持续施法以耗蓝为主
 	{
-		if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
+		if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {// 仅承载在服务端有效
 			if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
-				if (UGameplayEffect* InEffect = Cast<UGameplayEffect>(InReleaseSpell->BuffPtr)) {
+				if (UGameplayEffect* InGE = Cast<UGameplayEffect>(InReleaseSpell->BuffPtrObj)) {/* 这种情况是发动了持续施法技能且注册了消耗*/
 					float OutMagnitude = 0.f;
-					for (auto& Tmp : InEffect->Modifiers) {
-						if (Tmp.Attribute.AttributeName == TEXT("Mana")) {
-							Tmp.ModifierMagnitude.GetStaticMagnitudeIfPossible(GetCharacterLevel(), OutMagnitude);
+					for (auto& Modifier : InGE->Modifiers) {
+						// 仅去找修改蓝的部分,取出这个数值
+						if (Modifier.Attribute.AttributeName == TEXT("Mana")) {
+							Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(GetCharacterLevel(), OutMagnitude);
 							break;
 						}
 					}
 
 					OutMagnitude = FMath::Abs(OutMagnitude);
-
+					// 人的蓝量过低,无法再发动了, 直接把黑盒计数调整为2,中止再播为1时候的循环动画
 					if (GetCharacterMana() < OutMagnitude) {
 						ContinuousReleaseSpellEndOnMulticast();
 					}
 				}
-				else {
-					ContinuousReleaseSpellEndOnMulticast();
+				else {/* 这种是未发动持续施法,没有注册持续施法消耗*/
+					ContinuousReleaseSpellEndOnMulticast();// 
 				}
 			}
 		}
@@ -578,7 +579,7 @@ void AMMOARPGCharacterBase::PlaySlowMotionOnClient_Implementation(float InDurati
 		});
 }
 
-// 持续施法消耗 (广播至任意客户端)
+// 持续施法计数设定为2号,勒令施法动画End (广播至任意客户端)
 void AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast_Implementation()
 {
 	// 认为黑盒设置为2号就是执行持续施法

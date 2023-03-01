@@ -43,7 +43,7 @@ public:
 	class ISimpleComboInterface* Character;
 
 	UPROPERTY()
-		UObject* BuffPtr;
+		UObject* BuffPtrObj;// 这个管理buff的指针仅当持续施法的时候才会被设置具体GE
 };
 
 

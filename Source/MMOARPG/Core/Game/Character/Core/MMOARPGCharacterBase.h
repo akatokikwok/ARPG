@@ -260,7 +260,7 @@ public:
 	UFUNCTION(Client, Reliable)
 		void PlaySlowMotionOnClient(float InDuration, float InSpeed);
 
-	// 持续施法消耗 (广播至任意客户端)
+	// 持续施法计数设定为2号,勒令施法动画End (广播至任意客户端)
 	UFUNCTION(NetMulticast, Reliable)
 		void ContinuousReleaseSpellEndOnMulticast();
 
