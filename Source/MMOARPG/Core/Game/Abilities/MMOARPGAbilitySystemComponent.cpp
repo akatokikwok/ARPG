@@ -6,7 +6,7 @@
 
 UMMOARPGAbilitySystemComponent::UMMOARPGAbilitySystemComponent()
 {
-
+	CurrentTime = 0.f;
 }
 
 UAbilitySystemComponent* UMMOARPGAbilitySystemComponent::GetAbilitySystemComponentFromActor(const AActor* Actor, bool LookForComponent /*= false*/)
@@ -44,6 +44,18 @@ float UMMOARPGAbilitySystemComponent::PlayMontage(UGameplayAbility* InAnimatingA
 	}
 
 	return INDEX_NONE;
+}
+
+void UMMOARPGAbilitySystemComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// 每隔三秒清除Block技能
+	CurrentTime += DeltaTime;
+	if (CurrentTime >= 3.f) {
+		CurrentTime = 0.f;
+		UAbilitySystemComponent::BlockedAbilityTags.Reset();
+	}
 }
 
 // 检查已激活的活跃Buff里是否匹配给定标签
