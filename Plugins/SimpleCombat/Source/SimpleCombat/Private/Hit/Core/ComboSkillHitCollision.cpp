@@ -26,8 +26,8 @@ AHitCollision::AHitCollision(const FObjectInitializer& ObjectInitializer)
 
 	InitialLifeSpan = 4.0f;// 初始化本actor生命时长.
 
-	//bNetLoadOnClient = false;
-	//bReplicates = false;
+	bNetLoadOnClient = false;
+	bReplicates = false;
 
 	// 默认是近程攻击型
 	HitCollisionType = EHitCollisionType::HITCOLLISIONTYPE_SHORT_RANGE_ATTACK;
@@ -51,9 +51,9 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 		case EHitCollisionType::HITCOLLISIONTYPE_SHORT_RANGE_ATTACK:
 		case EHitCollisionType::HITCOLLISIONTYPE_TRACK_LINE:
 		{
-			ProjectileMovement->MaxSpeed = 0.f;
-			ProjectileMovement->InitialSpeed = 0.f;
-			ProjectileMovement->ProjectileGravityScale = 0.f;
+// 			ProjectileMovement->MaxSpeed = 0.f;
+// 			ProjectileMovement->InitialSpeed = 0.f;
+ 			ProjectileMovement->ProjectileGravityScale = 0.8f;
 			break;
 		}
 	}
@@ -103,7 +103,7 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 			FVector Position = (InMyInstigator->GetActorForwardVector() * (DistanceVector.Size() / 2.f)) + InMyInstigator->GetActorLocation();
 			// 抬高了1/4之后就得到第二个点的坐标, 再在深度这个轴上随机偏移一段距离
 			Position.Z = (DistanceVector.Size() / 2.f) * 0.5f;
-			Position.Y = bRandomDirection ? FMath::RandRange(0.f, static_cast<float>(Position.Y)) : SplineOffset_Depth;
+			Position.Y = bRandomDirection ? FMath::RandRange(static_cast<float>(-Position.Y), static_cast<float>(Position.Y)) : SplineOffset_Depth;
 			// 这个点被识别为spline的1号点
 			Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::Local);
 			// 敌人坐标被识别为spline的2号点(终点)
