@@ -43,7 +43,11 @@ public:
 	// 被你攻击的受击者beHit蒙太奇里的指定受击ID.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		int32 HitID;// 被你攻击的受击者beHit蒙太奇里的指定受击ID..
-	
+
+	// 是否启用GameplayTag而不是FName型来判断buff
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		bool bEnableBuffTag;
+
 	// 技能带来的一组buff名称(FName)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		TArray<FName> Buffs;
@@ -59,6 +63,10 @@ public:
 	// 碰撞体再补上一段偏移位置.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		FVector RelativeOffsetLocation;// 碰撞体再补上一段偏移位置.
+
+	// 碰撞体的旋转偏移
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		FRotator RotationOffset;
 
 	// 存在的生命周期.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

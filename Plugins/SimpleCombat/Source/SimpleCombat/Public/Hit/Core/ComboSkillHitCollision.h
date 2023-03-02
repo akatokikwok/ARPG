@@ -25,6 +25,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// 预初始化碰撞效果(根据业务效果,比如是刀尖碰撞或者是远程法球射击)
+	virtual void PreInitCollision(AActor* InMyInstigator);
+
 	// 回调虚方法: 处理碰撞接触时候的逻辑;  可由子类覆写.
 	UFUNCTION()
 		virtual void HandleDamage(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -76,9 +79,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "HitCollision")
 		FName OpenFirePoint;
 
-	//
+	// 是否开启Spline模拟 随机Y轴深度
 	UPROPERTY(EditDefaultsOnly, Category = "HitCollision")
 		bool bRandomDirection;
+
+	// spline本身在Y深度轴的偏移长
+	UPROPERTY(EditDefaultsOnly, Category = "HitCollision")
+		float SplineOffset_Depth;
 
 protected:
 	// 受击ID.

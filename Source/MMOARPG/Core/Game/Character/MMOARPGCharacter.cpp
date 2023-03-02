@@ -916,7 +916,7 @@ void AMMOARPGCharacter::ReleaseSKillAttackOnServer_Implementation(int32 InSlotKe
 			if (InReleaseType == EMMOARPGSkillReleaseType::CONTINUOUS) {
 				// 拿持续施法检测黑盒
 				if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
-					// 判定服务器Index
+					// 判定服务器Index, 必须排除松开按键之后复位为none的情况.
 					if (ReleaseSpell->ContinuousReleaseSpellIndex != INDEX_NONE) {
 						// 通知所有端广播, 勒令中断持续施法,直接跳转至2,不再是循环的1
 						AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast();
