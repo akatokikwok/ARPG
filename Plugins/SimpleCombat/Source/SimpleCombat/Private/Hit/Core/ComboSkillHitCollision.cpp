@@ -103,7 +103,7 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 			FVector Position = (InMyInstigator->GetActorForwardVector() * (DistanceVector.Size() / 2.f)) + InMyInstigator->GetActorLocation();
 			// 抬高了1/4之后就得到第二个点的坐标, 再在深度这个轴上随机偏移一段距离
 			Position.Z = (DistanceVector.Size() / 2.f) * 0.5f;
-			Position.Y = bRandomDirection ? FMath::RandRange(0.f, static_cast<float>(Position.Z)) : SplineOffset_Depth;
+			Position.Y = bRandomDirection ? FMath::RandRange(0.f, static_cast<float>(Position.Y)) : SplineOffset_Depth;
 			// 这个点被识别为spline的1号点
 			Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::Local);
 			// 敌人坐标被识别为spline的2号点(终点)
