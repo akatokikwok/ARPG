@@ -36,10 +36,10 @@ AHitCollision::AHitCollision(const FObjectInitializer& ObjectInitializer)
 	CurrentSplineTime = 0.f;
 
 	// 关闭Spline模拟 随机Y轴深度
-	bRandomDirection = false;
+	bRandomDirection = true;
 }
 
-/** 模拟诸如法球射击的伤害物理(spline, 弹丸组件) */
+/** 模拟诸如法球射击的伤害物理(spline, 弹丸组件), InMyInstigator一般是技能发起者(即自己) */
 void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 {
 	if (!InMyInstigator) {
@@ -51,9 +51,9 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 		case EHitCollisionType::HITCOLLISIONTYPE_SHORT_RANGE_ATTACK:
 		case EHitCollisionType::HITCOLLISIONTYPE_TRACK_LINE:
 		{
-// 			ProjectileMovement->MaxSpeed = 0.f;
-// 			ProjectileMovement->InitialSpeed = 0.f;
- 			ProjectileMovement->ProjectileGravityScale = 0.8f;
+			ProjectileMovement->MaxSpeed = 0.f;
+			ProjectileMovement->InitialSpeed = 0.f;
+ 			ProjectileMovement->ProjectileGravityScale = 10.f;
 			break;
 		}
 	}
@@ -69,7 +69,7 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 			break;
 		case EHitCollisionType::HITCOLLISIONTYPE_TRACK_LINE:/// 追踪类型的伤害
 		{
-			FVector TargetLocation = FVector::ZeroVector;
+			FVector TargetLocation = FVector::ZeroVector;// 技能发起者要打击的敌人位置
 			if (ISimpleComboInterface* InInstigator = Cast<ISimpleComboInterface>(InMyInstigator)) {
 				if (AActor* InTaget = InInstigator->GetTarget()) {
 					TargetLocation = InTaget->GetActorLocation();
@@ -89,25 +89,25 @@ void AHitCollision::PreInitCollision(AActor* InMyInstigator)
 				if (InMyInstigator) {// 虚拟出来一个打击目标
 
 					// 因为pawn在角色蓝图里转了90度, 但是蒙太奇编辑器里人是Y轴正方向 所以这里取GetActorRightVector
-					TargetLocation = InMyInstigator->GetActorRightVector() * 1000.f + InMyInstigator->GetActorLocation();
+					TargetLocation = InMyInstigator->GetActorLocation() + InMyInstigator->GetActorForwardVector() * 1000.f;
 				}
 			}
 			/* new一个曲线并设置*/
 			Spline = NewObject<USplineComponent>(this, TEXT("SplineInstance"));
 			Spline->RegisterComponent();
-			// 这个点被识别为spline的0号点
-			Spline->SetLocationAtSplinePoint(0, GetActorLocation(), ESplineCoordinateSpace::Local);
-			// 我到敌人的向量
-			DistanceVector = TargetLocation - GetActorLocation();
-			// 取上面那个向量的中间点的3D坐标; 
-			FVector Position = (InMyInstigator->GetActorForwardVector() * (DistanceVector.Size() / 2.f)) + InMyInstigator->GetActorLocation();
-			// 抬高了1/4之后就得到第二个点的坐标, 再在深度这个轴上随机偏移一段距离
-			Position.Z = (DistanceVector.Size() / 2.f) * 0.5f;
-			Position.Y = bRandomDirection ? FMath::RandRange(static_cast<float>(-Position.Y), static_cast<float>(Position.Y)) : SplineOffset_Depth;
-			// 这个点被识别为spline的1号点
-			Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::Local);
-			// 敌人坐标被识别为spline的2号点(终点)
-			Spline->AddSplinePoint(TargetLocation, ESplineCoordinateSpace::Local);
+
+			// 1. 技能发起者的位置 被识别为spline的0号点
+			Spline->SetLocationAtSplinePoint(0, InMyInstigator->GetActorLocation(), ESplineCoordinateSpace::World);
+			DistanceVector = (TargetLocation - InMyInstigator->GetActorLocation());// 技能发起者 到 技能发起者打击的敌人的向量
+
+			// 2. 以世界坐标为基准, 制作第二个点
+			FVector Position = InMyInstigator->GetActorLocation() + 0.5f * DistanceVector;
+			Position.Z += (DistanceVector.Size() / 2.f) * 0.5f;// 抬高了1/4之后就得到第二个点的坐标, 再在深度这个轴上随机偏移一段距离
+			Position.Y += bRandomDirection ? FMath::RandRange(-SplineOffset_Depth, +SplineOffset_Depth) : SplineOffset_Depth;// 也设置一下Y轴深度偏移
+			Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::World);// 这个点被识别为spline的1号点
+			
+			// 3. 敌人坐标被识别为spline的2号点(终点)
+			Spline->AddSplinePoint(TargetLocation, ESplineCoordinateSpace::World);
 
 			break;
 		}
@@ -150,7 +150,7 @@ void AHitCollision::Tick(float DeltaTime)
 		{
 			if (Spline) {
 				// 持续时长累加
-				CurrentSplineTime += DeltaTime;
+				CurrentSplineTime += DeltaTime * SlowDeltaFrameParam;
 				/* 先解算出每一帧落在这根向量上的分量的尺寸, 1000是一个系数,方便更明显/迟钝暴露效果*/
 				float Distance = Spline->GetSplineLength() * CurrentSplineTime / (DistanceVector.Size() / 1000.f);
 				/* 借助上一步结算出来的单帧落下尺寸, 求取spline此帧的坐标和旋转朝向(看上去的效果就是这个碰撞盒子随时长往敌人方向运动和推进). */

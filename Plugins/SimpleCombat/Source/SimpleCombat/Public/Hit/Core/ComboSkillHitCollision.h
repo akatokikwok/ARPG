@@ -85,7 +85,7 @@ public:
 
 	// spline本身在Y深度轴的偏移长
 	UPROPERTY(EditDefaultsOnly, Category = "HitCollision")
-		float SplineOffset_Depth;
+		float SplineOffset_Depth = 30.f;
 
 protected:
 	// 受击ID.
@@ -115,4 +115,9 @@ protected:
 	// 敌人到我的向量
 	UPROPERTY()
 		FVector DistanceVector;
+
+protected:
+	// 放慢单帧的系数
+	UPROPERTY(EditAnywhere, Category = "AHitCollision")
+		float SlowDeltaFrameParam = 0.001f;
 };
