@@ -46,4 +46,16 @@ protected:
 	// 回调, 用于绑定 委托-"更新技能表".
 	UFUNCTION()
 		void UpdateSkillTable(const TArray<FName>& InSkillTags);
+
+	// 以某个Lambda来处理技能页里的技能槽
+	void CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InFunction);
+
+public:
+	// 设置横框内的某个技能槽高亮
+	UFUNCTION()
+		void SetBorderHeight(EMMOARPGSkillType InSkillType);
+
+	// 处理高亮的接口, 复位高亮
+	UFUNCTION()
+		void ResetBorderHeight();
 };

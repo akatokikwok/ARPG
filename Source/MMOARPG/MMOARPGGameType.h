@@ -4,6 +4,46 @@
 #include "MMOARPGGameType.generated.h"
 
 /**
+ * 技能分类类型
+ */
+UENUM(BlueprintType)
+enum class EMMOARPGSkillType : uint8
+{
+	// None, 0
+	NONE_SKILLS								UMETA(DisplayName = "None"),
+	// 1 2 3 4 5通用技能,这里枚举强制赋值为5,即非从[1]开始,而是跳到了5
+	GENERAL_SKILLS = 5						UMETA(DisplayName = "General Skills"),
+	// 6 从天而降条件技能
+	DROP_FROM_THE_CLOUDS_SKILL				UMETA(DisplayName = "Drop From The Clouds"),
+	// 7 闪避技能 鼠标右键的那个闪避
+	DODGE_SKILL								UMETA(DisplayName = "Dodge Skill"),
+	// 8 地面连击技能
+	COMBO_GROUND_SKILL						UMETA(DisplayName = "Combo Ground Skill"),
+	// 9 空中连击技能
+	COMBO_AIR_SKILL							UMETA(DisplayName = "Combo Air Skill"),
+	// 10 条件技能
+	CONDITIONAL_SKILLS						UMETA(DisplayName = "Conditional skills"),
+	// 11 冲刺技能
+	SPRINT_SKILLS							UMETA(DisplayName = "Sprint Skill"),
+	// 12 格挡技能
+	BLOCKING_SKILL							UMETA(DisplayName = "Blocking Skill"),
+	// 其他件技能,诸如死亡/受击那种状态技能
+	OTHER_SKILLS							UMETA(DisplayName = "Other skills"),
+	// 这个属性主要是用来做所有技能枚举计数的
+	MAX_SKILLS,
+};
+
+// 技能释放行为类型
+UENUM(BlueprintType)
+enum class EMMOARPGSkillReleaseType : uint8
+{
+	// 点按释放
+	UNSUSTAINABLE   UMETA(DisplayName = "Unsustainable Release Spell"),
+	// 持续按压后释放
+	CONTINUOUS		UMETA(DisplayName = "Continuous Release Spell"),
+};
+
+/**
  * 弹窗消息类型枚举
  */
 enum class EPopupMsgType :uint8
@@ -37,12 +77,13 @@ enum class ECharacterType : uint8
 };
 
 // 攻击形式来源枚举.
-enum EMMOARPGGameplayAbilityType
+UENUM(BlueprintType)
+enum class EMMOARPGGameplayAbilityType : uint8
 {
-	GAMEPLAYABILITY_NONE,// 
-	GAMEPLAYABILITY_SKILLATTACK,// 从属技能形式的攻击.
-	GAMEPLAYABILITY_COMBOATTACK,// 从属combo形式的攻击.
-	GAMEPLAYABILITY_LIMBS,// 肢体动作的技能或能力状态;  例如死亡, 挨打
+	GAMEPLAYABILITY_NONE			UMETA(DisplayName = "None"),// 
+	GAMEPLAYABILITY_SKILLATTACK		UMETA(DisplayName = "SkillAttack"),// 从属技能形式的攻击.
+	GAMEPLAYABILITY_COMBOATTACK		UMETA(DisplayName = "ComboAttack"),// 从属combo形式的攻击.
+	GAMEPLAYABILITY_LIMBS			UMETA(DisplayName = "Limbs"),// 肢体动作的技能或能力状态;  例如死亡, 挨打
 };
 
 /* 人物行为姿态.*/

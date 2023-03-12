@@ -4,6 +4,7 @@
 
 FCharacterSkillTable::FCharacterSkillTable()
 	: ID(INDEX_NONE)
+	, SkillType(EMMOARPGSkillType::GENERAL_SKILLS)
 {
 
 }

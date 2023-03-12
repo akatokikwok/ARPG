@@ -6,6 +6,7 @@
 
 class UHorizontalBox;
 class UUI_SkillSlot;
+struct FCharacterSkillTable;
 
 /**
  * HUD内 下侧的技能横框
@@ -17,7 +18,12 @@ class MMOARPG_API UUI_UnderSkillGroup : public UUI_Base
 public:
 	//
 	UPROPERTY(meta = (BindWidget))
-		UHorizontalBox* SlotArray;
+		UHorizontalBox* SlotArrayA;
+
+	//
+	UPROPERTY(meta = (BindWidget))
+		UHorizontalBox* SlotArrayB;
+
 	//
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 		TSubclassOf<UUI_SkillSlot> SkillSlotClass;
@@ -43,13 +49,29 @@ protected:
 		void UpdateSkillCD(const FName& InTagName, float InCDValue);
 
 	// 使用传入的lambda专门处理技能横框的特定slot
-	void CallSKillSlot(TFunction<bool(UUI_SkillSlot*)> InFunction);
+	void CallSKillSlot(UHorizontalBox* InSlotBox, TFunction<bool(UUI_SkillSlot*)> InFunction);
 
 	// 屏蔽技能输入
 	void ShieldSkillInput(float InTime);
 
 	//
 	void ShieldSkillInput(bool bShield);
+
+protected:
+	// 更新横框内槽位数据和外观的入口
+	void UpdateSlot(const TArray<FName>& InSkillTags, TArray<FCharacterSkillTable*> InSkillTables, UHorizontalBox* InSlotArray, int32 InStart, int32 AppendSize, int32 InCharacterLevel);
+
+	// 回调:绑定 委托"释放条件型技能"
+	void UpdateConditionalSkillsUI(FName InTag, float InStartPos, float InLength, float InTotalTimeLength);
+
+public:
+	// 设置横框内的某个技能槽高亮
+	UFUNCTION()
+		void SetBorderHeight(EMMOARPGSkillType InSkillType);
+
+	// 处理高亮的接口, 复位高亮
+	UFUNCTION()
+		void ResetBorderHeight();
 
 private:
 	// 刷新切换BOOL状态的结构

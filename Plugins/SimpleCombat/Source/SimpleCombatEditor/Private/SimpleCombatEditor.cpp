@@ -328,6 +328,11 @@ void FSimpleCombatEditorModule::PluginButtonClicked()
 			TagCodes.Add(TEXT("/*Get the number of enumerations of the current order*/"));
 			TagCodes.Add(TEXT("int32 GetOrderMatchingEnumIndex(int32 InGameplayTagsOrderIndex)"));
 			TagCodes.Add(TEXT("{"));
+			TagCodes.Add(TEXT("	if (InGameplayTagsOrderIndex == 0)"));
+			TagCodes.Add(TEXT("	{"));
+			TagCodes.Add(TEXT("		return 1;"));
+			TagCodes.Add(TEXT("	}"));
+			TagCodes.Add(TEXT(""));
 			TagCodes.Add(TEXT("	return FMath::CeilToInt((float)InGameplayTagsOrderIndex / 63.f);"));
 			TagCodes.Add(TEXT("}"));
 			TagCodes.Add(TEXT(""));

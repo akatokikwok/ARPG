@@ -17,9 +17,11 @@
 #include "../../Abilities/MMOARPGAttributeSet.h"
 #include "MMOARPGType.h"
 #include "../../../../MMOARPGGameMethod.h"
+#include "SimpleCombatBPLibrary.h"
 #include "MMOARPGCharacterBase.generated.h"
 class UWidgetComponent;
 class UWidget;
+class AResidualShadowActor;
 
 /**
  * 持有IAbilitySystemInterface, 格斗接口, 等接口的人物基类.
@@ -127,6 +129,9 @@ public:
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetUpgradeRewardEffect() { return UpgradeRewardEffect; }
 	// 拿取击杀本人物后的死亡奖励(在蓝图里配置好的)
 	FORCEINLINE TSubclassOf<UGameplayEffect> GetDeathRewardEffect() { return DeathRewardEffect; }
+	// 获取是否启用了振刀信号
+	FORCEINLINE bool IsVibratingKnife() const { return bVibratingKnife; }
+
 
 	// 检查本角色是否被挑飞
 	bool IsPickFly();
@@ -176,6 +181,9 @@ public:/// 技能相关
 	// 覆盖基类; 获取连招检测器.
 	virtual struct FSimpleComboCheck* GetSimpleComboInfo(const FName& InGAKey) override;
 
+	// 获取人物的持续施法消耗黑盒
+	virtual struct FContinuousReleaseSpell* GetContinuousReleaseSpell() override;
+
 	// 广播 刷新最新的人物GAS属性集.
 	UFUNCTION(NetMulticast, Reliable)
 		void UpdateCharacterAttribute(const FMMOARPGCharacterAttribute& CharacterAttribute);
@@ -188,7 +196,7 @@ public:/// 技能相关
 	void UpdateAttribute(const FMMOARPGCharacterAttribute* InGASAttribute);
 
 	// 处理人的血量; 虚方法
-	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue);
+	virtual void HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit = true);
 	// 处理人的蓝量; 虚方法
 	virtual void HandleMana(const struct FGameplayTagContainer& InTags, float InNewValue);
 	// 处理人的伤害值; 虚方法
@@ -226,15 +234,35 @@ public:/// 技能相关
 public:
 	// 播放蒙太奇动画(服务端)
 	UFUNCTION(Server, Reliable)
-		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
+		void MontagePlayOnServer(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None, EMMOARPGSkillReleaseType ReleaseType = EMMOARPGSkillReleaseType::UNSUSTAINABLE);
+
+	// 中断蒙太奇
+	UFUNCTION(NetMulticast, Reliable)
+		void StopAnimMontageOnMulticast();
 
 	// 播放蒙太奇动画(被广播客户端)
 	UFUNCTION(NetMulticast, Reliable)
-		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName = NAME_None);
+		void MontagePlayOnMulticast(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt = 0.f, bool bStopAllMontages = true, FName InStartSectionName = NAME_None, EMMOARPGSkillReleaseType ReleaseType = EMMOARPGSkillReleaseType::UNSUSTAINABLE);
 
 	// 广播起身动画
 	UFUNCTION(NetMulticast, Reliable)
 		void GetUpOnMulticast();
+
+	// 允许人在滞空停留一会儿
+	UFUNCTION(NetMulticast, Reliable)
+		void EnableGravityMulticast(float bDelayTime);
+
+	// 给人生成出闪避残影(Multicast)
+	UFUNCTION(NetMulticast, Reliable)
+		void PlayResidualShadowMulticast();
+
+	// 播放慢动作/子弹时间效果(仅客户端)
+	UFUNCTION(Client, Reliable)
+		void PlaySlowMotionOnClient(float InDuration, float InSpeed);
+
+	// 持续施法计数设定为2号,勒令施法动画End (广播至任意客户端)
+	UFUNCTION(NetMulticast, Reliable)
+		void ContinuousReleaseSpellEndOnMulticast();
 
 public:
 	// 授予击杀本人物的奖励Buff
@@ -265,6 +293,41 @@ public:
 	// 播放 人物被击倒或挑飞后起身
 	void GetUp();
 
+	// 判断人物是否在滞空中
+	bool IsAir();
+
+	// 拿取人的胶囊体半径
+	float GetCapsuleHalfHeight() const;
+
+	// 处理顿帧效果
+	void DaytonFrame(float InDuration);
+
+protected:
+	// 设置顿帧
+	void SetDaytonFrame(bool bDaytonFrame);
+
+public:
+	// 人物是否处于某种活跃标签的状态(即判断人现在放了哪个技能,身上有什么标签作为状态识别)
+	bool IsExitActiveTag(const FName& InTag);
+
+	// 给pawn生成闪避残影Actor
+	bool SpawnResidualShadowActor();
+
+	// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
+	FName DodgeTags();
+
+	// 应用由闪避技能诱发出来的buff(比如闪避诱发了自身的霸体效果)
+	void ApplyDodgeEffect();
+
+	// 检查已激活的活跃Buff里是否匹配给定标签
+	bool IsActiveGameplayEffectTags(const FName& InTag);
+
+	// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
+	virtual void ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InGameplayAbilityType, const FName& InName);
+
+	// 让指定GE BUFF效果应用至自身ASC
+	virtual void ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect);
+
 	/// //////////////////////////////////////////////////////////////////////////
 protected:
 	// 人物若被击杀后, 对手获得的杀敌奖励Buff.
@@ -278,6 +341,10 @@ protected:
 	// 一组持续恢复buff
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|Effect")
 		TArray<TSubclassOf<UGameplayEffect>> RecoveryEffect;
+
+	// pawn可能会在战斗中生成的闪避残影
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "MMOARPG|ResidualShadow")
+		TSubclassOf<AResidualShadowActor> ResidualShadowActorClass;
 
 protected:
 	// 人物动作状态.
@@ -307,4 +374,8 @@ protected:
 
 	// 计时: 复位血条UI
 	FResetBool bResetWidget;
+
+	// 振刀启用
+	UPROPERTY()
+		bool bVibratingKnife;
 };

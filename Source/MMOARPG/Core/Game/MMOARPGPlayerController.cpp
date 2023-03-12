@@ -5,10 +5,14 @@
 #include "MMOARPGPlayerState.h"
 #include "../../MMOARPGGameMethod.h"
 #include "MMOARPGGameMode.h"
+#include "Object/Camera/ComboPlayerCameraManager.h"
 
 AMMOARPGPlayerController::AMMOARPGPlayerController()
 {
-	bShowMouseCursor = true;
+	bShowMouseCursor = false;
+
+	// 本控制器的相机管理类设定为1个连击相机管理器.
+	PlayerCameraManagerClass = AComboPlayerCameraManager::StaticClass();
 }
 
 void AMMOARPGPlayerController::ReplaceCharacter_Implementation(int32 InCharacterID)
@@ -79,7 +83,7 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 		GetLocalRole() == ENetRole::ROLE_SimulatedProxy) {
 		if (GetPawn() != nullptr) {
 
-			float MaxNewRange = 820.f;
+			float MaxNewRange = 820.f * 5;
 			// 找寻520米内最近的敌对目标并在服务器上将其写入
 			if (!Target.IsValid()) {
 				TArray<ECharacterType> IgnoreTypes;
@@ -106,6 +110,14 @@ void AMMOARPGPlayerController::Tick(float DeltaTime)
 	}
 }
 
+void AMMOARPGPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("ShowMouseCursor", IE_Pressed, this, &AMMOARPGPlayerController::ShowMouseCursor);
+	InputComponent->BindAction("ShowMouseCursor", IE_Released, this, &AMMOARPGPlayerController::HideMouseCursor);
+}
+
 /** 覆写; 回调, Sure键按下后的反应 */
 void AMMOARPGPlayerController::OnSureButtonClicked(uint8 InProtocol)
 {
@@ -128,4 +140,14 @@ void AMMOARPGPlayerController::ResurrectionOnServer_Implementation()
 			InGameMode->CharacterResurrectionRequests(InCharacter->GetUserID(), InCharacter->GetID());
 		}
 	}
+}
+
+void AMMOARPGPlayerController::ShowMouseCursor()
+{
+	SetShowMouseCursor(true);
+}
+
+void AMMOARPGPlayerController::HideMouseCursor()
+{
+	SetShowMouseCursor(false);
 }

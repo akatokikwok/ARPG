@@ -9,7 +9,7 @@
  * 用以管理动画蒙太奇的结构体.
  */
 USTRUCT(BlueprintType)
-struct FCharacterAnimTable :public FTableRowBase
+struct FCharacterAnimTable : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 public:

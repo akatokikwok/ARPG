@@ -5,11 +5,14 @@
 #include "../Plugins/SimpleNetChannel/Source/SimpleNetChannel/Public/Global/SimpleNetGlobalInfo.h"
 #include "ThreadManage.h"
 #include "SimpleAdvancedAnimationBPLibrary.h"
+#include "Tickable/MMOARPGTickable.h"
 
 void UMMOARPGGameInstance::Init()
 {
 	Super::Init();
 
+	// 启动使用一个可以操控协程来Tick的单例. 单例的协程版本Tick就会启动
+	FMMOARPGTickable::Get();
 }
 
 void UMMOARPGGameInstance::Tick(float DeltaTime)
@@ -20,8 +23,12 @@ void UMMOARPGGameInstance::Tick(float DeltaTime)
 		Client->Tick(DeltaTime);
 		
 	}
-	// 手动执行让这个协程Tick起来.
-	GThread::Get()->Tick(DeltaTime);
+	/**
+	 * 如果在GameInstance::Tick里使用协程,则仅有1个客户端生效,多个不行
+	 */
+
+// 	// 手动执行让这个协程Tick起来.
+// 	GThread::Get()->Tick(DeltaTime);
 }
 
 TStatId UMMOARPGGameInstance::GetStatId() const
@@ -38,6 +45,8 @@ void UMMOARPGGameInstance::Shutdown()
 		FSimpleNetManage::Destroy(Client);  
 		
 	}
+	FMMOARPGTickable::Destroy();// 销毁操控协程Tick的单例
+
 	GThread::Destroy();// 同时把协程也干掉.
 
 	// GINS退出的时候也要销毁高级动画插件里的单例.

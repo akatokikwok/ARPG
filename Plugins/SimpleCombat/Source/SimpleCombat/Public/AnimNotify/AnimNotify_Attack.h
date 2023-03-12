@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "GameplayTagContainer.h"
 #include "AnimNotify_Attack.generated.h"
 class AHitCollision;
 
@@ -42,10 +43,18 @@ public:
 	// 被你攻击的受击者beHit蒙太奇里的指定受击ID.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		int32 HitID;// 被你攻击的受击者beHit蒙太奇里的指定受击ID..
-	
-	// 技能带来的一组buff名称
+
+	// 是否启用GameplayTag而不是FName型来判断buff
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		bool bEnableBuffTag;
+
+	// 技能带来的一组buff名称(FName)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		TArray<FName> Buffs;
+
+	// 技能带来的一组buff名称(GameplayTag)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration", meta = (EditCondition = "bEnableBuffTag"))
+		TArray<FGameplayTag> BuffTags;
 
 	// 是否生成并渲染hitbox; 如果为true 代表仅服务器生成 如果为false 则在双端生成
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
@@ -54,6 +63,10 @@ public:
 	// 碰撞体再补上一段偏移位置.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
 		FVector RelativeOffsetLocation;// 碰撞体再补上一段偏移位置.
+
+	// 碰撞体的旋转偏移
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")
+		FRotator RotationOffset;
 
 	// 存在的生命周期.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General configuration")

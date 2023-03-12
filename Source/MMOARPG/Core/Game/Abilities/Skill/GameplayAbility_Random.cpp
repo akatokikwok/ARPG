@@ -16,8 +16,14 @@ void UGameplayAbility_Random::ActivateAbility(const FGameplayAbilitySpecHandle H
 
 	if (AMMOARPGCharacterBase* InCharacterBase = Cast<AMMOARPGCharacterBase>(ActorInfo->OwnerActor)) {
 		if (UMMOARPGGameplayAbility::PlayMontageAnim(*FString::FromInt(FMath::RandRange(0, GetCompositeSectionsNumber() - 1)))) {
+			// 必须蒙太奇播放成功,才会将本技能注册进活跃标签组
+			UMMOARPGGameplayAbility::RegisterActiveSkillTag();
+			
 			// 通知客户端更新CD
 			UMMOARPGGameplayAbility::CallUpdateCooldownOnClient();
+
+			// 提交这个条件分型的技能
+			UMMOARPGGameplayAbility::CommitAbilityConditionalSkills(Handle, ActorInfo, ActivationInfo);
 		}
 	}
 }

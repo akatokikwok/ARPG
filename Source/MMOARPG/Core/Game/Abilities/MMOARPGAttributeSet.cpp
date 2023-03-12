@@ -4,6 +4,8 @@
 #include "../Character/Core/MMOARPGCharacterBase.h"
 #include "../../../DataTable/CharacterAttributeTable.h"
 #include "../Damage/MMOARPGNumericalCalculation.h"
+#include "ExecutionCalculation/ExecutionCalculation_ResetHitID.h"
+#include "ExecutionCalculation/ExecutionCalculation_Execute_GA.h"
 
 UMMOARPGAttributeSet::UMMOARPGAttributeSet()
 	: Level(1)
@@ -114,6 +116,28 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 		const float OldHealth11 = GetHealth();
 
 		if (Target) {
+			/** 是否允许播放受击动画, 视业务情形而动态判断 */
+			bool bePlayHitMontage = true;
+			{
+				if (const UGameplayEffect* InGE = Data.EffectSpec.Def) {// 找到专门处理"伤害"属性的蓝图GEBuff
+					for (auto& AnyGEECPack : InGE->Executions) {
+						
+						/** 分业务情况处理GEEC应用情况, 目前有2种情形, 一种是针对授予GA, 一种是针对重置对象受击ID */
+						if (AnyGEECPack.CalculationClass) {
+							if (UExecutionCalculation_Execute_GA* InGEEC_GiveGAStatus = Cast<UExecutionCalculation_Execute_GA>(AnyGEECPack.CalculationClass->GetDefaultObject())) {
+								bePlayHitMontage = false;// 授予GA(如授予了对方眩晕GA状态), 则这种情形不可以让对象播放受击动画,最终仅会播放眩晕动画.
+								break;
+							}
+							else if (UExecutionCalculation_ResetHitID* InResetHitIDGEEC = Cast<UExecutionCalculation_ResetHitID>(AnyGEECPack.CalculationClass->GetDefaultObject())) {
+								// 重置受击ID的GEEC和AttributeSet里处理播放受击必须是互斥的, 受击不可以同时在这2者之间都执行; 这样就可以防止 同时在GEEC里放受击蒙太奇且也在其他地方受击
+								bePlayHitMontage = !InResetHitIDGEEC->bAuthorityPlayHit;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			// 先用lambda加工源Char和源Actor
 			AMMOARPGCharacterBase* SourceCharacter = nullptr;
 			AActor* SourceActor = nullptr;
@@ -121,7 +145,7 @@ void UMMOARPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 			// 命令目标去操作伤害和血量处理.
 			Target->HandleDamage(TmpDamage, SourceTagContainer, SourceCharacter, SourceActor);
-			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage);
+			Target->HandleHealth(SourceCharacter, SourceActor, SourceTagContainer, -TmpDamage, bePlayHitMontage);
 		}
 	}
 	/* 若是经验值.*/
@@ -335,4 +359,9 @@ void UMMOARPGAttributeSet::OnRep_StaminaValue(const FGameplayAttributeData& OldV
 void UMMOARPGAttributeSet::OnRep_MaxStaminaValue(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, MaxStaminaValue, OldValue);
+}
+
+void UMMOARPGAttributeSet::OnRep_CDValue(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UMMOARPGAttributeSet, CD, OldValue);
 }

@@ -11,16 +11,18 @@ UAnimNotify_Attack::UAnimNotify_Attack()
 {
 	HitObjectClass = AHitBoxCollision::StaticClass();// 默认设置为盒子碰撞.
 
- 	bHitBox = true;
+	bHitBox = true;
 	bSpawnCollisionOnServer = true;// 默认仅让hitbox在服务器生成.
 
- 	bHitCapsule = false;
- 	bHitCustom = false;
- 	bHitSphere = false;
- 	BoxExtent = FVector(32.f);
- 	SphereRadius = 32.f;
- 	CapsuleHalfHeight = 44.f;
- 	CapsuleRadius = 22.f;
+	bHitCapsule = false;
+	bHitCustom = false;
+	bHitSphere = false;
+	bEnableBuffTag = true;
+
+	BoxExtent = FVector(32.f);
+	SphereRadius = 32.f;
+	CapsuleHalfHeight = 44.f;
+	CapsuleRadius = 22.f;
 
 	LifeTime = 4.f;
 	InSocketName = TEXT("OpenFire");
@@ -39,27 +41,39 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		FVector ComponentLocation = MeshComp->GetSocketLocation(InSocketName);
 		FRotator ComponentRotation = MeshComp->GetSocketRotation(InSocketName);
 
-		FActorSpawnParameters ActorSpawnParameters;
-		ActorSpawnParameters.Instigator = Cast<APawn>(InSimpleCombatCharacter);// 施法者设定为自己.
-		
+		//FActorSpawnParameters ActorSpawnParameters;
+		//ActorSpawnParameters.Instigator = Cast<APawn>(InSimpleCombatCharacter);// 施法者设定为自己.
+
 		if (InSimpleCombatCharacter->GetWorld() != nullptr) {
 
 			/* 满足任一条件才会 生成Hitbox, 由于bSpawnCollisionOnServer默认为TRUE,所以这一段仅在服务器上生成. */
 			if (!bSpawnCollisionOnServer || InSimpleCombatCharacter->GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {
-				/** 生成一个碰撞物hitbox, 大概位于刀尖上的socket上 */
-				if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActor<AHitCollision>(HitObjectClass, ComponentLocation, ComponentRotation, ActorSpawnParameters)) {
+
+				// 做一次简易的旋转偏移
+				FTransform TransformToUse((ComponentRotation + RotationOffset).Quaternion(), ComponentLocation);
+
+				/** 生成一个碰撞物hitbox, 大概位于刀尖上的socket上 或者是持续施法射出去的球 */
+				if (AHitCollision* HitCollision = InSimpleCombatCharacter->GetWorld()->SpawnActorDeferred<AHitCollision>(
+					HitObjectClass,
+					TransformToUse,
+					nullptr,
+					Cast<APawn>(InSimpleCombatCharacter),
+					ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
 					
-					// 若允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上..
-					if (bBind == true) {
-						HitCollision->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
-					}
+					/** 模拟诸如法球射击的伤害物理(spline, 弹丸组件) */
+					HitCollision->PreInitCollision(InSimpleCombatCharacter);
 
 					// 优先注册受击ID(在蓝图蒙太奇动画里手动赋值).
 					HitCollision->SetHitID(HitID);// 给socket上的这个碰撞物写入一个受击ID.
-					// 为hitbox写入一组buff名字.
-					HitCollision->SetBuffs(Buffs);
+					if (bEnableBuffTag) {
+						HitCollision->SetBuffs(BuffTags);// 为hitbox写入一组buff名字(Tag).
+					}
+					else {
+						HitCollision->SetBuffs(Buffs);// 为hitbox写入一组buff名字(FName).
+					}
+
 					// 注册受击ID完了之后再启用碰撞.
-					HitCollision->Collision(true);
+					//HitCollision->Collision(true);
 
 					// 按四种形状细分, 真正的碰撞数据尺寸都在这一步.
 					if (HitCollision->GetHitDamage()) {/* 若形状comp确实存在也就是可以转换成确切形状的hitbox. */
@@ -83,10 +97,19 @@ void UAnimNotify_Attack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 							// to do.
 						}
 					}
+
+					// 结束延迟生成
+					HitCollision->FinishSpawning(TransformToUse);
+
+					// 假如是持续施法远程射击的业务, 必须保证对象生成后再附加，否则附加会失败
+					// 若允许将Box绑定在角色身上开火点(实际上是手动添加的一个socket)上..
+					if (bBind == true) {
+						HitCollision->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+					}
+					//
 				}
 			}
 		}
-		//
 	}
 }
 

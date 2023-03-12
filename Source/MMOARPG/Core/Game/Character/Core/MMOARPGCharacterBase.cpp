@@ -1,13 +1,26 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "MMOARPGCharacterBase.h"
 #include "../../MMOARPGGameState.h"
-#include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
 #include "Net/UnrealNetwork.h"
+#include "../../Animation/Instance/Core/MMOARPGAnimInstanceBase.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "MMOARPG/MMOARPGGameType.h"
+#include "../../../Component/FlyComponent.h"
+#include "../../../Component/SwimmingComponent.h"
+#include "../../../Component/ClimbingComponent.h"
+#include "../../../Component/FightComponent.h"
+#include "../../Abilities/MMOARPGAttributeSet.h"
 #include "SimpleDrawTextFunctionLibrary.h"
 #include "ThreadManage.h"
-#include "Components/WidgetComponent.h"
 #include "../../../../UI/Game/Character/UI_CharacterHealthWidget.h"
 #include "../../../Common/MMOARPGGameInstance.h"
+#include "../../MMOARPGPlayerState.h"
+#include "../../MMOARPGHUD.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AMMOARPGCharacterBase::AMMOARPGCharacterBase()
@@ -42,6 +55,9 @@ AMMOARPGCharacterBase::AMMOARPGCharacterBase()
 	bResetWidget.Fun.BindLambda([&]() {
 		HideWidget();
 		});
+
+	// 振刀信号默认关闭
+	bVibratingKnife = false;
 }
 
 void AMMOARPGCharacterBase::HideWidget()
@@ -93,7 +109,6 @@ float AMMOARPGCharacterBase::GetCharacterExp()
 	return 0.f;
 }
 
-
 void AMMOARPGCharacterBase::UpdateLevel(float InLevel)
 {
 	if (FightComponent) {
@@ -114,7 +129,7 @@ void AMMOARPGCharacterBase::BeginPlay()
 	// 客户端/服务端都应执行如下逻辑:
 	if (GetWorld()) {
 		if (AMMOARPGGameState* InGS = GetWorld()->GetGameState<AMMOARPGGameState>()) {// 再拿GS
-			// 把GS里的动画数据解算到Character身上.
+// 把GS里的动画数据解算到Character身上.
 			if (FCharacterAnimTable* InAnimRowData = InGS->GetCharacterAnimTable(this->GetID())) {
 				this->AnimTable = InAnimRowData;
 			}
@@ -127,8 +142,8 @@ void AMMOARPGCharacterBase::BeginPlay()
 			}
 		}
 		else {/* 位于服务器上*/
-			
-			// 激活持续恢复buff,运行在协程中
+
+	  // 激活持续恢复buff,运行在协程中
 			GThread::Get()->GetCoroutines().BindLambda(0.5f,
 				[&]() ->void {
 					ActivateRecoveryEffect();
@@ -233,6 +248,38 @@ void AMMOARPGCharacterBase::AnimSignal(int32 InSignal)
 	else if (InSignal == 11) {// 11 是起身
 		GetUp();
 	}
+	else if (InSignal == 15) {//开始振刀
+		bVibratingKnife = true;
+	}
+	else if (InSignal == 16) {//结束振刀
+		bVibratingKnife = false;
+	}
+	else if (InSignal == 20)// 持续施法以耗蓝为主
+	{
+		if (GetWorld()->IsNetMode(ENetMode::NM_DedicatedServer)) {// 仅承载在服务端有效
+			if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
+				if (UGameplayEffect* InGE = Cast<UGameplayEffect>(InReleaseSpell->BuffPtrObj)) {/* 这种情况是发动了持续施法技能且注册了消耗*/
+					float OutMagnitude = 0.f;
+					for (auto& Modifier : InGE->Modifiers) {
+						// 仅去找修改蓝的部分,取出这个数值
+						if (Modifier.Attribute.AttributeName == TEXT("Mana")) {
+							Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(GetCharacterLevel(), OutMagnitude);
+							break;
+						}
+					}
+
+					OutMagnitude = FMath::Abs(OutMagnitude);
+					// 人的蓝量过低,无法再发动了, 直接把黑盒计数调整为2,中止再播为1时候的循环动画
+					if (GetCharacterMana() < OutMagnitude) {
+						ContinuousReleaseSpellEndOnMulticast();
+					}
+				}
+				else {/* 这种是未发动持续施法,没有注册持续施法消耗*/
+					ContinuousReleaseSpellEndOnMulticast();// 
+				}
+			}
+		}
+	}
 }
 
 // 用1行DTR属性 注册更新AttributeSet指针数据
@@ -308,7 +355,7 @@ void AMMOARPGCharacterBase::Landed(const FHitResult& Hit)
 // 放平砍技能.
 void AMMOARPGCharacterBase::NormalAttack(const FName& InKey)
 {
-	GetFightComponent()->Attack_TriggerGA(InKey);
+	GetFightComponent()->Attack_Combo(InKey);
 }
 
 // 覆盖ISimpleComboInterface::ComboAttack; 本质上执行战斗组件放出平砍GA.
@@ -354,6 +401,14 @@ struct FSimpleComboCheck* AMMOARPGCharacterBase::GetSimpleComboInfo(const FName&
 	return GetFightComponent()->GetSimpleComboInfo(InGAKey);
 }
 
+struct FContinuousReleaseSpell* AMMOARPGCharacterBase::GetContinuousReleaseSpell()
+{
+	if (GetFightComponent()) {
+		return GetFightComponent()->GetContinuousReleaseSpell();
+	}
+	return nullptr;
+}
+
 // 广播 刷新最新的人物GAS属性集.
 void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOARPGCharacterAttribute& CharacterAttribute)
 {
@@ -361,10 +416,10 @@ void AMMOARPGCharacterBase::UpdateCharacterAttribute_Implementation(const FMMOAR
 }
 
 // 处理人的血量; 虚方法
-void AMMOARPGCharacterBase::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue)
+void AMMOARPGCharacterBase::HandleHealth(AMMOARPGCharacterBase* InstigatorPawn, AActor* DamageCauser, const struct FGameplayTagContainer& InTags, float InNewValue, bool bPlayHit)
 {
 	if (FightComponent != nullptr) {
-		FightComponent->HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue);
+		FightComponent->HandleHealth(InstigatorPawn, DamageCauser, InTags, InNewValue, bPlayHit);
 	}
 }
 
@@ -446,31 +501,36 @@ void AMMOARPGCharacterBase::RegisterComboAttack(const TArray<FName>& InGANames)
 	}
 }
 
-// 广播 "用一组GA注册连招黑盒"
-// void AMMOARPGCharacterBase::RegisterComboAttackMulticast(const TArray<FName>& InGANames)
-// {
-// 	if (FightComponent) {
-// 		FightComponent->RegisterComboAttackMulticast(InGANames);
-// 	}
-// }
-
-void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+void AMMOARPGCharacterBase::MontagePlayOnServer_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/, EMMOARPGSkillReleaseType ReleaseType)
 {
 	if (InNewAnimMontage) {
-		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InStartSectionName);
+		MontagePlayOnMulticast(InNewAnimMontage, InPlayRate, InTimeToStartMontageAt, bStopAllMontages, InStartSectionName);
 	}
 }
 
-void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, FName InStartSectionName /*= NAME_None*/)
+void AMMOARPGCharacterBase::StopAnimMontageOnMulticast_Implementation()
 {
-	float Duration = -1.f;
+	ACharacter::StopAnimMontage();
+}
+
+// 让动画实例播1个蒙太奇的指定section
+void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* InNewAnimMontage, float InPlayRate, float InTimeToStartMontageAt /*= 0.f*/, bool bStopAllMontages /*= true*/, FName InStartSectionName /*= NAME_None*/, EMMOARPGSkillReleaseType ReleaseType)
+{
 	if (GetMesh() && InNewAnimMontage) {
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance()) {
-			Duration = AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, 0.f);
-			if (Duration > 0.f) {
+			/** 在动画实例内 Play a Montage. Returns Length of Montage in seconds. Returns 0.f if failed to play. */
+			if (AnimInstance->Montage_Play(InNewAnimMontage, InPlayRate, EMontagePlayReturnType::MontageLength, InTimeToStartMontageAt, bStopAllMontages) > 0.f) {
 				// Start at a given Section.
 				if (InStartSectionName != NAME_None) {
 					AnimInstance->Montage_JumpToSection(InStartSectionName, InNewAnimMontage);
+				}
+			}
+
+			// 针对施法类型是持续施法型的,则保存一份section内的动画
+			if (ReleaseType == EMMOARPGSkillReleaseType::CONTINUOUS) {
+				if (FContinuousReleaseSpell* InReleaseSpell = GetContinuousReleaseSpell()) {
+					// 保存一份
+					InReleaseSpell->AnimMontage = InNewAnimMontage;
 				}
 			}
 		}
@@ -480,6 +540,52 @@ void AMMOARPGCharacterBase::MontagePlayOnMulticast_Implementation(UAnimMontage* 
 void AMMOARPGCharacterBase::GetUpOnMulticast_Implementation()
 {
 	GetUp();
+}
+
+void AMMOARPGCharacterBase::EnableGravityMulticast_Implementation(float bDelayTime)
+{
+	if (UCharacterMovementComponent* InCMC = Cast<UCharacterMovementComponent>(this->GetMovementComponent())) {
+		InCMC->GravityScale = 0.f;
+		InCMC->StopMovementImmediately();
+
+		// 设置为1s后回复原样~
+		GThread::Get()->GetCoroutines().BindLambda(bDelayTime, [InCMC]() {
+			InCMC->GravityScale = 1.f;
+			});
+	}
+}
+
+void AMMOARPGCharacterBase::PlayResidualShadowMulticast_Implementation()
+{
+	if (GetLocalRole() == ENetRole::ROLE_Authority) {
+		// 需要在服务端应用那些由闪避技能诱发的buff(如霸体效果)
+		ApplyDodgeEffect();
+	}
+	else {
+		// 仅在客户端生成闪避残影
+		SpawnResidualShadowActor();
+	}
+}
+
+// 播放慢动作/子弹时间效果(仅客户端)
+void AMMOARPGCharacterBase::PlaySlowMotionOnClient_Implementation(float InDuration, float InSpeed)
+{
+	// 先设定一下全局时间膨胀倍率
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), InSpeed);
+
+	// 持续一段时长后, 时间膨胀复位.
+	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+		});
+}
+
+// 持续施法计数设定为2号,勒令施法动画End (广播至任意客户端)
+void AMMOARPGCharacterBase::ContinuousReleaseSpellEndOnMulticast_Implementation()
+{
+	// 认为黑盒设置为2号就是执行持续施法
+	if (FContinuousReleaseSpell* ReleaseSpell = GetContinuousReleaseSpell()) {
+		ReleaseSpell->ContinuousReleaseSpellIndex = 2;
+	}
 }
 
 // 授予击杀本人物的奖励Buff
@@ -564,5 +670,96 @@ void AMMOARPGCharacterBase::GetUp()
 				1.f
 			);
 		}
+	}
+}
+
+bool AMMOARPGCharacterBase::IsAir()
+{
+	return GetMovementComponent()->IsFalling();
+}
+
+float AMMOARPGCharacterBase::GetCapsuleHalfHeight() const
+{
+	return GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+}
+
+void AMMOARPGCharacterBase::SetDaytonFrame(bool bDaytonFrame)
+{
+	if (APlayerController* InPlayerController = Cast<APlayerController>(GetController())) {
+		InPlayerController->SetPause(bDaytonFrame);
+	}
+}
+
+// 设置顿帧
+void AMMOARPGCharacterBase::DaytonFrame(float InDuration)
+{
+	SetDaytonFrame(true);
+
+	GThread::Get()->GetCoroutines().BindLambda(InDuration, [&]() {
+		SetDaytonFrame(false);
+		});
+}
+
+// 人物是否处于某种活跃标签的状态(即判断人现在放了哪个技能,身上有什么标签作为状态识别)
+bool AMMOARPGCharacterBase::IsExitActiveTag(const FName& InGASTag)
+{
+	if (const FGameplayTagContainer* ActiveTags = AbilitySystemComponent->GetCurrentActiveSkillTags()) {
+		// hasAny表示所有都选中,而非精确匹配至某一个
+		return ActiveTags->HasAny(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(InGASTag)));
+	}
+	return false;
+}
+
+// 给pawn生成闪避残影Actor
+bool AMMOARPGCharacterBase::SpawnResidualShadowActor()
+{
+	// 使用BP Library生成1个闪避残影
+	if (USimpleCombatBPLibrary::SpawnResidualShadow(
+		GetWorld(), ResidualShadowActorClass, GetMesh(),
+		-GetCapsuleComponent()->GetScaledCapsuleHalfHeight(),
+		GetActorLocation(),
+		GetActorRotation(), 1.5f) != nullptr) {
+		return true;
+	}
+	return false;
+}
+
+// 如果人恰好在释放闪避技能, 则拿取闪避的技能状态标签
+FName AMMOARPGCharacterBase::DodgeTags()
+{
+	// 给配装了闪避GA的 那个UI上对应的键位号, 去技能槽池子里找匹配的闪避GA
+	if (FMMOARPGSkillSlot* InSkillSlot = FightComponent->FindSkillSlot((int32)EMMOARPGSkillType::DODGE_SKILL)) {
+		return InSkillSlot->SkillName;
+	}
+	return NAME_None;
+}
+
+// 应用由闪避技能诱发出来的buff(比如闪避诱发了自身的霸体效果)
+void AMMOARPGCharacterBase::ApplyDodgeEffect()
+{
+	if (FightComponent) {
+		FightComponent->ApplyDodgeEffect();
+	}
+}
+
+// 检查已激活的活跃Buff里是否匹配给定标签
+bool AMMOARPGCharacterBase::IsActiveGameplayEffectTags(const FName& InTag)
+{
+	return AbilitySystemComponent->IsActiveGameplayEffectTags(FGameplayTag::RequestGameplayTag(InTag));
+}
+
+// 按技能来源分型(Skill/Combo/Limb),激活指定名字GA
+void AMMOARPGCharacterBase::ExecuteGameplayAbility(EMMOARPGGameplayAbilityType InMMOGameplayAbilityType, const FName& InName)
+{
+	if (FightComponent) {
+		FightComponent->ExecuteGameplayAbility(InMMOGameplayAbilityType, InName);
+	}
+}
+
+// 让指定GE BUFF效果应用至自身ASC
+void AMMOARPGCharacterBase::ExecuteGameplayEffect(const TSubclassOf<UGameplayEffect>& InGameplayEffect)
+{
+	if (FightComponent) {
+		FightComponent->ExecuteGameplayEffect(InGameplayEffect);
 	}
 }

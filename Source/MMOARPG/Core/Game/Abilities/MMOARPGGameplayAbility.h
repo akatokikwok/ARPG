@@ -11,6 +11,8 @@ class MMOARPG_API UMMOARPGGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 public:
 	UMMOARPGGameplayAbility();
+	// Override EndAbility
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 public:// Cpp版. 调用蓝图版的
 	UFUNCTION()
@@ -55,6 +57,15 @@ protected:
 	// 在客户端更新CD
 	void CallUpdateCooldownOnClient();
 
+	// 注册 活跃标签组
+	void RegisterActiveSkillTag();
+
+	// 卸除 活跃标签组
+	void UnregisterActiveSkillTag();
+
+	// 提交条件分型的技能(对其蒙太奇做出播放时长的控制与处理)
+	virtual void CommitAbilityConditionalSkills(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
+
 /// //////////////////////////////////////////////////////////////////////////
 public:
 	// 播哪个蒙太奇.
@@ -64,4 +75,17 @@ public:
 	// 缓存池: 由一个GA诱发带来的一组buff.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = GameplayEffects)
 		TMap<FGameplayTag, FMMOARPGGameplayEffects> EffectMap;
+
+public:
+	// 本技能成功释放之前需要依赖的条件标签组 (蓝图可配置)
+	UPROPERTY(EditDefaultsOnly, Category = "Tags", meta = (Categories = "OwnedTagsCategory"))
+		FGameplayTagContainer ConditionalActivationTags;// 本技能成功释放之前需要依赖的条件标签组 (蓝图可配置)
+
+	// 需要让本技能在蒙太奇播放时蒙太奇起始点, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的蒙太奇起始点 第1.4s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
+	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
+		float ConditionalSkillStartPos;	// 需要让本技能在蒙太奇播放时蒙太奇起始点, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的蒙太奇起始点 第1.4s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
+
+	// 需要让本技能在蒙太奇播放时持续生效时长, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的持续时长, 持续0.5s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
+	UPROPERTY(EditDefaultsOnly, Category = "ConditionalSkill")
+		float ConditionalSkillDuration;	// 需要让本技能在蒙太奇播放时持续生效时长, 依赖本技能的条件型技能(如FlameCutDown依赖本Provoked, 则需要配置Provoked的持续时长, 持续0.5s, FlameCutDown的ConditionalTags配置为Provoked); 一段时长内受本技能限定条件的条件技能槽才可以交互 (蓝图可配置)
 };

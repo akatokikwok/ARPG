@@ -4,6 +4,7 @@
 #include "Engine/DataTable.h"
 #include "Abilities/GameplayAbility.h"
 #include "GameplayTagContainer.h"
+#include "../MMOARPGGameType.h"
 #include "CharacterSkillTable.generated.h"
 
 class UGameplayAbility;
@@ -35,6 +36,10 @@ public:
 	// 技能冷却CD
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
 		float CD;// 技能冷却CD
+
+	// 此技能分类类型
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
+		EMMOARPGSkillType SkillType;
 
 	// 技能属性提示
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSkill")
