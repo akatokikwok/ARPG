@@ -20,53 +20,6 @@ void UMMOARPGGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UMMOARPGGameplayAbility::OnCompleted()
-{
-	K2_OnCompleted();
-}
-
-void UMMOARPGGameplayAbility::OnBlendOut()
-{
-	K2_OnBlendOut();
-}
-
-void UMMOARPGGameplayAbility::OnInterrupted()
-{
-	K2_OnInterrupted();
-}
-
-void UMMOARPGGameplayAbility::OnCancelled()
-{
-	K2_OnCancelled();
-}
-
-/** 拿取本GA里指定蒙太奇里的总段数. */
-int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
-{
-	if (MontageToPlay) {
-		return MontageToPlay->CompositeSections.Num();
-	}
-	return 0;
-}
-
-// 读取出buff在特定等级和在特定属性下的耗费值
-float UMMOARPGGameplayAbility::CostValue(const FString& InCostName, float InLevel)
-{
-	if (UGameplayEffect* InCostBuff = GetCostGameplayEffect()) {// 找到会执行消耗的buff
-
-		for (auto& Modifier : InCostBuff->Modifiers) {// 检索一系列modifier,这些modifier可能是血 蓝 耐力之类
-			if (Modifier.Attribute.GetName() == InCostName) {// 找到入参指定的那个modifier名字,比如对耗蓝感兴趣
-				float InValue = 0.f;
-				if (Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(InLevel, InValue)) {// 若成功读取到 这个属性在特定等级造成的值(比如一秒耗费5滴蓝)
-					return FMath::Abs(InValue);
-				}
-			}
-		}
-	}
-
-	return 0.0f;
-}
-
 /** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
 UAbilityTask_PlayMontageAndWait* UMMOARPGGameplayAbility::CreatePlayMontageAndWaitProxy(/*UGameplayAbility* OwningAbility, */FName TaskInstanceName, UAnimMontage* InMontageToPlay, float Rate /*= 1.f*/, FName StartSection /*= NAME_None*/, bool bStopWhenAbilityEnds /*= true*/, float AnimRootMotionTranslationScale /*= 1.f*/, float StartTimeSeconds /*= 0.f*/)
 {
@@ -80,7 +33,6 @@ UAbilityTask_PlayMontageAndWait* UMMOARPGGameplayAbility::CreatePlayMontageAndWa
 		InWait_Node->OnInterrupted.AddDynamic(this, &UMMOARPGGameplayAbility::OnInterrupted);
 		InWait_Node->OnCancelled.AddDynamic(this, &UMMOARPGGameplayAbility::OnCancelled);
 		InWait_Node->DamageEventReceived.AddDynamic(this, &UMMOARPGGameplayAbility::OnDamageGameplayEvent);// 受击委托也要绑定回调.
-
 
 		InWait_Node->Activate();// 激活ATNode
 		//InWait_Node->ReadyForActivation();
@@ -154,6 +106,38 @@ void UMMOARPGGameplayAbility::OnDamageGameplayEvent(FGameplayTag InGameplayTag, 
 	}
 }
 
+/** 拿取本GA里指定蒙太奇里的总段数. */
+int32 UMMOARPGGameplayAbility::GetCompositeSectionsNumber()
+{
+	if (MontageToPlay)
+	{
+		return MontageToPlay->CompositeSections.Num();
+	}
+	return 0;
+}
+
+// 读取出buff在特定等级和在特定属性下的耗费值
+float UMMOARPGGameplayAbility::CostValue(const FString& InCostName, float InLevel)
+{
+	if (UGameplayEffect* InCostBuff = GetCostGameplayEffect())
+	{// 找到会执行消耗的buff
+
+		for (auto& Modifier : InCostBuff->Modifiers)
+		{// 检索一系列modifier,这些modifier可能是血 蓝 耐力之类
+			if (Modifier.Attribute.GetName() == InCostName)
+			{// 找到入参指定的那个modifier名字,比如对耗蓝感兴趣
+				float InValue = 0.f;
+				if (Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(InLevel, InValue))
+				{// 若成功读取到 这个属性在特定等级造成的值(比如一秒耗费5滴蓝)
+					return FMath::Abs(InValue);
+				}
+			}
+		}
+	}
+
+	return 0.0f;
+}
+
 // 在客户端更新CD
 void UMMOARPGGameplayAbility::CallUpdateCooldownOnClient()
 {
@@ -207,4 +191,24 @@ void UMMOARPGGameplayAbility::CommitAbilityConditionalSkills(const FGameplayAbil
 			}
 		}
 	}
+}
+
+void UMMOARPGGameplayAbility::OnCompleted()
+{
+	K2_OnCompleted();
+}
+
+void UMMOARPGGameplayAbility::OnBlendOut()
+{
+	K2_OnBlendOut();
+}
+
+void UMMOARPGGameplayAbility::OnInterrupted()
+{
+	K2_OnInterrupted();
+}
+
+void UMMOARPGGameplayAbility::OnCancelled()
+{
+	K2_OnCancelled();
 }

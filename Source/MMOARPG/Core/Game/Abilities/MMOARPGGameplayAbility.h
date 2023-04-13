@@ -11,35 +11,10 @@ class MMOARPG_API UMMOARPGGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 public:
 	UMMOARPGGameplayAbility();
+	
 	// Override EndAbility
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-public:// Cpp版. 调用蓝图版的
-	UFUNCTION()
-		virtual void OnCompleted();
-	UFUNCTION()
-		virtual void OnBlendOut();
-	UFUNCTION()
-		virtual void OnInterrupted();
-	UFUNCTION()
-		virtual void OnCancelled();
-public:// 蓝图版. 提供给CPP版使用
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnCompleted", meta = (ScriptName = "OnCompleted"))
-		void K2_OnCompleted();
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnBlendOut", meta = (ScriptName = "OnBlendOut"))
-		void K2_OnBlendOut();
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnInterrupted", meta = (ScriptName = "OnInterrupted"))
-		void K2_OnInterrupted();
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnCancelled", meta = (ScriptName = "OnCancelled"))
-		void K2_OnCancelled();
-public:
-	// 拿取蒙太奇内部的总段数.
-	int32 GetCompositeSectionsNumber();
-
-	// 读取出buff在特定等级和在特定属性下的耗费值
-	float CostValue(const FString& InCostName, float InLevel);
-
-public:
 	/** 仿UAbilityTask_PlayMontageAndWait创建静态节点并绑定代理. */
 	UFUNCTION(BlueprintCallable, Category = "MMOARPGGameplayAbility|Tasks", meta = (DisplayName = "PlayMontageAndWait"/*, HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE")*/))
 		UAbilityTask_PlayMontageAndWait* CreatePlayMontageAndWaitProxy(/*UGameplayAbility* OwningAbility, */FName TaskInstanceName, UAnimMontage* InMontageToPlay, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f);
@@ -53,7 +28,14 @@ public:
 	UFUNCTION()
 		virtual	void OnDamageGameplayEvent(FGameplayTag InGameplayTag, FGameplayEventData Payload);
 
-protected:
+public:/// 对外MMOGA基类接口
+	// 拿取蒙太奇内部的总段数.
+	int32 GetCompositeSectionsNumber();
+
+	// 读取出buff在特定等级和在特定属性下的耗费值
+	float CostValue(const FString& InCostName, float InLevel);
+
+protected:/// 处理条件分型业务的函数
 	// 在客户端更新CD
 	void CallUpdateCooldownOnClient();
 
@@ -65,6 +47,26 @@ protected:
 
 	// 提交条件分型的技能(对其蒙太奇做出播放时长的控制与处理)
 	virtual void CommitAbilityConditionalSkills(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
+
+public:/// Cpp版. 调用蓝图版的
+	UFUNCTION()
+		virtual void OnCompleted();
+	UFUNCTION()
+		virtual void OnBlendOut();
+	UFUNCTION()
+		virtual void OnInterrupted();
+	UFUNCTION()
+		virtual void OnCancelled();
+
+public:/// 蓝图版. 提供给CPP版使用
+	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnCompleted", meta = (ScriptName = "OnCompleted"))
+		void K2_OnCompleted();
+	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnBlendOut", meta = (ScriptName = "OnBlendOut"))
+		void K2_OnBlendOut();
+	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnInterrupted", meta = (ScriptName = "OnInterrupted"))
+		void K2_OnInterrupted();
+	UFUNCTION(BlueprintImplementableEvent, Category = Ability, DisplayName = "OnCancelled", meta = (ScriptName = "OnCancelled"))
+		void K2_OnCancelled();
 
 /// //////////////////////////////////////////////////////////////////////////
 public:
